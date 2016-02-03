@@ -9,6 +9,7 @@ start_folder = os.path.join(base_dir,root_folder)
 
 for (_,_,files) in os.walk(start_folder):
 	for filename in files:
+		print("converting {}".format(filename))
 		name_without_extension = filename.split(".")[0]
 		handle = open("{}.json".format(os.path.join(start_folder,name_without_extension)),"w+")
 		subprocess.run(["java",

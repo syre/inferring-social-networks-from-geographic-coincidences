@@ -9,7 +9,7 @@ import pprint
 
 json_files_to_merge_with = []
 
-print(len(sys.argv))
+#print(len(sys.argv))
 if len(sys.argv) == 1:
     raise NameError('Argument missing')
 if len(sys.argv) == 2:

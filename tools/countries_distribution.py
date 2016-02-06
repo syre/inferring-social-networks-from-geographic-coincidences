@@ -10,7 +10,7 @@ cdfs = []
 for nums in numbers_asc:
     cumsum = dist.calc_cdf(nums)
     cdfs.append(cumsum)
-    print(cumsum[:-10])
+    #print(cumsum[:-10])
 
 titles = []
 x_labels = []

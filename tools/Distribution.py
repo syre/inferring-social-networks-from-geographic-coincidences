@@ -120,7 +120,7 @@ class Distribution:
                 if i==0:
                     ax = plt.subplot(len(numbers)-1, 1, i+1)    
                 else:
-                    print("i+1+1 = {}".format(i+1+1))
+                    #print("i+1+1 = {}".format(i+1+1))
                     ax = plt.subplot(len(numbers)-1,len(numbers)-1,i+1+1)
 
                 # Remove the plot frame lines. They are unnecessary chartjunk.      
@@ -135,19 +135,19 @@ class Distribution:
                 ax.get_yaxis().tick_left() 
 
                 x = np.arange(len(numbers[i]))
-                print(numbers[i][:-10])
-                print("len(x) = {0}, len(numbers[{1}]) = {2}".format(len(x), i, len(numbers[i])))
+                #print(numbers[i][:-10])
+                #print("len(x) = {0}, len(numbers[{1}]) = {2}".format(len(x), i, len(numbers[i])))
                 ind = np.arange(len(numbers[i]))  # the x locations for the groups
                 width = 0.35       # the width of the bars
                 plt.plot(x, numbers[i])
                 plt.title(titles[i])
                 plt.xlabel(x_labels[i])
                 plt.ylabel(y_labels[i])
-                print(y_ticks == [[]])
-                print(x_ticks[0] != [])
-                print(x_ticks)
+                #print(y_ticks == [[]])
+                #print(x_ticks[0] != [])
+                #print(x_ticks)
                 if x_ticks[0] != []:
-                    print("xticks her!!")
+                    #print("xticks her!!")
                     plt.xticks(ind + width*1.5, x_ticks[i], rotation='vertical')
                 if y_ticks[0] != []:
                     plt.yticks(ind + width*1.5, y_ticks[i], rotation='vertical')
@@ -218,17 +218,17 @@ class Distribution:
         plt.figure(figsize=(12, 14))    
           
         for i in range(0,len(numbers)):
-            print("i = {}".format(i))
+            #print("i = {}".format(i))
             #print(len(x_ticks[i]))
 
-            ind = np.arange(len(x_ticks[i]))  # the x locations for the groups
+            ind = np.arange(len(numbers[i]))  # the x locations for the groups
             width = 0.35       # the width of the bars
             # Remove the plot frame lines. They are unnecessary chartjunk.    
-            print("len(numbers)-1 = {}".format(len(numbers)-1))
+            #print("len(numbers)-1 = {}".format(len(numbers)-1))
             if i==0:
                 ax = plt.subplot(len(numbers)-1, 1, i+1)    
             else:
-                print("i+1+1 = {}".format(i+1+1))
+                #print("i+1+1 = {}".format(i+1+1))
                 ax = plt.subplot(len(numbers)-1,len(numbers)-1,i+1+1)
             ax.spines["top"].set_visible(False)    
             ax.spines["bottom"].set_visible(False)    
@@ -282,18 +282,28 @@ class Distribution:
 
 
     
-    def fetch_data(self, file_list, key_to_fetch):
+    def fetch_data(self, file_list, key_to_fetch, requirement_keys=[], requirement_values=[]):
         """Fetch data based on a key from (JSON) files, and return the data sorted in different ways
         
         Arguments:
             file_list {list of strings} -- list of filenames to fetch data from
-            key_to_fetch {string} -- The key the wanted data is under in the JSON files
+            key_to_fetch {string or list of strings} -- The key the wanted data is under in the JSON files
+            requirement_keys {list of strings} -- Keys where other requirements are needed
+            requirement_values {list of values} -- Values for requirements to the keys
         
+        Keyword Arguments:
+            requirement_keys {list of strings} -- Keys where other requirements are needed (default: {[]})
+            requirement_values {list of values} -- Values for requirements to the keys (default: {[]})
+
         Returns:
             lists -- The list of data, sorted in different ways
         """
+
         key_data = defaultdict(dict)
-        key_data[key_to_fetch] = set()
+        if isinstance(key_to_fetch, list):
+            key_data[key_to_fetch[-1]] = set()
+        else:
+            key_data[key_to_fetch] = set()
 
         list_of_key_data_list_asc = []    #Ascending
         list_of_numbers_asc = []           #Ascending
@@ -310,33 +320,83 @@ class Distribution:
             #print(len(all_data))
             for data in all_data: 
                 #print(data)
-                if data[key_to_fetch] != '': #
-                    key_data[key_to_fetch].add(data[key_to_fetch])
-                    if data['country'] in key_data[(key_to_fetch+'_numbers')]:
-                        key_data[(key_to_fetch+'_numbers')][data[key_to_fetch]] += 1
-                    else: 
-                        key_data[(key_to_fetch+'_numbers')][data[key_to_fetch]] = 1
+                if isinstance(key_to_fetch, list):
+                    data_value = None
+                    temp = None
+                    index = 0
+                    for key in key_to_fetch:
+                        #print("key in key_to_fetch = {0}".format(key))
+                        if temp is None:
+                            temp = data[key]
+                            index += 1
+                        else:
+                            if isinstance(temp, list):
+                                temp = temp[0][key]
+                            else:
+                                temp = temp[key]
+
+                            if index==(len(key_to_fetch)-1) and temp != '':
+                                exit_flag = False
+                                index2 = 0
+                                for k in requirement_keys:
+                                    #print("k = {0}".format(k))
+                                    if data[k] != requirement_values[index2]:
+                                        exit_flag = True
+                                        break
+                                    index2 += 1
+                                if exit_flag:
+                                    #print("Krav ikke opfyldt!")
+                                    #print(data)
+                                    break
+                                #print("\n-----------\nKrav ER opfyldt!\n----------")
+                                #print(data)
+                                # print("temp = {0}".format(temp))
+                                # print("key_to_fetch[-1] = {0}".format(key_to_fetch[-1]))
+                                # print("(key_to_fetch[-1]+'_numbers') = {0}".format((key_to_fetch[-1]+'_numbers')))
+                                #print("key_data[(temp+'_numbers')] = {0}".format(key_data[(temp+'_numbers')]))
+                                key_data[key_to_fetch[-1]].add(temp)
+                                if temp in key_data[(key_to_fetch[-1]+'_numbers')]:
+                                    #print("+1")
+                                    key_data[(key_to_fetch[-1]+'_numbers')][temp] += 1
+                                else: 
+                                    #print("Ikke +1")
+                                    key_data[(key_to_fetch[-1]+'_numbers')][temp] = 1
+                            index += 1
+                else:
+                    if data[key_to_fetch] != '': #
+                        key_data[key_to_fetch].add(data[key_to_fetch])
+                        if data[key_to_fetch] in key_data[(key_to_fetch+'_numbers')]:
+                            key_data[(key_to_fetch+'_numbers')][data[key_to_fetch]] += 1
+                        else: 
+                            key_data[(key_to_fetch+'_numbers')][data[key_to_fetch]] = 1
 
 
 
-            print("Number of countries: {0}".format(len(key_data[key_to_fetch])))
+            print("Number of {0}: {1}".format(key_to_fetch, len(key_data[key_to_fetch[-1]])))
 
             key_data_list = []
             numbers = []
-            for country in key_data[key_to_fetch]:
-                key_data_list.append(country)
-                numbers.append(key_data[(key_to_fetch+'_numbers')][country])
+            if isinstance(key_to_fetch, list):
+                for label in key_data[key_to_fetch[-1]]:
+                    #print(label)
+                    key_data_list.append(label)
+                    #print(key_data[(key_to_fetch[-1]+'_numbers')][label])
+                    numbers.append(key_data[(key_to_fetch[-1]+'_numbers')][label])
+            else:
+                for label in key_data[key_to_fetch]:
+                    key_data_list.append(label)
+                    numbers.append(key_data[(key_to_fetch+'_numbers')][label])
 
             key_data_list_alph, numbers_alph = zip(*sorted(zip(key_data_list, numbers)))
             numbers_asc, key_data_list_asc = zip(*sorted(zip(numbers, key_data_list)))
             numbers_desc, key_data_list_desc = zip(*sorted(zip(numbers, key_data_list), reverse=True))
 
             list_of_key_data_list_asc.append(list(key_data_list_asc))    #Ascending
-            list_of_numbers_asc.append(numbers_asc)                  #Ascending
+            list_of_numbers_asc.append(list(numbers_asc))                  #Ascending
             list_of_key_data_list_desc.append(list(key_data_list_desc))  #Descending
-            list_of_numbers_desc.append(numbers_desc)                #Descending
+            list_of_numbers_desc.append(list(numbers_desc))                #Descending
             list_of_key_data_list_alph.append(list(key_data_list_alph))  #Alphabetic (countries)
-            list_of_numbers_alph.append(numbers_alph)                #Alphabetic (countries)
+            list_of_numbers_alph.append(list(numbers_alph))                #Alphabetic (countries)
 
             total_geotags = np.sum(numbers)
             print("total_geotags = {0}, numbers_desc[0] = {1}, key_data_list_desc[0] = {2}".format(total_geotags, numbers_desc[0],key_data_list_desc[0]))

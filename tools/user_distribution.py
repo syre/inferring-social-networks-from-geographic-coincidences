@@ -6,7 +6,7 @@ import numpy as np
 dist = Distribution()
 
 files = ["all_201511.json","all_201510.json","all_201509.json"]
-keys = ["devices", "id"]
+keys = ["useruuid"]
 req_keys = ["country"]
 req_vals = ["Japan"]
 labels_alph, numbers_alph, labels_asc, numbers_asc, labels_desc, numbers_desc = dist.fetch_data(files, keys, req_keys, req_vals)

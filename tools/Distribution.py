@@ -326,16 +326,10 @@ class Distribution:
                     index = 0
                     for key in key_to_fetch:
                         #print("key in key_to_fetch = {0}".format(key))
-                        if temp is None:
+                        if len(key_to_fetch) == 1: #only 1 key!
                             temp = data[key]
                             index += 1
-                        else:
-                            if isinstance(temp, list):
-                                temp = temp[0][key]
-                            else:
-                                temp = temp[key]
-
-                            if index==(len(key_to_fetch)-1) and temp != '':
+                            if temp != '':
                                 exit_flag = False
                                 index2 = 0
                                 for k in requirement_keys:
@@ -354,14 +348,51 @@ class Distribution:
                                 # print("key_to_fetch[-1] = {0}".format(key_to_fetch[-1]))
                                 # print("(key_to_fetch[-1]+'_numbers') = {0}".format((key_to_fetch[-1]+'_numbers')))
                                 #print("key_data[(temp+'_numbers')] = {0}".format(key_data[(temp+'_numbers')]))
-                                key_data[key_to_fetch[-1]].add(temp)
+                                key_data[key_to_fetch[0]].add(temp)
                                 if temp in key_data[(key_to_fetch[-1]+'_numbers')]:
                                     #print("+1")
-                                    key_data[(key_to_fetch[-1]+'_numbers')][temp] += 1
+                                    key_data[(key_to_fetch[0]+'_numbers')][temp] += 1
                                 else: 
                                     #print("Ikke +1")
-                                    key_data[(key_to_fetch[-1]+'_numbers')][temp] = 1
+                                    key_data[(key_to_fetch[0]+'_numbers')][temp] = 1
                             index += 1
+                        else:
+                            if temp is None:
+                                temp = data[key]
+                                index += 1
+                            else:
+                                if isinstance(temp, list):
+                                    temp = temp[0][key]
+                                else:
+                                    temp = temp[key]
+
+                                if index==(len(key_to_fetch)-1) and temp != '':
+                                    exit_flag = False
+                                    index2 = 0
+                                    for k in requirement_keys:
+                                        #print("k = {0}".format(k))
+                                        if data[k] != requirement_values[index2]:
+                                            exit_flag = True
+                                            break
+                                        index2 += 1
+                                    if exit_flag:
+                                        #print("Krav ikke opfyldt!")
+                                        #print(data)
+                                        break
+                                    #print("\n-----------\nKrav ER opfyldt!\n----------")
+                                    #print(data)
+                                    # print("temp = {0}".format(temp))
+                                    # print("key_to_fetch[-1] = {0}".format(key_to_fetch[-1]))
+                                    # print("(key_to_fetch[-1]+'_numbers') = {0}".format((key_to_fetch[-1]+'_numbers')))
+                                    #print("key_data[(temp+'_numbers')] = {0}".format(key_data[(temp+'_numbers')]))
+                                    key_data[key_to_fetch[-1]].add(temp)
+                                    if temp in key_data[(key_to_fetch[-1]+'_numbers')]:
+                                        #print("+1")
+                                        key_data[(key_to_fetch[-1]+'_numbers')][temp] += 1
+                                    else: 
+                                        #print("Ikke +1")
+                                        key_data[(key_to_fetch[-1]+'_numbers')][temp] = 1
+                                index += 1
                 else:
                     if data[key_to_fetch] != '': #
                         key_data[key_to_fetch].add(data[key_to_fetch])

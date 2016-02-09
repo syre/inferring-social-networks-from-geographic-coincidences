@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js"></script>
+
+	<script src="{{ url_for('static', filename='leaflet.js') }}"></script>
+	<link rel=stylesheet type=text/css href="{{ url_for('static', filename='leaflet.css') }}">
+	<script src="{{ url_for('static', filename='iso8601.min.js') }}"></script>
+
+	<script src="{{ url_for('static', filename='leaflet.timedimension.src.js') }}"></script>
+	<link rel=stylesheet type=text/css href="{{ url_for('static', filename='leaflet.timedimension.control.css') }}">
+
+</head>
+<body>
+
+	<div id="map"></div>
+	<style>
+		html, body, #map { height: 100%; }
+	</style>
+	<script type="text/javascript">
+		var map = L.map('map', {
+			center: [36, 138],
+			zoom: 6,
+			timeDimension: true,
+			timeDimensionOptions: {
+				timeInterval: "2015-09-01/2015-11-30",
+				period: "PT1H"},
+				timeDimensionControl: true});
+		var tileLayer = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+			attribution: '© OpenStreetMap contributors'
+		}).addTo(map);
+
+		$.getJSON("/data/geojson", function(data)
+		{
+			L.timeDimension.layer.geoJson(
+			L.geoJson(data),
+			{
+				updateTimedimension: true,
+				addlastPoint: true
+			}
+			).addTo(map);
+		})
+
+	</script>
+
+</body>
+</html>

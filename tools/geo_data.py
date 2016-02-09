@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.5
+#!/usr/bin/env python3
 from collections import defaultdict
 import json
 import pprint
@@ -20,7 +20,7 @@ def generate_geojson(input_dict):
         geometry['type'] = "MultiLineString"
 
         user, lat_long = t
-        feature['type'] = "feature"
+        feature['type'] = "Feature"
         feature['id'] = user
         properties['name'] = 'null'
         feature['properties'] = properties
@@ -48,9 +48,9 @@ with open(f) as json_file:
 for data in raw_data:
     if data['country'] == "Japan":
         if data['useruuid'] in wanted_data:
-            wanted_data[data['useruuid']].append([data['latitude'], data['longitude']])
+            wanted_data[data['useruuid']].append([data['longitude'], data['latitude']])
         else:
-            wanted_data[data['useruuid']] = [[data['latitude'], data['longitude']]]
+            wanted_data[data['useruuid']] = [[data['longitude'], data['latitude']]]
 
 
 

@@ -41,7 +41,7 @@ y_labels = []
 x_ticks = []
 y_ticks = []
 index = 0
-for _ in numbers_alph:
+for _ in numbers_asc:
     titles.append("Distribution of geotagging in useruuid for ["+files[index]+"]")
     x_labels.append("Useruuid")
     y_labels.append("Number of geotagging")
@@ -53,7 +53,7 @@ for _ in numbers_alph:
 
 
 #print(numbers_desc[0][:10])
-dist.plot_barplot_subplot(numbers_alph, titles, x_labels, y_labels, x_ticks, y_ticks)
+dist.plot_barplot_subplot(numbers_asc, titles, x_labels, y_labels, x_ticks, y_ticks)
 
 print("Top 5 in each file:\n-------------")
 index = 0

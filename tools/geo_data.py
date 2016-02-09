@@ -22,6 +22,8 @@ def generate_geojson(input_dict):
         user, lat_long = t
         feature['type'] = "feature"
         feature['id'] = user
+        properties['name'] = 'null'
+        feature['properties'] = properties
         geometry['coordinates'] = [lat_long]
         feature['geometry'] = geometry
         features.append(feature)

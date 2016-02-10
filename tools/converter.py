@@ -18,3 +18,4 @@ for (_,_,files) in os.walk(start_folder):
 						  "tojson",
 						  "{}".format(os.path.join(start_folder,filename))], stdout=handle)
 		handle.close()
+

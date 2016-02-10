@@ -29,8 +29,8 @@ def generate_geojson(input_dict):
         geometry['coordinates'] = [wanted_data[user]['lat_long']]
         feature['geometry'] = geometry
         features.append(feature)
-        if count >=3:
-            break
+        #if count >=3:
+        #    break
         count +=1
         
     geo_dict['type'] = "FeatureCollection"

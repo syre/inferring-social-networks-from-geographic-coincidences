@@ -2,11 +2,27 @@
 import psycopg2
 import json
 
-HOSTNAME="localhost"
-DBNAME="dtudatascience2016"
-USER="admin"
-PASS="adminpass"
-conn = psycopg2.connect("host='{}' dbname='{}' user='{}' password='{}'".format(HOSTNAME, DBNAME, USER, PASS))
+
+def load_login(file_name="login.txt", key_split="##", value_split=",", has_header=False):
+        d = {}
+        with open(file_name, "r") as f:
+            lines = f.readlines()
+        if has_header:
+            lines.pop(0)
+        for line in lines:
+            key_and_values = line.strip().split(key_split)
+            key = key_and_values[0]
+            values = key_and_values[1].split(value_split)
+            d[key] = []
+            for value in values:
+                d[key].append(value)
+            if len(d[key])==1:
+                d[key] = d[key][0]
+        return d
+
+settings_dict = load_login(file_name="settings.cfg", key_split"=")
+
+conn = psycopg2.connect("host='{}' dbname='{}' user='{}' password='{}'".format(settings_dict["HOSTNAME"], settings_dict["DBNAME"], settings_dict["USER"], settings_dict["PASS"]))
 
 CREATE_TABLE_USER = """CREATE TABLE "user" ( useruuid text PRIMARY KEY NOT NULL)"""
 CREATE_TABLE_PLACE = """CREATE TABLE "place" (name text PRIMARY KEY)"""

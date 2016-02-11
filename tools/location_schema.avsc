@@ -1,0 +1,87 @@
+{
+  "type": "record",
+  "name": "Location",
+  "namespace": "com.sonymobile.lifelog.schema",
+  "fields": [
+    {
+      "name": "timestamp_seen",
+      "type": "long",
+      "default": 0,
+      "doc": "Milliseconds since the epoch indicating UTC date and time when this record was posted on the firehose. This field is created and added by the ETL pipeline."
+    },
+    {
+      "name": "id",
+      "type": "string",
+      "doc": "Location ID"
+    },
+    {
+      "name": "useruuid",
+      "type": "string",
+      "doc": "User UUID"
+    },
+    {
+      "name": "start_time",
+      "type": "string",
+      "doc": "Start time, ISO8601 with timezone"
+    },
+    {
+      "name": "end_time",
+      "type": "string",
+      "doc": "End time, ISO8601 with timezone"
+    },
+    {
+      "name": "name",
+      "type": "string",
+      "doc": "Name"
+    },
+    {
+      "name": "area",
+      "type": "string",
+      "doc": "Area"
+    },
+    {
+      "name": "country",
+      "type": "string",
+      "doc": "Country"
+    },
+    {
+      "name": "region",
+      "type": "string",
+      "doc": "Region"
+    },
+    {
+      "name": "latitude",
+      "type": "double",
+      "doc": "Location latitude"
+    },
+    {
+      "name": "longitude",
+      "type": "double",
+      "doc": "Location longitude"
+    },
+    {
+      "name": "altitude",
+      "type": "int",
+      "doc": "Location altitude, in millimeters"
+    },
+    {
+      "name": "accuracy",
+      "type": "int",
+      "doc": "Location accuracy, in millimeters"
+    },
+    {
+      "name": "datum",
+      "type": "string",
+      "doc": "Datum reference (WGS84, BD09)"
+    },
+    {
+      "name": "devices",
+      "type": {
+        "type": "array",
+        "items": "com.sonymobile.lifelog.schema.Device"
+      },
+      "doc": "Devices used during this activity"
+    }
+  ],
+  "doc:": "Lifelog location"
+}

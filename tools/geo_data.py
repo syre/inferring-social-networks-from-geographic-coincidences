@@ -25,20 +25,16 @@ def generate_geojson(input_dict):
     features = []
     
     count = 0
-    for user,_ in wanted_data.items(): #(user, timestamps)
-        #print(user)
+    for user,_ in wanted_data.items():
         feature = defaultdict(dict)
         style = defaultdict(dict)
         properties = defaultdict(dict)
         geometries = [] #defaultdict(dict)
         geometry = defaultdict(dict)
         geometry['type'] = "MultiLineString"
-
         geometry_circle = defaultdict(dict)
         geometry_circle['type'] = "MultiPoint"
 
-
-        #user, lat_long = t
         feature['type'] = "Feature"
         feature['id'] = user
         style['color'] = wanted_data[user]['color']
@@ -74,9 +70,6 @@ def generate_geojson(input_dict):
         geometries.append(geometry_circle)
         feature['geometries'] = geometries
         features.append(feature)
-        if count >=3:
-            break
-        count +=1
         
     geo_dict['type'] = "FeatureCollection"
     geo_dict['features'] = features
@@ -114,19 +107,12 @@ for data in raw_data:
             wanted_data[data['useruuid']]['color'] = color
             generated_colors.append(color)
         count_tags += 1
-        # if data['useruuid'] in wanted_data:
-        #     wanted_data[data['useruuid']].append([data['longitude'], data['latitude']])
-        # else:
-        #     wanted_data[data['useruuid']] = [[data['longitude'], data['latitude']]]
+
 
 
 geo_json = generate_geojson(wanted_data)
 save_json_data(geo_json)
-#
+
 #pprint.pprint(geo_json)
-# for count, t in enumerate(wanted_data.items()): #(user, timestamps)
-#     user, timestamps = t
-#     if count >=7:
-#         break
-#     print("{0} = {1}".format(user, timestamps))
+
 

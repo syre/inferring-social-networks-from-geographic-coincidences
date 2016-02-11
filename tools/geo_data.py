@@ -138,7 +138,7 @@ wanted_data = get_data("Japan", raw_data)
 geo_json = generate_geojson_using_objects(wanted_data)
 validation = geojson.is_valid(geo_json)
 if validation['valid'] == 'yes':
-    filename = "test_geojson_object_dump.json"
+    filename = "test_geojson_object_dump.geojson"
     with open(filename, 'w') as outfile:
         geojson.dump(geo_json, outfile)
     #save_json_data()

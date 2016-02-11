@@ -3,13 +3,13 @@ import os
 import json
 import matplotlib.pyplot as plt
 
-with open(os.path.join("location","201509.json"),"r") as f:
+with open(os.path.join("all_201509.json"),"r") as f:
 	september_points = json.loads(f.read())
 
-with open(os.path.join("location","201510.json"),"r") as f:
+with open(os.path.join("all_201510.json"),"r") as f:
 	october_points = json.loads(f.read())
 
-with open(os.path.join("location","201511.json"),"r") as f:
+with open(os.path.join("all_201511.json"),"r") as f:
 	november_points = json.loads(f.read())
 
 def create_accuracy_histograms(september_points, october_points, november_points):
@@ -48,4 +48,11 @@ def create_accuracy_boxplots(september_points, october_points, november_points):
 	plt.xticks([1, 2, 3], months, rotation="vertical")
 	plt.show()
 
-create_accuracy_boxplots(september_points, october_points, november_points)
+def analyse(september, october, november):
+	september_points = [point["datum"] for point in september if point["datum"] != "WGS84"]
+	october_points = [point["datum"] for point in october if point["datum"] != "WGS84"]
+	november_points = [point["datum"] for point in november if point["datum"] != "WGS84"]
+	print(september_points, october_points, november_points)
+
+analyse(september_points, october_points, november_points)
+#create_accuracy_boxplots(september_points, october_points, november_points)

@@ -3,6 +3,10 @@ import flask
 import json
 from flask import Flask, request, flash, url_for, redirect, \
      render_template, abort
+import sys
+import os
+
+sys.path.append(os.path.join("..","tools"))
 import database_helper
 
 app = Flask(__name__)

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import psycopg2
 import json
+import math
 
 
 def load_login(file_name="login.txt", key_split="##", value_split=",", has_header=False):
@@ -129,10 +130,16 @@ def insert_place(row):
         cursor.execute("""INSERT INTO place (name) VALUES (%s)""",(row["name"],))
         conn.commit()
 
-def get_accuracies():
+def get_distributions(feature, num_bins = 20):
     cursor = conn.cursor()
-    cursor.execute("""SELECT accuracy from location limit 1000""")
-    return cursor.fetchall()
+    cursor.execute("""SELECT max( (%s) ) FROM location""", (feature,))
+    max_val = int(cursor.fetchone()[0])
+    query = "SELECT "+", ".join(["count(CASE WHEN %s >= {0} AND %s < {1} THEN 1 END)".format(element,element+(max_val/num_bins)) for element in range(0,max_val,int(max_val/num_bins))])+""" from location as accuracygroups"""
+    
+    cursor.execute(query, (feature,))
+    bucketized = [str(element)+"-"+str(element+max_val/num_bins) for element in range(0, max_val, int(max_val/num_bins))]
+    results = list(cursor.fetchall()[0])
+    return [{"Number":x[0],"Count":x[1]} for x in zip(bucketized, results)]
 
 def drop_tables():
     cursor = conn.cursor()
@@ -143,4 +150,4 @@ def drop_tables():
 
     
 if __name__ == '__main__':
-    print(get_accuracies())
+    print(get_distributions("accuracy"))

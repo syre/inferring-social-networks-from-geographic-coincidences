@@ -132,11 +132,11 @@ def insert_place(row):
 
 def get_distributions(feature, num_bins = 20):
     cursor = conn.cursor()
-    cursor.execute("""SELECT max( (%s) ) FROM location""", (feature,))
+    cursor.execute("""SELECT max({}) FROM location""".format(feature))
     max_val = int(cursor.fetchone()[0])
-    query = "SELECT "+", ".join(["count(CASE WHEN %s >= {0} AND %s < {1} THEN 1 END)".format(element,element+(max_val/num_bins)) for element in range(0,max_val,int(max_val/num_bins))])+""" from location as accuracygroups"""
+    query = "SELECT "+", ".join(["count(CASE WHEN {2} >= {0} AND {2} < {1} THEN 1 END)".format(element,element+(max_val/num_bins), feature) for element in range(0,max_val,int(max_val/num_bins))])+""" from location"""
     
-    cursor.execute(query, (feature,))
+    cursor.execute(query)
     bucketized = [str(element)+"-"+str(element+max_val/num_bins) for element in range(0, max_val, int(max_val/num_bins))]
     results = list(cursor.fetchall()[0])
     return [{"Number":x[0],"Count":x[1]} for x in zip(bucketized, results)]
@@ -147,7 +147,5 @@ def drop_tables():
     cursor.execute("CREATE SCHEMA PUBLIC")
     conn.commit()
 
-
-    
 if __name__ == '__main__':
     print(get_distributions("accuracy"))

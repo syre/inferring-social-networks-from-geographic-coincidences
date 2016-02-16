@@ -11,7 +11,7 @@ var x = myChart.addMeasureAxis("y", "Count");
 x.showGridlines = true;
 x.addOrderRule("Number");
 var y = myChart.addCategoryAxis("x", "Number");
-var s = myChart.addSeries("Rating", dimple.plot.bar);
+var s = myChart.addSeries("{{feature}}", dimple.plot.bar);
 s.lineWeight = 4;
 s.lineMarkers = true;
 var myLegend = myChart.addLegend(530, 100, 60, 300, "Right");

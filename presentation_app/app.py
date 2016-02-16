@@ -23,7 +23,7 @@ def distributions(feature):
 @app.route("/data/distributions/<feature>")
 def data_distributions(feature):
     data = database_helper.get_distributions(feature,num_bins=10)
-    return flask.jsonify(results=accuracies_data)
+    return flask.jsonify(results=data)
 
 @app.route("/data/geojson")
 def data_geojson():

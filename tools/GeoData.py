@@ -84,7 +84,6 @@ class GeoData(object):
         """
         features = []
         for user,_ in input_dict.items():
-            geometries = []
             index = 0
             total_diff = input_dict[user]['total_diff']
             multipoints = []
@@ -99,9 +98,8 @@ class GeoData(object):
 
             geometry_lines = MultiLineString([input_dict[user]['lat_long']])
             geometry_circle = MultiPoint(multipoints)
-            geometries.append(geometry_lines)
-            geometries.append(geometry_circle)
-            feature = Feature(geometries=geometries, id=user, 
+
+            feature = Feature( GeometryCollection([geometry_lines, geometry_circle]), id=user, 
                 properties={'name':'null', 'times':input_dict[user]['time_start'], 'circles': {'opacities': opacities}},
                 style={'color': input_dict[user]['color']})
             features.append(feature)
@@ -170,3 +168,8 @@ class GeoData(object):
 
     def get_and_generate(self, country):
         return self.generate_geojson(self.get_geo_data_by_country(country))
+
+if __name__ == '__main__':
+    tools_path = "../tools/"
+    g = GeoData(tools_path)
+    print(g.check_validity(g.get_and_generate(("Japan",))))

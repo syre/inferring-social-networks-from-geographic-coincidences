@@ -130,6 +130,9 @@ def insert_place(row):
         cursor.execute("""INSERT INTO place (name) VALUES (%s)""",(row["name"],))
         conn.commit()
 
+"""
+    not using execute(%s and tuple arg) because it doesnt work!!!
+"""
 def get_distributions(feature, num_bins = 20):
     cursor = conn.cursor()
     cursor.execute("""SELECT max({}) FROM location""".format(feature))
@@ -137,7 +140,7 @@ def get_distributions(feature, num_bins = 20):
     query = "SELECT "+", ".join(["count(CASE WHEN {2} >= {0} AND {2} < {1} THEN 1 END)".format(element,element+(max_val/num_bins), feature) for element in range(0,max_val,int(max_val/num_bins))])+""" from location"""
     
     cursor.execute(query)
-    bucketized = [str(element)+"-"+str(element+max_val/num_bins) for element in range(0, max_val, int(max_val/num_bins))]
+    bucketized = [element for element in range(0, max_val, int(max_val/num_bins))]
     results = list(cursor.fetchall()[0])
     return [{"Number":x[0],"Count":x[1]} for x in zip(bucketized, results)]
 

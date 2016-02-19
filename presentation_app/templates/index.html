@@ -27,6 +27,7 @@
 
 		$.getJSON("/data/geojson", function(data)
 		{
+			console.log(data);
 			L.timeDimension.layer.geoJson(
 			L.geoJson(data),
 			{

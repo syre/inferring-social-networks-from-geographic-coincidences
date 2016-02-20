@@ -83,26 +83,40 @@ class GeoData(object):
             geojson dict -- geojson dictonary of the "raw" data
         """
         features = []
+        #print("generate_geojson her")
+        #print("hej")
+        print(len(input_dict.items()))
+        #print("hej igen")
+        c = 0
         for user,_ in input_dict.items():
+            if user.strip() == '' or user is None:
+                print("Ingen user??")
             index = 0
             total_diff = input_dict[user]['total_diff']
             multipoints = []
             opacities = []
+            #print("h1")
             for diff in input_dict[user]['time_diff']:
+                #print("h2")
                 multipoints.append([input_dict[user]['lat_long'][index]])
                 if diff > 0.0:
                     opacities.append(diff/total_diff)
                 else:
                     opacities.append(1.0)
                 index +=1
-
+            #print("h3")
             geometry_lines = MultiLineString([input_dict[user]['lat_long']])
             geometry_circle = MultiPoint(multipoints)
-
-            feature = Feature( GeometryCollection([geometry_lines, geometry_circle]), id=user, 
-                properties={'name':'null', 'times':input_dict[user]['time_start'], 'circles': {'opacities': opacities}},
+            #print("h4")
+            #print(user)
+            feature = Feature( GeometryCollection([geometry_lines, geometry_circle]), #id=user, 
+                properties={'name':'null', 'times':input_dict[user]['time_start'], 'circles': {'opacities': opacities}, 'id': user},
                 style={'color': input_dict[user]['color']})
+            #print("h5")
             features.append(feature)
+            #if c%10 == 0:
+            #print(c)
+            c+=1
         return FeatureCollection(features)
 
 
@@ -161,7 +175,7 @@ class GeoData(object):
                 color = self.gen_hex_colors(generated_colors)
                 wanted_data[user]['color'] = color
                 generated_colors.append(color)
-
+        print("Data hentet fra database")
         return wanted_data
 
 

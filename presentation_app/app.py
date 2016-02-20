@@ -25,6 +25,7 @@ try:
     print("App: Henter Geo-data data...")
     # tuple of args for foo, please note a "," at the end of the arguments
     async_result = pool.apply_async(g.get_and_generate, ('Japan',))
+    #print("App: Geo-data hentet!")
     #geo_data = Thread.(target=g.get_and_generate, args=("Japan"))
 except Exception:
     print("Kunne ikke starte tråd")
@@ -49,10 +50,14 @@ def data_distributions(feature):
 def data_geojson():
     print("data_geojson aktiveret")
     gjson_data = async_result.get()
+    print(g.check_validity(gjson_data))
     print("Geo-data hentet!!")
     #print(g.check_validity(gjson_data))
 	#with open("geodata.geojson") as f:
-    #data = json.load(gjson_data)   
+    #data = json.load(gjson_data) 
+    for x in gjson_data["features"]:
+        print(x['properties']['id'])
+    #print(gjson_data["features"][0]['properties']['id'])  
     return flask.jsonify(gjson_data)
 
 if __name__ == "__main__":

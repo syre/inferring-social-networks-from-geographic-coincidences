@@ -8,6 +8,7 @@ import dateutil.parser
 import random
 import os
 import geojson
+import math
 from geojson import Feature, FeatureCollection, GeometryCollection, MultiPoint, MultiLineString
 
 class GeoData(object):
@@ -91,6 +92,11 @@ class GeoData(object):
         for user,_ in input_dict.items():
             if user.strip() == '' or user is None:
                 print("Ingen user??")
+            lat_long = input_dict[user]['lat_long']
+            #print("lat_long = \n {0}".format(lat_long))
+            if not self.validate_lat_long(lat_long):
+                print("User {0}, har en fejl i lat_long".format(user))
+            #break
             index = 0
             total_diff = input_dict[user]['total_diff']
             multipoints = []
@@ -98,7 +104,7 @@ class GeoData(object):
             #print("h1")
             for diff in input_dict[user]['time_diff']:
                 #print("h2")
-                multipoints.append([input_dict[user]['lat_long'][index]])
+                multipoints.append(input_dict[user]['lat_long'][index])
                 if diff > 0.0:
                     opacities.append(diff/total_diff)
                 else:
@@ -109,7 +115,9 @@ class GeoData(object):
             geometry_circle = MultiPoint(multipoints)
             #print("h4")
             #print(user)
-            feature = Feature( GeometryCollection([geometry_lines, geometry_circle]), #id=user, 
+            geometries = GeometryCollection([geometry_lines, geometry_circle], properties={'name':'null', 'times':input_dict[user]['time_start'], 'circles': {'opacities': opacities}, 'id': user},
+                style={'color': input_dict[user]['color']})
+            feature = Feature(geometry=GeometryCollection([geometry_lines, geometry_circle]), #id=user, 
                 properties={'name':'null', 'times':input_dict[user]['time_start'], 'circles': {'opacities': opacities}, 'id': user},
                 style={'color': input_dict[user]['color']})
             #print("h5")
@@ -139,6 +147,16 @@ class GeoData(object):
 
 
 
+    def validate_lat_long(self, lat_long_lst):
+        for lst in lat_long_lst:
+            for lat_long in lst:
+                try:
+                    float(lat_long)
+                    #float(lat_long[1])
+                except ValueError:
+                    return False
+        return True
+
     def get_geo_data_by_country(self, country):
         """Gets useruuid, location, start_time, end_time from the database 
            where country is equal to input parameter.
@@ -154,11 +172,18 @@ class GeoData(object):
         wanted_data = defaultdict(dict)
         generated_colors = []
         ##self.check_connection()
-        self.cursor.execute(""" SELECT useruuid, ST_AsGeoJSON(location) AS geom, start_time, end_time FROM location WHERE country=(%s);""", (country,))
+        self.cursor.execute(""" SELECT useruuid, ST_AsGeoJSON(location) AS geom, start_time, end_time FROM location WHERE country=(%s);""", (country,)) #ST_AsGeoJSON(
         result = self.cursor.fetchall()
+        count=0
         for res in result:
+            if count >=100:
+                break
             user = res[0]
             lat_long = json.loads(res[1]) #The location if fetched as GeoJSON            
+            #lat_long = res[1]
+            if math.isnan(lat_long['coordinates'][0]) or math.isnan(lat_long['coordinates'][1]):
+                print("Is nan! \nuser: {0}\nstart-time: {1}".format(user, res[2]))
+            #break
             start_time = dateutil.parser.parse(res[2])
             end_time = dateutil.parser.parse(res[3])
             diff = end_time-start_time
@@ -175,6 +200,7 @@ class GeoData(object):
                 color = self.gen_hex_colors(generated_colors)
                 wanted_data[user]['color'] = color
                 generated_colors.append(color)
+            count+=1
         print("Data hentet fra database")
         return wanted_data
 

@@ -6,6 +6,29 @@
 		 #map { height: 90%;}
 	</style>
 	<script type="text/javascript">
+
+		function circles(feature, layer){
+			console.log("hej circles");
+			//if (!!feature.properties.circles) {
+			var opacities = feature.properties.circles.opacities;
+			var lat_longs = feature.geometry.coordinates;
+			var i = 0;
+			console.log(opacities);
+			console.log("hej");
+			for (var op of opacities){
+				if(op>0.0 && op<1.0){
+					layer.circle(lat_longs[i], 20, {
+						stroke: true,
+						opacity: op, 
+						color: '#FC1EEE',//feature.style.color,
+						fill: true,
+						fillColor: '#FC1EEE', //feature.style.color, 
+						fillOpacity: op,
+					}).addTo(map);
+				}
+				i++;
+			}
+		}
 		var map = L.map('map', {
 			center: [36, 138],
 			zoom: 6,
@@ -24,7 +47,6 @@
 		var tileLayer = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
 			attribution: '© OpenStreetMap contributors'
 		}).addTo(map);
-
 		//$.getJSON("/data/geojson", function(data)
 		//{
 		// 	console.log(data);
@@ -103,6 +125,23 @@ L.timeDimension.layer.ajaxGeoJSON = function(layer, options) {
 var layer = L.timeDimension.layer.ajaxGeoJSON();
 layer.initialize(tileLayer);
 layer.onAdd(map);
-
+		$.getJSON("/data/geojson", function(data)
+		{
+			console.log(data);
+			var layer = L.timeDimension.layer.geoJson(
+				L.geoJson(data,
+					{
+						updateTimedimension: true,
+						addlastPoint: true,
+						duration: "PT12H",
+						circles: circles
+							//}
+						
+					}
+				)
+			);
+			layer.addTo(map)
+		});
+		//var circle = function()
 	</script>
 {% endblock %}

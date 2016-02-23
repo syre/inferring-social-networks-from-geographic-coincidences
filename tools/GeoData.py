@@ -115,13 +115,16 @@ class GeoData(object):
             geometry_circle = MultiPoint(multipoints)
             #print("h4")
             #print(user)
-            geometries = GeometryCollection([geometry_lines, geometry_circle], properties={'name':'null', 'times':input_dict[user]['time_start'], 'circles': {'opacities': opacities}, 'id': user},
-                style={'color': input_dict[user]['color']})
-            feature = Feature(geometry=GeometryCollection([geometry_lines, geometry_circle]), #id=user, 
-                properties={'name':'null', 'times':input_dict[user]['time_start'], 'circles': {'opacities': opacities}, 'id': user},
-                style={'color': input_dict[user]['color']})
+            #geometries = GeometryCollection([geometry_lines, geometry_circle], properties={'name':'null', 'times':input_dict[user]['time_start'], 'circles': {'opacities': opacities}, 'id': user},
+            #    style={'color': input_dict[user]['color']})
+            feature_lines = Feature(geometry=geometry_lines, #GeometryCollection([geometry_lines, geometry_circle]), #id=user, 
+                properties={'name':'null', 'circles':{'opacities': opacities},'times':input_dict[user]['time_start'], 'id': user}, style={'color': input_dict[user]['color']})
+            #feature_circles = Feature(geometry=geometry_circle, #GeometryCollection([geometry_lines, geometry_circle]), #id=user, 
+            #    properties={'name':'null', 'times':input_dict[user]['time_start'], 'circles': {'lat_long':input_dict[user]['lat_long'],
+            #     'opacities': opacities}, 'id': user}, style={'color': input_dict[user]['color']})
             #print("h5")
-            features.append(feature)
+            features.append(feature_lines)
+            #features.append(feature_circles)
             #if c%10 == 0:
             #print(c)
             c+=1

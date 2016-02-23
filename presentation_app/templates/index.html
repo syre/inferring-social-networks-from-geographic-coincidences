@@ -129,23 +129,23 @@ var layer = L.timeDimension.layer.ajaxGeoJSON();
 layer.initialize(tileLayer);
 layer.onAdd(map);
 
-		// $.getJSON("/data/geojson", function(data)
-		// {
-		// 	console.log(data);
-		// 	var layer = L.timeDimension.layer.geoJson(
-		// 		L.geoJson(data,
-		// 			{
-		// 				updateTimedimension: true,
-		// 				addlastPoint: true,
-		// 				duration: "PT12H",
-		// 				circles: circles
-		// 					//}
+		$.getJSON("/data/geojson", function(data)
+		{
+			console.log(data);
+			var layer = L.timeDimension.layer.geoJson(
+				L.geoJson(data,
+					{
+						updateTimedimension: true,
+						addlastPoint: true,
+						duration: "PT12H",
+						onEachFeature: circles
+							}
 						
-		// 			}
-		// 		)
-		// 	);
-		// 	layer.addTo(map)
-		// });
-		//var circle = function()
+		 			}
+		 		)
+		);
+		 layer.addTo(map)
+		 });
+		var circle = function()
 	</script>
 {% endblock %}

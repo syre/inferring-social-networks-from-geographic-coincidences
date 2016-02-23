@@ -35,18 +35,21 @@
 			timeDimension: true,
 			timeDimensionOptions: {
 				timeInterval: "2015-09-01/2015-11-30",
-				period: "PT1H"},
-			timeDimensionControl: true,
-			timeDimensionControlOptions: {
-				playerOptions:
-				{
-					transitionTime: 125
-				}
-			}
+				currentTime: Date.parse("2015-09-01")
+			},
+			timeDimensionControl: false
 			});
 		var tileLayer = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
 			attribution: '© OpenStreetMap contributors'
 		}).addTo(map);
+		
+		var timeDimensionControl = new L.Control.TimeDimension({
+    	playerOptions: {
+        	buffer: 1,
+        	minBufferReady: -1
+    	}
+		});
+		map.addControl(this.timeDimensionControl);
 		//$.getJSON("/data/geojson", function(data)
 		//{
 		// 	console.log(data);
@@ -125,23 +128,24 @@ L.timeDimension.layer.ajaxGeoJSON = function(layer, options) {
 var layer = L.timeDimension.layer.ajaxGeoJSON();
 layer.initialize(tileLayer);
 layer.onAdd(map);
-		$.getJSON("/data/geojson", function(data)
-		{
-			console.log(data);
-			var layer = L.timeDimension.layer.geoJson(
-				L.geoJson(data,
-					{
-						updateTimedimension: true,
-						addlastPoint: true,
-						duration: "PT12H",
-						circles: circles
-							//}
+
+		// $.getJSON("/data/geojson", function(data)
+		// {
+		// 	console.log(data);
+		// 	var layer = L.timeDimension.layer.geoJson(
+		// 		L.geoJson(data,
+		// 			{
+		// 				updateTimedimension: true,
+		// 				addlastPoint: true,
+		// 				duration: "PT12H",
+		// 				circles: circles
+		// 					//}
 						
-					}
-				)
-			);
-			layer.addTo(map)
-		});
+		// 			}
+		// 		)
+		// 	);
+		// 	layer.addTo(map)
+		// });
 		//var circle = function()
 	</script>
 {% endblock %}

@@ -18,16 +18,16 @@ app.debug = True
 tools_path = "../tools/"
 database = DatabaseHelper.DatabaseHelper(tools_path)
 g = GeoData.GeoData(tools_path)
-
+try:
+    pool = ThreadPool(processes=1)
+except Exception:
+    print("Kunne ikke starte tråd")
 def get_geodata_async(country, date):
-    try:
-        pool = ThreadPool(processes=1)
         print("App: Henter Geo-data data...")
         # tuple of args for foo, please note a "," at the end of the arguments
         async_result = pool.apply_async(g.get_and_generate, (country,date))
         return async_result.get()
-    except Exception:
-        print("Kunne ikke starte tråd")
+
 
 @app.route('/')
 def index():
@@ -45,7 +45,7 @@ def data_distributions(feature):
 @app.route("/data/geojson")
 def data_geojson():
     requested_date = request.args.get("date")
-
+    print(requested_date)
     print("data_geojson aktiveret")
     gjson_data = get_geodata_async("Japan", requested_date)
     print(g.check_validity(gjson_data))

@@ -174,17 +174,17 @@ class GeoData(object):
         """
         wanted_data = defaultdict(dict)
         generated_colors = []
-        date = dateutil.parser(date)
+        date = dateutil.parser.parse(date)
         # truncate to start of hour
-        dt = dt.replace(minute=0, second=0, microsecond=0)
-        self.cursor.execute(""" SELECT useruuid, ST_AsGeoJSON(location) AS geom, start_time, end_time FROM location WHERE country=(%s) AND start_time between (%s) and (%s) + interval '1 hour';""", (country,date))
+        date = date.replace(minute=0, second=0, microsecond=0)
+        self.cursor.execute(""" SELECT useruuid, ST_AsGeoJSON(location) AS geom, start_time, end_time FROM location WHERE country=(%s) AND start_time between (%s) and (%s) + interval '1 day';""", (country,date, date))
         result = self.cursor.fetchall()
         count=0
         for res in result:
             user = res[0]
             lat_long = json.loads(res[1]) #The location if fetched as GeoJSON
-            start_time = dateutil.parser.parse(res[2])
-            end_time = dateutil.parser.parse(res[3])
+            start_time = res[2]
+            end_time = res[3]
             diff = end_time-start_time
             if user in wanted_data:
                 wanted_data[user]['lat_long'].append(lat_long['coordinates'])

@@ -181,7 +181,7 @@ class GeoData(object):
             dict -- Dictonary of the collected data
         """
         wanted_data = defaultdict(dict)
-        generated_colors = []
+        #generated_colors = []
         date = dateutil.parser.parse(date)
         # truncate to start of hour
         date = date.replace(minute=0, second=0, microsecond=0)
@@ -204,9 +204,9 @@ class GeoData(object):
                 wanted_data[user]['time_start'] = [res[2]]
                 wanted_data[user]['time_diff'] = [diff.total_seconds()]
                 wanted_data[user]['total_diff'] = diff.total_seconds()
-                color = self.gen_hex_colors(generated_colors)
-                wanted_data[user]['color'] = color
-                generated_colors.append(color)
+                #color = self.gen_hex_colors(generated_colors)
+                wanted_data[user]['color'] = self.users[user]['color']
+                #generated_colors.append(color)
             count+=1
         print("Data hentet fra database")
         return wanted_data

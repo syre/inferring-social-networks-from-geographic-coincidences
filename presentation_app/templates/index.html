@@ -50,18 +50,6 @@
     	}
 		});
 		map.addControl(this.timeDimensionControl);
-		//$.getJSON("/data/geojson", function(data)
-		//{
-		// 	console.log(data);
-		// 	L.timeDimension.layer.geoJson(
-		// 	L.geoJson(data),
-		// 	{
-		// 		updateTimedimension: true,
-		// 		addlastPoint: true,
-		// 		duration: "PT12H"
-		// 	}
-		// 	).addTo(map);
-		// })
 
 	L.TimeDimension.Layer.AjaxGeoJSON = L.TimeDimension.Layer.extend({
 

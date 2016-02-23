@@ -25,7 +25,7 @@ class GeoData(object):
         colors = []
         for user in all_users:
             color = self.gen_hex_colors(colors)
-            self.users[user]['color'] = color
+            self.users[user[0]]['color'] = color
             colors.append(color)
         
     def check_connection(self):
@@ -205,6 +205,7 @@ class GeoData(object):
                 wanted_data[user]['time_diff'] = [diff.total_seconds()]
                 wanted_data[user]['total_diff'] = diff.total_seconds()
                 #color = self.gen_hex_colors(generated_colors)
+                #print(self.users)
                 wanted_data[user]['color'] = self.users[user]['color']
                 #generated_colors.append(color)
             count+=1

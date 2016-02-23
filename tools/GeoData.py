@@ -14,11 +14,19 @@ from geojson import Feature, FeatureCollection, GeometryCollection, MultiPoint, 
 class GeoData(object):
     """docstring for Geo_data"""
     def __init__(self, path_to_settings=""):
+        print("Geo_data!!")
         self.settings_dict = self.load_login(file_name="settings.cfg", key_split="=", path=path_to_settings)
         self.conn = None
         self.cursor = None
         self.connect()
-        
+        self.users = defaultdict(dict)
+        self.cursor.execute(""" SELECT DISTINCT "useruuid" FROM public.user;""")
+        all_users = self.cursor.fetchall()
+        colors = []
+        for user in all_users:
+            color = self.gen_hex_colors(colors)
+            self.users[user]['color'] = color
+            colors.append(color)
         
     def check_connection(self):
         if self.cursor is None or self.cursor.closed():

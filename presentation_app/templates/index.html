@@ -126,7 +126,12 @@ L.timeDimension.layer.ajaxGeoJSON = function(layer, options) {
     return new L.TimeDimension.Layer.AjaxGeoJSON(layer, options);
 };
 var layer = L.timeDimension.layer.ajaxGeoJSON();
-layer.initialize(tileLayer);
+layer.initialize(tileLayer, {
+						updateTimedimension: true,
+						addlastPoint: true,
+						duration: "PT12H",
+						onEachFeature: circles
+					});
 layer.onAdd(map);
 
 		$.getJSON("/data/geojson", function(data)

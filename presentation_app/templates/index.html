@@ -12,7 +12,7 @@
 			timeDimension: true,
 			timeDimensionOptions: {
 				timeInterval: "2015-09-01/2015-11-30",
-				period: "PT20M"},
+				period: "PT1H"},
 			timeDimensionControl: true,
 			timeDimensionControlOptions: {
 				playerOptions:
@@ -25,18 +25,84 @@
 			attribution: '© OpenStreetMap contributors'
 		}).addTo(map);
 
-		$.getJSON("/data/geojson", function(data)
-		{
-			console.log(data);
-			L.timeDimension.layer.geoJson(
-			L.geoJson(data),
-			{
-				updateTimedimension: true,
-				addlastPoint: true,
-				duration: "PT12H"
-			}
-			).addTo(map);
-		})
+		//$.getJSON("/data/geojson", function(data)
+		//{
+		// 	console.log(data);
+		// 	L.timeDimension.layer.geoJson(
+		// 	L.geoJson(data),
+		// 	{
+		// 		updateTimedimension: true,
+		// 		addlastPoint: true,
+		// 		duration: "PT12H"
+		// 	}
+		// 	).addTo(map);
+		// })
+
+	L.TimeDimension.Layer.AjaxGeoJSON = L.TimeDimension.Layer.extend({
+
+    initialize: function(layer, options) {
+        L.TimeDimension.Layer.prototype.initialize.call(this, layer, options);
+        this._currentLoadedTime = 0;
+        this._currentTimeData = null;
+    },
+
+    onAdd: function(map) {
+        L.TimeDimension.Layer.prototype.onAdd.call(this, map);
+        if (this._timeDimension) {
+            this._getDataForTime(this._timeDimension.getCurrentTime());
+        }
+    },
+
+    _onNewTimeLoading: function(ev) {
+        this._getDataForTime(ev.time);
+        return;
+    },
+
+    isReady: function(time) {
+        return (this._currentLoadedTime == time);
+    },
+
+    _update: function() {
+        if (!this._map)
+            return;
+        var layer = L.geoJson(this._currentTimeData, this._baseLayer.options);
+        if (this._currentLayer) {
+            this._map.removeLayer(this._currentLayer);
+        }
+        layer.addTo(this._map);
+        this._currentLayer = layer;
+    },
+
+    _getDataForTime: function(time) {
+        if (!this._map) {
+            return;
+        }
+        var d = new Date(time);
+        var url = "/data/geojson?date="+d.toISOString();
+        var callback = function(status, data) {            
+            if (status == 'ok'){
+                this._currentTimeData = data;
+            } else{
+                this._currentTimeData = [];
+            }
+            this._currentLoadedTime = time;
+            if (this._timeDimension && time == this._timeDimension.getCurrentTime() && !this._timeDimension.isLoading()) {
+                this._update();
+            }
+            this.fire('timeload', {
+                time: time
+            });
+        };
+        $.getJSON(url, callback.bind(this, 'ok')).fail(callback.bind(this, 'error'));
+    },
+});
+
+L.timeDimension.layer.ajaxGeoJSON = function(layer, options) {
+    return new L.TimeDimension.Layer.AjaxGeoJSON(layer, options);
+};
+var layer = L.timeDimension.layer.ajaxGeoJSON();
+layer.initialize(tileLayer);
+layer.onAdd(map);
 
 	</script>
 {% endblock %}

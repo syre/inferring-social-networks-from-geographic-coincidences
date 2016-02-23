@@ -19,19 +19,15 @@ tools_path = "../tools/"
 database = DatabaseHelper.DatabaseHelper(tools_path)
 g = GeoData.GeoData(tools_path)
 
-#print("App: Henter Geo-data data...")
-try:
-    pool = ThreadPool(processes=1)
-    print("App: Henter Geo-data data...")
-    # tuple of args for foo, please note a "," at the end of the arguments
-    async_result = pool.apply_async(g.get_and_generate, ('Japan',))
-    #print("App: Geo-data hentet!")
-    #geo_data = Thread.(target=g.get_and_generate, args=("Japan"))
-except Exception:
-    print("Kunne ikke starte tråd")
-
-
-
+def get_geodata_async(country, date):
+    try:
+        pool = ThreadPool(processes=1)
+        print("App: Henter Geo-data data...")
+        # tuple of args for foo, please note a "," at the end of the arguments
+        async_result = pool.apply_async(g.get_and_generate, (country,date))
+        return async_result.get()
+    except Exception:
+        print("Kunne ikke starte tråd")
 
 @app.route('/')
 def index():
@@ -39,25 +35,21 @@ def index():
 
 @app.route("/distributions/<feature>")
 def distributions(feature):
-	return render_template("distributions.html", feature=feature)
+    return render_template("distributions.html", feature=feature)
 
 @app.route("/data/distributions/<feature>")
 def data_distributions(feature):
-    data = database.get_distributions(feature,num_bins=10) #database_helper.get_distributions(feature,num_bins=10)
+    data = database.get_distributions(feature,num_bins=10)
     return flask.jsonify(results=data)
 
 @app.route("/data/geojson")
 def data_geojson():
+    requested_date = request.args.get("date")
+
     print("data_geojson aktiveret")
-    gjson_data = async_result.get()
+    gjson_data = get_geodata_async("Japan", requested_date)
     print(g.check_validity(gjson_data))
     print("Geo-data hentet!!")
-    #print(g.check_validity(gjson_data))
-	#with open("geodata.geojson") as f:
-    #data = json.load(gjson_data) 
-    for x in gjson_data["features"]:
-        print(x['properties']['id'])
-    #print(gjson_data["features"][0]['properties']['id'])  
     return flask.jsonify(gjson_data)
 
 if __name__ == "__main__":

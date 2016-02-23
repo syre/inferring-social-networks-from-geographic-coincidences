@@ -18,8 +18,8 @@ class DatabaseHelper(object):
         self.CREATE_TABLE_COUNTRY = """CREATE TABLE "country" (name text PRIMARY KEY)"""
         self.CREATE_TABLE_REGION = """CREATE TABLE "region" (name text PRIMARY KEY)"""
         self.CREATE_TABLE_LOCATION = """CREATE TABLE "location" ( id SERIAL PRIMARY KEY,
-                                                           start_time text NOT NULL,
-                                                           end_time text NOT NULL,
+                                                           start_time timestamptz NOT NULL,
+                                                           end_time timestamptz NOT NULL,
                                                            location GEOGRAPHY(POINT,4326),
                                                            altitude INTEGER NOT NULL,
                                                            accuracy INTEGER NOT NULL,
@@ -159,8 +159,8 @@ class DatabaseHelper(object):
         cursor.execute("CREATE SCHEMA PUBLIC")
         self.conn.commit()
 
-    if __name__ == '__main__':
-        print(get_distributions("accuracy"))
-        #drop_tables()
-        #db_setup()
-        #insert_all_from_json()
+if __name__ == '__main__':
+    d = DatabaseHelper()
+    d.drop_tables()
+    d.db_setup()
+    d.insert_all_from_json()

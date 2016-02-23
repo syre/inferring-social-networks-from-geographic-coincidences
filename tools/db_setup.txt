@@ -27,3 +27,8 @@ create extension postgis;
 
 # for at gå ud af DB CLI
 \q
+
+# performance tuning i config fil
+# sæt shared_buffers til XGB (total GB /4)
+# sæt effective_cache_size til shared_buffers + OS cache
+

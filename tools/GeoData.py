@@ -157,7 +157,7 @@ class GeoData(object):
                     return False
         return True
 
-    def get_geo_data_by_country(self, country):
+    def get_geo_data_by_country(self, country, date):
         """Gets useruuid, location, start_time, end_time from the database 
            where country is equal to input parameter.
            Makes a dict where useruuids is the top-key. Generate a hex-color for each user. 
@@ -171,19 +171,15 @@ class GeoData(object):
         """
         wanted_data = defaultdict(dict)
         generated_colors = []
-        ##self.check_connection()
-        self.cursor.execute(""" SELECT useruuid, ST_AsGeoJSON(location) AS geom, start_time, end_time FROM location WHERE country=(%s);""", (country,)) #ST_AsGeoJSON(
+        date = dateutil.parser(date)
+        # truncate to start of hour
+        dt = dt.replace(minute=0, second=0, microsecond=0)
+        self.cursor.execute(""" SELECT useruuid, ST_AsGeoJSON(location) AS geom, start_time, end_time FROM location WHERE country=(%s) AND start_time between (%s) and (%s) + interval '1 hour';""", (country,date))
         result = self.cursor.fetchall()
         count=0
         for res in result:
-            if count >=100:
-                break
             user = res[0]
-            lat_long = json.loads(res[1]) #The location if fetched as GeoJSON            
-            #lat_long = res[1]
-            if math.isnan(lat_long['coordinates'][0]) or math.isnan(lat_long['coordinates'][1]):
-                print("Is nan! \nuser: {0}\nstart-time: {1}".format(user, res[2]))
-            #break
+            lat_long = json.loads(res[1]) #The location if fetched as GeoJSON
             start_time = dateutil.parser.parse(res[2])
             end_time = dateutil.parser.parse(res[3])
             diff = end_time-start_time
@@ -206,8 +202,8 @@ class GeoData(object):
 
 
 
-    def get_and_generate(self, country):
-        return self.generate_geojson(self.get_geo_data_by_country(country))
+    def get_and_generate(self, country, date):
+        return self.generate_geojson(self.get_geo_data_by_country(country, date))
 
 if __name__ == '__main__':
     tools_path = "../tools/"

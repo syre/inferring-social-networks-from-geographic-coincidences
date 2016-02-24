@@ -1,24 +1,28 @@
+# Installer db og postgis extension
+sudo apt-get install postgresql-9.4 postgresql-9.4-postgis
+
 # login i DB CLI
 sudo su - postgres
 psql
-
 
 # opret admin
 create role admin;
 alter user admin with password 'adminpass';
 alter user admin with SUPERUSER;
+alter role admin with login;
+
+# lav database
+create database dtudatascience2016
 
 # ændr fra peer til trust for dem der er 
 sudo vim /etc/postgresql/9.4/main/pg_hba.conf
 
 # genstart servicen for at ændringer træder i kraft
-sudo service restart postgresql
+sudo service postgresql restart
 
 # nu kan der logges ind med
 psql -d dtudatascience2016 -U admin -W
 
-# lav database
-create database dtudatascience2016
 
 # opret postgis extension for databasen
 \c dtudatascience2016;
@@ -31,4 +35,5 @@ create extension postgis;
 # performance tuning i config fil
 # sæt shared_buffers til XGB (total GB /4)
 # sæt effective_cache_size til shared_buffers + OS cache
-
+# lav index på start_time
+create index on location (start_time);

@@ -22,6 +22,7 @@ try:
     pool = ThreadPool(processes=1)
 except Exception:
     print("Kunne ikke starte tråd")
+
 def get_geodata_async(country, date):
         print("App: Henter Geo-data data...")
         # tuple of args for foo, please note a "," at the end of the arguments

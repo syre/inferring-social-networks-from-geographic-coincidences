@@ -7,26 +7,31 @@
 	</style>
 	<script type="text/javascript">
 
-		function circles(feature, layer){
+		function circles(feature, layer_lay){
 			console.log("hej circles");
 			var opacities = feature.properties.circles.opacities;
-			var lat_longs = feature.geometry.coordinates;
+			var lat_longs = feature.geometry.coordinates[0];
 			var i = 0;
 			console.log(opacities);
 			console.log("hej");
+			var circles_array = []
 			for (var op of opacities){
 				if(op>0.0 && op<1.0){
-					layer.circle(lat_longs[i], 20, {
+					console.log("før if")
+					var circle = new L.circle(lat_longs[i], 2000000, {
 						stroke: true,
 						opacity: op, 
 						color: '#FC1EEE',//feature.style.color,
 						fill: true,
 						fillColor: '#FC1EEE', //feature.style.color, 
 						fillOpacity: op,
-					}).addTo(map);
+					});//).addTo(map);
+					circles_array.push(circle);
+					console.log("efter if");
 				}
 				i++;
 			}
+			return circles_array;
 		}
 		var map = L.map('map', {
 			center: [36, 138],
@@ -42,6 +47,7 @@
 
 		var tileLayer = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
 			attribution: '© OpenStreetMap contributors',
+			onEachFeature: circles,	
 			style: function(feature) {return {"color": feature.style.color};}
 		}).addTo(map);
 		

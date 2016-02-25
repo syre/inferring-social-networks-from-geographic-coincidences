@@ -12,6 +12,8 @@
 			var i = 0;
 			for (var op of opacities){
 				if(op>0.0 && op<1.0){
+                    latitude = lat_longs[i][1];
+                    longitude = lat_longs[i][0]
 					var circle = new L.circle(new L.LatLng(lat_longs[i][1], lat_longs[i][0]), 2000, {
 						stroke: true,
 						opacity: op, 

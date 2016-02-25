@@ -6,33 +6,28 @@
 		 #map { height: 90%;}
 	</style>
 	<script type="text/javascript">
-
 		function circles(feature, layer_lay){
-			console.log("hej circles");
 			var opacities = feature.properties.circles.opacities;
 			var lat_longs = feature.geometry.coordinates[0];
 			var i = 0;
-			console.log(opacities);
-			console.log("hej");
-			var circles_array = []
 			for (var op of opacities){
 				if(op>0.0 && op<1.0){
-					console.log("før if")
-					var circle = new L.circle(lat_longs[i], 2000000, {
+					var circle = new L.circle(new L.LatLng(lat_longs[i][1], lat_longs[i][0]), 2000, {
 						stroke: true,
 						opacity: op, 
-						color: '#FC1EEE',//feature.style.color,
+						color: feature.style.color,
 						fill: true,
-						fillColor: '#FC1EEE', //feature.style.color, 
+						fillColor: feature.style.color, 
 						fillOpacity: op,
-					});//).addTo(map);
-					circles_array.push(circle);
-					console.log("efter if");
+					});
+                    circle.addTo(layer_lay);
 				}
 				i++;
 			}
-			return circles_array;
 		}
+
+
+
 		var map = L.map('map', {
 			center: [36, 138],
 			zoom: 6,

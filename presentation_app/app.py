@@ -23,10 +23,10 @@ try:
 except Exception:
     print("Kunne ikke starte tråd")
 
-def get_geodata_async(country, date):
+def get_geodata_async(country, start_date, end_date):
         print("App: Henter Geo-data data...")
         # tuple of args for foo, please note a "," at the end of the arguments
-        async_result = pool.apply_async(g.get_and_generate, (country,date))
+        async_result = pool.apply_async(g.get_and_generate, (country, start_date, end_date))
         return async_result.get()
 
 @app.errorhandler(404)
@@ -48,12 +48,10 @@ def data_distributions(feature):
 
 @app.route("/data/geojson")
 def data_geojson():
-    requested_date = request.args.get("date")
-    print(requested_date)
-    print("data_geojson aktiveret")
-    gjson_data = get_geodata_async("Japan", requested_date)
-    print(g.check_validity(gjson_data))
-    print("Geo-data hentet!!")
+    start_date = request.args.get("start_date")
+    end_date = request.args.get("end_date")
+    gjson_data = get_geodata_async("Japan", start_date, end_date)
+
     return flask.jsonify(gjson_data)
 
 if __name__ == "__main__":

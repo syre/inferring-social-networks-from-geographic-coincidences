@@ -6,6 +6,9 @@
 		 #map { height: 90%;}
 	</style>
 	<script type="text/javascript">
+    var TIME_PERIOD_HOURS = 1;
+
+
 		function circles(feature, layer_lay){
 			var opacities = feature.properties.circles.opacities;
 			var lat_longs = feature.geometry.coordinates[0];
@@ -37,7 +40,7 @@
 			timeDimensionOptions: {
 				timeInterval: "2015-09-01/2015-11-30",
 				currentTime: Date.parse("2015-09-01"),
-                period: "PT1H"
+                period: "PT"+TIME_PERIOD_HOURS+"H"
 			},
 			timeDimensionControl: false
 			
@@ -96,8 +99,10 @@
         if (!this._map) {
             return;
         }
-        var d = new Date(time);
-        var url = "/data/geojson?date="+d.toISOString();
+        var start_date = new Date(time);
+        var end_date = new Date(time);
+        end_date.setHours(end_date.getHours()+TIME_PERIOD_HOURS);
+        var url = "/data/geojson?start_date="+encodeURIComponent(start_date.toISOString())+"&end_date="+encodeURIComponent(end_date.toISOString());
         var callback = function(status, data) {            
             if (status == 'ok'){
                 this._currentTimeData = data;

@@ -61,6 +61,11 @@ class DatabaseHelper(object):
         cursor.execute(self.CREATE_TABLE_COUNTRY)
         cursor.execute(self.CREATE_TABLE_REGION)
         cursor.execute(self.CREATE_TABLE_LOCATION)
+        cursor.execute("CREATE INDEX ON location (start_time)")
+        cursor.execute("CREATE INDEX ON location (end_time)")
+        cursor.execute("CREATE INDEX ON location using gist (location)")
+        cursor.execute("CREATE INDEX ON location (useruuid)")
+        cursor.execute("VACUUM ANALYZE")
         self.conn.commit()
 
     def db_teardown(self):
@@ -182,8 +187,7 @@ class DatabaseHelper(object):
 
     def drop_tables(self):
         cursor = self.conn.cursor()
-        cursor.execute("DROP SCHEMA PUBLIC CASCADE")
-        cursor.execute("CREATE SCHEMA PUBLIC")
+        cursor.execute("select 'drop table "' || tablename || '" cascade;' from pg_tables where schemaname = 'public';")
         self.conn.commit()
 
 if __name__ == '__main__':

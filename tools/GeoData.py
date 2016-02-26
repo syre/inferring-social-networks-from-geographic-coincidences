@@ -185,7 +185,7 @@ class GeoData(object):
         date = dateutil.parser.parse(date)
         # truncate to start of hour
         date = date.replace(minute=0, second=0, microsecond=0)
-        self.cursor.execute(""" SELECT useruuid, ST_AsGeoJSON(location) AS geom, start_time, end_time FROM location WHERE country=(%s) AND start_time between (%s) and (%s) + interval '1 day';""", (country,date, date))
+        self.cursor.execute(""" SELECT useruuid, ST_AsGeoJSON(location) AS geom, start_time, end_time FROM location WHERE country=(%s) AND start_time between (%s) and (%s) + interval '1 hours';""", (country,date, date))
         result = self.cursor.fetchall()
         count=0
         for res in result:

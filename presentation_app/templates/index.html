@@ -14,7 +14,7 @@
 				if(op>0.0 && op<1.0){
                     latitude = lat_longs[i][1];
                     longitude = lat_longs[i][0]
-					var circle = new L.circle(new L.LatLng(lat_longs[i][1], lat_longs[i][0]), 2000, {
+					var circle = new L.circle(new L.LatLng(lat_longs[i][1], lat_longs[i][0]), 20, {
 						stroke: true,
 						opacity: op, 
 						color: feature.style.color,
@@ -36,7 +36,8 @@
 			timeDimension: true,
 			timeDimensionOptions: {
 				timeInterval: "2015-09-01/2015-11-30",
-				currentTime: Date.parse("2015-09-01")
+				currentTime: Date.parse("2015-09-01"),
+                period: "PT1H"
 			},
 			timeDimensionControl: false
 			

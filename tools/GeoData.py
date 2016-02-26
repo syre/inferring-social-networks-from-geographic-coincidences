@@ -168,7 +168,7 @@ class GeoData(object):
                     return False
         return True
 
-    def get_geo_data_by_country(self, country, date):
+    def get_geo_data_by_country(self, country, start_datetime, end_datetime):
         """Gets useruuid, location, start_time, end_time from the database 
            where country is equal to input parameter.
            Makes a dict where useruuids is the top-key. Generate a hex-color for each user. 
@@ -182,10 +182,13 @@ class GeoData(object):
         """
         wanted_data = defaultdict(dict)
         #generated_colors = []
-        date = dateutil.parser.parse(date)
+        start_datetime = dateutil.parser.parse(start_datetime)
+        end_datetime = dateutil.parser.parse(end_datetime)
         # truncate to start of hour
         date = date.replace(minute=0, second=0, microsecond=0)
-        self.cursor.execute(""" SELECT useruuid, ST_AsGeoJSON(location) AS geom, start_time, end_time FROM location WHERE country=(%s) AND start_time between (%s) and (%s) + interval '1 hours';""", (country,date, date))
+        self.cursor.execute(""" SELECT useruuid, ST_AsGeoJSON(location) AS geom, start_time, end_time FROM location 
+            WHERE country=(%s) AND ((start_time between (%s) and (%s)) OR (end_time between (%s) and (%s)) OR ((start_time < (%s)) and (end_time > (%s))));""", 
+            (country,start_datetime, end_datetime, start_datetime, end_datetime, start_datetime, end_datetime))
         result = self.cursor.fetchall()
         count=0
         for res in result:

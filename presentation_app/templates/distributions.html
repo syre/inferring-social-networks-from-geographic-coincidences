@@ -2,11 +2,10 @@
 {% block container %}
 <div id="chartContainer"></div>
 <script type="text/javascript">
-    var svg = dimple.newSvg("#chartContainer", 590, 1000);
+    var svg = dimple.newSvg("#chartContainer", 1200, 800);
     d3.json("/data/distributions/{{feature}}", function (data) {
       data = data["results"]
       var myChart = new dimple.chart(svg, data);
-myChart.setBounds(70, 30, 420, 330)
 var x = myChart.addMeasureAxis("y", "Count");
 x.showGridlines = true;
 x.addOrderRule("Number");

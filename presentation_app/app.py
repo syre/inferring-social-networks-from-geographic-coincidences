@@ -29,6 +29,9 @@ def get_geodata_async(country, date):
         async_result = pool.apply_async(g.get_and_generate, (country,date))
         return async_result.get()
 
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('error.html', error=404), 404
 
 @app.route('/')
 def index():

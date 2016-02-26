@@ -25,9 +25,25 @@
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
 
-      <li><a href="/">Map<span class="sr-only"></span></a></li>
-      <li><a href="distributions">Distributions<span class="sr-only"></span></a></li>
-      <li><a href="#">Link <span class="sr-only"></span></a></li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Maps<span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/">Japan - all</a></li>
+          </ul>
+        </li>
+          <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Histograms<span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/distributions/accuracy">Accuracy</a></li>
+            <li><a href="/distributions/altitude">Altitude</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Boxplots<span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="#">Insert features</a></li>
+          </ul>
+        </li>
       </ul>
       </div>
     </div>

@@ -16,7 +16,12 @@ app = Flask(__name__)
 app.debug = True
 
 tools_path = "../tools/"
+
 database = DatabaseHelper.DatabaseHelper(tools_path)
+
+number_features = ["altitude", "accuracy"]
+category_features = ["country", "region", "area", "place"]
+
 g = GeoData.GeoData(tools_path)
 try:
     pool = ThreadPool(processes=1)
@@ -43,11 +48,9 @@ def distributions(feature):
 
 @app.route("/data/distributions/<feature>")
 def data_distributions(feature):
-    by_text = ['country']
-    by_numbers = ['altitude']
-    if feature in by_numbers:
+    if feature in number_features:
         data, layout = database.get_distributions_numbers(feature,num_bins=10)
-    elif feature in by_text:
+    elif feature in category_features:
         data, layout = database.get_distributions_text(feature,num_bins=10)
     else:
         abort(400)

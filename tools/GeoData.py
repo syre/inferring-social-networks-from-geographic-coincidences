@@ -181,13 +181,11 @@ class GeoData(object):
             dict -- Dictonary of the collected data
         """
         wanted_data = defaultdict(dict)
-        #generated_colors = []
         start_datetime = dateutil.parser.parse(start_datetime)
         end_datetime = dateutil.parser.parse(end_datetime)
-        # truncate to start of hour
-        date = date.replace(minute=0, second=0, microsecond=0)
+
         self.cursor.execute(""" SELECT useruuid, ST_AsGeoJSON(location) AS geom, start_time, end_time FROM location 
-            WHERE country=(%s) AND ((start_time, end_time) OVERLAPS ((%s), (%s)));""", (country,start_datetime, end_datetime))
+            WHERE country=(%s) AND ((start_time, end_time) OVERLAPS ((%s), (%s)));""", (country, start_datetime, end_datetime))
         result = self.cursor.fetchall()
         count=0
         for res in result:
@@ -216,8 +214,8 @@ class GeoData(object):
 
 
 
-    def get_and_generate(self, country, date):
-        return self.generate_geojson(self.get_geo_data_by_country(country, date))
+    def get_and_generate(self, country, start_date, end_date):
+        return self.generate_geojson(self.get_geo_data_by_country(country, start_date, end_date))
 
 if __name__ == '__main__':
     tools_path = "../tools/"

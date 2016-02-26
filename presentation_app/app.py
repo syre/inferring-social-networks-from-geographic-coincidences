@@ -40,8 +40,20 @@ def distributions(feature):
 
 @app.route("/data/distributions/<feature>")
 def data_distributions(feature):
-    data = database.get_distributions(feature,num_bins=10)
-    return flask.jsonify(results=data)
+    by_text = ['country']
+    by_numbers = ['altitude']
+    if feature in by_numbers:
+        data, layout = database.get_distributions_numbers(feature,num_bins=10)
+    elif feature in by_text:
+        data, layout = database.get_distributions_text(feature,num_bins=10)
+    else:
+        abort(400)
+    return flask.jsonify(results=data, x_axis=layout['x_axis'], y_axis=layout['y_axis'])
+
+
+@app.errorhandler(400)
+def page_not_found(e):
+    return render_template('error.html'), 400
 
 @app.route("/data/geojson")
 def data_geojson():

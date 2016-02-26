@@ -187,8 +187,7 @@ class GeoData(object):
         # truncate to start of hour
         date = date.replace(minute=0, second=0, microsecond=0)
         self.cursor.execute(""" SELECT useruuid, ST_AsGeoJSON(location) AS geom, start_time, end_time FROM location 
-            WHERE country=(%s) AND ((start_time between (%s) and (%s)) OR (end_time between (%s) and (%s)) OR ((start_time < (%s)) and (end_time > (%s))));""", 
-            (country,start_datetime, end_datetime, start_datetime, end_datetime, start_datetime, end_datetime))
+            WHERE country=(%s) AND ((start_time, end_time) OVERLAPS ((%s), (%s)));""", (country,start_datetime, end_datetime))
         result = self.cursor.fetchall()
         count=0
         for res in result:

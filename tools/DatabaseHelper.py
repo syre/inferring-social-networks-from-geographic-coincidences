@@ -147,16 +147,27 @@ class DatabaseHelper(object):
             cursor.execute("""INSERT INTO place (name) VALUES (%s)""",(row["name"],))
             self.conn.commit()
 
-    def get_distributions(self, feature, num_bins = 20):
+    def get_distributions_numbers(self, feature, num_bins = 20):
         cursor = self.conn.cursor()
         cursor.execute("""SELECT max({}) FROM location""".format(feature))
         max_val = int(cursor.fetchone()[0])
         query = "SELECT "+", ".join(["count(CASE WHEN {2} >= {0} AND {2} < {1} THEN 1 END)".format(element,element+(max_val/num_bins), feature) for element in range(0,max_val,int(max_val/num_bins))])+""" from location"""
-        
+        #print(query)
         cursor.execute(query)
         bucketized = [str(element)+"-"+str(element+max_val/num_bins) for element in range(0, max_val, int(max_val/num_bins))]
         results = list(cursor.fetchall()[0])
-        return [{"Number":x[0],"Count":x[1]} for x in zip(bucketized, results)]
+        return [{"Number":x[0],"Count":x[1]} for x in zip(bucketized, results)], {'x_axis': "Number", 'y_axis': "Count"}
+
+    def get_distributions_text(self, feature, num_bins = 20):
+        if feature == "country":
+            cursor = self.conn.cursor()
+            cursor.execute("""select country, count(*) from location group by country order by count(*) desc;""")
+            result = cursor.fetchall()
+            countries = [row[0] for row in result]
+            count = [row[1] for row in result]
+            return [{"Countries": x[0], "Count": x[1]} for x in zip(countries, count)], {'x_axis': "Countries", 'y_axis': "Count"}
+
+
 
     def find_coocurrences(self, useruuid, cell_size, time_threshold_in_hours):
         cursor = self.conn.cursor()

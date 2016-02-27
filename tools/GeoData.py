@@ -155,13 +155,14 @@ class GeoData(object):
         cooccurrences = self.databasehelper.find_cooccurrences(useruuid, cell_size, time_threshold_in_hours)
 
         features = []
-        features.append(Feature(geometry=MultiLineString([(loc[3],loc[4]) for loc in locations]), properties={"id":useruuid, "style":{'color':"red"}, "name":"null"}))
-        
+        # append main user
+        features.append(Feature(geometry=MultiLineString([(loc[3],loc[4]) for loc in locations]), properties={"id":useruuid, "name":"null"}, style={'color':"red"}))
+        # append cooccurrences
         for cooccurrence in cooccurrences:
             lat_long = json.loads(cooccurrence[3])
             start_time = cooccurrence[1]
             end_time = cooccurrence[2]
-            features.append(Feature(geometry=Point(lat_long["coordinates"]), properties={"id":useruuid, "style":{'color':self.user_colors[useruuid]}, "name":"null"}))
+            features.append(Feature(geometry=Point(lat_long["coordinates"]), properties={"id":useruuid, "name":"null"}, style={'color':self.user_colors[useruuid]} ))
 
         return FeatureCollection(features)
 

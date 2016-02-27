@@ -34,6 +34,12 @@ def get_geodata_async(country, start_date, end_date):
         async_result = pool.apply_async(g.get_and_generate, (country, start_date, end_date))
         return async_result.get()
 
+def get_cooccurrences_async(useruuid, cell_size, time_threshold):
+        print("App: Henter Geo-data data...")
+        # tuple of args for foo, please note a "," at the end of the arguments
+        async_result = pool.apply_async(g.get_geo_data_from_occurrences, (useruuid, cell_size, time_threshold))
+        return async_result.get()
+
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('error.html', error=404), 404
@@ -41,6 +47,10 @@ def page_not_found(e):
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route("/cooccurrences")
+def occurrences():
+    return render_template("cooccurrences_map.html", useruuid="c98f46b9-43fd-4536-afa0-9b789300fe7a")
 
 @app.route("/distributions/<feature>")
 def distributions(feature):
@@ -68,6 +78,14 @@ def data_geojson():
     gjson_data = get_geodata_async("Japan", start_date, end_date)
 
     return flask.jsonify(gjson_data)
+
+@app.route("/data/cooccurrences")
+def data_cooccurrences():
+    useruuid = request.args.get("useruuid")
+    cooccurrences = get_cooccurrences_async(useruuid, 0.001, 60*24)
+
+    return flask.jsonify(cooccurrences)
+
 
 if __name__ == "__main__":
     app.run()

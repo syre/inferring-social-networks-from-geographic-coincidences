@@ -9,19 +9,19 @@ import random
 import os
 import geojson
 import math
-from geojson import Feature, FeatureCollection, GeometryCollection, MultiPoint, MultiLineString
+from geojson import Feature, FeatureCollection, GeometryCollection, MultiPoint, MultiLineString, Point
 import DatabaseHelper
 
 class GeoData(object):
     """docstring for Geo_data"""
     def __init__(self, path_to_settings=""):
-        self.databasehelper = DatabaseHelper.DatabaseHelper()
+        self.databasehelper = DatabaseHelper.DatabaseHelper(path_to_settings)
         self.user_colors = defaultdict(dict)
         all_users = self.databasehelper.get_all_users()
         colors = []
         for user in all_users:
             color = self.gen_hex_colors(colors)
-            self.user_colors[user[0]]['color'] = color
+            self.user_colors[user[0]] = color
             colors.append(color)
 
     def gen_hex_colors(self, allready_gen=[]):
@@ -97,7 +97,7 @@ class GeoData(object):
             geometry_lines = MultiLineString([input_dict[user]['lat_long']])
             geometry_circle = MultiPoint(multipoints)
             feature_lines = Feature(geometry=geometry_lines, 
-                properties={'name':'null', 'circles':{'opacities': opacities},'times':input_dict[user]['time_start'], 'id': user}, style={'color': input_dict[user]['color']})
+                properties={'name':'null', 'circles':{'opacities': opacities},'times':input_dict[user]['start_time'], 'id': user}, style={'color': input_dict[user]["color"]})
             features.append(feature_lines)
             c+=1
         return FeatureCollection(features)
@@ -130,26 +130,41 @@ class GeoData(object):
         result = self.databasehelper.get_locations_by_country(country, start_datetime, end_datetime)
         for res in result:
             user = res[0]
-            lat_long = json.loads(res[1]) #The location if fetched as GeoJSON
+            lat_long = json.loads(res[1]) #The location is fetched as GeoJSON
             start_time = res[2]
             end_time = res[3]
             diff = end_time-start_time
             if user in wanted_data:
                 wanted_data[user]['lat_long'].append(lat_long['coordinates'])
-                wanted_data[user]['time_start'].append(res[2])
+                wanted_data[user]['start_time'].append(res[2])
                 wanted_data[user]['time_diff'].append(diff.total_seconds())
                 wanted_data[user]['total_diff'] += diff.total_seconds()
             else:
                 wanted_data[user]['lat_long'] = [lat_long['coordinates']]
-                wanted_data[user]['time_start'] = [res[2]]
+                wanted_data[user]['start_time'] = [res[2]]
                 wanted_data[user]['time_diff'] = [diff.total_seconds()]
                 wanted_data[user]['total_diff'] = diff.total_seconds()
-                wanted_data[user]['color'] = self.user_colors[user]['color']
+                wanted_data[user]['color'] = self.user_colors[user]
         print("geodata fetched from database")
         return wanted_data
 
-    def get_geo_data_from_occurences(useruuid, cell_size, time_threshold_in_hours):
-        pass
+    def get_geo_data_from_occurrences(self, useruuid, cell_size, time_threshold_in_hours):
+        # receive locations for user we want co-occurrences on
+        locations = self.databasehelper.get_locations_for_user(useruuid)
+        # retrieve locations that co-occur with useruuids locations 
+        cooccurrences = self.databasehelper.find_cooccurrences(useruuid, cell_size, time_threshold_in_hours)
+
+        occurrences_dict = defaultdict()
+        occurrences_dict["occurrences"] = []
+        occurrences_dict["main_user"] = Feature(geometry=MultiLineString([(loc[3],loc[4]) for loc in locations]), properties={"id":useruuid, "style":{'color':"red"}, "name":"null"})
+        
+        for cooccurrence in cooccurrences:
+            lat_long = json.loads(cooccurrence[3])
+            start_time = cooccurrence[1]
+            end_time = cooccurrence[2]
+            occurrences_dict["occurrences"].append(Feature(geometry=Point(lat_long["coordinates"]), properties={"id":useruuid, "style":{'color':self.user_colors[useruuid]}, "name":"null"}))
+
+        return occurrences_dict
 
 
     def get_and_generate(self, country, start_date, end_date):
@@ -158,3 +173,4 @@ class GeoData(object):
 if __name__ == '__main__':
     tools_path = "../tools/"
     g = GeoData(tools_path)
+    print(g.get_geo_data_from_occurrences("c98f46b9-43fd-4536-afa0-9b789300fe7a", 0.001, 60*24))

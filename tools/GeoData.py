@@ -151,7 +151,7 @@ class GeoData(object):
     def get_geo_data_from_occurrences(self, useruuid, cell_size, time_threshold_in_hours):
         # receive locations for user we want co-occurrences on
         locations = self.databasehelper.get_locations_for_user(useruuid)
-        # retrieve locations that co-occur with useruuids locations 
+        # retrieve locations that co-occur with useruuids locations
         cooccurrences = self.databasehelper.find_cooccurrences(useruuid, cell_size, time_threshold_in_hours)
 
         features = []

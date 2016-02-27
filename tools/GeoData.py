@@ -10,36 +10,19 @@ import os
 import geojson
 import math
 from geojson import Feature, FeatureCollection, GeometryCollection, MultiPoint, MultiLineString
+import DatabaseHelper
 
 class GeoData(object):
     """docstring for Geo_data"""
     def __init__(self, path_to_settings=""):
-        print("Geo_data!!")
-        self.settings_dict = self.load_login(file_name="settings.cfg", key_split="=", path=path_to_settings)
-        self.conn = None
-        self.cursor = None
-        self.connect()
-        self.users = defaultdict(dict)
-        self.cursor.execute(""" SELECT DISTINCT "useruuid" FROM public.user;""")
-        all_users = self.cursor.fetchall()
+        self.databasehelper = DatabaseHelper.DatabaseHelper()
+        self.user_colors = defaultdict(dict)
+        all_users = self.databasehelper.get_all_users()
         colors = []
         for user in all_users:
             color = self.gen_hex_colors(colors)
-            self.users[user[0]]['color'] = color
+            self.user_colors[user[0]]['color'] = color
             colors.append(color)
-        
-    def check_connection(self):
-        if self.cursor is None or self.cursor.closed():
-            print("Forbindelsen er lukket!\nÅbner en forbindelse")
-            self.connect()
-
-    def close_connection(self):
-        self.conn.close()
-    def connect(self):
-        self.conn = psycopg2.connect("host='{}' dbname='{}' user='{}' password='{}'".
-            format(self.settings_dict["HOSTNAME"], self.settings_dict["DBNAME"], 
-                self.settings_dict["USER"], self.settings_dict["PASS"]))
-        self.cursor = self.conn.cursor()
 
     def gen_hex_colors(self, allready_gen=[]):
         """Generate a random color in hexadecimal value
@@ -96,10 +79,10 @@ class GeoData(object):
         c = 0
         for user,_ in input_dict.items():
             if user.strip() == '' or user is None:
-                print("Ingen user??")
+                print("no user found")
             lat_long = input_dict[user]['lat_long']
             if not self.validate_lat_long(lat_long):
-                print("User {0}, har en fejl i lat_long".format(user))
+                print("User {0} has an error in lat_long".format(user))
             index = 0
             total_diff = input_dict[user]['total_diff']
             multipoints = []
@@ -119,32 +102,11 @@ class GeoData(object):
             c+=1
         return FeatureCollection(features)
 
-
-    def load_login(self, file_name="login.txt", key_split="##", value_split=",", has_header=False, path=""):
-        d = {}
-        with open(os.path.join(path, file_name), 'r') as f:
-            lines = f.readlines()
-        if has_header:
-            lines.pop(0)
-        for line in lines:
-            key_and_values = line.strip().split(key_split)
-            key = key_and_values[0]
-            values = key_and_values[1].split(value_split)
-            d[key] = []
-            for value in values:
-                d[key].append(value)
-            if len(d[key])==1:
-                d[key] = d[key][0]
-        return d
-
-
-
     def validate_lat_long(self, lat_long_lst):
         for lst in lat_long_lst:
             for lat_long in lst:
                 try:
                     float(lat_long)
-                    #float(lat_long[1])
                 except ValueError:
                     return False
         return True
@@ -165,9 +127,7 @@ class GeoData(object):
         start_datetime = dateutil.parser.parse(start_datetime)
         end_datetime = dateutil.parser.parse(end_datetime)
 
-        self.cursor.execute(""" SELECT useruuid, ST_AsGeoJSON(location) AS geom, start_time, end_time FROM location 
-            WHERE country=(%s) AND ((start_time, end_time) OVERLAPS ((%s), (%s)));""", (country, start_datetime, end_datetime))
-        result = self.cursor.fetchall()
+        result = self.databasehelper.get_locations_by_country(country, start_datetime, end_datetime)
         for res in result:
             user = res[0]
             lat_long = json.loads(res[1]) #The location if fetched as GeoJSON
@@ -184,10 +144,12 @@ class GeoData(object):
                 wanted_data[user]['time_start'] = [res[2]]
                 wanted_data[user]['time_diff'] = [diff.total_seconds()]
                 wanted_data[user]['total_diff'] = diff.total_seconds()
-                wanted_data[user]['color'] = self.users[user]['color']
-        print("Data hentet fra database")
+                wanted_data[user]['color'] = self.user_colors[user]['color']
+        print("geodata fetched from database")
         return wanted_data
 
+    def get_geo_data_from_occurences(useruuid, cell_size, time_threshold_in_hours):
+        pass
 
 
     def get_and_generate(self, country, start_date, end_date):
@@ -196,4 +158,3 @@ class GeoData(object):
 if __name__ == '__main__':
     tools_path = "../tools/"
     g = GeoData(tools_path)
-    print(g.check_validity(g.get_and_generate(("Japan",))))

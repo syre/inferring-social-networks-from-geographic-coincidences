@@ -154,17 +154,16 @@ class GeoData(object):
         # retrieve locations that co-occur with useruuids locations 
         cooccurrences = self.databasehelper.find_cooccurrences(useruuid, cell_size, time_threshold_in_hours)
 
-        occurrences_dict = defaultdict()
-        occurrences_dict["occurrences"] = []
-        occurrences_dict["main_user"] = Feature(geometry=MultiLineString([(loc[3],loc[4]) for loc in locations]), properties={"id":useruuid, "style":{'color':"red"}, "name":"null"})
+        features = []
+        features.append(Feature(geometry=MultiLineString([(loc[3],loc[4]) for loc in locations]), properties={"id":useruuid, "style":{'color':"red"}, "name":"null"}))
         
         for cooccurrence in cooccurrences:
             lat_long = json.loads(cooccurrence[3])
             start_time = cooccurrence[1]
             end_time = cooccurrence[2]
-            occurrences_dict["occurrences"].append(Feature(geometry=Point(lat_long["coordinates"]), properties={"id":useruuid, "style":{'color':self.user_colors[useruuid]}, "name":"null"}))
+            features.append(Feature(geometry=Point(lat_long["coordinates"]), properties={"id":useruuid, "style":{'color':self.user_colors[useruuid]}, "name":"null"}))
 
-        return occurrences_dict
+        return FeatureCollection(features)
 
 
     def get_and_generate(self, country, start_date, end_date):

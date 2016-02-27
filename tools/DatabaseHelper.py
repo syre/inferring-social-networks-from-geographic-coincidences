@@ -65,7 +65,6 @@ class DatabaseHelper(object):
         cursor.execute("CREATE INDEX ON location (end_time)")
         cursor.execute("CREATE INDEX ON location using gist (location)")
         cursor.execute("CREATE INDEX ON location (useruuid)")
-        cursor.execute("VACUUM ANALYZE")
         self.conn.commit()
 
     def db_teardown(self):
@@ -198,7 +197,8 @@ class DatabaseHelper(object):
 
     def drop_tables(self):
         cursor = self.conn.cursor()
-        cursor.execute("select 'drop table "' || tablename || '" cascade;' from pg_tables where schemaname = 'public';")
+        cursor.execute("drop schema public cascade;")
+        cursor.execute("create schema public;")
         self.conn.commit()
 
 if __name__ == '__main__':
@@ -206,7 +206,7 @@ if __name__ == '__main__':
     #cursor.execute("select useruuid from location order by count(useruuid) desc")
     #useruuid = cursor.fetchone()
     #print(useruuid)
-    d.find_coocurrences("c98f46b9-43fd-4536-afa0-9b789300fe7a", 0.001, 60*24)
-    #d.drop_tables()
-    #d.db_setup()
-    #d.insert_all_from_json()
+    #d.find_coocurrences("c98f46b9-43fd-4536-afa0-9b789300fe7a", 0.001, 60*24)
+    d.drop_tables()
+    d.db_setup()
+    d.insert_all_from_json()

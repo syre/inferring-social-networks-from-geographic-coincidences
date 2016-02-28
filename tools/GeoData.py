@@ -156,7 +156,7 @@ class GeoData(object):
 
         features = []
         # append main user
-        features.append(Feature(geometry=MultiLineString([(loc[3],loc[4]) for loc in locations]), properties={"id":useruuid, "name":"null"}, style={'color':"red"}))
+        features.append(Feature(geometry=MultiLineString([[(loc[3],loc[4]) for loc in locations]]), properties={"id":useruuid, "name":"null"}, style={'color':"red"}))
         # append cooccurrences
         for cooccurrence in cooccurrences:
             lat_long = json.loads(cooccurrence[3])

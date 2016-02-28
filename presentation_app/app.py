@@ -50,7 +50,12 @@ def index():
 
 @app.route("/cooccurrences")
 def occurrences():
-    return render_template("cooccurrences_map.html", useruuid="c98f46b9-43fd-4536-afa0-9b789300fe7a")
+    useruuid = request.args.get("useruuid")
+    if not useruuid:
+        # get default user japan
+        useruuid = "e21901af-70ba-402c-9e98-92fd6e0656f6"
+    user_list = database.get_users_with_most_updates()
+    return render_template("cooccurrences_map.html", useruuid=useruuid, user_list=user_list)
 
 @app.route("/distributions/<feature>")
 def distributions(feature):

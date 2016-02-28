@@ -1,5 +1,15 @@
 {% extends "base.html" %}
 {% block container %}
+<div class="text-center">
+<div class="btn-group">
+<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"> Users <span class="caret"></span></button>
+<ul class="dropdown-menu scrollable-menu" role="menu" style="max-height: 400px; overflow: hidden; overflow-y: auto;">
+  {% for id in user_list %}
+  <li><a href="/cooccurrences?useruuid={{id}}">{{id}}</a></li>
+  {% endfor %}
+</ul>
+</div>
+</div>
 	<div id="map"></div>
 	<style>
 		html, body { height: 100%; }
@@ -43,12 +53,14 @@
 		}).addTo(map);
 		
 
-        $.getJSON("/data/cooccurrences?useruuid="+encodeURIComponent("c98f46b9-43fd-4536-afa0-9b789300fe7a"), function(data)
+        $.getJSON("/data/cooccurrences?useruuid="+encodeURIComponent("{{useruuid}}"), function(data)
         {
             console.log(data);
-            L.geoJson(data,
-            {
-            }).addTo(map);
+            var markers = L.markerClusterGroup();
+            var geojson_layer = L.geoJson(data, {});
+            markers.addLayer(geojson_layer);
+            map.addLayer(markers);
+
         });
 
 </script>

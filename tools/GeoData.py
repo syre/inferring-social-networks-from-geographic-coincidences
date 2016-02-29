@@ -9,37 +9,20 @@ import random
 import os
 import geojson
 import math
-from geojson import Feature, FeatureCollection, GeometryCollection, MultiPoint, MultiLineString
+from geojson import Feature, FeatureCollection, GeometryCollection, MultiPoint, MultiLineString, Point
+import DatabaseHelper
 
 class GeoData(object):
     """docstring for Geo_data"""
     def __init__(self, path_to_settings=""):
-        print("Geo_data!!")
-        self.settings_dict = self.load_login(file_name="settings.cfg", key_split="=", path=path_to_settings)
-        self.conn = None
-        self.cursor = None
-        self.connect()
-        self.users = defaultdict(dict)
-        self.cursor.execute(""" SELECT DISTINCT "useruuid" FROM public.user;""")
-        all_users = self.cursor.fetchall()
+        self.databasehelper = DatabaseHelper.DatabaseHelper(path_to_settings)
+        self.user_colors = defaultdict(dict)
+        all_users = self.databasehelper.get_all_users()
         colors = []
         for user in all_users:
             color = self.gen_hex_colors(colors)
-            self.users[user[0]]['color'] = color
+            self.user_colors[user[0]] = color
             colors.append(color)
-        
-    def check_connection(self):
-        if self.cursor is None or self.cursor.closed():
-            print("Forbindelsen er lukket!\nÅbner en forbindelse")
-            self.connect()
-
-    def close_connection(self):
-        self.conn.close()
-    def connect(self):
-        self.conn = psycopg2.connect("host='{}' dbname='{}' user='{}' password='{}'".
-            format(self.settings_dict["HOSTNAME"], self.settings_dict["DBNAME"], 
-                self.settings_dict["USER"], self.settings_dict["PASS"]))
-        self.cursor = self.conn.cursor()
 
     def gen_hex_colors(self, allready_gen=[]):
         """Generate a random color in hexadecimal value
@@ -92,78 +75,38 @@ class GeoData(object):
             geojson dict -- geojson dictonary of the "raw" data
         """
         features = []
-        #print("generate_geojson her")
-        #print("hej")
         print(len(input_dict.items()))
-        #print("hej igen")
         c = 0
         for user,_ in input_dict.items():
             if user.strip() == '' or user is None:
-                print("Ingen user??")
+                print("no user found")
             lat_long = input_dict[user]['lat_long']
-            #print("lat_long = \n {0}".format(lat_long))
             if not self.validate_lat_long(lat_long):
-                print("User {0}, har en fejl i lat_long".format(user))
-            #break
+                print("User {0} has an error in lat_long".format(user))
             index = 0
             total_diff = input_dict[user]['total_diff']
             multipoints = []
             opacities = []
-            #print("h1")
             for diff in input_dict[user]['time_diff']:
-                #print("h2")
                 multipoints.append(input_dict[user]['lat_long'][index])
                 if diff > 0.0:
                     opacities.append(diff/total_diff)
                 else:
                     opacities.append(1.0)
                 index +=1
-            #print("h3")
             geometry_lines = MultiLineString([input_dict[user]['lat_long']])
             geometry_circle = MultiPoint(multipoints)
-            #print("h4")
-            #print(user)
-            #geometries = GeometryCollection([geometry_lines, geometry_circle], properties={'name':'null', 'times':input_dict[user]['time_start'], 'circles': {'opacities': opacities}, 'id': user},
-            #    style={'color': input_dict[user]['color']})
-            feature_lines = Feature(geometry=geometry_lines, #GeometryCollection([geometry_lines, geometry_circle]), #id=user, 
-                properties={'name':'null', 'circles':{'opacities': opacities},'times':input_dict[user]['time_start'], 'id': user}, style={'color': input_dict[user]['color']})
-            #feature_circles = Feature(geometry=geometry_circle, #GeometryCollection([geometry_lines, geometry_circle]), #id=user, 
-            #    properties={'name':'null', 'times':input_dict[user]['time_start'], 'circles': {'lat_long':input_dict[user]['lat_long'],
-            #     'opacities': opacities}, 'id': user}, style={'color': input_dict[user]['color']})
-            #print("h5")
+            feature_lines = Feature(geometry=geometry_lines, 
+                properties={'name':'null', 'circles':{'opacities': opacities},'times':input_dict[user]['start_time'], 'id': user}, style={'color': input_dict[user]["color"]})
             features.append(feature_lines)
-            #features.append(feature_circles)
-            #if c%10 == 0:
-            #print(c)
             c+=1
         return FeatureCollection(features)
-
-
-    def load_login(self, file_name="login.txt", key_split="##", value_split=",", has_header=False, path=""):
-        d = {}
-        with open(os.path.join(path, file_name), 'r') as f:
-            lines = f.readlines()
-        if has_header:
-            lines.pop(0)
-        for line in lines:
-            key_and_values = line.strip().split(key_split)
-            key = key_and_values[0]
-            values = key_and_values[1].split(value_split)
-            d[key] = []
-            for value in values:
-                d[key].append(value)
-            if len(d[key])==1:
-                d[key] = d[key][0]
-        return d
-
-
 
     def validate_lat_long(self, lat_long_lst):
         for lst in lat_long_lst:
             for lat_long in lst:
                 try:
                     float(lat_long)
-                    #float(lat_long[1])
                 except ValueError:
                     return False
         return True
@@ -184,34 +127,44 @@ class GeoData(object):
         start_datetime = dateutil.parser.parse(start_datetime)
         end_datetime = dateutil.parser.parse(end_datetime)
 
-        self.cursor.execute(""" SELECT useruuid, ST_AsGeoJSON(location) AS geom, start_time, end_time FROM location 
-            WHERE country=(%s) AND ((start_time, end_time) OVERLAPS ((%s), (%s)));""", (country, start_datetime, end_datetime))
-        result = self.cursor.fetchall()
-        count=0
+        result = self.databasehelper.get_locations_by_country(country, start_datetime, end_datetime)
         for res in result:
             user = res[0]
-            lat_long = json.loads(res[1]) #The location if fetched as GeoJSON
+            lat_long = json.loads(res[1]) #The location is fetched as GeoJSON
             start_time = res[2]
             end_time = res[3]
             diff = end_time-start_time
             if user in wanted_data:
                 wanted_data[user]['lat_long'].append(lat_long['coordinates'])
-                wanted_data[user]['time_start'].append(res[2])
+                wanted_data[user]['start_time'].append(res[2])
                 wanted_data[user]['time_diff'].append(diff.total_seconds())
                 wanted_data[user]['total_diff'] += diff.total_seconds()
             else:
                 wanted_data[user]['lat_long'] = [lat_long['coordinates']]
-                wanted_data[user]['time_start'] = [res[2]]
+                wanted_data[user]['start_time'] = [res[2]]
                 wanted_data[user]['time_diff'] = [diff.total_seconds()]
                 wanted_data[user]['total_diff'] = diff.total_seconds()
-                #color = self.gen_hex_colors(generated_colors)
-                #print(self.users)
-                wanted_data[user]['color'] = self.users[user]['color']
-                #generated_colors.append(color)
-            count+=1
-        print("Data hentet fra database")
+                wanted_data[user]['color'] = self.user_colors[user]
+        print("geodata fetched from database")
         return wanted_data
 
+    def get_geo_data_from_occurrences(self, useruuid, cell_size, time_threshold_in_hours):
+        # receive locations for user we want co-occurrences on
+        locations = self.databasehelper.get_locations_for_user(useruuid)
+        # retrieve locations that co-occur with useruuids locations
+        cooccurrences = self.databasehelper.find_cooccurrences(useruuid, cell_size, time_threshold_in_hours)
+
+        features = []
+        # append main user
+        features.append(Feature(geometry=MultiLineString([[(loc[3],loc[4]) for loc in locations]]), properties={"id":useruuid, "name":"null"}, style={'color':"red"}))
+        # append cooccurrences
+        for cooccurrence in cooccurrences:
+            lat_long = json.loads(cooccurrence[3])
+            start_time = cooccurrence[1]
+            end_time = cooccurrence[2]
+            features.append(Feature(geometry=Point(lat_long["coordinates"]), properties={"id":useruuid, "name":"null"}, style={'color':self.user_colors[useruuid]} ))
+
+        return FeatureCollection(features)
 
 
     def get_and_generate(self, country, start_date, end_date):
@@ -220,4 +173,4 @@ class GeoData(object):
 if __name__ == '__main__':
     tools_path = "../tools/"
     g = GeoData(tools_path)
-    print(g.check_validity(g.get_and_generate(("Japan",))))
+    print(g.get_geo_data_from_occurrences("c98f46b9-43fd-4536-afa0-9b789300fe7a", 0.001, 60*24))

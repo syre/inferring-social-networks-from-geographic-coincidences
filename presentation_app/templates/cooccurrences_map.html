@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block container %}
+<div class="text-center">
+<div class="btn-group">
+<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"> Users <span class="caret"></span></button>
+<ul class="dropdown-menu scrollable-menu" role="menu" style="max-height: 400px; overflow: hidden; overflow-y: auto;">
+  {% for id in user_list %}
+  <li><a href="/cooccurrences?useruuid={{id}}">{{id}}</a></li>
+  {% endfor %}
+</ul>
+</div>
+</div>
+	<div id="map"></div>
+	<style>
+		html, body { height: 100%; }
+		 #map { height: 90%;}
+	</style>
+	<script type="text/javascript">
+		function circles(feature, layer_lay){
+			var opacities = feature.properties.circles.opacities;
+			var lat_longs = feature.geometry.coordinates[0];
+			var i = 0;
+			for (var op of opacities){
+				if(op>0.0 && op<1.0){
+                    latitude = lat_longs[i][1];
+                    longitude = lat_longs[i][0]
+					var circle = new L.circle(new L.LatLng(lat_longs[i][1], lat_longs[i][0]), 20, {
+						stroke: true,
+						opacity: op, 
+						color: feature.style.color,
+						fill: true,
+						fillColor: feature.style.color, 
+						fillOpacity: op,
+					});
+                    circle.addTo(layer_lay);
+				}
+				i++;
+			}
+		}
+
+
+
+		var map = L.map('map', {
+			center: [36, 138],
+			zoom: 6,
+			
+		});
+
+		var tileLayer = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+			attribution: '© OpenStreetMap contributors',
+			onEachFeature: circles,	
+			style: function(feature) {return {"color": feature.style.color};}
+		}).addTo(map);
+		
+
+        $.getJSON("/data/cooccurrences?useruuid="+encodeURIComponent("{{useruuid}}"), function(data)
+        {
+            console.log(data);
+            var markers = L.markerClusterGroup();
+            var geojson_layer = L.geoJson(data, {});
+            markers.addLayer(geojson_layer);
+            map.addLayer(markers);
+
+        });
+
+</script>
+{% endblock %}

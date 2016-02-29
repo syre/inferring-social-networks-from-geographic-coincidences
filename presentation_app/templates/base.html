@@ -15,8 +15,13 @@
 	<link rel=stylesheet type=text/css href="{{ url_for('static', filename='leaflet.timedimension.control.css') }}">
 	<script src="{{ url_for('static', filename='d3.js') }}"></script>
 	<script src="{{ url_for('static', filename='dimple.v2.1.6.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='box.js') }}"></script>
-    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='box.css') }}">
+  <script src="{{ url_for('static', filename='box.js') }}"></script>
+  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='box.css') }}">
+	<link rel=stylesheet type=text/css href="{{ url_for('static', filename='MarkerCluster.css') }}">
+	<link rel=stylesheet type=text/css href="{{ url_for('static', filename='MarkerCluster.Default.css') }}">
+	<script src="{{ url_for('static', filename='leaflet.markercluster.js') }}"></script>
+
+>>>>>>> 9630f61206e40e0b76c26e26c15e93b4da180ebc
 </head>
 
 <body>
@@ -26,9 +31,27 @@
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
 
-      <li><a href="/">Map<span class="sr-only"></span></a></li>
-      <li><a href="distributions">Distributions<span class="sr-only"></span></a></li>
-      <li><a href="#">Link <span class="sr-only"></span></a></li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Maps<span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/">Japan - all</a></li>
+            <li><a href="/cooccurrences"> Co-occurrences for a user</a></li>
+          </ul>
+        </li>
+          <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Histograms<span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/distributions/accuracy">Accuracy</a></li>
+            <li><a href="/distributions/altitude">Altitude</a></li>
+            <li><a href="/distributions/country">Country</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Boxplots<span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="#">Insert features</a></li>
+          </ul>
+        </li>
       </ul>
       </div>
     </div>

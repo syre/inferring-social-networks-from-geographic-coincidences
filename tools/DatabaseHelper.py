@@ -32,7 +32,6 @@ class DatabaseHelper(object):
 
 
     def load_login(self, file_name="login.txt", key_split="##", value_split=",", has_header=False, path=""):
-        #print(os.listdir())
         d = {}
         with open(os.path.join(path, file_name), 'r') as f:
             lines = f.readlines()
@@ -65,7 +64,6 @@ class DatabaseHelper(object):
         cursor.execute("CREATE INDEX ON location (end_time)")
         cursor.execute("CREATE INDEX ON location using gist (location)")
         cursor.execute("CREATE INDEX ON location (useruuid)")
-        cursor.execute("VACUUM ANALYZE")
         self.conn.commit()
 
     def db_teardown(self):
@@ -152,7 +150,6 @@ class DatabaseHelper(object):
         cursor.execute("""SELECT max({}) FROM location""".format(feature))
         max_val = int(cursor.fetchone()[0])
         query = "SELECT "+", ".join(["count(CASE WHEN {2} >= {0} AND {2} < {1} THEN 1 END)".format(element,element+(max_val/num_bins), feature) for element in range(0,max_val,int(max_val/num_bins))])+""" from location"""
-        #print(query)
         cursor.execute(query)
         bucketized = [str(element)+"-"+str(element+max_val/num_bins) for element in range(0, max_val, int(max_val/num_bins))]
         results = list(cursor.fetchall()[0])
@@ -168,8 +165,7 @@ class DatabaseHelper(object):
             return [{"Countries": x[0], "Count": x[1]} for x in zip(countries, count)], {'x_axis': "Countries", 'y_axis': "Count"}
 
 
-
-    def find_coocurrences(self, useruuid, cell_size, time_threshold_in_hours):
+    def get_locations_for_user(self, useruuid):
         cursor = self.conn.cursor()
         cursor.execute("""SELECT useruuid, start_time, end_time, ST_X(location::geometry), ST_Y(location::geometry) from location where location.useruuid = (%s) """,(useruuid,))
         if cursor.rowcount == 0:
@@ -177,8 +173,13 @@ class DatabaseHelper(object):
             return
         else:
             locations = cursor.fetchall()
+        return locations
+    
+    def find_cooccurrences(self, useruuid, cell_size, time_threshold_in_hours):
+        cursor = self.conn.cursor()
+        locations = self.get_locations_for_user(useruuid)
 
-        cooccurences = []
+        cooccurrences = []
         for location in locations:
             start_time = location[1]
             end_time = location[2]
@@ -187,18 +188,35 @@ class DatabaseHelper(object):
 
             # find coocurrences by taking time_treshold_in_hours/2 before start_time and time_threshold_in_hours/2 after end_time
             # this also means time window can get really long, what are the consequences?
-            cursor.execute(""" SELECT useruuid, start_time, end_time, location from location where location.useruuid != (%s)
+            cursor.execute(""" SELECT useruuid, start_time, end_time, ST_AsGeoJSON(location) AS geom from location where location.useruuid != (%s)
              and (start_time between (%s) - interval '%s minutes' and (%s)) and (end_time between (%s) and (%s) + interval '%s minutes') and abs(ST_X(location::geometry)-(%s)) <= (%s) and abs(ST_Y(location::geometry)-(%s)) <= (%s)""",
              (useruuid, start_time, time_threshold_in_hours/2, start_time, end_time, end_time, time_threshold_in_hours/2, longitude, cell_size, latitude, cell_size))
+            
             result = cursor.fetchall()
             if result:
-                cooccurences.append(result)
-        print(len(cooccurences))
+                cooccurrences.extend(result)
+        return cooccurrences
 
+    def get_all_users(self):
+        cursor = self.conn.cursor()
+        cursor.execute(""" SELECT DISTINCT "useruuid" FROM public.user;""")
+        return cursor.fetchall()
+
+    def get_users_with_most_updates(self):
+    	cursor = self.conn.cursor()
+    	cursor.execute("select useruuid from location group by useruuid order by count(*) desc;")
+    	return [element[0] for element in cursor.fetchall()]
+
+    def get_locations_by_country(self, country, start_datetime, end_datetime):
+        cursor = self.conn.cursor()
+        cursor.execute(""" SELECT useruuid, ST_AsGeoJSON(location) AS geom, start_time, end_time FROM location 
+            WHERE country=(%s) AND ((start_time, end_time) OVERLAPS ((%s), (%s)));""", (country, start_datetime, end_datetime))
+        return cursor.fetchall()
 
     def drop_tables(self):
         cursor = self.conn.cursor()
-        cursor.execute("select 'drop table "' || tablename || '" cascade;' from pg_tables where schemaname = 'public';")
+        cursor.execute("drop schema public cascade;")
+        cursor.execute("create schema public;")
         self.conn.commit()
 
 
@@ -256,10 +274,7 @@ class DatabaseHelper(object):
 
 if __name__ == '__main__':
     d = DatabaseHelper()
-    #cursor.execute("select useruuid from location order by count(useruuid) desc")
-    #useruuid = cursor.fetchone()
-    #print(useruuid)
-    d.find_coocurrences("c98f46b9-43fd-4536-afa0-9b789300fe7a", 0.001, 60*24)
+    print(d.find_cooccurrences("c98f46b9-43fd-4536-afa0-9b789300fe7a", 0.001, 60*24))
     #d.drop_tables()
     #d.db_setup()
     #d.insert_all_from_json()

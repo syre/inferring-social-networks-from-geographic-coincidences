@@ -201,6 +201,59 @@ class DatabaseHelper(object):
         cursor.execute("select 'drop table "' || tablename || '" cascade;' from pg_tables where schemaname = 'public';")
         self.conn.commit()
 
+
+
+
+
+
+    def get_boxplot_duration(self, country, for_all_countries=False):
+        cursor = self.conn.cursor()
+        if for_all_countries:
+            print("hurtig")
+            total_rows = []
+            data = []
+            cursor.execute("""SELECT country, SUM((end_time - start_time)) AS total_diff_time, count(*) AS number_rows_for_user FROM location GROUP BY country ORDER BY country;""")
+            result = cursor.fetchall()
+            for row in result:
+                country = row[0]
+                print("|{0}|".format(country))
+                if country != "" and country != " " and country is not None:
+                    time = row[1]
+                    number_rows_for_country = row[2]
+
+                    total_rows.append(number_rows_for_country)
+                    time = time.total_seconds()
+                    average_time = "{0:.2f}".format(time/number_rows_for_country)
+                    data.append(float(average_time))
+                else:
+                    print("Tom streng!")
+            print("total_rows:")
+            print(total_rows)  
+            return data
+        else:
+            data, _ = self.get_duration_data(country)
+            return data
+        
+    def get_duration_data(self, country):
+        data = []
+        cursor = self.conn.cursor()
+        cursor.execute(""" SELECT useruuid, SUM((end_time - start_time)) AS total_diff_time, count(*) AS number_rows_for_user FROM location WHERE country=(%s) GROUP BY useruuid;""",(country,))
+        result = cursor.fetchall()
+        total_rows = []
+        for row in result:
+            user = row[0]
+            time = row[1]
+            no_rows_for_user = row[2]
+
+            time = time.total_seconds()
+            average_time = "{0:.2f}".format(time/no_rows_for_user)
+            data.append(float(average_time))
+            total_rows.append(no_rows_for_user)
+        print(sum(total_rows))
+        return data, sum(total_rows)
+
+
+
 if __name__ == '__main__':
     d = DatabaseHelper()
     #cursor.execute("select useruuid from location order by count(useruuid) desc")

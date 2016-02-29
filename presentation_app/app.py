@@ -39,6 +39,7 @@ def index():
 
 @app.route("/distributions/<feature>")
 def distributions(feature):
+    print("distributions render_template")
     return render_template("distributions.html", feature=feature)
 
 @app.route("/data/distributions/<feature>")
@@ -51,7 +52,23 @@ def data_distributions(feature):
         data, layout = database.get_distributions_text(feature,num_bins=10)
     else:
         abort(400)
+    print("distributions")
     return flask.jsonify(results=data, x_axis=layout['x_axis'], y_axis=layout['y_axis'])
+
+
+
+
+@app.route("/boxplot/<feature>")
+def boxplot(feature):
+    print("boxplot  render_template")
+    return render_template("boxplot.html", feature=feature)
+
+@app.route("/data/boxplot/<feature>")
+def data_boxplot(feature):
+    data = database.get_boxplot_duration("Japan")
+    #data = [4,5,6]
+    print("boxplot")
+    return flask.jsonify(results=data, feature='country')
 
 
 @app.errorhandler(400)

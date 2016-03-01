@@ -83,10 +83,10 @@ def boxplot(feature):
 
 @app.route("/data/boxplot/<feature>")
 def data_boxplot(feature):
-    data = database.get_boxplot_duration("Japan", for_all_countries=False)
+    data, names = database.get_boxplot_duration("Japan", for_all_countries=True)
     #data = [4,5,6]
     print("boxplot")
-    return flask.jsonify(results=data, feature='country')
+    return flask.jsonify(results=data, names=names, feature='country')
 
 
 @app.errorhandler(400)

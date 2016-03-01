@@ -22,6 +22,7 @@ d3.json("/data/boxplot/{{feature}}", function(data){
     console.log(data);
     feature = data['feature'];
     results = data['results'];
+    names = data['names'];
 
     var max = Math.max.apply(Math, results),
         min = Math.min.apply(Math, results);
@@ -29,7 +30,7 @@ d3.json("/data/boxplot/{{feature}}", function(data){
     chart.domain([min, max]);
  
     var vis = d3.select("#chartContainer").selectAll("svg")
-        .data([results])
+        .data([[results,names]])
         .enter().append("svg:svg")
             .attr("class", "box")
             .attr("width", w)
@@ -37,7 +38,11 @@ d3.json("/data/boxplot/{{feature}}", function(data){
         .append("svg:g")
             .attr("transform", "translate(" + m[3] + "," + m[0] + ")")
             .call(chart);
-     
+    
+    $('div#chartContainer > svg> g > circle').jBox('Tooltip', {
+    getTitle: 'name',
+    getContent: 'value'
+});  
    /*chart.duration(1000);
    window.transition = function() {
      vis.map(randomize).call(chart);
@@ -117,10 +122,7 @@ d3.json("/data/boxplot/{{feature}}", function(data){
    };
 }
 
-$('div#chartContainer > svg> g > circle').jBox('Tooltip', {
-    getTitle: 'name',
-    getContent: 'value'
-});   //ul.topnav > li"
+  //ul.topnav > li"
 
 /*$('div#chartContainer').jBox('Tooltip', {
     getTitle: "test",

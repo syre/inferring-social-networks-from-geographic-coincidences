@@ -17,7 +17,6 @@ d3.chart.box = function() {
     g.each(function(d, i) {
       names = d[1]; //String values
       d = d[0]; //number values
-      d = d.map(value).sort(d3.ascending);  //d = d[0]
       var g = d3.select(this),
           n = d.length,
           min = d[0],

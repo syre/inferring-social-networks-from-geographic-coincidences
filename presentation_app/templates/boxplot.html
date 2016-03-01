@@ -31,7 +31,7 @@ d3.json("/data/multi_boxplot/{{feature}}", function(data){
       var current_min = Math.min.apply(Math, results);
       if (max < current_max)
         max = current_max;
-      if (min < current_min)
+      if (min > current_min)
         min = current_min;
 
       countries_list.push([results, names, id]);

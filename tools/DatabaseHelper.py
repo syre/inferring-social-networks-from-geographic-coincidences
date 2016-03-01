@@ -261,7 +261,7 @@ class DatabaseHelper(object):
                 data.append(float(average_time))
                 total_rows.append(no_rows_for_user)
             print(sum(total_rows))
-        
+
         data, names = zip(*sorted(zip(data, names)))
         return data, names
         

@@ -35,8 +35,6 @@ d3.chart.box = function() {
           ? d3.range(0, whiskerIndices[0]).concat(d3.range(whiskerIndices[1] + 1, n))
           : d3.range(n);
       var numberOutliers = outlierIndices.length;
-      console.log("her!!!");
-      console.log(outlierIndices.length);
       // Compute the new x-scale.
       var x1 = d3.scale.linear()
           .domain(domain && domain.call(this, d, i) || [min, max])
@@ -156,12 +154,6 @@ d3.chart.box = function() {
           .remove();
 
       var format = tickFormat || x0.tickFormat(8);
-      console.log("format");
-      console.log(format);
-      console.log("x0");
-      console.log(x0);
-      console.log("x1");
-      console.log(x1);
       // Update outliers.
       var outlier = g.selectAll("circle.outlier")
           .data(outlierIndices, Number);
@@ -192,9 +184,6 @@ d3.chart.box = function() {
           .remove();
 
 
-      console.log("box.js")
-      console.log(d)
-      console.log(outlierIndices)
       outlier.enter().append("text")
         .attr("class", "outlier")
 
@@ -203,28 +192,9 @@ d3.chart.box = function() {
         .attr("x", function(outlierIndices, i) { return  0 })
         .attr("y", function(outlierIndices) 
         { 
-          console.log("x0(d[outlierIndices])");
-          console.log(outlierIndices);
-          console.log(x1(d[outlierIndices]));
 
-        return x1(d[outlierIndices]); })
-        .attr("text-anchor", function(outlierIndices) 
-          { console.log("outlierIndices");
-            console.log(outlierIndices)
-            console.log("d[outlierIndices]");
-          console.log(d[outlierIndices]); 
-          return d[outlierIndices] & 1 ? "start" : "end";})
-        .text(function(outlierIndices) 
-          {
-          
-          if(numberOutliers >10){
-            console.log("IF!!");
-            return "";
-          } 
-          else{
-            return d[outlierIndices];   
-          }
-           });
+
+        return x1(d[outlierIndices]); });
       // Compute the tick format.
       var format = tickFormat || x1.tickFormat(8);
 

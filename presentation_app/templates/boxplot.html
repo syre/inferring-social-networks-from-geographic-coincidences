@@ -16,28 +16,50 @@ var w = 120,
      .width(w - m[1] - m[3])
      .height(h - m[0] - m[2]);
  
-d3.json("/data/boxplot/{{feature}}", function(data){
-    console.log(data);
-    feature = data['feature'];
-    results = data['results'];
-    names = data['names'];
-    var max = Math.max.apply(Math, results),
-        min = Math.min.apply(Math, results);
+d3.json("/data/multi_boxplot/{{feature}}", function(data){
+    var data = data["results"];
+    feature = "{{feature}}";
+    var countries_list = [];
+    var max = 0;
+    var min = 0;
+    for (index in data)
+    {
+      var results = data[index]['results'];
+      var names = data[index]['names'];
+      var id = data[index]["id"];
+      var current_max = Math.max.apply(Math, results);
+      var current_min = Math.min.apply(Math, results);
+      if (max < current_max)
+        max = current_max;
+      if (min < current_min)
+        min = current_min;
+
+      countries_list.push([results, names, id]);
+    }
+    console.log(countries_list);
     chart.domain([min, max]);
- 
-    var vis = d3.select("#chartContainer").selectAll("svg")
-        .data([[results,names]])
-        .enter().append("svg:svg")
+    
+    var div = d3.select("#chartContainer").selectAll("svg")
+        .data(countries_list)
+        .enter().append("div").attr("style", "float:left");
+
+    var svg = div.append("svg:svg")
             .attr("class", "box")
             .attr("width", w)
-            .attr("height", h)
-        .append("svg:g")
+            .attr("height", h);
+
+    var vis = svg.append("svg:g")
             .attr("transform", "translate(" + m[3] + "," + m[0] + ")")
             .call(chart);
+
+    div.append("p").text(function(d) {return d[2]}).attr("style", "text-align:center");
+
+        
     
     $('div#chartContainer > svg> g > circle').jBox('Tooltip', {
     getTitle: 'name',
-    getContent: 'value'});  
+    getContent: 'value'});
+
 });
  
  function randomize(d) {

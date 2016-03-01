@@ -73,16 +73,13 @@ def data_distributions(feature):
     print("distributions")
     return flask.jsonify(results=data, x_axis=layout['x_axis'], y_axis=layout['y_axis'])
 
-@app.route("/multi_boxplot/<feature>")
-def multi_boxplot(feature):
-    return render_template("multi_boxplot.html", feature=feature)
-
 @app.route("/data/multi_boxplot/<feature>")
 def data_multi_boxplot(feature):
     countries = ["Japan", "Sweden", "Denmark", "Finland", "Germany"]
     data = []
     for index, country in enumerate(countries):
-        data.append({"data":database.get_boxplot_duration(country, for_all_countries=False),"id":country})
+        results, names = database.get_boxplot_duration(country, for_all_countries=False)
+        data.append({"results":results, "names":names, "id":country})
     return flask.jsonify(results=data)
 
 @app.route("/boxplot/<feature>")

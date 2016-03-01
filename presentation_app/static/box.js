@@ -19,7 +19,8 @@ d3.chart.box = function() {
     g.each(function(d, i) {
       console.log("d");
     console.log(d);
-      d = d.map(value).sort(d3.ascending);
+      //names = d[1]
+      d = d.map(value).sort(d3.ascending);  //d = d[0]
       var g = d3.select(this),
           n = d.length,
           min = d[0],
@@ -171,6 +172,8 @@ d3.chart.box = function() {
 
       outlier.enter().insert("circle", "text")
           .attr("class", "outlier")
+          .attr("value", function(outlierIndices) {return d[outlierIndices]})
+          .attr("name", function(outlierIndices) {return d[outlierIndices]})
           .attr("r", 5)
           .attr("cx", width / 2)
           .attr("cy", function(i) { return x0(d[i]); })
@@ -210,6 +213,7 @@ d3.chart.box = function() {
       console.log(outlierIndices)
       outlier.enter().append("text")
         .attr("class", "outlier")
+
         .attr("dy", ".3em")
         .attr("dx", function(outlierIndices, i) { return -6 })
         .attr("x", function(outlierIndices, i) { return  0 })

@@ -116,6 +116,19 @@ d3.json("/data/boxplot/{{feature}}", function(data){
      return [i, j];
    };
 }
+
+$('div#chartContainer > svg> g > circle').jBox('Tooltip', {
+    getTitle: 'name',
+    getContent: 'value'
+});   //ul.topnav > li"
+
+/*$('div#chartContainer').jBox('Tooltip', {
+    getTitle: "test",
+    getContent: "hej"
+}); */
+ /*
+<span class="tooltip" data-jbox-title="jBox title 1" data-jbox-content="jBox content 1">Hover me!</span>
+<span class="tooltip" data-jbox-title="jBox title 2" data-jbox-content="jBox content 2">Hover me!</span>*/
   </script>
 
 

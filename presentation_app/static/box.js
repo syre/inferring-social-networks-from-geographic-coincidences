@@ -14,11 +14,7 @@ d3.chart.box = function() {
 
   // For each small multiple…
   function box(g) {
-    console.log("g");
-    console.log(g);
     g.each(function(d, i) {
-      console.log("d");
-    console.log(d);
       names = d[1]; //String values
       d = d[0]; //number values
       d = d.map(value).sort(d3.ascending);  //d = d[0]
@@ -196,18 +192,6 @@ d3.chart.box = function() {
           .style("opacity", 1e-6)
           .remove();
 
-          /*d = 
-            0: 740
-            1: 850
-            2: 850
-            3: 900
-            4: 930
-            5: 1070
-
-          outlierIndices = [0, 5]*/
-
-
-
 
       console.log("box.js")
       console.log(d)
@@ -224,20 +208,15 @@ d3.chart.box = function() {
           console.log(outlierIndices);
           console.log(x1(d[outlierIndices]));
 
-        return x1(d[outlierIndices]); })//function(outlierIndices,i) { return x0(d[outlierIndices]); })
+        return x1(d[outlierIndices]); })
         .attr("text-anchor", function(outlierIndices) 
           { console.log("outlierIndices");
             console.log(outlierIndices)
             console.log("d[outlierIndices]");
           console.log(d[outlierIndices]); 
           return d[outlierIndices] & 1 ? "start" : "end";})
-          //return d[outlierIndices]; })
         .text(function(outlierIndices) 
-          { /*console.log("outlierIndices");
-            console.log(outlierIndices)
-            console.log("d[outlierIndices]");
-          console.log(d[outlierIndices]);*/
-
+          {
           
           if(numberOutliers >10){
             console.log("IF!!");

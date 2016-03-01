@@ -220,10 +220,6 @@ class DatabaseHelper(object):
         self.conn.commit()
 
 
-
-
-
-
     def get_boxplot_duration(self, country, for_all_countries=False):
         cursor = self.conn.cursor()
         if for_all_countries:

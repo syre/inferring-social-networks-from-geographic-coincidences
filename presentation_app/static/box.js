@@ -171,7 +171,7 @@ d3.chart.box = function() {
           .data(outlierIndices, Number);
 
       outlier.enter().insert("circle", "text")
-          .attr("class", "outlier")
+          .attr("class", "outlier tooltip")
           .attr("value", function(outlierIndices) {return d[outlierIndices]})
           .attr("name", function(outlierIndices) {return d[outlierIndices]})
           .attr("r", 5)

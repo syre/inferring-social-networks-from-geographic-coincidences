@@ -75,16 +75,35 @@ def data_distributions(feature):
 
 @app.route("/data/multi_boxplot/<feature>")
 def data_multi_boxplot(feature):
-    countries = ["Japan", "Sweden", "Denmark", "Finland", "Germany"]
+    # /country?values=Japan,Sweden,Denmark
+    #
+    #
+    print("data multi_boxplot - feature = {0}".format(feature))
+    feature_values = request.args.get("values")
+    print(feature_values)
+    
+    #countries = ["Japan", "Sweden", "Denmark", "Finland", "Germany"]
+    
     data = []
-    for index, country in enumerate(countries):
-        results, names = database.get_boxplot_duration(country, for_all_countries=False)
-        data.append({"results":results, "names":names, "id":country})
+    if feature == "country":
+        if not feature_values:
+            results, names = database.get_boxplot_duration("Denmark", for_all_countries=True)
+            data.append({"results":results, "names":names, "id":"All countries"})
+        else:
+            feature_values = feature_values.split(",")
+            for country in feature_values:
+                results, names = database.get_boxplot_duration(country, for_all_countries=False)
+                data.append({"results":results, "names":names, "id":country})
     return flask.jsonify(results=data)
 
 @app.route("/boxplot/<feature>")
 def boxplot(feature):
-    return render_template("boxplot.html", feature=feature)
+    all_countries = database.get_feature_sql_as_list("SELECT name from country order by name;")
+    print(feature)
+    if not feature:
+        feature = all_countries[0][0]
+        print(feature)
+    return render_template("boxplot.html", feature=feature, all_countries=all_countries[0])
 
 @app.route("/data/boxplot/<feature>")
 def data_boxplot(feature):

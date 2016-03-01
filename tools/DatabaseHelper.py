@@ -284,7 +284,20 @@ class DatabaseHelper(object):
         return data, sum(total_rows)
 
 
+    def get_feature_sql_as_list(self, sql, number_of_featues=1):
+        cursor = self.conn.cursor()
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        data = []
 
+        for row in result:
+            for i in range(number_of_featues):
+                if not data or len(data) < i:
+                    data.append([row[i]])
+                else:
+                    data[i].append(row[i])
+        #[data.append(row[0]) for row in result]
+        return data
 if __name__ == '__main__':
     d = DatabaseHelper()
     print(d.find_cooccurrences("c98f46b9-43fd-4536-afa0-9b789300fe7a", 0.001, 60*24))

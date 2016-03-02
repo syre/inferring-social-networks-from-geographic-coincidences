@@ -298,6 +298,18 @@ class DatabaseHelper(object):
                     data[i].append(row[i])
         #[data.append(row[0]) for row in result]
         return data
+
+    def get_distinct_feature(self, feature, from_table):
+        sql = "SELECT DISTINCT "+feature+" FROM "+from_table+";"
+        print(sql)
+        cursor = self.conn.cursor()
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        data = []
+        for row in result:
+            data.append(row[0])
+        return data
+
 if __name__ == '__main__':
     d = DatabaseHelper()
     #print(d.find_cooccurrences("c98f46b9-43fd-4536-afa0-9b789300fe7a", 0.001, 60*24))

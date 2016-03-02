@@ -310,6 +310,10 @@ class DatabaseHelper(object):
         return data
 
     def get_distinct_feature(self, feature, from_table):
+        if feature == 'user' or feature == 'useruuid':
+            feature = '"'+feature+'"'
+        if from_table == "user":
+            from_table = "public."+from_table
         sql = "SELECT DISTINCT "+feature+" FROM "+from_table+";"
         print(sql)
         cursor = self.conn.cursor()

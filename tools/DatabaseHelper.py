@@ -207,11 +207,6 @@ class DatabaseHelper(object):
                 cooccurrences.extend(result)
         return cooccurrences
 
-    def get_all_users(self):
-        cursor = self.conn.cursor()
-        cursor.execute(""" SELECT DISTINCT "useruuid" FROM public.user;""")
-        return cursor.fetchall()
-
     def get_users_with_most_updates(self):
     	cursor = self.conn.cursor()
     	cursor.execute("select useruuid from location group by useruuid order by count(*) desc;")
@@ -274,24 +269,6 @@ class DatabaseHelper(object):
 
         data, names = zip(*sorted(zip(data, names)))
         return data, names
-        
-    def get_duration_data(self, country):
-        data = []
-        cursor = self.conn.cursor()
-        cursor.execute(""" SELECT useruuid, SUM((end_time - start_time)) AS total_diff_time, count(*) AS number_rows_for_user FROM location WHERE country=(%s) GROUP BY useruuid;""",(country,))
-        result = cursor.fetchall()
-        total_rows = []
-        for row in result:
-            user = row[0]
-            time = row[1]
-            no_rows_for_user = row[2]
-
-            time = time.total_seconds()
-            average_time = "{0:.2f}".format(time/no_rows_for_user)
-            data.append(float(average_time))
-            total_rows.append(no_rows_for_user)
-        print(sum(total_rows))
-        return data, sum(total_rows)
 
     def get_distinct_feature(self, feature, from_table):
         cursor = self.conn.cursor()

@@ -145,24 +145,34 @@ class DatabaseHelper(object):
             cursor.execute("""INSERT INTO place (name) VALUES (%s)""",(row["name"],))
             self.conn.commit()
 
-    def get_distributions_numbers(self, feature, num_bins = 20):
+    def get_distributions_numbers(self, feature, num_bins = 20, max_value=0):
         cursor = self.conn.cursor()
-        cursor.execute("""SELECT max({}) FROM location""".format(feature))
-        max_val = int(cursor.fetchone()[0])
-        query = "SELECT "+", ".join(["count(CASE WHEN {2} >= {0} AND {2} < {1} THEN 1 END)".format(element,element+(max_val/num_bins), feature) for element in range(0,max_val,int(max_val/num_bins))])+""" from location"""
-        cursor.execute(query)
-        bucketized = [str(element)+"-"+str(element+max_val/num_bins) for element in range(0, max_val, int(max_val/num_bins))]
-        results = list(cursor.fetchall()[0])
-        return [{"Number":x[0],"Count":x[1]} for x in zip(bucketized, results)], {'x_axis': "Number", 'y_axis': "Count"}
+        if not max_value:
+            cursor.execute("""SELECT max({}) FROM location""".format(feature))
+            max_value = int(cursor.fetchone()[0])
 
-    def get_distributions_text(self, feature, num_bins = 20):
+        step_size = int(max_value/num_bins)
+        end_value = max_value-int(max_value/num_bins)
+
+        query = "SELECT "+", ".join(["count(CASE WHEN {2} >= {0} AND {2} < {1} THEN 1 END)".
+                              format(element,element+(max_value/num_bins), feature) for element in range(0,end_value,step_size)])+", count(CASE WHEN {0} > {1} THEN 1 END)".format(feature, max_value)+" from location"
+        cursor.execute(query)
+        results = list(cursor.fetchall()[0])
+
+        bucketized = [str(element)+"-"+str(element+step_size) for element in range(0, end_value, step_size)]
+        bucketized.extend([str(max_value)+"<"])
+
+        return {"results":[{"Number":x[0],"Count":x[1], "Order":index} for index,x in enumerate(zip(bucketized, results))], 'x_axis': "Number", 'y_axis': "Count"}
+
+    def get_distributions_categories(self, feature, num_bins = 20):
         if feature == "country":
             cursor = self.conn.cursor()
             cursor.execute("""select country, count(*) from location group by country order by count(*) desc;""")
             result = cursor.fetchall()
             countries = [row[0] for row in result]
             count = [row[1] for row in result]
-            return [{"Countries": x[0], "Count": x[1]} for x in zip(countries, count)], {'x_axis': "Countries", 'y_axis': "Count"}
+            # return with order value =(-count) to sort by count descending
+            return {"results":[{"Countries": x[0], "Count": x[1], "Order":-x[1]} for x in zip(countries, count)], 'x_axis': "Countries", 'y_axis': "Count"}
 
 
     def get_locations_for_user(self, useruuid):
@@ -175,7 +185,7 @@ class DatabaseHelper(object):
             locations = cursor.fetchall()
         return locations
     
-    def find_cooccurrences(self, useruuid, cell_size, time_threshold_in_hours):
+    def find_cooccurrences(self, useruuid, cell_size, time_threshold_in_minutes):
         cursor = self.conn.cursor()
         locations = self.get_locations_for_user(useruuid)
 
@@ -190,7 +200,7 @@ class DatabaseHelper(object):
             # this also means time window can get really long, what are the consequences?
             cursor.execute(""" SELECT useruuid, start_time, end_time, ST_AsGeoJSON(location) AS geom from location where location.useruuid != (%s)
              and (start_time between (%s) - interval '%s minutes' and (%s)) and (end_time between (%s) and (%s) + interval '%s minutes') and abs(ST_X(location::geometry)-(%s)) <= (%s) and abs(ST_Y(location::geometry)-(%s)) <= (%s)""",
-             (useruuid, start_time, time_threshold_in_hours/2, start_time, end_time, end_time, time_threshold_in_hours/2, longitude, cell_size, latitude, cell_size))
+             (useruuid, start_time, time_threshold_in_minutes/2, start_time, end_time, end_time, time_threshold_in_minutes/2, longitude, cell_size, latitude, cell_size))
             
             result = cursor.fetchall()
             if result:

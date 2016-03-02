@@ -171,7 +171,8 @@ class DatabaseHelper(object):
             result = cursor.fetchall()
             countries = [row[0] for row in result]
             count = [row[1] for row in result]
-            return [{"Countries": x[0], "Count": x[1]} for x in zip(countries, count)], {'x_axis': "Countries", 'y_axis': "Count"}
+            # return with order value =(-count) to sort by count descending
+            return {"results":[{"Countries": x[0], "Count": x[1], "Order":-x[1]} for x in zip(countries, count)], 'x_axis': "Countries", 'y_axis': "Count"}
 
 
     def get_locations_for_user(self, useruuid):

@@ -207,11 +207,6 @@ class DatabaseHelper(object):
                 cooccurrences.extend(result)
         return cooccurrences
 
-    def get_all_users(self):
-        cursor = self.conn.cursor()
-        cursor.execute(""" SELECT DISTINCT "useruuid" FROM public.user;""")
-        return cursor.fetchall()
-
     def get_users_with_most_updates(self):
     	cursor = self.conn.cursor()
     	cursor.execute("select useruuid from location group by useruuid order by count(*) desc;")
@@ -295,7 +290,7 @@ class DatabaseHelper(object):
 
     def get_distinct_feature(self, feature, from_table):
         cursor = self.conn.cursor()
-        cursor.execute("select distinct {} from {};".format(feature, from_table))
+        cursor.execute("""select distinct {} from "{}";""".format(feature, from_table))
         return [feature_name[0] for feature_name in cursor.fetchall()]
 
 if __name__ == '__main__':

@@ -48,7 +48,7 @@ var w = 120,
 var values = getParameterByName("values");
 var url = "/data/boxplot/{{feature}}";
 if (values != null)
-  url+= "?values"+encodeURIComponent(values);
+  url+= "?values="+encodeURIComponent(values);
 
 d3.json(url, function(data){
     var data = data["results"];

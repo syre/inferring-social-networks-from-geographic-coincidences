@@ -71,7 +71,6 @@ def data_distributions(feature):
         data, layout = database.get_distributions_text(feature,num_bins=10)
     else:
         abort(400)
-    print("distributions")
     return flask.jsonify(results=data, x_axis=layout['x_axis'], y_axis=layout['y_axis'])
 
 @app.route("/data/boxplot/<feature>")
@@ -79,7 +78,7 @@ def data_boxplot(feature):
     feature_values = request.args.get("values")
     if feature_values:
         feature_values = unquote_plus(feature_values)
-    
+    print(feature_values)
     data = []
     if feature == "country":
         if not feature_values:

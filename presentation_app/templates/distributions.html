@@ -5,15 +5,16 @@
     var svg = dimple.newSvg("#chartContainer", 1200, 800);
     d3.json("/data/distributions/{{feature}}", function (data) {
 
-      var results = data["results"]
-      var x_axis = data["x_axis"]
-      var y_axis = data["y_axis"]
+      var results = data["results"]["results"]
+      var x_axis = data["results"]["x_axis"]
+      var y_axis = data["results"]["y_axis"]
       var myChart = new dimple.chart(svg, results);
-var x = myChart.addMeasureAxis("y", y_axis);
+
+var x = myChart.addCategoryAxis("x", x_axis);
+var y = myChart.addMeasureAxis("y", y_axis);
 
 x.showGridlines = true;
-x.addOrderRule("Number");
-var y = myChart.addCategoryAxis("x", x_axis);
+x.addOrderRule("Order");
 var s = myChart.addSeries("{{feature}}", dimple.plot.bar);
 s.lineWeight = 4;
 s.lineMarkers = true;

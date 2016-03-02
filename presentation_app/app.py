@@ -66,12 +66,13 @@ def distributions(feature):
 @app.route("/data/distributions/<feature>")
 def data_distributions(feature):
     if feature in number_features:
-        data, layout = database.get_distributions_numbers(feature,num_bins=10)
+        data = database.get_distributions_numbers(feature,num_bins=10, max_value=100000)
     elif feature in category_features:
-        data, layout = database.get_distributions_text(feature,num_bins=10)
+        data = database.get_distributions_categories(feature,num_bins=10)
     else:
         abort(400)
-    return flask.jsonify(results=data, x_axis=layout['x_axis'], y_axis=layout['y_axis'])
+    print(data)
+    return flask.jsonify(results=data)
 
 @app.route("/data/boxplot/<feature>")
 def data_boxplot(feature):

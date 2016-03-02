@@ -175,7 +175,7 @@ class DatabaseHelper(object):
             locations = cursor.fetchall()
         return locations
     
-    def find_cooccurrences(self, useruuid, cell_size, time_threshold_in_hours):
+    def find_cooccurrences(self, useruuid, cell_size, time_threshold_in_minutes):
         cursor = self.conn.cursor()
         locations = self.get_locations_for_user(useruuid)
 
@@ -190,7 +190,7 @@ class DatabaseHelper(object):
             # this also means time window can get really long, what are the consequences?
             cursor.execute(""" SELECT useruuid, start_time, end_time, ST_AsGeoJSON(location) AS geom from location where location.useruuid != (%s)
              and (start_time between (%s) - interval '%s minutes' and (%s)) and (end_time between (%s) and (%s) + interval '%s minutes') and abs(ST_X(location::geometry)-(%s)) <= (%s) and abs(ST_Y(location::geometry)-(%s)) <= (%s)""",
-             (useruuid, start_time, time_threshold_in_hours/2, start_time, end_time, end_time, time_threshold_in_hours/2, longitude, cell_size, latitude, cell_size))
+             (useruuid, start_time, time_threshold_in_minutes/2, start_time, end_time, end_time, time_threshold_in_minutes/2, longitude, cell_size, latitude, cell_size))
             
             result = cursor.fetchall()
             if result:

@@ -300,7 +300,7 @@ class DatabaseHelper(object):
         return data
 if __name__ == '__main__':
     d = DatabaseHelper()
-    print(d.find_cooccurrences("c98f46b9-43fd-4536-afa0-9b789300fe7a", 0.001, 60*24))
-    #d.drop_tables()
-    #d.db_setup()
-    #d.insert_all_from_json()
+    #print(d.find_cooccurrences("c98f46b9-43fd-4536-afa0-9b789300fe7a", 0.001, 60*24))
+    d.drop_tables()
+    d.db_setup()
+    d.insert_all_from_json()

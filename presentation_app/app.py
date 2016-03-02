@@ -7,6 +7,7 @@ import sys
 import os
 from threading import Thread
 from multiprocessing.pool import ThreadPool
+from urllib.parse import unquote_plus
 
 sys.path.append(os.path.join("..","tools"))
 import DatabaseHelper
@@ -73,16 +74,11 @@ def data_distributions(feature):
     print("distributions")
     return flask.jsonify(results=data, x_axis=layout['x_axis'], y_axis=layout['y_axis'])
 
-@app.route("/data/multi_boxplot/<feature>")
-def data_multi_boxplot(feature):
-    # /country?values=Japan,Sweden,Denmark
-    #
-    #
-    print("data multi_boxplot - feature = {0}".format(feature))
+@app.route("/data/boxplot/<feature>")
+def data_boxplot(feature):
     feature_values = request.args.get("values")
-    print(feature_values)
-    
-    #countries = ["Japan", "Sweden", "Denmark", "Finland", "Germany"]
+    if feature_values:
+        feature_values = unquote_plus(feature_values)
     
     data = []
     if feature == "country":
@@ -105,10 +101,6 @@ def boxplot(feature):
         print(feature)
     return render_template("boxplot.html", feature=feature, all_countries=all_countries[0])
 
-@app.route("/data/boxplot/<feature>")
-def data_boxplot(feature):
-    data, names = database.get_boxplot_duration("Japan", for_all_countries=True)
-    return flask.jsonify(results=data, names=names, feature='country')
 
 
 @app.errorhandler(400)

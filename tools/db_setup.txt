@@ -25,7 +25,6 @@ psql -d dtudatascience2016 -U admin -W
 
 
 # opret postgis extension for databasen
-\c dtudatascience2016;
 create extension postgis;
 
 
@@ -35,5 +34,3 @@ create extension postgis;
 # performance tuning i config fil
 # sæt shared_buffers til XGB (total GB /4)
 # sæt effective_cache_size til shared_buffers + OS cache
-# lav index på start_time
-create index on location (start_time);

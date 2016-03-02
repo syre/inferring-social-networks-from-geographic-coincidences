@@ -14,22 +14,26 @@
         <ul class="dropdown-menu scrollable-menu" role="menu" style="max-height: 400px; overflow: hidden; overflow-y: auto;">
         {% if feature == "country" %}
           {% for country in all_countries %}
-          <li><input type="checkbox" value={{country}} />&nbsp;{{country}}</li>
-          <!--<li><a href="/boxplot/country?{{country}}">{{country}}</a></li> -->
-
+          <li><input type="checkbox" value="{{country}}" />&nbsp;{{country}}</li>
           {% endfor %}
         {% else %}
             <li><a href="/boxplot/country?test">hej</a></li>
         {% endif %}
         </ul>
     </div>
-    <button type = "button" class = "chooce_countries">Primary Button</button>
+    <button type = "button" class = "choose_countries">Select</button>
 </div>
 <div id="chartContainer"></div>
 
 
 
 <script type="text/javascript">
+
+function getParameterByName(name) {
+    var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+    return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+}
+
 var w = 120,
      h = 500,
      m = [10, 50, 20, 50], // top right bottom left
@@ -40,8 +44,13 @@ var w = 120,
      .whiskers(iqr(1.5))
      .width(w - m[1] - m[3])
      .height(h - m[0] - m[2]);
- 
-d3.json("/data/multi_boxplot/{{feature}}", function(data){
+
+var values = getParameterByName("values");
+var url = "/data/boxplot/{{feature}}";
+if (values != null)
+  url+= "?values"+encodeURIComponent(values);
+
+d3.json(url, function(data){
     var data = data["results"];
     feature = "{{feature}}";
     var countries_list = [];
@@ -87,30 +96,21 @@ d3.json("/data/multi_boxplot/{{feature}}", function(data){
 
 });
  
-$(".chooce_countries").click(function () {
+$(".choose_countries").click(function () {
 
-    //$("#buttonvalue").val($(this).text());
     var names = [];
-    var test = $(':input:checked');
+
     $(':input:checked').each(function() {
         names.push($(this).val());
     });
-    //names.push("test");
-    //$("#checkbox_value").val(names.join(','));
     names_string = names.join(',');
-
-    console.log(names_string);
-
     if (names_string==""){
         url_string = "/boxplot/country?";
     }
     else{
-        url_string = "/boxplot/country?values="+names_string;
+        url_string = "/boxplot/country?values="+encodeURIComponent(names_string);
     }
-    
-    console.log("url_string");
-    console.log(url_string);
-    //window.location.href = url_string;
+    window.location.href = url_string;
 });
 
 

@@ -207,6 +207,11 @@ class DatabaseHelper(object):
                 cooccurrences.extend(result)
         return cooccurrences
 
+    def get_all_users(self):
+        cursor = self.conn.cursor()
+        cursor.execute(""" SELECT DISTINCT "useruuid" FROM public.user;""")
+        return cursor.fetchall()
+
     def get_users_with_most_updates(self):
     	cursor = self.conn.cursor()
     	cursor.execute("select useruuid from location group by useruuid order by count(*) desc;")

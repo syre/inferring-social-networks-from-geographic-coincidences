@@ -17,11 +17,11 @@ class GeoData(object):
     def __init__(self, path_to_settings=""):
         self.databasehelper = DatabaseHelper.DatabaseHelper(path_to_settings)
         self.user_colors = defaultdict(dict)
-        all_users = self.databasehelper.get_all_users()
+        all_users = self.databasehelper.get_distinct_feature("useruuid","user")
         colors = []
         for user in all_users:
             color = self.gen_hex_colors(colors)
-            self.user_colors[user[0]] = color
+            self.user_colors[user] = color
             colors.append(color)
 
     def gen_hex_colors(self, allready_gen=[]):

@@ -94,12 +94,12 @@ def data_boxplot(feature):
 
 @app.route("/boxplot/<feature>")
 def boxplot(feature):
-    all_countries = database.get_feature_sql_as_list("SELECT name from country order by name;")
+    all_countries = database.get_distinct_feature("name", "country")
     print(feature)
     if not feature:
-        feature = all_countries[0][0]
+        feature = all_countries[0]
         print(feature)
-    return render_template("boxplot.html", feature=feature, all_countries=all_countries[0])
+    return render_template("boxplot.html", feature=feature, all_countries=all_countries)
 
 
 

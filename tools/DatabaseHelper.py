@@ -293,32 +293,10 @@ class DatabaseHelper(object):
         print(sum(total_rows))
         return data, sum(total_rows)
 
-
-    def get_feature_sql_as_list(self, sql, number_of_featues=1):
-        cursor = self.conn.cursor()
-        cursor.execute(sql)
-        result = cursor.fetchall()
-        data = []
-
-        for row in result:
-            for i in range(number_of_featues):
-                if not data or len(data) < i:
-                    data.append([row[i]])
-                else:
-                    data[i].append(row[i])
-        #[data.append(row[0]) for row in result]
-        return data
-
     def get_distinct_feature(self, feature, from_table):
-        sql = "SELECT DISTINCT "+feature+" FROM "+from_table+";"
-        print(sql)
         cursor = self.conn.cursor()
-        cursor.execute(sql)
-        result = cursor.fetchall()
-        data = []
-        for row in result:
-            data.append(row[0])
-        return data
+        cursor.execute("select distinct {} from {};".format(feature, from_table))
+        return [feature_name[0] for feature_name in cursor.fetchall()]
 
 if __name__ == '__main__':
     d = DatabaseHelper()

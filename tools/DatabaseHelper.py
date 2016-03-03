@@ -256,6 +256,38 @@ class DatabaseHelper(object):
                 cooccurrences.extend(result)
         return cooccurrences
 
+    def get_all_cooccurrences(self):
+        cursor = self.conn.cursor()
+        time_threshold_in_minutes = 60*24
+        cell_size = 0.001
+
+        distinct_users = self.get_distinct_feature("useruuid", "user")
+        nodes = []
+        edges = []
+        for user in distinct_users:
+            locations = self.get_locations_for_user(user)
+            nodes.append({"id":user, "label":user, "size":3})
+            cooccurrences = []
+            for location in locations:
+                start_time = location[1]
+                end_time = location[2]
+                longitude = location[3]
+                latitude = location[4]
+
+            # find coocurrences by taking time_treshold_in_hours/2 before start_time and time_threshold_in_hours/2 after end_time
+            # this also means time window can get really long, what are the consequences?
+            cursor.execute(""" SELECT useruuid AS geom from location where location.useruuid != (%s)
+             and (start_time between (%s) - interval '%s minutes' and (%s)) and (end_time between (%s) and (%s) + interval '%s minutes') and abs(ST_X(location::geometry)-(%s)) <= (%s) and abs(ST_Y(location::geometry)-(%s)) <= (%s)""",
+             (user, start_time, time_threshold_in_minutes/2, start_time, end_time, end_time, time_threshold_in_minutes/2, longitude, cell_size, latitude, cell_size))
+            
+            result = cursor.fetchall()
+            if result:
+                cooccurrences.extend(result)
+            if cooccurrences:
+                edges.extend([{"source":user, "target":element} for element in cooccurrences])
+
+        return {"nodes":nodes, "edges":edges}
+
     def get_users_with_most_updates(self):
     	cursor = self.conn.cursor()
     	cursor.execute("select useruuid from location group by useruuid order by count(*) desc;")

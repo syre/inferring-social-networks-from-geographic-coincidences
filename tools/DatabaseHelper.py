@@ -4,6 +4,8 @@ import psycopg2
 import json
 import math
 import os
+from collections import defaultdict
+import random
 
 class DatabaseHelper(object):
     """docstring for DatabaseHelper"""
@@ -30,7 +32,41 @@ class DatabaseHelper(object):
                                                            place text references place(name),
                                                            useruuid text references "user" (useruuid))"""
         self.geo_calc = GeoCalculation()
+        all_users = self.get_distinct_feature("useruuid","user")
+        colors = []
+        self.user_colors = defaultdict(dict)
+        for user in all_users:
+            color = self.gen_hex_colors(colors)
+            self.user_colors[user] = color
+            colors.append(color)
+    
+    def get_user_colors(self):
+        return self.user_colors
 
+    def gen_hex_colors(self, allready_gen=[]):
+        """Generate a random color in hexadecimal value
+        
+        Takes a list as input. Generate a random color while the color is in that list. 
+        Return the unique color
+        
+        Keyword Arguments:
+            allready_gen {list} -- List of colors which (default: {[]})
+        
+        Returns:
+            [string] -- string representation of the hex color
+
+        Raises:
+            NameError -- Raise an exception is the input list is filled, hence there is no more free colors to generate
+        """
+        
+        if len(allready_gen)<(255*255*255):
+            r = lambda: random.randint(0,255)
+            color = '#%02X%02X%02X' % (r(),r(),r())
+            while color in allready_gen:
+                r = lambda: random.randint(0,255)
+                color = '#%02X%02X%02X' % (r(),r(),r())
+            return color
+        raise NameError('No more colors left to choose')
 
     def load_login(self, file_name="login.txt", key_split="##", value_split=",", has_header=False, path=""):
         d = {}
@@ -267,7 +303,8 @@ class DatabaseHelper(object):
         count = 0
         for user in distinct_users:
             locations = self.get_locations_for_user(user)
-            nodes.append({"id":user, "label":user, "size":3})
+            if not any(node['id'] == user for node in nodes):
+                nodes.append({"id":user, "label":user, "color":self.user_colors[user]})
             cooccurrences = []
             for location in locations:
                 start_time = location[1]
@@ -284,8 +321,11 @@ class DatabaseHelper(object):
             result = cursor.fetchall()
             if result:
                 cooccurrences.extend(result)
-            if cooccurrences:
-                edges.extend([{"source":user, "target":element} for element in cooccurrences])
+            for cooccurrence in cooccurrences:
+                if cooccurrence[0] not in [n["id"] for n in nodes]:
+                    nodes.append({"id":cooccurrence[0], "label":cooccurrence[0], "color":self.user_colors[cooccurrence[0]]})
+            edges.extend([{"source":user, "target":element[0], "id":index} for index,element in enumerate(cooccurrences, start=count)])
+            count += len(cooccurrences)
 
         return {"nodes":nodes, "edges":edges}
 

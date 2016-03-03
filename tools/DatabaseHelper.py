@@ -228,6 +228,7 @@ class DatabaseHelper(object):
         if count > 0:
             return (total_km_hour/count)
         else:
+            print("hov!!!")
             return 0.0
     def get_velocity_for_users(self, country):
         raw_data = defaultdict(dict)
@@ -249,6 +250,7 @@ class DatabaseHelper(object):
             data.append(self.auxiliary_function_velocity(raw_data[user]['duration'], raw_data[user]['lat_long']))
             names.append(user)
 
+        data, names = zip(*sorted(zip(data, names)))
         return data, names
     def get_locations_for_user(self, useruuid):
         cursor = self.conn.cursor()

@@ -39,7 +39,7 @@ $.getJSON( "data/network", function( data ) {
     sig.refresh();
 
     // ForceAtlas Layout
-    sig.startForceAtlas2();
+    sig.startForceAtlas2({barnesHutOptimize:true, strongGravityMode:true});
     // stop force atlas algorithm after 5sec
     setTimeout( function(){ 
     	sig.stopForceAtlas2();	

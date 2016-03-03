@@ -1,53 +1,16 @@
 #!/usr/bin/env python3
-import psycopg2
-from collections import defaultdict
 import json
-import pprint
 import dateutil
 import dateutil.parser
-import random
-import os
 import geojson
-import math
 from geojson import Feature, FeatureCollection, GeometryCollection, MultiPoint, MultiLineString, Point
 import DatabaseHelper
+from collections import defaultdict
 
 class GeoData(object):
     """docstring for Geo_data"""
     def __init__(self, path_to_settings=""):
         self.databasehelper = DatabaseHelper.DatabaseHelper(path_to_settings)
-        self.user_colors = defaultdict(dict)
-        all_users = self.databasehelper.get_distinct_feature("useruuid","user")
-        colors = []
-        for user in all_users:
-            color = self.gen_hex_colors(colors)
-            self.user_colors[user] = color
-            colors.append(color)
-
-    def gen_hex_colors(self, allready_gen=[]):
-        """Generate a random color in hexadecimal value
-        
-        Takes a list as input. Generate a random color while the color is in that list. 
-        Return the unique color
-        
-        Keyword Arguments:
-            allready_gen {list} -- List of colors which (default: {[]})
-        
-        Returns:
-            [string] -- string representation of the hex color
-
-        Raises:
-            NameError -- Raise an exception is the input list is filled, hence there is no more free colors to generate
-        """
-        
-        if len(allready_gen)<(255*255*255):
-            r = lambda: random.randint(0,255)
-            color = '#%02X%02X%02X' % (r(),r(),r())
-            while color in allready_gen:
-                r = lambda: random.randint(0,255)
-                color = '#%02X%02X%02X' % (r(),r(),r())
-            return color
-        raise NameError('No more colors left to choose')
 
     def check_validity(self, data):
         validation = geojson.is_valid(data)
@@ -124,6 +87,7 @@ class GeoData(object):
             dict -- Dictonary of the collected data
         """
         wanted_data = defaultdict(dict)
+        user_colors = self.databasehelper.get_user_colors()
         start_datetime = dateutil.parser.parse(start_datetime)
         end_datetime = dateutil.parser.parse(end_datetime)
 
@@ -144,11 +108,12 @@ class GeoData(object):
                 wanted_data[user]['start_time'] = [res[2]]
                 wanted_data[user]['time_diff'] = [diff.total_seconds()]
                 wanted_data[user]['total_diff'] = diff.total_seconds()
-                wanted_data[user]['color'] = self.user_colors[user]
+                wanted_data[user]['color'] = user_colors[user]
         print("geodata fetched from database")
         return wanted_data
 
     def get_geo_data_from_occurrences(self, useruuid, cell_size, time_threshold_in_hours):
+        user_colors = self.databasehelper.get_user_colors()
         # receive locations for user we want co-occurrences on
         locations = self.databasehelper.get_locations_for_user(useruuid)
         # retrieve locations that co-occur with useruuids locations
@@ -162,7 +127,7 @@ class GeoData(object):
             lat_long = json.loads(cooccurrence[3])
             start_time = cooccurrence[1]
             end_time = cooccurrence[2]
-            features.append(Feature(geometry=Point(lat_long["coordinates"]), properties={"id":useruuid, "name":"null"}, style={'color':self.user_colors[useruuid]} ))
+            features.append(Feature(geometry=Point(lat_long["coordinates"]), properties={"id":useruuid, "name":"null"}, style={'color':user_colors[useruuid]} ))
 
         return FeatureCollection(features)
 

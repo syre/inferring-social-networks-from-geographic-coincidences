@@ -155,7 +155,7 @@ class DatabaseHelper(object):
         end_value = max_value-int(max_value/num_bins)
 
         query = "SELECT "+", ".join(["count(CASE WHEN {2} >= {0} AND {2} < {1} THEN 1 END)".
-                              format(element,element+(max_value/num_bins), feature) for element in range(0,end_value,step_size)])+", count(CASE WHEN {0} > {1} THEN 1 END)".format(feature, max_value-step_size)+" from location"
+                              format(element,element+step_size, feature) for element in range(0,end_value,step_size)])+", count(CASE WHEN {0} > {1} THEN 1 END)".format(feature, max_value-step_size)+" from location"
         cursor.execute(query)
         results = list(cursor.fetchall()[0])
 

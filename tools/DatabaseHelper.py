@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from GeoCalculation import GeoCalculation
 import psycopg2
 import json
 import math
@@ -28,7 +29,7 @@ class DatabaseHelper(object):
                                                            area text references area(name),
                                                            place text references place(name),
                                                            useruuid text references "user" (useruuid))"""
-        
+        self.geo_calc = GeoCalculation()
 
 
     def load_login(self, file_name="login.txt", key_split="##", value_split=",", has_header=False, path=""):
@@ -174,7 +175,51 @@ class DatabaseHelper(object):
             # return with order value =(-count) to sort by count descending
             return {"results":[{"Countries": x[0], "Count": x[1], "Order":-x[1]} for x in zip(countries, count)], 'x_axis': "Countries", 'y_axis': "Count"}
 
+    def auxiliary_function_velocity(self, lst):
+        #print("auxiliary_function_velocity her!!")
+        #print(lst)
+        previous_row = lst[0]
+        count = 0
+        total_km_hour = 0.0
+        for row in lst[1:]:
+            user = row[0]
+            duration = row[1]
+            duration = duration.total_seconds()
+            if duration > 0.0:
+                longitude = row[2]
+                latitude = row[3]
 
+                distance = self.geo_calc.distance_between((latitude, longitude), (previous_row[3], previous_row[2]))
+                meter_pr_second = (distance/duration)
+                km_hour = ((meter_pr_second*18)/5)
+                #print("duration = {0}".format(duration))
+                #print("distance = {0}".format(distance))
+                #print("m/s = {0}".format(meter_pr_second))
+                #print("km/h = {0}".format(km_hour))
+                count += 1
+                total_km_hour += km_hour
+            previous_row = row
+            #print("user: {0}\nduration: {1}, latitude={2}, longitude={3}".format(user, duration, latitude, longitude))
+        if count > 0:
+            return (total_km_hour/count)
+        else:
+            return 0.0
+    def get_velocity_for_users(self, country):
+        cursor = self.conn.cursor()
+        cursor.execute("""SELECT useruuid, COUNT(*) FROM location where country=(%s) GROUP BY useruuid order by useruuid;""",(country,))
+        rowcount_for_users = cursor.fetchall()
+        
+        cursor.execute("""select useruuid,  (end_time-start_time) as duration, ST_X(location::geometry), ST_Y(location::geometry) from location where country=(%s) order by useruuid;""",(country,))
+        result = cursor.fetchall()
+        temp_count = 0
+        data = []
+        for row_count in rowcount_for_users:
+            user_count = row_count[1]
+            data.append(self.auxiliary_function_velocity(result[temp_count:(temp_count+user_count)]))
+            temp_count += user_count
+        if len(rowcount_for_users) != len(data):
+            print("What??!!!")
+        return data
     def get_locations_for_user(self, useruuid):
         cursor = self.conn.cursor()
         cursor.execute("""SELECT useruuid, start_time, end_time, ST_X(location::geometry), ST_Y(location::geometry) from location where location.useruuid = (%s) """,(useruuid,))

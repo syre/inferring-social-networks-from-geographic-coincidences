@@ -155,12 +155,12 @@ class DatabaseHelper(object):
         end_value = max_value-int(max_value/num_bins)
 
         query = "SELECT "+", ".join(["count(CASE WHEN {2} >= {0} AND {2} < {1} THEN 1 END)".
-                              format(element,element+(max_value/num_bins), feature) for element in range(0,end_value,step_size)])+", count(CASE WHEN {0} > {1} THEN 1 END)".format(feature, max_value)+" from location"
+                              format(element,element+(max_value/num_bins), feature) for element in range(0,end_value,step_size)])+", count(CASE WHEN {0} > {1} THEN 1 END)".format(feature, max_value-step_size)+" from location"
         cursor.execute(query)
         results = list(cursor.fetchall()[0])
 
         bucketized = [str(element)+"-"+str(element+step_size) for element in range(0, end_value, step_size)]
-        bucketized.extend([str(max_value)+"<"])
+        bucketized.extend([str(max_value-step_size)+"<"])
 
         return {"results":[{"Number":x[0],"Count":x[1], "Order":index} for index,x in enumerate(zip(bucketized, results))], 'x_axis': "Number", 'y_axis': "Count"}
 

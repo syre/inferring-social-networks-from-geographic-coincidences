@@ -213,13 +213,17 @@ class DatabaseHelper(object):
         result = cursor.fetchall()
         temp_count = 0
         data = []
+        names = []
         for row_count in rowcount_for_users:
+            user = row_count[0]
             user_count = row_count[1]
             data.append(self.auxiliary_function_velocity(result[temp_count:(temp_count+user_count)]))
+            names.append(user)
             temp_count += user_count
         if len(rowcount_for_users) != len(data):
             print("What??!!!")
-        return data
+
+        return data, names
     def get_locations_for_user(self, useruuid):
         cursor = self.conn.cursor()
         cursor.execute("""SELECT useruuid, start_time, end_time, ST_X(location::geometry), ST_Y(location::geometry) from location where location.useruuid = (%s) """,(useruuid,))

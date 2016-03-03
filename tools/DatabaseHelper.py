@@ -260,6 +260,7 @@ class DatabaseHelper(object):
         distinct_users = self.get_distinct_feature("useruuid", "user")
         nodes = []
         edges = []
+        count = 0
         for user in distinct_users:
             locations = self.get_locations_for_user(user)
             nodes.append({"id":user, "label":user, "size":3})

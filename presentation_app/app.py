@@ -101,7 +101,14 @@ def boxplot(feature):
         print(feature)
     return render_template("boxplot.html", feature=feature, all_countries=all_countries)
 
+@app.route("/network")
+def network():
+    return render_template("network.html")
 
+@app.route("/data/network")
+def data_network():
+    data = database.get_all_cooccurrences()
+    return flask.jsonify(results=data)
 
 @app.errorhandler(400)
 def page_not_found(e):

@@ -79,7 +79,7 @@ def data_boxplot(feature):
     feature_values = request.args.get("values")
     if feature_values:
         feature_values = unquote_plus(feature_values)
-    print(feature_values)
+    print("data_boxplot: feature_values = {0}".format(feature_values))
     data = []
     if feature == "country":
         if not feature_values:
@@ -90,6 +90,14 @@ def data_boxplot(feature):
             for country in feature_values:
                 results, names = database.get_boxplot_duration(country, for_all_countries=False)
                 data.append({"results":results, "names":names, "id":country})
+    elif feature == "velocity":
+        if not feature_values:
+            print("trfgg")
+        else:
+            feature_values = feature_values.split(",")
+            for country in feature_values:
+                results, names = database.get_velocity_for_users(country)
+                data.append({"results":results, "names": names, 'id':country})
     return flask.jsonify(results=data)
 
 @app.route("/boxplot/<feature>")

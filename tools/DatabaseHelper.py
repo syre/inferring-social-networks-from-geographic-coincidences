@@ -212,11 +212,15 @@ class DatabaseHelper(object):
             # return with order value =(-count) to sort by count descending
             return {"results":[{"Countries": x[0], "Count": x[1], "Order":-x[1]} for x in zip(countries, count)], 'x_axis': "Countries", 'y_axis': "Count"}
 
-    def auxiliary_function_velocity(self, lst_duration, lst_points):
+    def auxiliary_function_velocity(self, lst_start_time, lst_end_time, lst_points):
         previous_point = lst_points[0]
+        previous_start_time = lst_start_time[0]
+        previous_end_time = lst_end_time[0]
+
         count = 0
         total_km_hour = 0.0
-        for index, duration in enumerate(lst_duration[1:], start=1):
+        for index, end_time in enumerate(lst_end_time[1:], start=1):
+            duration = end_time - previous_start_time 
             duration = duration.total_seconds()
             if duration > 0.0:
                 distance = self.geo_calc.distance_between(lst_points[index], previous_point)
@@ -224,7 +228,9 @@ class DatabaseHelper(object):
                 km_hour = ((meter_pr_second*18)/5)
                 count += 1
                 total_km_hour += km_hour
-            previous_row = lst_points[index]
+            previous_point = lst_points[index]
+            previous_start_time = lst_start_time[index]
+            previous_end_time = lst_end_time[index]
         if count > 0:
             return (total_km_hour/count)
         else:
@@ -233,21 +239,23 @@ class DatabaseHelper(object):
     def get_velocity_for_users(self, country):
         raw_data = defaultdict(dict)
         cursor = self.conn.cursor()
-        cursor.execute("""select useruuid,  (end_time-start_time) as duration, ST_X(location::geometry), ST_Y(location::geometry) from location where country=(%s) order by start_time;""",(country,))
+        cursor.execute("""select useruuid,  start_time, end_time,  ST_X(location::geometry), ST_Y(location::geometry) from location where country=(%s) order by start_time;""",(country,))
         result = cursor.fetchall()
 
         for row in result:
             if row[0] not in raw_data:
-                raw_data[row[0]]['duration'] = [row[1]]
-                raw_data[row[0]]['lat_long'] = [(row[3],row[2])]
+                raw_data[row[0]]['start_time'] = [row[1]]
+                raw_data[row[0]]['end_time'] = [row[2]]
+                raw_data[row[0]]['lat_long'] = [(row[4],row[3])]
             else:
-                raw_data[row[0]]['duration'].append(row[1])
-                raw_data[row[0]]['lat_long'].append((row[3],row[2]))
+                raw_data[row[0]]['start_time'].append(row[1])
+                raw_data[row[0]]['end_time'].append(row[2])
+                raw_data[row[0]]['lat_long'].append((row[4],row[3]))
 
         data = []
         names = []
         for user in raw_data:
-            data.append(self.auxiliary_function_velocity(raw_data[user]['duration'], raw_data[user]['lat_long']))
+            data.append(self.auxiliary_function_velocity(raw_data[user]['start_time'], raw_data[user]['end_time'], raw_data[user]['lat_long']))
             names.append(user)
 
         data, names = zip(*sorted(zip(data, names)))

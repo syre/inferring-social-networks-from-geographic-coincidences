@@ -22,7 +22,8 @@ $.getJSON( "data/network", function( data ) {
     container: 'graph-container',
     graph: graph,
     settings: {
-      defaultNodeColor: '#ec5148'
+      defaultNodeColor: '#ec5148',
+       
     }});
 
     var i,
@@ -37,9 +38,9 @@ $.getJSON( "data/network", function( data ) {
 
     // Refresh the display:
     sig.refresh();
-
+    
     // ForceAtlas Layout
-    sig.startForceAtlas2({barnesHutOptimize:true, strongGravityMode:true});
+    sig.startForceAtlas2();
     var dragListener = new sigma.plugins.dragNodes(sig, sig.renderers[0]);
     // stop force atlas algorithm after 5sec
     setTimeout( function(){ 

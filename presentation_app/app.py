@@ -71,7 +71,6 @@ def data_distributions(feature):
         data = database.get_distributions_categories(feature,num_bins=10)
     else:
         abort(400)
-    print(data)
     return flask.jsonify(results=data)
 
 @app.route("/data/boxplot/<feature>")
@@ -115,7 +114,7 @@ def network():
 
 @app.route("/data/network")
 def data_network():
-    data = database.get_all_cooccurrences()
+    data = database.get_all_cooccurrences_as_network()
     return flask.jsonify(results=data)
 
 @app.errorhandler(400)

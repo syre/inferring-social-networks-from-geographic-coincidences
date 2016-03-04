@@ -322,7 +322,7 @@ class DatabaseHelper(object):
             if result:
                 cooccurrences.extend(result)
             for cooccurrence in cooccurrences:
-                if cooccurrence[0] not in [n["id"] for n in nodes]:
+                if not any(node['id'] == cooccurrence[0] for node in nodes):
                     nodes.append({"id":cooccurrence[0], "label":cooccurrence[0], "color":self.user_colors[cooccurrence[0]]})
             edges.extend([{"source":user, "target":element[0], "id":index} for index,element in enumerate(cooccurrences, start=count)])
             count += len(cooccurrences)

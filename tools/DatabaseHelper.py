@@ -292,10 +292,8 @@ class DatabaseHelper(object):
                 cooccurrences.extend(result)
         return cooccurrences
 
-    def get_all_cooccurrences(self):
+    def get_all_cooccurrences_as_network(self, time_threshold_in_minutes=60*24, cell_size=0.001):
         cursor = self.conn.cursor()
-        time_threshold_in_minutes = 60*24
-        cell_size = 0.001
 
         distinct_users = self.get_distinct_feature("useruuid", "user")
         nodes = []

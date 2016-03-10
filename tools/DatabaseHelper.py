@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from GeoCalculation import GeoCalculation
 from collections import defaultdict
 import psycopg2
 import json
@@ -7,6 +6,9 @@ import math
 import os
 from collections import defaultdict
 import random
+import datetime
+
+from GeoCalculation import GeoCalculation
 
 class DatabaseHelper(object):
     """docstring for DatabaseHelper"""
@@ -319,18 +321,19 @@ class DatabaseHelper(object):
             result = cursor.fetchall()
             if result:
                 cooccurrences.extend(result)
-        months = ["09/2015", "10/2015", "11/2015"]
-        days = range(1,31)
         time_dict = {}
+        start = datetime.datetime.strptime("01-09-2015", "%d-%m-%Y")
+        end = datetime.datetime.strptime("01-12-2015", "%d-%m-%Y")
+        # generate range of dates from start to end with interval of 1 day
+        date_generated = [start + datetime.timedelta(days=x) for x in range(0, (end-start).days)]
 
-        for month in months:
-            for day in days:
-                time_dict[str(day)+"/"+month] = 0
+        for date in date_generated:
+                time_dict[date.strftime("%d/%m/%Y")] = 0
         for cocc in cooccurrences:
             start_date = cocc[0]
             end_date = cocc[1]
-
             time_dict[start_date] += 1
+
         return [{"Date":date_string, "Cooccurrences":value} for date_string,value in time_dict.items()]
 
     def get_all_cooccurrences_as_network(self, time_threshold_in_minutes=60*24, cell_size=0.001):

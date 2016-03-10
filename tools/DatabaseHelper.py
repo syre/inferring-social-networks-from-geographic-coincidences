@@ -33,13 +33,15 @@ class DatabaseHelper(object):
                                                            place text references place(name),
                                                            useruuid text references "user" (useruuid))"""
         self.geo_calc = GeoCalculation()
-        all_users = self.get_distinct_feature("useruuid","user")
-        colors = []
-        self.user_colors = defaultdict(dict)
-        for user in all_users:
-            color = self.gen_hex_colors(colors)
-            self.user_colors[user] = color
-            colors.append(color)
+        # if database is setup
+        if self.db_setup_test():
+            all_users = self.get_distinct_feature("useruuid","user")
+            colors = []
+            self.user_colors = defaultdict(dict)
+            for user in all_users:
+                color = self.gen_hex_colors(colors)
+                self.user_colors[user] = color
+                colors.append(color)
     
     def get_user_colors(self):
         return self.user_colors
@@ -87,7 +89,10 @@ class DatabaseHelper(object):
         return d
 
 
-
+    def db_setup_test(self):
+        cursor = self.conn.cursor()
+        cursor.execute("select exists(select * from information_schema.tables where table_name=%s)", ('user',))
+        return cursor.fetchone()[0]
 
     def db_setup(self):
         cursor = self.conn.cursor()
@@ -236,6 +241,7 @@ class DatabaseHelper(object):
         else:
             print("hov!!!")
             return 0.0
+
     def get_velocity_for_users(self, country):
         raw_data = defaultdict(dict)
         cursor = self.conn.cursor()
@@ -260,6 +266,7 @@ class DatabaseHelper(object):
 
         data, names = zip(*sorted(zip(data, names)))
         return data, names
+
     def get_locations_for_user(self, useruuid):
         cursor = self.conn.cursor()
         cursor.execute("""SELECT useruuid, start_time, end_time, ST_X(location::geometry), ST_Y(location::geometry) from location where location.useruuid = (%s) """,(useruuid,))
@@ -291,6 +298,40 @@ class DatabaseHelper(object):
             if result:
                 cooccurrences.extend(result)
         return cooccurrences
+
+    def get_distribution_cooccurrences(self, x_useruuid, y_useruuid, time_threshold_in_minutes=60*24, cell_size=0.001):
+        cursor = self.conn.cursor()
+        locations = self.get_locations_for_user(x_useruuid)
+
+        cooccurrences = []
+        for location in locations:
+            start_time = location[1]
+            end_time = location[2]
+            longitude = location[3]
+            latitude = location[4]
+
+            # find coocurrences by taking time_treshold_in_hours/2 before start_time and time_threshold_in_hours/2 after end_time
+            # this also means time window can get really long, what are the consequences?
+            cursor.execute(""" SELECT to_char(start_time, 'dd/mm/yyyy'), to_char(end_time, 'dd/mm/yyyy') from location where location.useruuid = (%s)
+             and (start_time between (%s) - interval '%s minutes' and (%s)) and (end_time between (%s) and (%s) + interval '%s minutes') and abs(ST_X(location::geometry)-(%s)) <= (%s) and abs(ST_Y(location::geometry)-(%s)) <= (%s)""",
+             (y_useruuid, start_time, time_threshold_in_minutes/2, start_time, end_time, end_time, time_threshold_in_minutes/2, longitude, cell_size, latitude, cell_size))
+            
+            result = cursor.fetchall()
+            if result:
+                cooccurrences.extend(result)
+        months = ["09/2015", "10/2015", "11/2015"]
+        days = range(1,31)
+        time_dict = {}
+
+        for month in months:
+            for day in days:
+                time_dict[str(day)+"/"+month] = 0
+        for cocc in cooccurrences:
+            start_date = cocc[0]
+            end_date = cocc[1]
+
+            time_dict[start_date] += 1
+        return [{"Date":date_string, "Cooccurrences":value} for date_string,value in time_dict.items()]
 
     def get_all_cooccurrences_as_network(self, time_threshold_in_minutes=60*24, cell_size=0.001):
         cursor = self.conn.cursor()

@@ -2,24 +2,42 @@
 {% block container %}
 <div id="chartContainer"></div>
 <script type="text/javascript">
-    var svg = dimple.newSvg("#chartContainer", 1200, 800);
-    d3.json("/data/distributions/{{feature}}", function (data) {
 
+var svg = dimple.newSvg("#chartContainer", 1200, 800);
+{% if feature == "cooccurrences" %}
+	d3.json("/data/distributions/{{feature}}?useruuid={{user_x}},{{user_y}}", function (data) 
+	{
+		console.log(data);
+		var results = data["results"];
+		var myChart = new dimple.chart(svg, results);
+		var x = myChart.addTimeAxis("x", "Date", "%d/%m/%Y", "%d-%m");
+		 x.overrideMin = new Date("2015-09-01");
+    	x.overrideMax = new Date("2015-11-29");
+		myChart.addMeasureAxis("y", "Cooccurrences");
+		var s = myChart.addSeries("{{feature}}", dimple.plot.line);
+		myChart.draw();
+	});
+{% else %}
+
+    d3.json("/data/distributions/{{feature}}", function (data) 
+    {
       var results = data["results"]["results"]
       var x_axis = data["results"]["x_axis"]
       var y_axis = data["results"]["y_axis"]
       var myChart = new dimple.chart(svg, results);
 
-var x = myChart.addCategoryAxis("x", x_axis);
-var y = myChart.addMeasureAxis("y", y_axis);
+	  var x = myChart.addCategoryAxis("x", x_axis);
+      var y = myChart.addMeasureAxis("y", y_axis);
 
-x.showGridlines = true;
-x.addOrderRule("Order");
-var s = myChart.addSeries("{{feature}}", dimple.plot.bar);
-s.lineWeight = 4;
-s.lineMarkers = true;
-var myLegend = myChart.addLegend(530, 100, 60, 300, "Right");
-myChart.draw();
+      x.showGridlines = true;
+	  x.addOrderRule("Order");
+	  var s = myChart.addSeries("{{feature}}", dimple.plot.bar);
+	  s.lineWeight = 4;
+	  s.lineMarkers = true;
+	  var myLegend = myChart.addLegend(530, 100, 60, 300, "Right");
+	  myChart.draw();
     });
+{% endif %}
+
   </script>
 {% endblock %}

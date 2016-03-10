@@ -12,7 +12,7 @@ alter user admin with SUPERUSER;
 alter role admin with login;
 
 # lav database
-create database dtudatascience2016
+create database dtudatascience2016;
 
 # ændr fra peer til trust for dem der er 
 sudo vim /etc/postgresql/9.4/main/pg_hba.conf

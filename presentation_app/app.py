@@ -58,10 +58,27 @@ def occurrences():
     user_list = database.get_users_with_most_updates()
     return render_template("cooccurrences_map.html", useruuid=useruuid, user_list=user_list)
 
+@app.route("/distributions/cooccurrences")
+def cooccurrences_distribution():
+    # default users
+    user_x = "175ceb15-5a9a-4042-9422-fcae763fe305"
+    user_y = "2ddb668d-0c98-4258-844e-7e790ea65aba"
+    useruuid = request.args.get("useruuid")
+    if useruuid:
+        user_x, user_y = useruuid.split(",")
+    return render_template("distributions.html", feature="cooccurrences", user_x = user_x, user_y=user_y)
+
 @app.route("/distributions/<feature>")
 def distributions(feature):
-    print("distributions render_template")
     return render_template("distributions.html", feature=feature)
+
+@app.route("/data/distributions/cooccurrences")
+def data_distributions_cooccurrences():
+    useruuid = request.args.get("useruuid")
+    if useruuid:
+        user_x, user_y = useruuid.split(",")
+    data = database.get_distribution_cooccurrences(user_x, user_y)
+    return flask.jsonify(results=data, user_x = user_x, user_y = user_y)
 
 @app.route("/data/distributions/<feature>")
 def data_distributions(feature):

@@ -61,8 +61,8 @@ def occurrences():
 @app.route("/distributions/cooccurrences")
 def cooccurrences_distribution():
     # default users
-    user_x = "175ceb15-5a9a-4042-9422-fcae763fe305"
-    user_y = "2ddb668d-0c98-4258-844e-7e790ea65aba"
+    user_x = "8d325d9f-9341-4d00-a890-2adaf412e5ca"
+    user_y = "420b91b6-5c78-4fe6-af7c-9795edd10c0e"
     useruuid = request.args.get("useruuid")
     if useruuid:
         user_x, user_y = useruuid.split(",")

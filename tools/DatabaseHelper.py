@@ -284,13 +284,13 @@ class DatabaseHelper(object):
     def find_cooccurrences(self, useruuid, cell_size, time_threshold_in_minutes):
             cursor = self.conn.cursor()
             cursor.execute(""" 
-                with hej as (
+                with auxiliary_user_table as (
                 SELECT useruuid as user, start_time as start, end_time as slut, ST_X(location::geometry) as longitude, ST_Y(location::geometry) as latitude 
                 FROM location 
                 WHERE location.useruuid = (%s))
                 SELECT useruuid, start_time, end_time, location AS geom 
-                        FROM location, hej
-                        WHERE location.useruuid != hej.user 
+                        FROM location, auxiliary_user_table
+                        WHERE location.useruuid != auxiliary_user_table.user 
                         AND (start_time between start - interval '%s minutes' and start) 
                         AND (end_time between slut and slut + interval '%s minutes')
                         AND (abs(ST_X(location::geometry)-longitude) <= (%s) and abs(ST_Y(location::geometry)-latitude) <= (%s));""",

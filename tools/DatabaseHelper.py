@@ -437,6 +437,10 @@ class DatabaseHelper(object):
         cursor.execute("""select distinct {} from "{}";""".format(feature, from_table))
         return [feature_name[0] for feature_name in cursor.fetchall()]
 
+    def get_users_in_country(self, country):
+        cursor = self.conn.cursor()
+        cursor.execute("""SELECT DISTINCT useruuid FROM location WHERE country=(%s);""",(country,))
+        return [user[0] for user in cursor.fetchall()]
 if __name__ == '__main__':
     d = DatabaseHelper()
     print(len(d.find_cooccurrences("2ddb668d-0c98-4258-844e-7e790ea65aba", 0.001, 60*24)))

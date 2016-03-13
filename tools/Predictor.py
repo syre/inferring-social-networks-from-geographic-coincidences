@@ -58,8 +58,6 @@ class Predictor():
         return (GRID_MAX_LAT * lat) + lng
 
 
-# [user1, user2, timebin, geo, ja/nej]
-# [0, 0, 1, 1, 0]
-
-# [0,1, 2 ......]
-# 0...2000
+if __name__ == '__main__':
+    p = Predictor(20.0)
+    p.generate_dataset("Japan", 0.001)

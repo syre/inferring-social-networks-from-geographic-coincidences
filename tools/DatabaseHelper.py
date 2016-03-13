@@ -288,7 +288,7 @@ class DatabaseHelper(object):
                 SELECT useruuid as user, start_time as start, end_time as slut, ST_X(location::geometry) as longitude, ST_Y(location::geometry) as latitude 
                 FROM location 
                 WHERE location.useruuid = (%s))
-                SELECT useruuid, start_time, end_time, location AS geom 
+                SELECT useruuid, start_time, end_time, ST_AsGeoJSON(location)
                         FROM location, auxiliary_user_table
                         WHERE location.useruuid != auxiliary_user_table.user 
                         AND (start_time between start - interval '%s minutes' and start) 
@@ -441,6 +441,20 @@ class DatabaseHelper(object):
         cursor = self.conn.cursor()
         cursor.execute("""SELECT DISTINCT useruuid FROM location WHERE country=(%s);""",(country,))
         return [user[0] for user in cursor.fetchall()]
+
+
+    def get_min_start_time_for_country(self, country):
+        cursor = self.conn.cursor()
+        cursor.execute("""SELECT MIN(start_time) FROM location WHERE country=(%s);""",(country,))
+        return cursor.fetchall()[0][0]
+
+    def get_max_start_time_for_country(self, country):
+        cursor = self.conn.cursor()
+        cursor.execute("""SELECT MAX(start_time) FROM location WHERE country=(%s);""",(country,))
+        return cursor.fetchall()[0][0]
+
+
+
 if __name__ == '__main__':
     d = DatabaseHelper()
     print(len(d.find_cooccurrences("2ddb668d-0c98-4258-844e-7e790ea65aba", 0.001, 60*24)))

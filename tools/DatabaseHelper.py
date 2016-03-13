@@ -109,6 +109,7 @@ class DatabaseHelper(object):
         cursor.execute("CREATE INDEX ON location (end_time)")
         cursor.execute("CREATE INDEX ON location using gist (location)")
         cursor.execute("CREATE INDEX ON location (useruuid)")
+        cursor.execute("CREATE INDEX user_loc_index ON location (useruuid,location)")
         self.conn.commit()
 
     def db_teardown(self):
@@ -279,27 +280,24 @@ class DatabaseHelper(object):
             locations = cursor.fetchall()
         return locations
     
+
     def find_cooccurrences(self, useruuid, cell_size, time_threshold_in_minutes):
-        cursor = self.conn.cursor()
-        locations = self.get_locations_for_user(useruuid)
+            cursor = self.conn.cursor()
+            cursor.execute(""" 
+                with auxiliary_user_table as (
+                SELECT useruuid as user, start_time as start, end_time as slut, ST_X(location::geometry) as longitude, ST_Y(location::geometry) as latitude 
+                FROM location 
+                WHERE location.useruuid = (%s))
+                SELECT useruuid, start_time, end_time, location AS geom 
+                        FROM location, auxiliary_user_table
+                        WHERE location.useruuid != auxiliary_user_table.user 
+                        AND (start_time between start - interval '%s minutes' and start) 
+                        AND (end_time between slut and slut + interval '%s minutes')
+                        AND (abs(ST_X(location::geometry)-longitude) <= (%s) and abs(ST_Y(location::geometry)-latitude) <= (%s));""",
+                        (useruuid, time_threshold_in_minutes/2, time_threshold_in_minutes/2, cell_size, cell_size))
+           
+            return cursor.fetchall()
 
-        cooccurrences = []
-        for location in locations:
-            start_time = location[1]
-            end_time = location[2]
-            longitude = location[3]
-            latitude = location[4]
-
-            # find coocurrences by taking time_treshold_in_hours/2 before start_time and time_threshold_in_hours/2 after end_time
-            # this also means time window can get really long, what are the consequences?
-            cursor.execute(""" SELECT useruuid, start_time, end_time, ST_AsGeoJSON(location) AS geom from location where location.useruuid != (%s)
-             and (start_time between (%s) - interval '%s minutes' and (%s)) and (end_time between (%s) and (%s) + interval '%s minutes') and abs(ST_X(location::geometry)-(%s)) <= (%s) and abs(ST_Y(location::geometry)-(%s)) <= (%s)""",
-             (useruuid, start_time, time_threshold_in_minutes/2, start_time, end_time, end_time, time_threshold_in_minutes/2, longitude, cell_size, latitude, cell_size))
-            
-            result = cursor.fetchall()
-            if result:
-                cooccurrences.extend(result)
-        return cooccurrences
 
     def get_distribution_cooccurrences(self, x_useruuid, y_useruuid, time_threshold_in_minutes=60*24, cell_size=0.001):
         cursor = self.conn.cursor()

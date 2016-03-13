@@ -4,10 +4,10 @@ import DatabaseHelper
 import math
 import datetime
 import json
-database = DatabaseHelper.DatabaseHelper()
 
 class Predictor():
     def __init__(self, timebin_size_in_minutes):
+        self.database = DatabaseHelper.DatabaseHelper()
         self.min_datetime = None
         self.max_datetime = None
         self.timebin_size = timebin_size_in_minutes

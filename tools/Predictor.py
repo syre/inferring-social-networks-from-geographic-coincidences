@@ -117,6 +117,7 @@ class Predictor():
         probable that there is a social bond between them compared to the situation
         when dozens of people are present. Feature ID: coocs_w, see Figure 4.8b.
         """
+        pass
     
     def calculate_specificity(self, user1, user2):
         """

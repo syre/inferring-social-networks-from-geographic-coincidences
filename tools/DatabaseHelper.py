@@ -281,22 +281,45 @@ class DatabaseHelper(object):
         return locations
     
 
-    def find_cooccurrences(self, useruuid, cell_size, time_threshold_in_minutes):
-            cursor = self.conn.cursor()
-            cursor.execute(""" 
-                with auxiliary_user_table as (
-                SELECT useruuid as user, start_time as start, end_time as slut, ST_X(location::geometry) as longitude, ST_Y(location::geometry) as latitude 
-                FROM location 
-                WHERE location.useruuid = (%s))
-                SELECT useruuid, start_time, end_time, ST_AsGeoJSON(location)
-                        FROM location, auxiliary_user_table
-                        WHERE location.useruuid != auxiliary_user_table.user 
-                        AND (start_time between start - interval '%s minutes' and start) 
-                        AND (end_time between slut and slut + interval '%s minutes')
-                        AND (abs(ST_X(location::geometry)-longitude) <= (%s) and abs(ST_Y(location::geometry)-latitude) <= (%s));""",
-                        (useruuid, time_threshold_in_minutes/2, time_threshold_in_minutes/2, cell_size, cell_size))
-           
-            return cursor.fetchall()
+    def find_cooccurrences(self, useruuid, cell_size, time_threshold_in_minutes, points_w_distances=[]):
+        """ find all cooccurrences for a user
+        
+        find all cooccurrences for a user within a cell_size and time window (time_threshold_in_minutes)
+        Can also filter cooccurences by geometry point (see points_w_distances). Here it finds only cooccurences which is outside of these points
+        based on the given distance 
+        
+        Arguments:
+            useruuid {string} -- ID of user
+            cell_size {float} -- Size of the cell
+            time_threshold_in_minutes {integer} -- [description]
+        
+        Keyword Arguments:
+            points_w_distances {list of lists} -- list of lists with point (longitude,latitude) (as tuple) and distance in meter (default: {[]})
+                                                  Example [[(139.743862,35.630338), 1000]]
+        
+        Returns:
+            list -- list of results
+        """
+        start = query = ""
+        if points_w_distances:
+            start ="AND NOT ST_DWithin(location, ST_MakePoint("
+            query = " AND NOT ST_DWithin(location, ST_MakePoint(".join(["{0}, {1}), {2})". format(element[0][0],element[0][1],element[1]) for element in points_w_distances])
+        cursor = self.conn.cursor()
+        cursor.execute(""" 
+            with auxiliary_user_table as (
+            SELECT useruuid as user, start_time as start, end_time as slut, ST_X(location::geometry) as longitude, ST_Y(location::geometry) as latitude 
+            FROM location 
+            WHERE location.useruuid = (%s))
+            SELECT useruuid, start_time, end_time, ST_AsGeoJSON(location)
+                    FROM location, auxiliary_user_table
+                    WHERE location.useruuid != auxiliary_user_table.user 
+                    AND (start_time between start - interval '%s minutes' and start) 
+                    AND (end_time between slut and slut + interval '%s minutes')
+                    AND (abs(ST_X(location::geometry)-longitude) <= (%s) and abs(ST_Y(location::geometry)-latitude) <= (%s))"""+(start+query)+";",
+                    (useruuid, time_threshold_in_minutes/2, time_threshold_in_minutes/2, cell_size, cell_size))
+       
+        return cursor.fetchall()
+
 
 
     def get_distribution_cooccurrences(self, x_useruuid, y_useruuid, time_threshold_in_minutes=60*24, cell_size=0.001):

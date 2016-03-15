@@ -4,24 +4,41 @@ import DatabaseHelper
 import math
 import datetime
 import json
+from datetime import datetime
+from pytz import timezone
 import numpy as np
 import scipy
-import scipy.sparse
-import sklearn.metrics.pairwise
+from scipy import sparse
+import sklearn
+from sklearn.metrics import pairwise_distances
 
 class Predictor():
-    def __init__(self, timebin_size_in_minutes, spatial_resolution_decimals = 3):
+    def __init__(self, 
+                 timebin_size_in_minutes,
+                 from_date=datetime.strptime("2015-09-01", "%Y-%m-%d").replace(tzinfo=timezone("Asia/Tokyo")),
+                 to_date=datetime.strptime("2015-11-30", "%Y-%m-%d").replace(tzinfo=timezone("Asia/Tokyo")),
+                 grid_boundaries_tuple=(-180, 180, -90, 90), spatial_resolution_decimals = 3):
+        """
+            Constructor
+
+            Args:
+                timebin_size_in_minutes: size of timebin in minutes - for example 60 to get hourly timebin
+                spatial_resolution_decimals: spatial resolution - used for spatial binning, for example 3 to get lng and lat down to 0.001 precision
+                grid_boundaries_tuple: boundaries of map - used for spatial binning,
+                                       Japan for example is within the range of lng: 120 - 150 and lat: 20-45, thus (120, 150, 20, 45)
+        """
         self.database = DatabaseHelper.DatabaseHelper()
-        self.min_datetime = None
-        self.max_datetime = None
+        self.min_datetime = from_date
+        self.max_datetime = to_date
         self.timebin_size = timebin_size_in_minutes
         self.spatial_resolution_decimals = spatial_resolution_decimals
-        self.GRID_MAX_LNG = 180 * pow(10, spatial_resolution_decimals)
-        self.GRID_MAX_LAT = 90 * pow(10, spatial_resolution_decimals)
+
+        self.GRID_MIN_LNG = (grid_boundaries_tuple[0] + 180) * pow(10, spatial_resolution_decimals)
+        self.GRID_MAX_LNG = (grid_boundaries_tuple[1] + 180) * pow(10, spatial_resolution_decimals)
+        self.GRID_MIN_LAT = (grid_boundaries_tuple[2] + 90) * pow(10, spatial_resolution_decimals)
+        self.GRID_MAX_LAT = (grid_boundaries_tuple[3] + 90) * pow(10, spatial_resolution_decimals)
     
     def generate_dataset(self, country, cell_size):
-        self.min_datetime = database.get_min_start_time_for_country(country)
-        self.max_datetime = database.get_max_start_time_for_country(country)
         lst = []
         all_users_in_country = database.get_users_in_country(country)
         i_total = len(all_users_in_country)
@@ -56,13 +73,13 @@ class Predictor():
     def calculate_spatial_bin(self, lng, lat):
         lat += 90.0
         lng += 180.0
-
+        lat - self.GRID_MIN_LAT
+        lng - self.GRID_MIN_LNG
         lat = math.trunc(lat*pow(10,self.spatial_resolution_decimals))
         lng = math.trunc(lng*pow(10,self.spatial_resolution_decimals))
+        return (abs(self.GRID_MAX_LAT - self.GRID_MIN_LAT) * (lat-self.GRID_MIN_LAT)) + (lng-self.GRID_MIN_LNG)
 
-        return (self.GRID_MAX_LAT * lat) + lng
-
-    def calculate_corr(self, user1, user2, resolution_decimals=3):
+    def calculate_corr(self, user1, user2):
         """
         Due to limited number of possible locations, the activity of each user can be de-
         scribed as a set of binary vectors of presence at each location. Each dyad of users
@@ -73,26 +90,34 @@ class Predictor():
         Feature ID: corr
 
         """
+        correlation_sum = 0
         user1_locations = self.database.get_locations_for_user(user1)
         user2_locations = self.database.get_locations_for_user(user2)
+        time_bin_range = self.map_time_to_timebins(self.min_datetime, self.max_datetime)
+        array_size = abs(self.GRID_MAX_LAT-self.GRID_MIN_LAT)*abs(self.GRID_MAX_LNG-self.GRID_MIN_LNG)
+        for bin in time_bin_range:
+            user1_vector = np.zeros(array_size)
+            for location in user1_locations:
+                start_time = location[1]
+                end_time = location[2]
+                lng = location[3]
+                lat = location[4]
+                if bin in self.map_time_to_timebins(start_time, end_time):
+                    user1_vector[self.calculate_spatial_bin(lng, lat)] = 1
+                    break
+            user2_vector = np.zeros(array_size)
+            for location in user2_locations:
+                start_time = location[1]
+                end_time = location[2]
+                lng = location[3]
+                lat = location[4]
+                if bin in self.map_time_to_timebins(start_time, end_time):
+                    print(lng, lat)
+                    user2_vector[self.calculate_spatial_bin(lng, lat)] = 1
+                    break
+            correlation_sum += sklearn.metrics.pairwise.pairwise_distances(user1_vector, user2_vector, metric='cosine')
+        return correlation_sum
 
-        
-
-        pass
-        
-    def calculate_location_vector(self, locations):
-        """
-        calculate vector for a given user, where each index is a possible location in the world
-        and the entry on that index is 1 if the user has been there or 0 otherwise
-        """
-        user_vector = {}
-        for location in locations:
-            lng = location[3]
-            lat = location[4]
-            user_vector[self.calculate_spatial_bin(lng, lat)] = 1
-        return user_vector
-
-    
     def calculate_arr_leav(self, user1, user2):
         """
         We propose that if two persons arrive at a location at the same time and/or
@@ -131,5 +156,7 @@ class Predictor():
         pass
 
 if __name__ == '__main__':
-    p = Predictor(20.0)
-    print(p.calculate_corr("175ceb15-5a9a-4042-9422-fcae763fe305", "2ddb668d-0c98-4258-844e-7e790ea65aba", 3))
+    JAPAN_TUPLE = (120, 150, 20, 45)
+    decimals = 2
+    p = Predictor(60, grid_boundaries_tuple=JAPAN_TUPLE, spatial_resolution_decimals=decimals)
+    print(p.calculate_corr("175ceb15-5a9a-4042-9422-fcae763fe305", "2ddb668d-0c98-4258-844e-7e790ea65aba"))

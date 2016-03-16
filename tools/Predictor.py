@@ -142,6 +142,9 @@ class Predictor():
         """
         pass
     
+    def self.find_users_in_cooccurrence(self, spatial_bin, time_bin):
+        raise NotImplementedError
+
     def calculate_coocs_w(self, user1, user2):
         """
         While other researchers use entropy to weight the social impact of meetings, our
@@ -150,11 +153,29 @@ class Predictor():
         assume the social importance of each co-occurrence to be inversely proportional
         to the number of people – if only a few persons are there in a location, it is more
         probable that there is a social bond between them compared to the situation
-        when dozens of people are present. 
+        when dozens of people are present.
+
+        Calculates all values of coocs_w for cooccurrences and returns the mean of them 
 
         Feature ID: coocs_w
         """
-        database.find_cooccurrences(user1, useruuid2=user2)
+        cell_size = pow(10, -self.spatial_resolution_decimals)
+        cooccurrences = database.find_cooccurrences(user1, cell_size, self.timebin_size, useruuid2=user2)
+        coocs_w_values = []
+        for cooc in cooccurrences:
+            lng = cooc[3]["coordinates"]["lng"]
+            lat = cooc[3]["coordinates"]["lat"]
+
+            spatial_bin = calculate_spatial_bin(lng, lat)
+            users = self.find_users_in_cooccurrence(spatial_bin, time_bin)
+            num_users = len(users)
+            if num_users < 2:
+                raise Exception("no users for cooccurrence")
+            # 2 users is ideal thus 1, else return less proportional to amount of users
+            coocs_w_values.append(1/num_users-1)
+
+        return sum(coocs_w_values)/len(cooccurrences)
+
 
         pass
     

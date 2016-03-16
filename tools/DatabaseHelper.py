@@ -280,7 +280,6 @@ class DatabaseHelper(object):
             locations = cursor.fetchall()
         return locations
     
-
     def find_cooccurrences(self, useruuid, cell_size, time_threshold_in_minutes, points_w_distances=[], useruuid2=None):
         """ find all cooccurrences for a user
         

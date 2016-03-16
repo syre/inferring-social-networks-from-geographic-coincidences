@@ -101,6 +101,7 @@ class Predictor():
         user2_locations = self.database.get_locations_for_user(user2)
         time_bin_range = self.map_time_to_timebins(self.min_datetime, self.max_datetime)
         array_size = abs(self.GRID_MAX_LAT-self.GRID_MIN_LAT)*abs(self.GRID_MAX_LNG-self.GRID_MIN_LNG)
+
         for bin in time_bin_range:
             user1_vector = np.zeros(array_size, dtype=bool)
             for location in user1_locations:
@@ -142,7 +143,7 @@ class Predictor():
         """
         pass
     
-    def self.find_users_in_cooccurrence(self, spatial_bin, time_bin):
+    def find_users_in_cooccurrence(self, spatial_bin, time_bin):
         raise NotImplementedError
 
     def calculate_coocs_w(self, user1, user2):
@@ -160,13 +161,19 @@ class Predictor():
         Feature ID: coocs_w
         """
         cell_size = pow(10, -self.spatial_resolution_decimals)
-        cooccurrences = database.find_cooccurrences(user1, cell_size, self.timebin_size, useruuid2=user2)
+        cooccurrences = self.database.find_cooccurrences(user1, cell_size, self.timebin_size, useruuid2=user2)
         coocs_w_values = []
         for cooc in cooccurrences:
-            lng = cooc[3]["coordinates"]["lng"]
-            lat = cooc[3]["coordinates"]["lat"]
+            lng_lat = json.loads(cooc[3])
+            start_time = cooc[1]
+            end_time = cooc[2]
+            lng = lng_lat["coordinates"][0]
+            lat = lng_lat["coordinates"][1]
 
-            spatial_bin = calculate_spatial_bin(lng, lat)
+            spatial_bin = self.calculate_spatial_bin(lng, lat)
+            time_bin = self.map_time_to_timebins(start_time, end_time)
+            # only take the first for now
+            time_bin = time_bin[0]
             users = self.find_users_in_cooccurrence(spatial_bin, time_bin)
             num_users = len(users)
             if num_users < 2:
@@ -195,4 +202,5 @@ if __name__ == '__main__':
     JAPAN_TUPLE = (120, 150, 20, 45)
     decimals = 2
     p = Predictor(60, grid_boundaries_tuple=JAPAN_TUPLE, spatial_resolution_decimals=decimals)
-    print(p.calculate_corr("492f0a67-9a2c-40b8-8f0a-730db06abf65", "4bd3f3b1-791f-44be-8c52-0fd2195c4e62"))
+    #print(p.calculate_corr("492f0a67-9a2c-40b8-8f0a-730db06abf65", "4bd3f3b1-791f-44be-8c52-0fd2195c4e62"))
+    print(p.calculate_coocs_w("492f0a67-9a2c-40b8-8f0a-730db06abf65", "4bd3f3b1-791f-44be-8c52-0fd2195c4e62"))

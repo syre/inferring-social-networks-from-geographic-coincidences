@@ -84,6 +84,18 @@ class Predictor():
     def jaccard_index(self, X, Y):
         print(X.nonzero())
         print(Y.nonzero())
+    
+    def find_users_in_cooccurrence(self, spatial_bin, time_bin):
+        """
+        Find all users who's been in a given cooccurrence
+            Arguments:
+                spatial_bin {integer} -- spatial bin index
+                time_bin {integer} -- time bin index
+            Returns:
+                list -- list of user_uuids
+        
+        """
+        raise NotImplementedError
 
     def calculate_corr(self, user1, user2):
         """
@@ -143,8 +155,7 @@ class Predictor():
         """
         pass
     
-    def find_users_in_cooccurrence(self, spatial_bin, time_bin):
-        raise NotImplementedError
+
 
     def calculate_coocs_w(self, user1, user2):
         """

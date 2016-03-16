@@ -78,6 +78,10 @@ class Predictor():
         lat = math.trunc(lat*pow(10,self.spatial_resolution_decimals))
         lng = math.trunc(lng*pow(10,self.spatial_resolution_decimals))
         return (abs(self.GRID_MAX_LAT - self.GRID_MIN_LAT) * (lat-self.GRID_MIN_LAT)) + (lng-self.GRID_MIN_LNG)
+    
+    def jaccard_index(self, X, Y):
+        print(X.nonzero())
+        print(Y.nonzero())
 
     def calculate_corr(self, user1, user2):
         """
@@ -96,7 +100,7 @@ class Predictor():
         time_bin_range = self.map_time_to_timebins(self.min_datetime, self.max_datetime)
         array_size = abs(self.GRID_MAX_LAT-self.GRID_MIN_LAT)*abs(self.GRID_MAX_LNG-self.GRID_MIN_LNG)
         for bin in time_bin_range:
-            user1_vector = np.zeros(array_size)
+            user1_vector = sparse.csr_matrix((1,array_size), dtype=bool)
             for location in user1_locations:
                 start_time = location[1]
                 end_time = location[2]
@@ -105,7 +109,7 @@ class Predictor():
                 if bin in self.map_time_to_timebins(start_time, end_time):
                     user1_vector[self.calculate_spatial_bin(lng, lat)] = 1
                     break
-            user2_vector = np.zeros(array_size)
+            user2_vector = sparse.csr_matrix((1,array_size), dtype=bool)
             for location in user2_locations:
                 start_time = location[1]
                 end_time = location[2]
@@ -157,6 +161,6 @@ class Predictor():
 
 if __name__ == '__main__':
     JAPAN_TUPLE = (120, 150, 20, 45)
-    decimals = 2
+    decimals = 3
     p = Predictor(60, grid_boundaries_tuple=JAPAN_TUPLE, spatial_resolution_decimals=decimals)
     print(p.calculate_corr("175ceb15-5a9a-4042-9422-fcae763fe305", "2ddb668d-0c98-4258-844e-7e790ea65aba"))

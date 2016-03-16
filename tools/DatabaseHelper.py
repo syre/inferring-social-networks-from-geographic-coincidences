@@ -422,7 +422,6 @@ class DatabaseHelper(object):
             for row in result:
                 country = row[0]
                 names.append(country)
-                #print("|{0}|".format(country))
                 if country != "" and country != " " and country is not None:
                     time = row[1]
                     number_rows_for_country = row[2]
@@ -480,7 +479,7 @@ class DatabaseHelper(object):
 
 if __name__ == '__main__':
     d = DatabaseHelper()
-    print(len(d.find_cooccurrences("2ddb668d-0c98-4258-844e-7e790ea65aba", 0.001, 60*24)))
+    print(len(d.find_cooccurrences("f67ae795-1f2b-423c-ba30-cdd5cbb23662", 0.001, 60*24)))
     #d.drop_tables()
     #d.db_setup()
     #d.insert_all_from_json()

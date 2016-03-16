@@ -26,6 +26,8 @@ class Predictor():
                 spatial_resolution_decimals: spatial resolution - used for spatial binning, for example 3 to get lng and lat down to 0.001 precision
                 grid_boundaries_tuple: boundaries of map - used for spatial binning,
                                        Japan for example is within the range of lng: 120 - 150 and lat: 20-45, thus (120, 150, 20, 45)
+                from_date: start-date used for timebin range
+                to_date: end-date used for timebin range
         """
         self.database = DatabaseHelper.DatabaseHelper()
         self.min_datetime = from_date
@@ -152,7 +154,7 @@ class Predictor():
 
         Feature ID: coocs_w
         """
-        database.find_cooccurrences()
+        database.find_cooccurrences(user1, useruuid2=user2)
 
         pass
     

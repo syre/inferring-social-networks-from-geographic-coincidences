@@ -10,7 +10,6 @@ import numpy as np
 import scipy
 from scipy import sparse, stats
 import sklearn
-from sklearn.metrics import pairwise_distances
 
 class Predictor():
     def __init__(self, 
@@ -153,8 +152,29 @@ class Predictor():
 
         Feature ID: arr_leav
         """
-        pass
-    
+        cell_size = pow(10, -self.spatial_resolution_decimals)
+        cooccurrences = self.database.find_cooccurrences(user1, cell_size, self.timebin_size, useruuid2=user2)
+        for cooc in cooccurrences:
+            lng_lat = json.loads(cooc[3])
+            start_time = cooc[1]
+            end_time = cooc[2]
+            lng = lng_lat["coordinates"][0]
+            lat = lng_lat["coordinates"][1]
+
+            spatial_bin = self.calculate_spatial_bin(lng, lat)
+            time_bin = self.map_time_to_timebins(start_time, end_time)
+            # check if one of the users are in the previous timebin
+            previous_list = find_users_in_cooccurrence(spatial_bin,time_bin-1) 
+            if (user1 in previous_list and user2 not in previous_list) or (user1 not in previous_list and user2 in previous_list):
+                # non-synchronously arrival
+                pass
+            else:
+                # synchronously arrival
+                pass
+
+
+
+        raise NotImplementedError
 
 
     def calculate_coocs_w(self, user1, user2):
@@ -193,9 +213,6 @@ class Predictor():
             coocs_w_values.append(1/num_users-1)
 
         return sum(coocs_w_values)/len(cooccurrences)
-
-
-        pass
     
     def calculate_specificity(self, user1, user2):
         """
@@ -215,3 +232,4 @@ if __name__ == '__main__':
     p = Predictor(60, grid_boundaries_tuple=JAPAN_TUPLE, spatial_resolution_decimals=decimals)
     #print(p.calculate_corr("492f0a67-9a2c-40b8-8f0a-730db06abf65", "4bd3f3b1-791f-44be-8c52-0fd2195c4e62"))
     print(p.calculate_coocs_w("492f0a67-9a2c-40b8-8f0a-730db06abf65", "4bd3f3b1-791f-44be-8c52-0fd2195c4e62"))
+    print(p.calculate_arr_leav("492f0a67-9a2c-40b8-8f0a-730db06abf65", "4bd3f3b1-791f-44be-8c52-0fd2195c4e62"))

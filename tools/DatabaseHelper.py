@@ -464,9 +464,35 @@ class DatabaseHelper(object):
         cursor.execute("""select distinct {} from "{}";""".format(feature, from_table))
         return [feature_name[0] for feature_name in cursor.fetchall()]
 
-    def get_users_in_country(self, country):
+    def get_users_in_country(self, country,ratio=0.5):
         cursor = self.conn.cursor()
-        cursor.execute("""SELECT DISTINCT useruuid FROM location WHERE country=(%s);""",(country,))
+        cursor.execute("""
+            with auxiliary_user_table AS (
+                    SELECT COUNT(*) AS Number_in_country, useruuid AS users, country 
+                    FROM location 
+                    WHERE country!='' 
+                    GROUP BY country, useruuid 
+                    ORDER BY useruuid), 
+            auxiliary_total_sum_for_users AS ( 
+                    SELECT SUM(Number_in_country) AS total_sum, users as users1
+                    FROM auxiliary_user_table
+                    GROUP BY users
+                    ORDER BY users),
+            auxiliary_user_count_country AS (
+                    SELECT Number_in_country, users
+                    FROM auxiliary_user_table
+                    WHERE country=(%s)
+                    ORDER BY users
+            ), 
+
+            auxiliary_ratios AS (
+                    SELECT auxiliary_user_count_country.Number_in_country AS Number_in_Japan, auxiliary_total_sum_for_users.total_sum AS Total_numbers,
+                           (auxiliary_user_count_country.Number_in_country/auxiliary_total_sum_for_users.total_sum) AS Ratio, auxiliary_user_count_country.users AS users3
+                    FROM auxiliary_user_count_country INNER JOIN auxiliary_total_sum_for_users ON (auxiliary_user_count_country.users = auxiliary_total_sum_for_users.users1)
+                    ORDER BY users3
+            )
+
+            SELECT users3 FROM auxiliary_ratios WHERE ratio>=(%s);""",(country,ratio,))
         return [user[0] for user in cursor.fetchall()]
 
 

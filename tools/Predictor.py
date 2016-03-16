@@ -74,8 +74,6 @@ class Predictor():
     def calculate_spatial_bin(self, lng, lat):
         lat += 90.0
         lng += 180.0
-        lat - self.GRID_MIN_LAT
-        lng - self.GRID_MIN_LNG
         lat = math.trunc(lat*pow(10,self.spatial_resolution_decimals))
         lng = math.trunc(lng*pow(10,self.spatial_resolution_decimals))
         return (abs(self.GRID_MAX_LAT - self.GRID_MIN_LAT) * (lat-self.GRID_MIN_LAT)) + (lng-self.GRID_MIN_LNG)
@@ -94,6 +92,7 @@ class Predictor():
                 list -- list of user_uuids
         
         """
+
         raise NotImplementedError
 
     def calculate_corr(self, user1, user2):

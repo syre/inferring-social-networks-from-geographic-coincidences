@@ -8,9 +8,8 @@ from datetime import datetime
 from pytz import timezone
 import numpy as np
 import scipy
-from scipy import sparse
+from scipy import sparse, stats
 import sklearn
-from sklearn.metrics import pairwise_distances
 
 class Predictor():
     def __init__(self, 
@@ -26,6 +25,8 @@ class Predictor():
                 spatial_resolution_decimals: spatial resolution - used for spatial binning, for example 3 to get lng and lat down to 0.001 precision
                 grid_boundaries_tuple: boundaries of map - used for spatial binning,
                                        Japan for example is within the range of lng: 120 - 150 and lat: 20-45, thus (120, 150, 20, 45)
+                from_date: start-date used for timebin range
+                to_date: end-date used for timebin range
         """
         self.database = DatabaseHelper.DatabaseHelper()
         self.min_datetime = from_date
@@ -82,6 +83,18 @@ class Predictor():
     def jaccard_index(self, X, Y):
         print(X.nonzero())
         print(Y.nonzero())
+    
+    def find_users_in_cooccurrence(self, spatial_bin, time_bin):
+        """
+        Find all users who's been in a given cooccurrence
+            Arguments:
+                spatial_bin {integer} -- spatial bin index
+                time_bin {integer} -- time bin index
+            Returns:
+                list -- list of user_uuids
+        
+        """
+        raise NotImplementedError
 
     def calculate_corr(self, user1, user2):
         """
@@ -99,8 +112,9 @@ class Predictor():
         user2_locations = self.database.get_locations_for_user(user2)
         time_bin_range = self.map_time_to_timebins(self.min_datetime, self.max_datetime)
         array_size = abs(self.GRID_MAX_LAT-self.GRID_MIN_LAT)*abs(self.GRID_MAX_LNG-self.GRID_MIN_LNG)
+
         for bin in time_bin_range:
-            user1_vector = sparse.csr_matrix((1,array_size), dtype=bool)
+            user1_vector = np.zeros(array_size, dtype=bool)
             for location in user1_locations:
                 start_time = location[1]
                 end_time = location[2]
@@ -109,7 +123,7 @@ class Predictor():
                 if bin in self.map_time_to_timebins(start_time, end_time):
                     user1_vector[self.calculate_spatial_bin(lng, lat)] = 1
                     break
-            user2_vector = sparse.csr_matrix((1,array_size), dtype=bool)
+            user2_vector = np.zeros(array_size, dtype=bool)
             for location in user2_locations:
                 start_time = location[1]
                 end_time = location[2]
@@ -119,7 +133,11 @@ class Predictor():
                     print(lng, lat)
                     user2_vector[self.calculate_spatial_bin(lng, lat)] = 1
                     break
-            correlation_sum += sklearn.metrics.pairwise.pairwise_distances(user1_vector, user2_vector, metric='cosine')
+
+            correlation = stats.pearsonr(user1_vector, user2_vector)
+            # if correlation is siginificant p < 0.05 add to correlation sum
+            if correlation[1] < 0.05:
+                correlation_sum += scipy.stats.pearsonr(user1_vector, user2_vector)[0]
         return correlation_sum
 
     def calculate_arr_leav(self, user1, user2):
@@ -134,8 +152,31 @@ class Predictor():
 
         Feature ID: arr_leav
         """
-        pass
-    
+        cell_size = pow(10, -self.spatial_resolution_decimals)
+        cooccurrences = self.database.find_cooccurrences(user1, cell_size, self.timebin_size, useruuid2=user2)
+        for cooc in cooccurrences:
+            lng_lat = json.loads(cooc[3])
+            start_time = cooc[1]
+            end_time = cooc[2]
+            lng = lng_lat["coordinates"][0]
+            lat = lng_lat["coordinates"][1]
+
+            spatial_bin = self.calculate_spatial_bin(lng, lat)
+            time_bin = self.map_time_to_timebins(start_time, end_time)
+            # check if one of the users are in the previous timebin
+            previous_list = find_users_in_cooccurrence(spatial_bin,time_bin-1) 
+            if (user1 in previous_list and user2 not in previous_list) or (user1 not in previous_list and user2 in previous_list):
+                # non-synchronously arrival
+                pass
+            else:
+                # synchronously arrival
+                pass
+
+
+
+        raise NotImplementedError
+
+
     def calculate_coocs_w(self, user1, user2):
         """
         While other researchers use entropy to weight the social impact of meetings, our
@@ -144,23 +185,51 @@ class Predictor():
         assume the social importance of each co-occurrence to be inversely proportional
         to the number of people – if only a few persons are there in a location, it is more
         probable that there is a social bond between them compared to the situation
-        when dozens of people are present. Feature ID: coocs_w, see Figure 4.8b.
+        when dozens of people are present.
+
+        Calculates all values of coocs_w for cooccurrences and returns the mean of them 
+
+        Feature ID: coocs_w
         """
-        pass
+        cell_size = pow(10, -self.spatial_resolution_decimals)
+        cooccurrences = self.database.find_cooccurrences(user1, cell_size, self.timebin_size, useruuid2=user2)
+        coocs_w_values = []
+        for cooc in cooccurrences:
+            lng_lat = json.loads(cooc[3])
+            start_time = cooc[1]
+            end_time = cooc[2]
+            lng = lng_lat["coordinates"][0]
+            lat = lng_lat["coordinates"][1]
+
+            spatial_bin = self.calculate_spatial_bin(lng, lat)
+            time_bin = self.map_time_to_timebins(start_time, end_time)
+            # only take the first for now
+            time_bin = time_bin[0]
+            users = self.find_users_in_cooccurrence(spatial_bin, time_bin)
+            num_users = len(users)
+            if num_users < 2:
+                raise Exception("no users for cooccurrence")
+            # 2 users is ideal thus 1, else return less proportional to amount of users
+            coocs_w_values.append(1/num_users-1)
+
+        return sum(coocs_w_values)/len(cooccurrences)
     
     def calculate_specificity(self, user1, user2):
         """
         The asymmetric specificity Sij defined as fraction of time person pi spends with
         person pj with respect to the total time spent on campus by person pj . As
         shown in Table 4.3, the fraction of social time with respect to total time is more
-        indicative of being perceived as a friend than only the social time (ID: spec,
-        Figure 4.8p).
+        indicative of being perceived as a friend than only the social time.
+
+        Feature ID: spec
 
         """
         pass
 
 if __name__ == '__main__':
     JAPAN_TUPLE = (120, 150, 20, 45)
-    decimals = 3
+    decimals = 2
     p = Predictor(60, grid_boundaries_tuple=JAPAN_TUPLE, spatial_resolution_decimals=decimals)
-    print(p.calculate_corr("175ceb15-5a9a-4042-9422-fcae763fe305", "2ddb668d-0c98-4258-844e-7e790ea65aba"))
+    #print(p.calculate_corr("492f0a67-9a2c-40b8-8f0a-730db06abf65", "4bd3f3b1-791f-44be-8c52-0fd2195c4e62"))
+    print(p.calculate_coocs_w("492f0a67-9a2c-40b8-8f0a-730db06abf65", "4bd3f3b1-791f-44be-8c52-0fd2195c4e62"))
+    print(p.calculate_arr_leav("492f0a67-9a2c-40b8-8f0a-730db06abf65", "4bd3f3b1-791f-44be-8c52-0fd2195c4e62"))

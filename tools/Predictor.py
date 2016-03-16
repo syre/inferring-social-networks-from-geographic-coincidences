@@ -8,7 +8,7 @@ from datetime import datetime
 from pytz import timezone
 import numpy as np
 import scipy
-from scipy import sparse
+from scipy import sparse, stats
 import sklearn
 from sklearn.metrics import pairwise_distances
 
@@ -100,7 +100,7 @@ class Predictor():
         time_bin_range = self.map_time_to_timebins(self.min_datetime, self.max_datetime)
         array_size = abs(self.GRID_MAX_LAT-self.GRID_MIN_LAT)*abs(self.GRID_MAX_LNG-self.GRID_MIN_LNG)
         for bin in time_bin_range:
-            user1_vector = sparse.csr_matrix((1,array_size), dtype=bool)
+            user1_vector = np.zeros(array_size, dtype=bool)
             for location in user1_locations:
                 start_time = location[1]
                 end_time = location[2]
@@ -109,7 +109,7 @@ class Predictor():
                 if bin in self.map_time_to_timebins(start_time, end_time):
                     user1_vector[self.calculate_spatial_bin(lng, lat)] = 1
                     break
-            user2_vector = sparse.csr_matrix((1,array_size), dtype=bool)
+            user2_vector = np.zeros(array_size, dtype=bool)
             for location in user2_locations:
                 start_time = location[1]
                 end_time = location[2]
@@ -119,7 +119,11 @@ class Predictor():
                     print(lng, lat)
                     user2_vector[self.calculate_spatial_bin(lng, lat)] = 1
                     break
-            correlation_sum += sklearn.metrics.pairwise.pairwise_distances(user1_vector, user2_vector, metric='cosine')
+
+            correlation = stats.pearsonr(user1_vector, user2_vector)
+            # if correlation is siginificant p < 0.05 add to correlation sum
+            if correlation[1] < 0.05:
+                correlation_sum += scipy.stats.pearsonr(user1_vector, user2_vector)[0]
         return correlation_sum
 
     def calculate_arr_leav(self, user1, user2):
@@ -144,8 +148,12 @@ class Predictor():
         assume the social importance of each co-occurrence to be inversely proportional
         to the number of people – if only a few persons are there in a location, it is more
         probable that there is a social bond between them compared to the situation
-        when dozens of people are present. Feature ID: coocs_w, see Figure 4.8b.
+        when dozens of people are present. 
+
+        Feature ID: coocs_w
         """
+        database.find_cooccurrences()
+
         pass
     
     def calculate_specificity(self, user1, user2):
@@ -153,14 +161,15 @@ class Predictor():
         The asymmetric specificity Sij defined as fraction of time person pi spends with
         person pj with respect to the total time spent on campus by person pj . As
         shown in Table 4.3, the fraction of social time with respect to total time is more
-        indicative of being perceived as a friend than only the social time (ID: spec,
-        Figure 4.8p).
+        indicative of being perceived as a friend than only the social time.
+
+        Feature ID: spec
 
         """
         pass
 
 if __name__ == '__main__':
     JAPAN_TUPLE = (120, 150, 20, 45)
-    decimals = 3
+    decimals = 2
     p = Predictor(60, grid_boundaries_tuple=JAPAN_TUPLE, spatial_resolution_decimals=decimals)
-    print(p.calculate_corr("175ceb15-5a9a-4042-9422-fcae763fe305", "2ddb668d-0c98-4258-844e-7e790ea65aba"))
+    print(p.calculate_corr("492f0a67-9a2c-40b8-8f0a-730db06abf65", "4bd3f3b1-791f-44be-8c52-0fd2195c4e62"))

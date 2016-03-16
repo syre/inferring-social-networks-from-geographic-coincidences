@@ -281,7 +281,7 @@ class DatabaseHelper(object):
         return locations
     
 
-    def find_cooccurrences(self, useruuid, cell_size, time_threshold_in_minutes, points_w_distances=[]):
+    def find_cooccurrences(self, useruuid, cell_size, time_threshold_in_minutes, points_w_distances=[], useruuid2=None):
         """ find all cooccurrences for a user
         
         find all cooccurrences for a user within a cell_size and time window (time_threshold_in_minutes)
@@ -296,6 +296,7 @@ class DatabaseHelper(object):
         Keyword Arguments:
             points_w_distances {list of lists} -- list of lists with point (longitude,latitude) (as tuple) and distance in meter (default: {[]})
                                                   Example [[(139.743862,35.630338), 1000]]
+            useruuid2 {string} -- optional argument for when you only want cooccurrences with that other user
         
         Returns:
             list -- list of results
@@ -305,6 +306,11 @@ class DatabaseHelper(object):
             start ="AND NOT ST_DWithin(location, ST_MakePoint("
             query = " AND NOT ST_DWithin(location, ST_MakePoint(".join(["{0}, {1}), {2})". format(element[0][0],element[0][1],element[1]) for element in points_w_distances])
         cursor = self.conn.cursor()
+        
+        second_user_query = ""
+        if useruuid2:
+            second_user_query = " and location.useruuid = '{}'".format(useruuid2)
+
         cursor.execute(""" 
             with auxiliary_user_table as (
             SELECT useruuid as user, start_time as start, end_time as slut, ST_X(location::geometry) as longitude, ST_Y(location::geometry) as latitude 
@@ -312,10 +318,10 @@ class DatabaseHelper(object):
             WHERE location.useruuid = (%s))
             SELECT useruuid, start_time, end_time, ST_AsGeoJSON(location)
                     FROM location, auxiliary_user_table
-                    WHERE location.useruuid != auxiliary_user_table.user 
+                    WHERE location.useruuid != auxiliary_user_table.user
                     AND (start_time between start - interval '%s minutes' and start) 
                     AND (end_time between slut and slut + interval '%s minutes')
-                    AND (abs(ST_X(location::geometry)-longitude) <= (%s) and abs(ST_Y(location::geometry)-latitude) <= (%s))"""+(start+query)+";",
+                    AND (abs(ST_X(location::geometry)-longitude) <= (%s) and abs(ST_Y(location::geometry)-latitude) <= (%s)) """ + (start + query) + second_user_query + ";",
                     (useruuid, time_threshold_in_minutes/2, time_threshold_in_minutes/2, cell_size, cell_size))
        
         return cursor.fetchall()
@@ -479,7 +485,7 @@ class DatabaseHelper(object):
 
 if __name__ == '__main__':
     d = DatabaseHelper()
-    print(len(d.find_cooccurrences("f67ae795-1f2b-423c-ba30-cdd5cbb23662", 0.001, 60*24)))
+    print(d.find_cooccurrences("f67ae795-1f2b-423c-ba30-cdd5cbb23662", 0.001, 60*24, useruuid2="f3437039-936a-41d6-93a0-d34ab4424a96"))
     #d.drop_tables()
     #d.db_setup()
     #d.insert_all_from_json()

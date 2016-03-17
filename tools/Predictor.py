@@ -7,8 +7,7 @@ import json
 from datetime import datetime
 from pytz import timezone
 import numpy as np
-import scipy
-from scipy import sparse, stats
+from scipy import stats
 import sklearn
 
 class Predictor():

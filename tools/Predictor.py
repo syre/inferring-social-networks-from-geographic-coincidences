@@ -230,16 +230,22 @@ class Predictor():
             lng = lng_lat["coordinates"][0]
             lat = lng_lat["coordinates"][1]
 
+            coocs_w_value = 0
+
             spatial_bin = self.calculate_spatial_bin(lng, lat)
-            time_bin = self.map_time_to_timebins(start_time, end_time)
-            # only take the first for now
-            time_bin = time_bin[0]
-            users = self.find_users_in_cooccurrence(spatial_bin, time_bin)
-            num_users = len(users)
-            if num_users < 2:
-                raise Exception("no users for cooccurrence")
-            # 2 users is ideal thus 1, else return less proportional to amount of users
-            coocs_w_values.append(1/num_users-1)
+            time_bins = self.map_time_to_timebins(start_time, end_time)
+
+            for time_bin in time_bins:
+                users = self.find_users_in_cooccurrence(spatial_bin, time_bin)
+                num_users = len(users)
+                coocs_w_value += num_users
+            
+                if num_users < 2:
+                    raise Exception("no users for cooccurrence")
+            coocs_w_value /= len(time_bins)
+
+            # 2 users is ideal thus returning highest value 1, else return lesser value proportional to amount of users
+            coocs_w_values.append(1/(coocs_w_value-1))
 
         return sum(coocs_w_values)/len(cooccurrences)
     

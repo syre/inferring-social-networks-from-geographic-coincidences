@@ -7,8 +7,7 @@ import json
 from datetime import datetime
 from pytz import timezone
 import numpy as np
-import scipy
-from scipy import sparse, stats
+from scipy import stats
 import sklearn
 
 class Predictor():
@@ -157,7 +156,7 @@ class Predictor():
             correlation = stats.pearsonr(user1_vector, user2_vector)
             # if correlation is siginificant p < 0.05 add to correlation sum
             if correlation[1] < 0.05:
-                correlation_sum += scipy.stats.pearsonr(user1_vector, user2_vector)[0]
+                correlation_sum += correlation[0]
         return correlation_sum
 
     def calculate_arr_leav(self, user1, user2):

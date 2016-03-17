@@ -153,27 +153,32 @@ class Predictor():
         """
         cell_size = pow(10, -self.spatial_resolution_decimals)
         cooccurrences = self.database.find_cooccurrences(user1, cell_size, self.timebin_size, useruuid2=user2)
+        arr_leav_values = []
         for cooc in cooccurrences:
             lng_lat = json.loads(cooc[3])
             start_time = cooc[1]
             end_time = cooc[2]
             lng = lng_lat["coordinates"][0]
             lat = lng_lat["coordinates"][1]
-
+            arr_leav_value = 0
             spatial_bin = self.calculate_spatial_bin(lng, lat)
             time_bin = self.map_time_to_timebins(start_time, end_time)
-            # check if one of the users are in the previous timebin
-            previous_list = find_users_in_cooccurrence(spatial_bin,time_bin-1) 
+            # check if one of the users are in the previous timebin but not both
+            previous_list = find_users_in_cooccurrence(spatial_bin,time_bin-1)
+            current_list = find_users_in_cooccurrence(spatial_bin, time_bin)
+            next_list = find_users_in_cooccurrence(spatial_bin, time_bin+1)
+            
+            number_of_new_arrivals = len(set(current_list)-set(previous_list))
+            number_of_leavers = len(set(next_list)-set(current_list))
+
             if (user1 in previous_list and user2 not in previous_list) or (user1 not in previous_list and user2 in previous_list):
                 # non-synchronously arrival
-                pass
+                arr_leav_value = 0
             else:
                 # synchronously arrival
-                pass
-
-
-
-        raise NotImplementedError
+                arr_leav_value = 1*(1/(number_of_leavers+number_of_new_arrivals))
+            arr_leav_values.append(arr_leav_value)
+        return sum(arr_leav_values)/len(cooccurrences)
 
 
     def calculate_coocs_w(self, user1, user2):

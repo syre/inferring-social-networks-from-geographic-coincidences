@@ -16,7 +16,8 @@ class Predictor():
                  timebin_size_in_minutes,
                  from_date=datetime.strptime("2015-09-01", "%Y-%m-%d").replace(tzinfo=timezone("Asia/Tokyo")),
                  to_date=datetime.strptime("2015-11-30", "%Y-%m-%d").replace(tzinfo=timezone("Asia/Tokyo")),
-                 grid_boundaries_tuple=(-180, 180, -90, 90), spatial_resolution_decimals = 3):
+                 grid_boundaries_tuple=(-180, 180, -90, 90), spatial_resolution_decimals = 3,
+                 country="Japan"):
         """
             Constructor
 
@@ -33,6 +34,7 @@ class Predictor():
         self.max_datetime = to_date
         self.timebin_size = timebin_size_in_minutes
         self.spatial_resolution_decimals = spatial_resolution_decimals
+        self.country=country
 
         self.GRID_MIN_LNG = (grid_boundaries_tuple[0] + 180) * pow(10, spatial_resolution_decimals)
         self.GRID_MAX_LNG = (grid_boundaries_tuple[1] + 180) * pow(10, spatial_resolution_decimals)
@@ -123,10 +125,12 @@ class Predictor():
 
         """
         correlation_sum = 0
-        user1_locations = self.database.get_locations_for_user(user1)
-        user2_locations = self.database.get_locations_for_user(user2)
+        user1_locations = self.database.get_locations_for_user(user1, self.country)
+        #print(len(user1_locations))
+        user2_locations = self.database.get_locations_for_user(user2, self.country)
         time_bin_range = self.map_time_to_timebins(self.min_datetime, self.max_datetime)
         array_size = abs(self.GRID_MAX_LAT-self.GRID_MIN_LAT)*abs(self.GRID_MAX_LNG-self.GRID_MIN_LNG)
+        #print("Array size: {}".format(array_size))
 
         for bin in time_bin_range:
             user1_vector = np.zeros(array_size, dtype=bool)
@@ -136,6 +140,7 @@ class Predictor():
                 lng = location[3]
                 lat = location[4]
                 if bin in self.map_time_to_timebins(start_time, end_time):
+                    #print("Spartial bin: {}".format(self.calculate_spatial_bin(lng, lat)))
                     user1_vector[self.calculate_spatial_bin(lng, lat)] = 1
                     break
             user2_vector = np.zeros(array_size, dtype=bool)
@@ -145,7 +150,7 @@ class Predictor():
                 lng = location[3]
                 lat = location[4]
                 if bin in self.map_time_to_timebins(start_time, end_time):
-                    print(lng, lat)
+                    #print(lng, lat)
                     user2_vector[self.calculate_spatial_bin(lng, lat)] = 1
                     break
 

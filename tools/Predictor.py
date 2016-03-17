@@ -179,7 +179,7 @@ class Predictor():
             # check if one of the users are in the previous timebin but not both
             previous_list = self.find_users_in_cooccurrence(spatial_bin,time_bin[0]-1)
             current_list = self.find_users_in_cooccurrence(spatial_bin, time_bin)
-            next_list = self.find_users_in_cooccurrence(spatial_bin, time_bin[-1])
+            next_list = self.find_users_in_cooccurrence(spatial_bin, time_bin[-1]+1)
             
             number_of_new_arrivals = len(set(current_list)-set(previous_list))
             number_of_leavers = len(set(next_list)-set(current_list))

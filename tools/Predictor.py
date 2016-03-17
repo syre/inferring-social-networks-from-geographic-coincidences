@@ -38,10 +38,12 @@ class Predictor():
         self.GRID_MAX_LNG = (grid_boundaries_tuple[1] + 180) * pow(10, spatial_resolution_decimals)
         self.GRID_MIN_LAT = (grid_boundaries_tuple[2] + 90) * pow(10, spatial_resolution_decimals)
         self.GRID_MAX_LAT = (grid_boundaries_tuple[3] + 90) * pow(10, spatial_resolution_decimals)
+        print("GRID_MIN_LNG = {}\nGRID_MAX_LNG = {}\nGRID_MIN_LAT = {}\nGRID_MAX_LAT = {}\n------------------".
+            format(self.GRID_MIN_LNG, self.GRID_MAX_LNG, self.GRID_MIN_LAT, self.GRID_MAX_LAT))
     
     def generate_dataset(self, country, cell_size):
         lst = []
-        all_users_in_country = database.get_users_in_country(country)
+        all_users_in_country = self.database.get_users_in_country(country)
         i_total = len(all_users_in_country)
         print_thresshold = math.floor(i_total/25)
         print("Number of users: {}".format(i_total))
@@ -49,14 +51,18 @@ class Predictor():
         for user in all_users_in_country:
             if i%print_thresshold==0:
                 print("users calculated: {}".format(i))
-            cooccurrences = database.find_cooccurrences(user, cell_size, self.timebin_size)
+            cooccurrences = self.database.find_cooccurrences(user, cell_size, self.timebin_size)
             for occurrence in cooccurrences:
                 time_bins = self.map_time_to_timebins(occurrence[1], occurrence[2])
                 lng_lat = json.loads(occurrence[3])["coordinates"]
+                print("lat: {}\nlng: {}".format(lng_lat[1],lng_lat[0]))
                 spatial_bin = self.calculate_spatial_bin(lng_lat[0], lng_lat[1])
+                print("spatial_bin = {}".format(spatial_bin))
+                break
                 for time_bin in time_bins:
                     lst.append([time_bin, spatial_bin, 1])
             i+=1
+            break
         print(len(lst))
 
 
@@ -79,21 +85,32 @@ class Predictor():
         lat = math.trunc(lat*pow(10,self.spatial_resolution_decimals))
         lng = math.trunc(lng*pow(10,self.spatial_resolution_decimals))
         return (abs(self.GRID_MAX_LAT - self.GRID_MIN_LAT) * (lat-self.GRID_MIN_LAT)) + (lng-self.GRID_MIN_LNG)
+
+
+
     
     def jaccard_index(self, X, Y):
         print(X.nonzero())
         print(Y.nonzero())
     
-    def find_users_in_cooccurrence(self, spatial_bin, time_bin):
+    def find_users_in_cooccurrence(self, lng, lat, time_bin):
         """
         Find all users who's been in a given cooccurrence
             Arguments:
-                spatial_bin {integer} -- spatial bin index
+                lat {float} -- latitude
+                lng {float} -- longitude
                 time_bin {integer} -- time bin index
             Returns:
                 list -- list of user_uuids
         
         """
+        lat = math.trunc(lat*pow(10,self.spatial_resolution_decimals))
+        lng = math.trunc(lng*pow(10,self.spatial_resolution_decimals))
+
+
+
+
+
         raise NotImplementedError
 
     def calculate_corr(self, user1, user2):
@@ -164,7 +181,7 @@ class Predictor():
             spatial_bin = self.calculate_spatial_bin(lng, lat)
             time_bin = self.map_time_to_timebins(start_time, end_time)
             # check if one of the users are in the previous timebin
-            previous_list = find_users_in_cooccurrence(spatial_bin,time_bin-1) 
+            previous_list = find_users_in_cooccurrence(lng, lat,time_bin-1) 
             if (user1 in previous_list and user2 not in previous_list) or (user1 not in previous_list and user2 in previous_list):
                 # non-synchronously arrival
                 pass
@@ -230,6 +247,7 @@ if __name__ == '__main__':
     JAPAN_TUPLE = (120, 150, 20, 45)
     decimals = 2
     p = Predictor(60, grid_boundaries_tuple=JAPAN_TUPLE, spatial_resolution_decimals=decimals)
+    p.generate_dataset("Japan", 0.001)
     #print(p.calculate_corr("492f0a67-9a2c-40b8-8f0a-730db06abf65", "4bd3f3b1-791f-44be-8c52-0fd2195c4e62"))
-    print(p.calculate_coocs_w("492f0a67-9a2c-40b8-8f0a-730db06abf65", "4bd3f3b1-791f-44be-8c52-0fd2195c4e62"))
-    print(p.calculate_arr_leav("492f0a67-9a2c-40b8-8f0a-730db06abf65", "4bd3f3b1-791f-44be-8c52-0fd2195c4e62"))
+    #print(p.calculate_coocs_w("492f0a67-9a2c-40b8-8f0a-730db06abf65", "4bd3f3b1-791f-44be-8c52-0fd2195c4e62"))
+    #print(p.calculate_arr_leav("492f0a67-9a2c-40b8-8f0a-730db06abf65", "4bd3f3b1-791f-44be-8c52-0fd2195c4e62"))

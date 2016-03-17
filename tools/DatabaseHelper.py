@@ -327,6 +327,18 @@ class DatabaseHelper(object):
 
 
 
+    def find_cooccurrences_within_area(self, lat, lng, start_time, end_time, spatial_resolution_decimals):
+
+        cursor = self.conn.cursor()
+        cursor.execute("""
+                SELECT useruuid as user, start_time as start, end_time as slut, ST_X(location::geometry) as longitude, ST_Y(location::geometry) as latitude 
+                FROM location
+                WHERE trunc((ST_X(location::geometry))::numeric,3)=6.752 AND trunc((ST_Y(location::geometry))::numeric,3)=51.233
+                  AND  
+            """)
+
+
+
     def get_distribution_cooccurrences(self, x_useruuid, y_useruuid, time_threshold_in_minutes=60*24, cell_size=0.001):
         cursor = self.conn.cursor()
         locations = self.get_locations_for_user(x_useruuid)

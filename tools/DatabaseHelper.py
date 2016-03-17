@@ -327,17 +327,18 @@ class DatabaseHelper(object):
 
 
 
-    def find_cooccurrences_within_area(self, lat, lng, start_time, end_time, spatial_resolution_decimals):
-
+    def find_cooccurrences_within_area(self, lat, lng, start_time, time_threshold_in_minutes, spatial_resolution_decimals):
+        end_time = start_time+datetime.timedelta(minutes=time_threshold_in_minutes)
         cursor = self.conn.cursor()
         cursor.execute("""
-                SELECT useruuid as user, start_time as start, end_time as slut, ST_X(location::geometry) as longitude, ST_Y(location::geometry) as latitude 
+                SELECT DISTINCT(useruuid)
                 FROM location
-                WHERE trunc((ST_X(location::geometry))::numeric,3)=6.752 AND trunc((ST_Y(location::geometry))::numeric,3)=51.233
-                  AND  
-            """)
+                WHERE trunc((ST_X(location::geometry))::numeric,(%s))=(%s) AND trunc((ST_Y(location::geometry))::numeric,(%s))=(%s)
+                  AND (start_time between (%s) - interval '%s minutes' AND (%s)) 
+                  AND (end_time between (%s) and (%s) + interval '%s minutes') 
+            """,(spatial_resolution_decimals,lng,spatial_resolution_decimals,lat, start_time, time_threshold_in_minutes, start_time, end_time, end_time, time_threshold_in_minutes))
 
-
+        return [row[0] for row in cursor.fetchall()]
 
     def get_distribution_cooccurrences(self, x_useruuid, y_useruuid, time_threshold_in_minutes=60*24, cell_size=0.001):
         cursor = self.conn.cursor()

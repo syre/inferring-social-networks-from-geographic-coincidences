@@ -270,9 +270,13 @@ class DatabaseHelper(object):
         data, names = zip(*sorted(zip(data, names)))
         return data, names
 
-    def get_locations_for_user(self, useruuid):
+    def get_locations_for_user(self, useruuid, country=None):
+        country_query =""
+        if country:
+            country_query = " AND location.country = '{}'".format(country)
         cursor = self.conn.cursor()
-        cursor.execute("""SELECT useruuid, start_time, end_time, ST_X(location::geometry), ST_Y(location::geometry) from location where location.useruuid = (%s) """,(useruuid,))
+        cursor.execute("""SELECT useruuid, start_time, end_time, ST_X(location::geometry), ST_Y(location::geometry) from location 
+            where location.useruuid = (%s) """+country_query+""";""",(useruuid,))
         if cursor.rowcount == 0:
             print("no locations for useruuid")
             return

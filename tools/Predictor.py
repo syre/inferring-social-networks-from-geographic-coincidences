@@ -104,9 +104,12 @@ class Predictor():
         """
         lat = math.trunc(lat*pow(10,self.spatial_resolution_decimals))
         lng = math.trunc(lng*pow(10,self.spatial_resolution_decimals))
-
-
-        raise NotImplementedError
+        #time_bin = 10
+        #        
+        start_time = self.min_datetime+(datetime.timedelta(minutes=self.timebin_size_in_minutes)*time_bin)
+        #end_time = start_time+datetime.timedelta(minutes=self.timebin_size_in_minutes)
+        return self.database.find_cooccurrences_within_area(lat, lng, start_time, self.timebin_size_in_minutes, self.spatial_resolution_decimals)
+        #raise NotImplementedError
 
     def calculate_corr(self, user1, user2):
         """
@@ -177,9 +180,9 @@ class Predictor():
             spatial_bin = self.calculate_spatial_bin(lng, lat)
             time_bins = self.map_time_to_timebins(start_time, end_time)
             # check if one of the users are in the previous timebin but not both
-            previous_list = self.find_users_in_cooccurrence(spatial_bin,time_bin[0]-1)
-            current_list = self.find_users_in_cooccurrence(spatial_bin, time_bin)
-            next_list = self.find_users_in_cooccurrence(spatial_bin, time_bin[-1]+1)
+            previous_list = self.find_users_in_cooccurrence(spatial_bin,time_bins[0]-1)
+            current_list = self.find_users_in_cooccurrence(spatial_bin, time_bins)
+            next_list = self.find_users_in_cooccurrence(spatial_bin, time_bins[-1]+1)
             
             number_of_new_arrivals = len(set(current_list)-set(previous_list))
             number_of_leavers = len(set(next_list)-set(current_list))
@@ -262,7 +265,7 @@ if __name__ == '__main__':
     JAPAN_TUPLE = (120, 150, 20, 45)
     decimals = 2
     p = Predictor(60, grid_boundaries_tuple=JAPAN_TUPLE, spatial_resolution_decimals=decimals)
-    p.generate_dataset("Japan", 0.001)
-    #print(p.calculate_corr("492f0a67-9a2c-40b8-8f0a-730db06abf65", "4bd3f3b1-791f-44be-8c52-0fd2195c4e62"))
+    #p.generate_dataset("Japan", 0.001)
+    print(p.calculate_corr("492f0a67-9a2c-40b8-8f0a-730db06abf65", "4bd3f3b1-791f-44be-8c52-0fd2195c4e62"))
     #print(p.calculate_coocs_w("492f0a67-9a2c-40b8-8f0a-730db06abf65", "4bd3f3b1-791f-44be-8c52-0fd2195c4e62"))
     #print(p.calculate_arr_leav("492f0a67-9a2c-40b8-8f0a-730db06abf65", "4bd3f3b1-791f-44be-8c52-0fd2195c4e62"))

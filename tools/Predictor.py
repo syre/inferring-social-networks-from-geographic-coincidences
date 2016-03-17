@@ -242,7 +242,7 @@ class Predictor():
             coocs_w_value /= len(time_bins)
 
             # 2 users is ideal thus returning highest value 1, else return lesser value proportional to amount of users
-            coocs_w_values.append(1/coocs_w_value-1)
+            coocs_w_values.append(1/(coocs_w_value-1))
 
         return sum(coocs_w_values)/len(cooccurrences)
     

@@ -4,11 +4,13 @@ import DatabaseHelper
 import math
 import datetime
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from pytz import timezone
 import numpy as np
 from scipy import stats
 import sklearn
+from tqdm import tqdm
+
 
 class Predictor():
     def __init__(self, 
@@ -106,10 +108,16 @@ class Predictor():
         lat = math.trunc(lat*pow(10,self.spatial_resolution_decimals))
         lng = math.trunc(lng*pow(10,self.spatial_resolution_decimals))
         #time_bin = 10
-        #        
-        start_time = self.min_datetime+(datetime.timedelta(minutes=self.timebin_size_in_minutes)*time_bin)
-        #end_time = start_time+datetime.timedelta(minutes=self.timebin_size_in_minutes)
-        return self.database.find_cooccurrences_within_area(lat, lng, start_time, self.timebin_size_in_minutes, self.spatial_resolution_decimals)
+        print(time_bin)
+        #print(type(time_bin).__name__)
+        if isinstance(time_bin, range):
+            start_time = self.min_datetime+(timedelta(minutes=self.timebin_size)*(list(time_bin)[0]))
+        else:
+            start_time = self.min_datetime+(timedelta(minutes=self.timebin_size)*time_bin)
+        test = self.database.find_cooccurrences_within_area(lat, lng, start_time, self.timebin_size, self.spatial_resolution_decimals)
+        print(test)
+
+        return test
         #raise NotImplementedError
 
     def calculate_corr(self, user1, user2):
@@ -131,7 +139,7 @@ class Predictor():
         array_size = abs(self.GRID_MAX_LAT-self.GRID_MIN_LAT)*abs(self.GRID_MAX_LNG-self.GRID_MIN_LNG)
         #print("Array size: {}".format(array_size))
 
-        for bin in time_bin_range:
+        for bin in tqdm(time_bin_range):
             user1_vector = np.zeros(array_size, dtype=bool)
             for location in user1_locations:
                 start_time = location[1]
@@ -174,7 +182,7 @@ class Predictor():
         cell_size = pow(10, -self.spatial_resolution_decimals)
         cooccurrences = self.database.find_cooccurrences(user1, cell_size, self.timebin_size, useruuid2=user2)
         arr_leav_values = []
-        for cooc in cooccurrences:
+        for cooc in tqdm(cooccurrences):
             lng_lat = json.loads(cooc[3])
             start_time = cooc[1]
             end_time = cooc[2]
@@ -184,9 +192,11 @@ class Predictor():
             spatial_bin = self.calculate_spatial_bin(lng, lat)
             time_bins = self.map_time_to_timebins(start_time, end_time)
             # check if one of the users are in the previous timebin but not both
-            previous_list = self.find_users_in_cooccurrence(spatial_bin,time_bins[0]-1)
-            current_list = self.find_users_in_cooccurrence(spatial_bin, time_bins[0])
-            next_list = self.find_users_in_cooccurrence(spatial_bin, time_bins[-1]+1)
+
+            previous_list = self.find_users_in_cooccurrence(lng, lat, time_bins[0]-1)
+            current_list = self.find_users_in_cooccurrence(lng, lat, time_bins[0])
+            next_list = self.find_users_in_cooccurrence(lng, lat, time_bins[-1]+1)
+
             
             number_of_new_arrivals = len(set(current_list)-set(previous_list))
             number_of_leavers = len(set(next_list)-set(current_list))
@@ -227,7 +237,7 @@ class Predictor():
         cell_size = pow(10, -self.spatial_resolution_decimals)
         cooccurrences = self.database.find_cooccurrences(user1, cell_size, self.timebin_size, useruuid2=user2)
         coocs_w_values = []
-        for cooc in cooccurrences:
+        for cooc in tqdm(cooccurrences):
             lng_lat = json.loads(cooc[3])
             start_time = cooc[1]
             end_time = cooc[2]
@@ -270,6 +280,6 @@ if __name__ == '__main__':
     decimals = 2
     p = Predictor(60, grid_boundaries_tuple=JAPAN_TUPLE, spatial_resolution_decimals=decimals)
     #p.generate_dataset("Japan", 0.001)
-    print(p.calculate_corr("492f0a67-9a2c-40b8-8f0a-730db06abf65", "4bd3f3b1-791f-44be-8c52-0fd2195c4e62"))
+    #print(p.calculate_corr("492f0a67-9a2c-40b8-8f0a-730db06abf65", "4bd3f3b1-791f-44be-8c52-0fd2195c4e62"))
     #print(p.calculate_coocs_w("492f0a67-9a2c-40b8-8f0a-730db06abf65", "4bd3f3b1-791f-44be-8c52-0fd2195c4e62"))
-    #print(p.calculate_arr_leav("492f0a67-9a2c-40b8-8f0a-730db06abf65", "4bd3f3b1-791f-44be-8c52-0fd2195c4e62"))
+    print(p.calculate_arr_leav("492f0a67-9a2c-40b8-8f0a-730db06abf65", "4bd3f3b1-791f-44be-8c52-0fd2195c4e62"))

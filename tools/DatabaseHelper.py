@@ -283,7 +283,7 @@ class DatabaseHelper(object):
         else:
             locations = cursor.fetchall()
         return locations
-    
+
     def find_cooccurrences(self, useruuid, cell_size, time_threshold_in_minutes, points_w_distances=[], useruuid2=None):
         """ find all cooccurrences for a user
         
@@ -336,9 +336,9 @@ class DatabaseHelper(object):
 
     def find_cooccurrences_within_area(self, lng, lat, start_time, time_threshold_in_minutes, spatial_resolution_decimals):
         end_time = start_time+datetime.timedelta(minutes=time_threshold_in_minutes)
-        print(start_time)
-        print(end_time)
-        print(time_threshold_in_minutes)
+        #print(start_time)
+        #print(end_time)
+        #print(time_threshold_in_minutes)
         
         cursor = self.conn.cursor()
         cursor.execute("""

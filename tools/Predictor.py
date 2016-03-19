@@ -107,18 +107,8 @@ class Predictor():
         """
         lat = math.trunc(lat*pow(10,self.spatial_resolution_decimals))
         lng = math.trunc(lng*pow(10,self.spatial_resolution_decimals))
-        #time_bin = 10
-        print(time_bin)
-        #print(type(time_bin).__name__)
-        if isinstance(time_bin, range):
-            start_time = self.min_datetime+(timedelta(minutes=self.timebin_size)*(list(time_bin)[0]))
-        else:
-            start_time = self.min_datetime+(timedelta(minutes=self.timebin_size)*time_bin)
-        test = self.database.find_cooccurrences_within_area(lat, lng, start_time, self.timebin_size, self.spatial_resolution_decimals)
-        print(test)
-
-        return test
-        #raise NotImplementedError
+        start_time = self.min_datetime+(timedelta(minutes=self.timebin_size)*time_bin)
+        return self.database.find_cooccurrences_within_area(lng, lat, start_time, self.timebin_size, self.spatial_resolution_decimals)
 
     def calculate_corr(self, user1, user2):
         """

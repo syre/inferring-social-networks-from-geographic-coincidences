@@ -322,27 +322,38 @@ class DatabaseHelper(object):
             SELECT useruuid, start_time, end_time, ST_AsGeoJSON(location)
                     FROM location, auxiliary_user_table
                     WHERE location.useruuid != auxiliary_user_table.user
-                    AND (start_time between start - interval '%s minutes' and start) 
-                    AND (end_time between slut and slut + interval '%s minutes')
+                    AND (
+                    (start_time between start - interval '%s minutes' AND slut + interval '%s minutes') OR 
+                    (start_time < start - interval '%s minutes' AND end_time > slut + interval '%s minutes') OR
+                    (end_time between start - interval '%s minutes' AND slut + interval '%s minutes')
+                    )
                     AND (abs(ST_X(location::geometry)-longitude) <= (%s) and abs(ST_Y(location::geometry)-latitude) <= (%s)) """ + (start + query) + second_user_query + ";",
-                    (useruuid, time_threshold_in_minutes/2, time_threshold_in_minutes/2, cell_size, cell_size))
+                    (useruuid, time_threshold_in_minutes/2, time_threshold_in_minutes/2, time_threshold_in_minutes/2, time_threshold_in_minutes/2, time_threshold_in_minutes/2, time_threshold_in_minutes/2, cell_size, cell_size))
        
         return cursor.fetchall()
 
 
 
-    def find_cooccurrences_within_area(self, lat, lng, start_time, time_threshold_in_minutes, spatial_resolution_decimals):
+    def find_cooccurrences_within_area(self, lng, lat, start_time, time_threshold_in_minutes, spatial_resolution_decimals):
         end_time = start_time+datetime.timedelta(minutes=time_threshold_in_minutes)
+        print(start_time)
+        print(end_time)
+        print(time_threshold_in_minutes)
+        
         cursor = self.conn.cursor()
         cursor.execute("""
                 SELECT DISTINCT(useruuid)
                 FROM location
                 WHERE trunc((ST_X(location::geometry))::numeric,(%s))=(%s) AND trunc((ST_Y(location::geometry))::numeric,(%s))=(%s)
-                  AND (start_time between (%s) - interval '%s minutes' AND (%s)) 
-                  AND (end_time between (%s) and (%s) + interval '%s minutes') 
-            """,(spatial_resolution_decimals,lng,spatial_resolution_decimals,lat, start_time, time_threshold_in_minutes, start_time, end_time, end_time, time_threshold_in_minutes))
+                  AND (
+                    (start_time between (%s) AND (%s)) OR 
+                    (start_time < (%s) AND end_time > (%s)) OR
+                    (end_time between (%s) AND (%s))
+                    )
+            """,(spatial_resolution_decimals,lng,spatial_resolution_decimals,lat, start_time, end_time, start_time, end_time, start_time, end_time,))
 
         return [row[0] for row in cursor.fetchall()]
+
 
     def get_distribution_cooccurrences(self, x_useruuid, y_useruuid, time_threshold_in_minutes=60*24, cell_size=0.001):
         cursor = self.conn.cursor()

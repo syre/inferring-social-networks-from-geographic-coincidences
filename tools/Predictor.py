@@ -105,8 +105,11 @@ class Predictor():
                 list -- list of user_uuids
         
         """
-        lat = math.trunc(lat*pow(10,self.spatial_resolution_decimals))
-        lng = math.trunc(lng*pow(10,self.spatial_resolution_decimals))
+        print("lng: {}\nlat: {}".format(lng,lat))
+        lat = int(lat * 10**self.spatial_resolution_decimals) / 10.0**self.spatial_resolution_decimals #math.trunc(lat*pow(10,self.spatial_resolution_decimals))
+        lng = int(lng * 10**self.spatial_resolution_decimals) / 10.0**self.spatial_resolution_decimals#math.trunc(lng*pow(10,self.spatial_resolution_decimals))
+        print("lng: {}\nlat: {}".format(lng,lat))
+
         start_time = self.min_datetime+(timedelta(minutes=self.timebin_size)*time_bin)
         return self.database.find_cooccurrences_within_area(lng, lat, start_time, self.timebin_size, self.spatial_resolution_decimals)
 
@@ -187,7 +190,17 @@ class Predictor():
             current_list = self.find_users_in_cooccurrence(lng, lat, time_bins[0])
             next_list = self.find_users_in_cooccurrence(lng, lat, time_bins[-1]+1)
 
-            
+            print(previous_list)
+            break
+            if len(previous_list)>0:
+                print("previous_list")
+                break
+            if len(current_list)>0:
+                print("current_list")
+                break
+            if len(next_list)>0:
+                print("next_list")
+                break
             number_of_new_arrivals = len(set(current_list)-set(previous_list))
             number_of_leavers = len(set(next_list)-set(current_list))
 
@@ -278,4 +291,4 @@ if __name__ == '__main__':
     #p.generate_dataset("Japan", 0.001)
     #print(p.calculate_corr("492f0a67-9a2c-40b8-8f0a-730db06abf65", "4bd3f3b1-791f-44be-8c52-0fd2195c4e62"))
     #print(p.calculate_coocs_w("492f0a67-9a2c-40b8-8f0a-730db06abf65", "4bd3f3b1-791f-44be-8c52-0fd2195c4e62"))
-    print(p.calculate_arr_leav("492f0a67-9a2c-40b8-8f0a-730db06abf65", "4bd3f3b1-791f-44be-8c52-0fd2195c4e62"))
+    print(p.calculate_arr_leav("d5430d80-4aba-4b5c-836d-a486c8c4e332", "0bddb0ed-ce9a-4df3-9720-416bcfb678ea"))

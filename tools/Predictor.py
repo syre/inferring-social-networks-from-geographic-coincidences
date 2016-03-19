@@ -197,14 +197,20 @@ class Predictor():
                 arr_leav_value += 0
             else:
                 # synchronous arrival
-                arr_leav_value += 1*(1/(number_of_new_arrivals))
+                if number_of_new_arrivals ==0:
+                    arr_leav_value+=1
+                else:
+                    arr_leav_value += (1/(number_of_new_arrivals))
 
             if (user1 in next_list and user2 not in next_list) or (user1 not in next_list and user2 in next_list):
                 # non-synchronously leaving
                 arr_leav_value += 0
             else:
                 # synchronous leaving
-                arr_leav_value += 1*(1/(number_of_leavers))
+                if number_of_leavers ==0:
+                    arr_leav_value+=1
+                else:
+                    arr_leav_value += (1/(number_of_leavers))
             
             arr_leav_values.append(arr_leav_value)
         return sum(arr_leav_values)/len(cooccurrences)

@@ -7,6 +7,7 @@ import os
 from collections import defaultdict
 import random
 import datetime
+from tqdm import tqdm
 
 from GeoCalculation import GeoCalculation
 
@@ -33,7 +34,17 @@ class DatabaseHelper(object):
                                                            country text references country(name),
                                                            area text references area(name),
                                                            place text references place(name),
-                                                           useruuid text references "user" (useruuid))"""
+                                                           useruuid text references "user" (useruuid),
+                                                           spatial_loc_id integer references "spatial_location" (id))"""
+
+        self.CREATE_TABLE_SPATIAL_LOCATION = """CREATE TABLE "spatial_location" (
+                                                    id SERIAL PRIMARY KEY,
+                                                    lng_twodec NUMERIC(5,2) NOT NULL,
+                                                    lat_twodec NUMERIC(5,2) NOT NULL,
+                                                    lng_threedec NUMERIC(6,3) NOT NULL,
+                                                    lat_threedec NUMERIC(6,3) NOT NULL,
+                                                    lng_fourdec NUMERIC(7,4) NOT NULL,
+                                                    lat_fourdec NUMERIC(7,4) NOT NULL)"""
         self.geo_calc = GeoCalculation()
         # if database is setup
         if self.db_setup_test():
@@ -104,17 +115,25 @@ class DatabaseHelper(object):
         cursor.execute(self.CREATE_TABLE_AREA)
         cursor.execute(self.CREATE_TABLE_COUNTRY)
         cursor.execute(self.CREATE_TABLE_REGION)
+        cursor.execute(self.CREATE_TABLE_SPATIAL_LOCATION)
         cursor.execute(self.CREATE_TABLE_LOCATION)
+        self.conn.commit()
+
+    def db_create_indexes(self):
+        cursor = self.conn.cursor()
         cursor.execute("CREATE INDEX ON location (start_time)")
         cursor.execute("CREATE INDEX ON location (end_time)")
         cursor.execute("CREATE INDEX ON location using gist (location)")
         cursor.execute("CREATE INDEX ON location (useruuid)")
         cursor.execute("CREATE INDEX user_loc_index ON location (useruuid,location)")
+        cursor.execute("CREATE INDEX country_name_index ON country (name)")
+        cursor.execute("CREATE INDEX spatial_location_lng_twodec_index ON spatial_location (lng_twodec)")
+        cursor.execute("CREATE INDEX spatial_location_lat_twodec_index ON spatial_location (lat_twodec)")
         self.conn.commit()
 
     def db_teardown(self):
         cursor = self.conn.cursor()
-        cursor.execute("DROP TABLE user, place, area, country, region, location")
+        cursor.execute("DROP TABLE user, place, area, country, region, location, spatial_location")
 
     def insert_all_from_json(self, path=""):
         file_names = ["all_201509.json","all_201510.json","all_201511.json"]
@@ -122,7 +141,7 @@ class DatabaseHelper(object):
             with open(os.path.join(path, file_name), 'r') as json_file:
                 raw_data = json.load(json_file)
             print("Antal rows = {}".format(len(raw_data)))
-            for count, row in enumerate(raw_data):
+            for row in tqdm(raw_data):
                 if row["region"]:
                     self.insert_region(row)
                 if row["country"]:
@@ -132,9 +151,8 @@ class DatabaseHelper(object):
                 if row["name"]:
                     self.insert_place(row)
                 self.insert_user(row)
+                self.insert_spatial_location(row)
                 self.insert_location(row)
-                if (count % 200000 == 0):
-                    print(count)
 
     def insert_user(self, row):
         cursor = self.conn.cursor()
@@ -143,12 +161,31 @@ class DatabaseHelper(object):
             cursor.execute("""INSERT INTO "user" (useruuid) VALUES (%s)""",(row["useruuid"],))
             self.conn.commit()
 
+
     def insert_region(self, row):
         cursor = self.conn.cursor()
         cursor.execute("""SELECT * from region where region.name = (%s)""",(row["region"],))
         if cursor.rowcount == 0:
             cursor.execute("""INSERT INTO region (name) VALUES (%s)""",(row["region"],))
             self.conn.commit()
+
+    def insert_spatial_location(self, row):
+        cursor = self.conn.cursor()
+        lng_twodec = int(row["longitude"] * 10**2) / 10.0**2
+        lat_twodec = int(row["latitude"] * 10**2) / 10.0**2
+
+        
+        lng_threedec = int(row["longitude"] * 10**3) / 10.0**3
+        lat_threedec = int(row["latitude"] * 10**3) / 10.0**3
+
+        lng_fourdec = int(row["longitude"] * 10**4) / 10.0**4
+        lat_fourdec = int(row["latitude"] * 10**4) / 10.0**4
+        
+        cursor.execute(""" SELECT * from spatial_location where spatial_location.lng_fourdec = (%s) and spatial_location.lat_fourdec = (%s)""", (lng_fourdec, lat_fourdec))
+        if cursor.rowcount == 0:
+            cursor.execute(""" INSERT INTO spatial_location (lng_twodec, lat_twodec, lng_threedec, lat_threedec, lng_fourdec, lat_fourdec) values (%s,%s,%s,%s,%s,%s)""", (lng_twodec, lat_twodec, lng_threedec, lat_threedec, lng_fourdec, lat_fourdec))
+            self.conn.commit()
+
 
     def insert_location(self, row):
         cursor = self.conn.cursor()
@@ -165,9 +202,13 @@ class DatabaseHelper(object):
             place = row["name"]
         if row["region"]:
             region = row["region"]
-        cursor.execute(""" INSERT INTO location (start_time, end_time, location, altitude, accuracy, region, country, area, place, useruuid)
-                       VALUES (%s,%s,ST_SetSRID(ST_MakePoint(%s, %s),4326),%s,%s,%s,%s,%s,%s,%s)""",(row["start_time"],row["end_time"],row["longitude"],row["latitude"],
-                        row["altitude"],row["accuracy"], region, country, area, place, row["useruuid"]))
+        lng_fourdec = int(row["longitude"] * 10**4) / 10.0**4
+        lat_fourdec = int(row["latitude"] * 10**4) / 10.0**4
+        cursor.execute(""" SELECT * from spatial_location where spatial_location.lng_fourdec = (%s) and spatial_location.lat_fourdec = (%s)""", (lng_fourdec, lat_fourdec))
+        spatial_id = cursor.fetchone()[0]
+        cursor.execute(""" INSERT INTO location (start_time, end_time, location, altitude, accuracy, region, country, area, place, useruuid, spatial_loc_id)
+                       VALUES (%s,%s,ST_SetSRID(ST_MakePoint(%s, %s),4326),%s,%s,%s,%s,%s,%s,%s, %s)""",(row["start_time"],row["end_time"],row["longitude"],row["latitude"],
+                        row["altitude"],row["accuracy"], region, country, area, place, row["useruuid"], spatial_id))
         self.conn.commit()
 
     def insert_country(self, row):
@@ -341,6 +382,8 @@ class DatabaseHelper(object):
         #print(time_threshold_in_minutes)
         
         cursor = self.conn.cursor()
+        print(cursor.mogrify("""SELECT DISTINCT(useruuid) FROM location WHERE trunc((ST_X(location::geometry))::numeric,(%s))=(%s) AND trunc((ST_Y(location::geometry))::numeric,(%s))=(%s) AND ((start_time between (%s) AND (%s)) OR (start_time < (%s) AND end_time > (%s)) OR (end_time between (%s) AND (%s)))
+            """,(spatial_resolution_decimals,lng,spatial_resolution_decimals,lat, start_time, end_time, start_time, end_time, start_time, end_time,)))
         cursor.execute("""
                 SELECT DISTINCT(useruuid)
                 FROM location
@@ -538,7 +581,8 @@ class DatabaseHelper(object):
 
 if __name__ == '__main__':
     d = DatabaseHelper()
-    print(d.find_cooccurrences("f67ae795-1f2b-423c-ba30-cdd5cbb23662", 0.001, 60*24, useruuid2="f3437039-936a-41d6-93a0-d34ab4424a96"))
-    #d.drop_tables()
-    #d.db_setup()
-    #d.insert_all_from_json()
+    #print(d.find_cooccurrences("f67ae795-1f2b-423c-ba30-cdd5cbb23662", 0.001, 60*24, useruuid2="f3437039-936a-41d6-93a0-d34ab4424a96"))
+    d.drop_tables()
+    d.db_setup()
+    d.insert_all_from_json()
+    d.db_create_indexes()

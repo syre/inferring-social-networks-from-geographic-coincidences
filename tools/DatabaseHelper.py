@@ -40,11 +40,7 @@ class DatabaseHelper(object):
         self.CREATE_TABLE_SPATIAL_LOCATION = """CREATE TABLE "spatial_location" (
                                                     id SERIAL PRIMARY KEY,
                                                     lng_twodec NUMERIC(5,2) NOT NULL,
-                                                    lat_twodec NUMERIC(5,2) NOT NULL,
-                                                    lng_threedec NUMERIC(6,3) NOT NULL,
-                                                    lat_threedec NUMERIC(6,3) NOT NULL,
-                                                    lng_fourdec NUMERIC(7,4) NOT NULL,
-                                                    lat_fourdec NUMERIC(7,4) NOT NULL)"""
+                                                    lat_twodec NUMERIC(5,2) NOT NULL)"""
         self.geo_calc = GeoCalculation()
         # if database is setup
         if self.db_setup_test():
@@ -156,7 +152,7 @@ class DatabaseHelper(object):
 
     def insert_user(self, row):
         cursor = self.conn.cursor()
-        cursor.execute("""SELECT * from "user" where "user".useruuid = (%s)""",(row["useruuid"],))
+        cursor.execute("""SELECT 1 from "user" where "user".useruuid = (%s) limit 1""",(row["useruuid"],))
         if cursor.rowcount == 0:
             cursor.execute("""INSERT INTO "user" (useruuid) VALUES (%s)""",(row["useruuid"],))
             self.conn.commit()
@@ -164,7 +160,7 @@ class DatabaseHelper(object):
 
     def insert_region(self, row):
         cursor = self.conn.cursor()
-        cursor.execute("""SELECT * from region where region.name = (%s)""",(row["region"],))
+        cursor.execute("""SELECT 1 from region where region.name = (%s) limit 1""",(row["region"],))
         if cursor.rowcount == 0:
             cursor.execute("""INSERT INTO region (name) VALUES (%s)""",(row["region"],))
             self.conn.commit()
@@ -173,17 +169,10 @@ class DatabaseHelper(object):
         cursor = self.conn.cursor()
         lng_twodec = int(row["longitude"] * 10**2) / 10.0**2
         lat_twodec = int(row["latitude"] * 10**2) / 10.0**2
-
         
-        lng_threedec = int(row["longitude"] * 10**3) / 10.0**3
-        lat_threedec = int(row["latitude"] * 10**3) / 10.0**3
-
-        lng_fourdec = int(row["longitude"] * 10**4) / 10.0**4
-        lat_fourdec = int(row["latitude"] * 10**4) / 10.0**4
-        
-        cursor.execute(""" SELECT * from spatial_location where spatial_location.lng_fourdec = (%s) and spatial_location.lat_fourdec = (%s)""", (lng_fourdec, lat_fourdec))
+        cursor.execute(""" SELECT 1 from spatial_location where spatial_location.lng_twodec = (%s) and spatial_location.lat_twodec = (%s) limit 1""", (lng_twodec, lat_twodec))
         if cursor.rowcount == 0:
-            cursor.execute(""" INSERT INTO spatial_location (lng_twodec, lat_twodec, lng_threedec, lat_threedec, lng_fourdec, lat_fourdec) values (%s,%s,%s,%s,%s,%s)""", (lng_twodec, lat_twodec, lng_threedec, lat_threedec, lng_fourdec, lat_fourdec))
+            cursor.execute(""" INSERT INTO spatial_location (lng_twodec, lat_twodec) values (%s,%s)""", (lng_twodec, lat_twodec))
             self.conn.commit()
 
 
@@ -202,9 +191,9 @@ class DatabaseHelper(object):
             place = row["name"]
         if row["region"]:
             region = row["region"]
-        lng_fourdec = int(row["longitude"] * 10**4) / 10.0**4
-        lat_fourdec = int(row["latitude"] * 10**4) / 10.0**4
-        cursor.execute(""" SELECT * from spatial_location where spatial_location.lng_fourdec = (%s) and spatial_location.lat_fourdec = (%s)""", (lng_fourdec, lat_fourdec))
+        lng_twodec = int(row["longitude"] * 10**2) / 10.0**2
+        lat_twodec = int(row["latitude"] * 10**2) / 10.0**2
+        cursor.execute(""" SELECT id from spatial_location where spatial_location.lng_twodec = (%s) and spatial_location.lat_twodec = (%s)""", (lng_twodec, lat_twodec))
         spatial_id = cursor.fetchone()[0]
         cursor.execute(""" INSERT INTO location (start_time, end_time, location, altitude, accuracy, region, country, area, place, useruuid, spatial_loc_id)
                        VALUES (%s,%s,ST_SetSRID(ST_MakePoint(%s, %s),4326),%s,%s,%s,%s,%s,%s,%s, %s)""",(row["start_time"],row["end_time"],row["longitude"],row["latitude"],
@@ -213,21 +202,21 @@ class DatabaseHelper(object):
 
     def insert_country(self, row):
         cursor = self.conn.cursor()
-        cursor.execute("""SELECT * from country where country.name = (%s)""",(row["country"],))
+        cursor.execute("""SELECT 1 from country where country.name = (%s) limit 1""",(row["country"],))
         if cursor.rowcount == 0:
             cursor.execute("""INSERT INTO country (name) VALUES (%s)""",(row["country"],))
             self.conn.commit()
 
     def insert_area(self, row):
         cursor = self.conn.cursor()
-        cursor.execute("""SELECT * from area where area.name = (%s)""",(row["area"],))
+        cursor.execute("""SELECT 1 from area where area.name = (%s) limit 1""",(row["area"],))
         if cursor.rowcount == 0:
             cursor.execute("""INSERT INTO area (name) VALUES (%s)""",(row["area"],))
             self.conn.commit()
 
     def insert_place(self, row):
         cursor = self.conn.cursor()
-        cursor.execute("""SELECT * from place where place.name = (%s)""",(row["name"],))
+        cursor.execute("""SELECT 1 from place where place.name = (%s) limit 1""",(row["name"],))
         if cursor.rowcount == 0:
             cursor.execute("""INSERT INTO place (name) VALUES (%s)""",(row["name"],))
             self.conn.commit()

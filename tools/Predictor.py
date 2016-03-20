@@ -86,13 +86,6 @@ class Predictor():
         lat = math.trunc(lat*pow(10,self.spatial_resolution_decimals))
         lng = math.trunc(lng*pow(10,self.spatial_resolution_decimals))
         return (abs(self.GRID_MAX_LAT - self.GRID_MIN_LAT) * (lat-self.GRID_MIN_LAT)) + (lng-self.GRID_MIN_LNG)
-
-
-
-    
-    def jaccard_index(self, X, Y):
-        print(X.nonzero())
-        print(Y.nonzero())
     
     def find_users_in_cooccurrence(self, lng, lat, time_bin):
         """
@@ -210,7 +203,7 @@ class Predictor():
                 arr_leav_value += 0
             else:
                 # synchronous arrival
-                if number_of_new_arrivals ==0:
+                if number_of_new_arrivals == 0:
                     arr_leav_value+=1
                 else:
                     arr_leav_value += (1/(number_of_new_arrivals))
@@ -220,7 +213,7 @@ class Predictor():
                 arr_leav_value += 0
             else:
                 # synchronous leaving
-                if number_of_leavers ==0:
+                if number_of_leavers == 0:
                     arr_leav_value+=1
                 else:
                     arr_leav_value += (1/(number_of_leavers))

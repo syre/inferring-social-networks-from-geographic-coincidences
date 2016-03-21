@@ -15,7 +15,7 @@ class DatabaseHelper(object):
     """docstring for DatabaseHelper"""
     def __init__(self, path_to_settings=""):
         self.settings_dict = self.load_login(file_name="settings.cfg", key_split="=", path=path_to_settings)
-        self.conn = psycopg2.connect("host='{}' dbname='{}' user='{}' password='{}' port=5433".
+        self.conn = psycopg2.connect("host='{}' dbname='{}' user='{}' password='{}'".
             format(self.settings_dict["HOSTNAME"], self.settings_dict["DBNAME"], 
                 self.settings_dict["USER"], self.settings_dict["PASS"]))
 

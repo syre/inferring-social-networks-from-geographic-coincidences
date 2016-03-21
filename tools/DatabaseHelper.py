@@ -15,7 +15,7 @@ class DatabaseHelper(object):
     """docstring for DatabaseHelper"""
     def __init__(self, path_to_settings=""):
         self.settings_dict = self.load_login(file_name="settings.cfg", key_split="=", path=path_to_settings)
-        self.conn = psycopg2.connect("host='{}' dbname='{}' user='{}' password='{}'".
+        self.conn = psycopg2.connect("host='{}' dbname='{}' user='{}' password='{}' port=5433".
             format(self.settings_dict["HOSTNAME"], self.settings_dict["DBNAME"], 
                 self.settings_dict["USER"], self.settings_dict["PASS"]))
 
@@ -570,8 +570,8 @@ class DatabaseHelper(object):
 
 if __name__ == '__main__':
     d = DatabaseHelper()
-    #print(d.find_cooccurrences("f67ae795-1f2b-423c-ba30-cdd5cbb23662", 0.001, 60*24, useruuid2="f3437039-936a-41d6-93a0-d34ab4424a96"))
-    d.drop_tables()
-    d.db_setup()
-    d.insert_all_from_json()
-    d.db_create_indexes()
+    print(d.find_cooccurrences("f67ae795-1f2b-423c-ba30-cdd5cbb23662", 0.001, 60*24, useruuid2="f3437039-936a-41d6-93a0-d34ab4424a96"))
+    #d.drop_tables()
+    #d.db_setup()
+    #d.insert_all_from_json()
+    #d.db_create_indexes()

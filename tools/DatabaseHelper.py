@@ -419,33 +419,6 @@ class DatabaseHelper(object):
             time_dict[start_date] += 1
 
         return [{"Date":date_string, "Cooccurrences":value} for date_string,value in time_dict.items()]
-
-    def fetch_missing_geographical_data(self):
-        """
-        Uses reverse geocoding from OpenStreetMap to insert the missing geographical data
-        """
-        cursor = self.conn.cursor()
-        URL = "http://nominatim.openstreetmap.org/reverse"
-        query = "select id, ST_X(location::geometry), ST_Y(location::geometry) from location where coalesce(location.country, '') = '';"
-        cursor.execute(query)
-        records = cursor.fetchall()
-        addresses = []
-        for record in records:
-            rec_id = record[0]
-            lng = record[1]
-            lat = record[2]
-            print(lng, lat)
-            payload = {"format":"json", "lon":lng, "lat":lat, "email":"syrelyre@gmail.com", "accept-language":"en-us", "User-Agent":"Data Science App"}
-            response = json.loads(requests.get(URL, params=payload).text)
-            if "address" in response:
-                address = response["address"]
-                address["lat"] = lat
-                address["lng"] = lng
-                addresses.append(address)
-            time.sleep(1)
-
-        with open('missing.json', 'w') as outfile:
-            json.dump(addresses, outfile)
         
     def dump_missing_geographical_rows(self):
         cursor = self.conn.cursor()

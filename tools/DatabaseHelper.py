@@ -386,25 +386,9 @@ class DatabaseHelper(object):
 
 
     def get_distribution_cooccurrences(self, x_useruuid, y_useruuid, time_threshold_in_minutes=60*24, cell_size=0.001):
-        cursor = self.conn.cursor()
-        locations = self.get_locations_for_user(x_useruuid)
 
-        cooccurrences = []
-        for location in locations:
-            start_time = location[1]
-            end_time = location[2]
-            longitude = location[3]
-            latitude = location[4]
+        cooccurrences = self.find_cooccurrences(x_useruuid, cell_size, time_threshold_in_minutes, points_w_distances=[], useruuid2=y_useruuid)
 
-            # find coocurrences by taking time_treshold_in_hours/2 before start_time and time_threshold_in_hours/2 after end_time
-            # this also means time window can get really long, what are the consequences?
-            cursor.execute(""" SELECT to_char(start_time, 'dd/mm/yyyy'), to_char(end_time, 'dd/mm/yyyy') from location where location.useruuid = (%s)
-             and (start_time between (%s) - interval '%s minutes' and (%s)) and (end_time between (%s) and (%s) + interval '%s minutes') and abs(ST_X(location::geometry)-(%s)) <= (%s) and abs(ST_Y(location::geometry)-(%s)) <= (%s)""",
-             (y_useruuid, start_time, time_threshold_in_minutes/2, start_time, end_time, end_time, time_threshold_in_minutes/2, longitude, cell_size, latitude, cell_size))
-            
-            result = cursor.fetchall()
-            if result:
-                cooccurrences.extend(result)
         time_dict = {}
         start = datetime.datetime.strptime("01-09-2015", "%d-%m-%Y")
         end = datetime.datetime.strptime("01-12-2015", "%d-%m-%Y")
@@ -414,8 +398,8 @@ class DatabaseHelper(object):
         for date in date_generated:
                 time_dict[date.strftime("%d/%m/%Y")] = 0
         for cocc in cooccurrences:
-            start_date = cocc[0]
-            end_date = cocc[1]
+            start_date = cocc[1].strftime("%d/%m/%Y")
+            end_date = cocc[2].strftime("%d/%m/%Y")
             time_dict[start_date] += 1
 
         return [{"Date":date_string, "Cooccurrences":value} for date_string,value in time_dict.items()]

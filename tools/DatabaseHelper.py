@@ -332,7 +332,7 @@ class DatabaseHelper(object):
             useruuid2 {string} -- optional argument for when you only want cooccurrences with that other user
         
         Returns:
-            list -- list of results
+            list -- list cooccurrences with useruuid, start_time, end_time, geojsoned location
         """
         start = query = ""
         if points_w_distances:

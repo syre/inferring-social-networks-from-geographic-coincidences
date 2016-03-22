@@ -9,6 +9,7 @@ from pytz import timezone
 import numpy as np
 from scipy import stats
 import sklearn
+import timeit
 from tqdm import tqdm
 
 
@@ -98,11 +99,8 @@ class Predictor():
                 list -- list of user_uuids
         
         """
-        print("lng: {}\nlat: {}".format(lng,lat))
         lat = int(lat * 10**self.spatial_resolution_decimals) / 10.0**self.spatial_resolution_decimals #math.trunc(lat*pow(10,self.spatial_resolution_decimals))
         lng = int(lng * 10**self.spatial_resolution_decimals) / 10.0**self.spatial_resolution_decimals#math.trunc(lng*pow(10,self.spatial_resolution_decimals))
-        print("lng: {}\nlat: {}".format(lng,lat))
-
         start_time = self.min_datetime+(timedelta(minutes=self.timebin_size)*time_bin)
         return self.database.find_cooccurrences_within_area(lng, lat, start_time, self.timebin_size, self.spatial_resolution_decimals)
 
@@ -119,11 +117,9 @@ class Predictor():
         """
         correlation_sum = 0
         user1_locations = self.database.get_locations_for_user(user1, self.country)
-        #print(len(user1_locations))
         user2_locations = self.database.get_locations_for_user(user2, self.country)
         time_bin_range = self.map_time_to_timebins(self.min_datetime, self.max_datetime)
         array_size = abs(self.GRID_MAX_LAT-self.GRID_MIN_LAT)*abs(self.GRID_MAX_LNG-self.GRID_MIN_LNG)
-        #print("Array size: {}".format(array_size))
 
         for bin in tqdm(time_bin_range):
             user1_vector = np.zeros(array_size, dtype=bool)
@@ -133,7 +129,6 @@ class Predictor():
                 lng = location[3]
                 lat = location[4]
                 if bin in self.map_time_to_timebins(start_time, end_time):
-                    #print("Spartial bin: {}".format(self.calculate_spatial_bin(lng, lat)))
                     user1_vector[self.calculate_spatial_bin(lng, lat)] = 1
                     break
             user2_vector = np.zeros(array_size, dtype=bool)
@@ -143,7 +138,6 @@ class Predictor():
                 lng = location[3]
                 lat = location[4]
                 if bin in self.map_time_to_timebins(start_time, end_time):
-                    #print(lng, lat)
                     user2_vector[self.calculate_spatial_bin(lng, lat)] = 1
                     break
 
@@ -183,21 +177,11 @@ class Predictor():
             current_list = self.find_users_in_cooccurrence(lng, lat, time_bins[0])
             next_list = self.find_users_in_cooccurrence(lng, lat, time_bins[-1]+1)
 
-            print(previous_list)
-            break
-            if len(previous_list)>0:
-                print("previous_list")
-                break
-            if len(current_list)>0:
-                print("current_list")
-                break
-            if len(next_list)>0:
-                print("next_list")
-                break
+            
             number_of_new_arrivals = len(set(current_list)-set(previous_list))
             number_of_leavers = len(set(next_list)-set(current_list))
 
-
+           
             if (user1 in previous_list and user2 not in previous_list) or (user1 not in previous_list and user2 in previous_list):
                 # non-synchronously arrival
                 arr_leav_value += 0
@@ -284,4 +268,6 @@ if __name__ == '__main__':
     #p.generate_dataset("Japan", 0.001)
     #print(p.calculate_corr("492f0a67-9a2c-40b8-8f0a-730db06abf65", "4bd3f3b1-791f-44be-8c52-0fd2195c4e62"))
     #print(p.calculate_coocs_w("492f0a67-9a2c-40b8-8f0a-730db06abf65", "4bd3f3b1-791f-44be-8c52-0fd2195c4e62"))
-    print(p.calculate_arr_leav("d5430d80-4aba-4b5c-836d-a486c8c4e332", "0bddb0ed-ce9a-4df3-9720-416bcfb678ea"))
+    #
+    #print(timeit.timeit('p.calculate_arr_leav("d5430d80-4aba-4b5c-836d-a486c8c4e332", "0bddb0ed-ce9a-4df3-9720-416bcfb678ea")', number=1, setup="from Predictor import Predictor;JAPAN_TUPLE = (120, 150, 20, 45);p = Predictor(60, grid_boundaries_tuple=JAPAN_TUPLE, spatial_resolution_decimals=2)"))
+    print(p.calculate_arr_leav("9b3edd01-b821-40c9-9f75-10cb32aa14b6", "3084b64d-e773-4daa-aeea-cc3b069594f3"))

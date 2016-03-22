@@ -371,18 +371,19 @@ class DatabaseHelper(object):
         #print(time_threshold_in_minutes)
         
         cursor = self.conn.cursor()
-        print(cursor.mogrify("""SELECT DISTINCT(useruuid) FROM location WHERE trunc((ST_X(location::geometry))::numeric,(%s))=(%s) AND trunc((ST_Y(location::geometry))::numeric,(%s))=(%s) AND ((start_time between (%s) AND (%s)) OR (start_time < (%s) AND end_time > (%s)) OR (end_time between (%s) AND (%s)))
-            """,(spatial_resolution_decimals,lng,spatial_resolution_decimals,lat, start_time, end_time, start_time, end_time, start_time, end_time,)))
+        #print(cursor.mogrify("""SELECT DISTINCT(useruuid) FROM location WHERE trunc((ST_X(location::geometry))::numeric,(%s))=(%s) AND trunc((ST_Y(location::geometry))::numeric,(%s))=(%s) AND ((start_time between (%s) AND (%s)) OR (start_time < (%s) AND end_time > (%s)) OR (end_time between (%s) AND (%s)))
+        #    """,(spatial_resolution_decimals,lng,spatial_resolution_decimals,lat, start_time, end_time, start_time, end_time, start_time, end_time,)))
         cursor.execute("""
                 SELECT DISTINCT(useruuid)
                 FROM location
-                WHERE trunc((ST_X(location::geometry))::numeric,(%s))=(%s) AND trunc((ST_Y(location::geometry))::numeric,(%s))=(%s)
+                INNER JOIN spatial_location ON location.spatial_loc_id=spatial_location.id 
+                WHERE lng_twodec=(%s) AND lat_twodec=(%s)
                   AND (
                     (start_time between (%s) AND (%s)) OR 
                     (start_time < (%s) AND end_time > (%s)) OR
                     (end_time between (%s) AND (%s))
                     )
-            """,(spatial_resolution_decimals,lng,spatial_resolution_decimals,lat, start_time, end_time, start_time, end_time, start_time, end_time,))
+            """,(lng,lat, start_time, end_time, start_time, end_time, start_time, end_time,))
 
         return [row[0] for row in cursor.fetchall()]
 

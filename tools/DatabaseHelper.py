@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 from collections import defaultdict
+import requests
 import psycopg2
 import json
 import math
 import os
-from collections import defaultdict
+from collections import defaultdict, Counter
 import random
 import datetime
+import time
 from tqdm import tqdm
 
 from GeoCalculation import GeoCalculation
@@ -368,7 +370,7 @@ class DatabaseHelper(object):
         end_time = start_time+datetime.timedelta(minutes=time_threshold_in_minutes)
         
         cursor = self.conn.cursor()
-                cursor.execute("""
+        cursor.execute("""
                 SELECT DISTINCT(useruuid)
                 FROM location
                 INNER JOIN spatial_location ON location.spatial_loc_id=spatial_location.id 
@@ -417,6 +419,67 @@ class DatabaseHelper(object):
             time_dict[start_date] += 1
 
         return [{"Date":date_string, "Cooccurrences":value} for date_string,value in time_dict.items()]
+
+    def fetch_missing_geographical_data(self):
+        """
+        Uses reverse geocoding from OpenStreetMap to insert the missing geographical data
+        """
+        cursor = self.conn.cursor()
+        URL = "http://nominatim.openstreetmap.org/reverse"
+        query = "select id, ST_X(location::geometry), ST_Y(location::geometry) from location where coalesce(location.country, '') = '';"
+        cursor.execute(query)
+        records = cursor.fetchall()
+        addresses = []
+        for record in records:
+            rec_id = record[0]
+            lng = record[1]
+            lat = record[2]
+            print(lng, lat)
+            payload = {"format":"json", "lon":lng, "lat":lat, "email":"syrelyre@gmail.com", "accept-language":"en-us", "User-Agent":"Data Science App"}
+            response = json.loads(requests.get(URL, params=payload).text)
+            if "address" in response:
+                address = response["address"]
+                address["lat"] = lat
+                address["lng"] = lng
+                addresses.append(address)
+            time.sleep(1)
+
+        with open('missing.json', 'w') as outfile:
+            json.dump(addresses, outfile)
+        
+    def dump_missing_geographical_rows(self):
+        cursor = self.conn.cursor()
+        query = "select id, ST_X(location::geometry), ST_Y(location::geometry) from location where coalesce(location.country, '') = '';"
+        cursor.execute(query)
+        records = cursor.fetchall()
+        list_of_records = []
+        for record in records:
+            list_of_records.append(record)
+
+        with open('missing.json', 'w') as outfile:
+            json.dump(list_of_records, outfile)
+
+    def insert_missing_geographical_data(self):
+        
+        for record in records:
+
+            country = address["country"]
+            if state in address:
+                area = address["state"]
+            elif state_district in address:
+                area = address["state_district"]
+
+            if "city" in address:
+                place = address["city"]
+            elif "town" in address:
+                place = address["town"]
+            else:
+                print("no place found")
+
+            cursor.execute("UPDATE location set country = (%s), area= (%s), place= (%s) ", (country, area, place))
+
+        cursor.commit()
+        raise NotImplementedError
 
     def get_all_cooccurrences_as_network(self, time_threshold_in_minutes=60*24, cell_size=0.001):
         cursor = self.conn.cursor()
@@ -567,6 +630,7 @@ class DatabaseHelper(object):
 if __name__ == '__main__':
     d = DatabaseHelper()
     print(d.find_cooccurrences("f67ae795-1f2b-423c-ba30-cdd5cbb23662", 0.001, 60*24, useruuid2="f3437039-936a-41d6-93a0-d34ab4424a96"))
+    d.dump_missing_geographical_rows()
     #d.drop_tables()
     #d.db_setup()
     #d.insert_all_from_json()

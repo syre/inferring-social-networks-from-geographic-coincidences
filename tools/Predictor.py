@@ -3,7 +3,6 @@ import pybrain
 import DatabaseHelper
 import math
 import datetime
-import json
 from datetime import datetime, timedelta
 from pytz import timezone
 import numpy as np
@@ -11,7 +10,7 @@ from scipy import stats
 import sklearn
 import timeit
 from tqdm import tqdm
-
+import pickle
 
 class Predictor():
     def __init__(self, 
@@ -55,12 +54,12 @@ class Predictor():
         for user in all_users_in_country:
             if i%print_thresshold==0:
                 print("users calculated: {}".format(i))
-            cooccurrences = self.database.find_cooccurrences(user, cell_size, self.timebin_size)
+            cooccurrences = self.database.find_cooccurrences(user, cell_size, self.timebin_size, asGeoJSON=False)
             for occurrence in cooccurrences:
                 time_bins = self.map_time_to_timebins(occurrence[1], occurrence[2])
-                lng_lat = json.loads(occurrence[3])["coordinates"]
-                print("lat: {}\nlng: {}".format(lng_lat[1],lng_lat[0]))
-                spatial_bin = self.calculate_spatial_bin(lng_lat[0], lng_lat[1])
+                lng = occurrence[3]
+                lat = occurrence[4]
+                spatial_bin = self.calculate_spatial_bin(lng, lat)
                 print("spatial_bin = {}".format(spatial_bin))
                 break
                 for time_bin in time_bins:
@@ -99,8 +98,8 @@ class Predictor():
                 list -- list of user_uuids
         
         """
-        lat = int(lat * 10**self.spatial_resolution_decimals) / 10.0**self.spatial_resolution_decimals #math.trunc(lat*pow(10,self.spatial_resolution_decimals))
-        lng = int(lng * 10**self.spatial_resolution_decimals) / 10.0**self.spatial_resolution_decimals#math.trunc(lng*pow(10,self.spatial_resolution_decimals))
+        lat = int(lat * 10**self.spatial_resolution_decimals) / 10.0**self.spatial_resolution_decimals
+        lng = int(lng * 10**self.spatial_resolution_decimals) / 10.0**self.spatial_resolution_decimals
         start_time = self.min_datetime+(timedelta(minutes=self.timebin_size)*time_bin)
         return self.database.find_cooccurrences_within_area(lng, lat, start_time, self.timebin_size, self.spatial_resolution_decimals)
 
@@ -160,14 +159,13 @@ class Predictor():
         Feature ID: arr_leav
         """
         cell_size = pow(10, -self.spatial_resolution_decimals)
-        cooccurrences = self.database.find_cooccurrences(user1, cell_size, self.timebin_size, useruuid2=user2)
+        cooccurrences = self.database.find_cooccurrences(user1, cell_size, self.timebin_size, useruuid2=user2, asGeoJSON=False)
         arr_leav_values = []
         for cooc in tqdm(cooccurrences):
-            lng_lat = json.loads(cooc[3])
             start_time = cooc[1]
             end_time = cooc[2]
-            lng = lng_lat["coordinates"][0]
-            lat = lng_lat["coordinates"][1]
+            lng = cooc[3]
+            lat = cooc[4]
             arr_leav_value = 0
             spatial_bin = self.calculate_spatial_bin(lng, lat)
             time_bins = self.map_time_to_timebins(start_time, end_time)
@@ -220,14 +218,13 @@ class Predictor():
         Feature ID: coocs_w
         """
         cell_size = pow(10, -self.spatial_resolution_decimals)
-        cooccurrences = self.database.find_cooccurrences(user1, cell_size, self.timebin_size, useruuid2=user2)
+        cooccurrences = self.database.find_cooccurrences(user1, cell_size, self.timebin_size, useruuid2=user2, asGeoJSON=False)
         coocs_w_values = []
         for cooc in tqdm(cooccurrences):
-            lng_lat = json.loads(cooc[3])
             start_time = cooc[1]
             end_time = cooc[2]
-            lng = lng_lat["coordinates"][0]
-            lat = lng_lat["coordinates"][1]
+            lng = cooc[3]
+            lat = cooc[4]
 
             coocs_w_value = 0
 
@@ -259,6 +256,26 @@ class Predictor():
 
         """
         pass
+    
+    def find_friend_pairs(self):
+        cell_size = pow(10, -self.spatial_resolution_decimals)
+        user_pairs = pickle.load( open( "cooc_userPairs.p", "rb" ) )
+        user_pairs.sort(key=lambda tup: tup[2])
+        single_coocs = []
+        for pair in user_pairs:
+            coocs = self.database.find_cooccurrences(pair[0], cell_size, self.timebin_size, useruuid2=pair[1], asGeoJSON=False)
+            count = 0
+            for cooc in coocs:
+                timebins = self.map_time_to_timebins(cooc[1], cooc[2])
+                user_lengths = [len(self.find_users_in_cooccurrence(cooc[3], cooc[4], bin)) for bin in timebins]
+                if all(length==2 for length in user_lengths):
+                    count += 1
+                if count >= 5:
+                    single_coocs.append(pair)
+                    print(pair)
+                    break
+        return single_coocs
+
 
 if __name__ == '__main__':
     JAPAN_TUPLE = (120, 150, 20, 45)
@@ -270,4 +287,5 @@ if __name__ == '__main__':
     #
     #print(len(p.find_users_in_cooccurrence(13.2263406245194, 55.718135067203, 521)))
     #print(timeit.timeit('p.find_users_in_cooccurrence(13.2263406245194, 55.718135067203, 521)', number=1, setup="from Predictor import Predictor;JAPAN_TUPLE = (120, 150, 20, 45);p = Predictor(60, grid_boundaries_tuple=JAPAN_TUPLE, spatial_resolution_decimals=2)"))
-    print(p.calculate_arr_leav("9b3edd01-b821-40c9-9f75-10cb32aa14b6", "3084b64d-e773-4daa-aeea-cc3b069594f3"))
+    #print(p.calculate_arr_leav("9b3edd01-b821-40c9-9f75-10cb32aa14b6", "3084b64d-e773-4daa-aeea-cc3b069594f3"))
+    p.find_friend_pairs()

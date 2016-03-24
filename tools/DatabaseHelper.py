@@ -315,7 +315,7 @@ class DatabaseHelper(object):
             locations = cursor.fetchall()
         return locations
 
-    def find_cooccurrences(self, useruuid, cell_size, time_threshold_in_minutes, points_w_distances=[], useruuid2=None):
+    def find_cooccurrences(self, useruuid, cell_size, time_threshold_in_minutes, points_w_distances=[], useruuid2=None, asGeoJSON=True):
         """ find all cooccurrences for a user
         
         find all cooccurrences for a user within a cell_size and time window (time_threshold_in_minutes)
@@ -344,13 +344,16 @@ class DatabaseHelper(object):
         second_user_query = ""
         if useruuid2:
             second_user_query = " and location.useruuid = '{}'".format(useruuid2)
-
+        if asGeoJSON:
+            format = "ST_AsGeoJSON(location)"
+        else:
+            format = "ST_X(location::geometry), ST_Y(location::geometry)"
         cursor.execute(""" 
             with auxiliary_user_table as (
             SELECT useruuid as user, start_time as start, end_time as slut, ST_X(location::geometry) as longitude, ST_Y(location::geometry) as latitude 
             FROM location 
             WHERE location.useruuid = (%s))
-            SELECT useruuid, start_time, end_time, ST_AsGeoJSON(location)
+            SELECT useruuid, start_time, end_time, """ + format + """
                     FROM location, auxiliary_user_table
                     WHERE location.useruuid != auxiliary_user_table.user
                     AND (

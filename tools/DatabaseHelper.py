@@ -44,11 +44,11 @@ class DatabaseHelper(object):
                                                     lat_twodec NUMERIC(5,2) NOT NULL)"""
 
 
-        self.CREATE_TABLE_JAPAN_PARTIONING = """CREATE TABLE japan_partioning (
-                                                CHECK ( country = 'Japan')
-                                            ) INHERITS (location);
+        self.CREATE_TABLE_TIME_BIN = """CREATE TABLE "time_bin" (
+                                                    id SERIAL PRIMARY KEY,
+                                                    time_bin_number integer NOT NULL,
+                                                    loc_id integer references "location" (id))"""
 
-        """
         self.geo_calc = GeoCalculation()
         # if database is setup
         if self.db_setup_test():
@@ -121,31 +121,12 @@ class DatabaseHelper(object):
         cursor.execute(self.CREATE_TABLE_REGION)
         cursor.execute(self.CREATE_TABLE_SPATIAL_LOCATION)
         cursor.execute(self.CREATE_TABLE_LOCATION)
+        cursor.execute(self.CREATE_TABLE_TIME_BIN)
         self.conn.commit()
 
 
-    def db_create_trigger_functions(self):
-        JAPAN_PARTIONING_INSERT_FUNCTION = """
-                                            CREATE OR REPLACE FUNCTION japan_partioning_insert_function()
-                                            RETURNS TRIGGER AS $$
-                                            BEGIN
-                                                IF ( NEW.country = 'Japan' ) THEN
-                                                    INSERT INTO japan_partioning VALUES (NEW.*);
-                                                END IF;
-                                                RETURN NULL;
-                                            END;
-                                            $$
-                                            LANGUAGE plpgsql;"""
-        JAPAN_PARTIONING_INSERT_TRIGGER = """
-                                            CREATE TRIGGER insert_japan_partioning_trigger
-                                            BEFORE INSERT ON location
-                                            FOR EACH ROW EXECUTE PROCEDURE japan_partioning_insert_function();"""
 
-
-        cursor = self.conn.cursor()
-        cursor.execute(JAPAN_PARTIONING_INSERT_FUNCTION)
-        cursor.execute(JAPAN_PARTIONING_INSERT_TRIGGER)
-        self.conn.commit()
+     
 
     def db_create_indexes(self):
         cursor = self.conn.cursor()
@@ -157,11 +138,6 @@ class DatabaseHelper(object):
         cursor.execute("CREATE INDEX country_name_index ON country (name)")
         cursor.execute("CREATE INDEX spatial_location_lng_twodec_index ON spatial_location (lng_twodec)")
         cursor.execute("CREATE INDEX spatial_location_lat_twodec_index ON spatial_location (lat_twodec)")
-        cursor.execute("CREATE INDEX ON japan_partioning (start_time)")
-        cursor.execute("CREATE INDEX ON japan_partioning (end_time)")
-        cursor.execute("CREATE INDEX ON japan_partioning using gist (location)")
-        cursor.execute("CREATE INDEX ON japan_partioning (useruuid)")
-        cursor.execute("CREATE INDEX user_loc_index ON japan_partioning (useruuid,location)")
         self.conn.commit()
 
 
@@ -234,9 +210,22 @@ class DatabaseHelper(object):
         cursor.execute(""" SELECT id from spatial_location where spatial_location.lng_twodec = (%s) and spatial_location.lat_twodec = (%s)""", (lng_twodec, lat_twodec))
         spatial_id = cursor.fetchone()[0]
         cursor.execute(""" INSERT INTO location (start_time, end_time, location, altitude, accuracy, region, country, area, place, useruuid, spatial_loc_id)
-                       VALUES (%s,%s,ST_SetSRID(ST_MakePoint(%s, %s),4326),%s,%s,%s,%s,%s,%s,%s, %s)""",(row["start_time"],row["end_time"],row["longitude"],row["latitude"],
+                       VALUES (%s,%s,ST_SetSRID(ST_MakePoint(%s, %s),4326),%s,%s,%s,%s,%s,%s,%s, %s) RETURNING id""",(row["start_time"],row["end_time"],row["longitude"],row["latitude"],
                         row["altitude"],row["accuracy"], region, country, area, place, row["useruuid"], spatial_id))
+        loc_id = cursor.fetchone()[0]
+        self.insert_timebin(row["start_time"], row["end_time"], loc_id)
         self.conn.commit()
+
+    def insert_timebin(self, start_time, end_time, loc_id):
+        cursor = self.conn.cursor()
+        duration = end_time-start_time
+        duration = duration.total_seconds()/60.0 #in minutes
+        start_diff = (start_time-self.min_datetime).total_seconds()/60.0
+        start_bin = math.floor(start_diff/self.timebin_size) #tag højde for 0??
+        end_bin = math.ceil((duration/self.timebin_size))
+        time_bins = list(range(start_bin, start_bin+end_bin+1))
+        for tbin in time_bins:
+            cursor.execute("""INSERT INTO time_bin (time_bin_number, loc_id) VALUES(%s, %s) """,(tbin,loc_id))
 
     def insert_country(self, row):
         cursor = self.conn.cursor()
@@ -352,7 +341,7 @@ class DatabaseHelper(object):
             locations = cursor.fetchall()
         return locations
 
-    def find_cooccurrences(self, useruuid, cell_size, time_threshold_in_minutes, points_w_distances=[], useruuid2=None, asGeoJSON=True):
+    def find_cooccurrences(self, useruuid, cell_size, time_threshold_in_minutes, points_w_distances=[], useruuid2=None):
         """ find all cooccurrences for a user
         
         find all cooccurrences for a user within a cell_size and time window (time_threshold_in_minutes)
@@ -381,16 +370,13 @@ class DatabaseHelper(object):
         second_user_query = ""
         if useruuid2:
             second_user_query = " and location.useruuid = '{}'".format(useruuid2)
-        if asGeoJSON:
-            format = "ST_AsGeoJSON(location)"
-        else:
-            format = "ST_X(location::geometry), ST_Y(location::geometry)"
+
         cursor.execute(""" 
             with auxiliary_user_table as (
             SELECT useruuid as user, start_time as start, end_time as slut, ST_X(location::geometry) as longitude, ST_Y(location::geometry) as latitude 
             FROM location 
             WHERE location.useruuid = (%s))
-            SELECT useruuid, start_time, end_time, """ + format + """
+            SELECT useruuid, start_time, end_time, ST_AsGeoJSON(location)
                     FROM location, auxiliary_user_table
                     WHERE location.useruuid != auxiliary_user_table.user
                     AND (

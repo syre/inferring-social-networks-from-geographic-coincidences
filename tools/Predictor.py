@@ -172,7 +172,6 @@ class Predictor():
             spatial_bin = self.calculate_spatial_bin(lng, lat)
             time_bins = self.map_time_to_timebins(start_time, end_time)
             # check if one of the users are in the previous timebin but not both
-
             previous_list = self.find_users_in_cooccurrence(lng, lat, time_bins[0]-1)
             current_list = self.find_users_in_cooccurrence(lng, lat, time_bins[0])
             next_list = self.find_users_in_cooccurrence(lng, lat, time_bins[-1]+1)
@@ -269,5 +268,6 @@ if __name__ == '__main__':
     #print(p.calculate_corr("492f0a67-9a2c-40b8-8f0a-730db06abf65", "4bd3f3b1-791f-44be-8c52-0fd2195c4e62"))
     #print(p.calculate_coocs_w("492f0a67-9a2c-40b8-8f0a-730db06abf65", "4bd3f3b1-791f-44be-8c52-0fd2195c4e62"))
     #
-    #print(timeit.timeit('p.calculate_arr_leav("d5430d80-4aba-4b5c-836d-a486c8c4e332", "0bddb0ed-ce9a-4df3-9720-416bcfb678ea")', number=1, setup="from Predictor import Predictor;JAPAN_TUPLE = (120, 150, 20, 45);p = Predictor(60, grid_boundaries_tuple=JAPAN_TUPLE, spatial_resolution_decimals=2)"))
+    #print(len(p.find_users_in_cooccurrence(13.2263406245194, 55.718135067203, 521)))
+    #print(timeit.timeit('p.find_users_in_cooccurrence(13.2263406245194, 55.718135067203, 521)', number=1, setup="from Predictor import Predictor;JAPAN_TUPLE = (120, 150, 20, 45);p = Predictor(60, grid_boundaries_tuple=JAPAN_TUPLE, spatial_resolution_decimals=2)"))
     print(p.calculate_arr_leav("9b3edd01-b821-40c9-9f75-10cb32aa14b6", "3084b64d-e773-4daa-aeea-cc3b069594f3"))

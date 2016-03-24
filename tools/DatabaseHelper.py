@@ -4,9 +4,10 @@ import psycopg2
 import json
 import math
 import os
-from collections import defaultdict
+from collections import defaultdict, Counter
 import random
 import datetime
+import time
 from tqdm import tqdm
 
 from GeoCalculation import GeoCalculation
@@ -332,7 +333,7 @@ class DatabaseHelper(object):
             useruuid2 {string} -- optional argument for when you only want cooccurrences with that other user
         
         Returns:
-            list -- list of results
+            list -- list cooccurrences with useruuid, start_time, end_time, geojsoned location
         """
         start = query = ""
         if points_w_distances:
@@ -366,13 +367,8 @@ class DatabaseHelper(object):
 
     def find_cooccurrences_within_area(self, lng, lat, start_time, time_threshold_in_minutes, spatial_resolution_decimals):
         end_time = start_time+datetime.timedelta(minutes=time_threshold_in_minutes)
-        #print(start_time)
-        #print(end_time)
-        #print(time_threshold_in_minutes)
         
         cursor = self.conn.cursor()
-        #print(cursor.mogrify("""SELECT DISTINCT(useruuid) FROM location WHERE trunc((ST_X(location::geometry))::numeric,(%s))=(%s) AND trunc((ST_Y(location::geometry))::numeric,(%s))=(%s) AND ((start_time between (%s) AND (%s)) OR (start_time < (%s) AND end_time > (%s)) OR (end_time between (%s) AND (%s)))
-        #    """,(spatial_resolution_decimals,lng,spatial_resolution_decimals,lat, start_time, end_time, start_time, end_time, start_time, end_time,)))
         cursor.execute("""
                 SELECT DISTINCT(useruuid)
                 FROM location
@@ -383,31 +379,15 @@ class DatabaseHelper(object):
                     (start_time < (%s) AND end_time > (%s)) OR
                     (end_time between (%s) AND (%s))
                     )
-            """,(lng,lat, start_time, end_time, start_time, end_time, start_time, end_time,))
+            """,(lng, lat, start_time, end_time, start_time, end_time, start_time, end_time,))
 
         return [row[0] for row in cursor.fetchall()]
 
 
     def get_distribution_cooccurrences(self, x_useruuid, y_useruuid, time_threshold_in_minutes=60*24, cell_size=0.001):
-        cursor = self.conn.cursor()
-        locations = self.get_locations_for_user(x_useruuid)
 
-        cooccurrences = []
-        for location in locations:
-            start_time = location[1]
-            end_time = location[2]
-            longitude = location[3]
-            latitude = location[4]
+        cooccurrences = self.find_cooccurrences(x_useruuid, cell_size, time_threshold_in_minutes, points_w_distances=[], useruuid2=y_useruuid)
 
-            # find coocurrences by taking time_treshold_in_hours/2 before start_time and time_threshold_in_hours/2 after end_time
-            # this also means time window can get really long, what are the consequences?
-            cursor.execute(""" SELECT to_char(start_time, 'dd/mm/yyyy'), to_char(end_time, 'dd/mm/yyyy') from location where location.useruuid = (%s)
-             and (start_time between (%s) - interval '%s minutes' and (%s)) and (end_time between (%s) and (%s) + interval '%s minutes') and abs(ST_X(location::geometry)-(%s)) <= (%s) and abs(ST_Y(location::geometry)-(%s)) <= (%s)""",
-             (y_useruuid, start_time, time_threshold_in_minutes/2, start_time, end_time, end_time, time_threshold_in_minutes/2, longitude, cell_size, latitude, cell_size))
-            
-            result = cursor.fetchall()
-            if result:
-                cooccurrences.extend(result)
         time_dict = {}
         start = datetime.datetime.strptime("01-09-2015", "%d-%m-%Y")
         end = datetime.datetime.strptime("01-12-2015", "%d-%m-%Y")
@@ -417,11 +397,48 @@ class DatabaseHelper(object):
         for date in date_generated:
                 time_dict[date.strftime("%d/%m/%Y")] = 0
         for cocc in cooccurrences:
-            start_date = cocc[0]
-            end_date = cocc[1]
+            start_date = cocc[1].strftime("%d/%m/%Y")
+            end_date = cocc[2].strftime("%d/%m/%Y")
             time_dict[start_date] += 1
 
         return [{"Date":date_string, "Cooccurrences":value} for date_string,value in time_dict.items()]
+        
+    def dump_missing_geographical_rows(self):
+        cursor = self.conn.cursor()
+        query = "select id, ST_X(location::geometry), ST_Y(location::geometry) from location where coalesce(location.country, '') = '';"
+        cursor.execute(query)
+        records = cursor.fetchall()
+        list_of_records = []
+        for record in records:
+            list_of_records.append(record)
+
+        with open('missing_records.json', 'w') as outfile:
+            json.dump(list_of_records, outfile)
+
+    def insert_missing_geographical_data(self):
+        with open('missing_data.json', 'r') as infile:
+            records = json.load(infile)
+
+        for record in records:
+            country = address["country"]
+            if state in address:
+                area = address["state"]
+            elif state_district in address:
+                area = address["state_district"]
+            else:
+                area = ""
+                print("no area found")
+
+            if "city" in address:
+                place = address["city"]
+            elif "town" in address:
+                place = address["town"]
+            else:
+                place = ""
+                print("no place found")
+
+            cursor.execute("UPDATE location set country = (%s), area= (%s), place= (%s) ", (country, area, place))
+        cursor.commit()
 
     def get_all_cooccurrences_as_network(self, time_threshold_in_minutes=60*24, cell_size=0.001):
         cursor = self.conn.cursor()
@@ -571,7 +588,8 @@ class DatabaseHelper(object):
 
 if __name__ == '__main__':
     d = DatabaseHelper()
-    print(d.find_cooccurrences("f67ae795-1f2b-423c-ba30-cdd5cbb23662", 0.001, 60*24, useruuid2="f3437039-936a-41d6-93a0-d34ab4424a96"))
+    #print(d.find_cooccurrences("f67ae795-1f2b-423c-ba30-cdd5cbb23662", 0.001, 60*24, useruuid2="f3437039-936a-41d6-93a0-d34ab4424a96"))
+    #d.dump_missing_geographical_rows()
     #d.drop_tables()
     #d.db_setup()
     #d.insert_all_from_json()

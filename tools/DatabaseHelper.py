@@ -42,6 +42,13 @@ class DatabaseHelper(object):
                                                     id SERIAL PRIMARY KEY,
                                                     lng_twodec NUMERIC(5,2) NOT NULL,
                                                     lat_twodec NUMERIC(5,2) NOT NULL)"""
+
+
+        self.CREATE_TABLE_JAPAN_PARTIONING = """CREATE TABLE japan_partioning (
+                                                CHECK ( country = 'Japan')
+                                            ) INHERITS (location);
+
+        """
         self.geo_calc = GeoCalculation()
         # if database is setup
         if self.db_setup_test():
@@ -116,6 +123,30 @@ class DatabaseHelper(object):
         cursor.execute(self.CREATE_TABLE_LOCATION)
         self.conn.commit()
 
+
+    def db_create_trigger_functions(self):
+        JAPAN_PARTIONING_INSERT_FUNCTION = """
+                                            CREATE OR REPLACE FUNCTION japan_partioning_insert_function()
+                                            RETURNS TRIGGER AS $$
+                                            BEGIN
+                                                IF ( NEW.country = 'Japan' ) THEN
+                                                    INSERT INTO japan_partioning VALUES (NEW.*);
+                                                END IF;
+                                                RETURN NULL;
+                                            END;
+                                            $$
+                                            LANGUAGE plpgsql;"""
+        JAPAN_PARTIONING_INSERT_TRIGGER = """
+                                            CREATE TRIGGER insert_japan_partioning_trigger
+                                            BEFORE INSERT ON location
+                                            FOR EACH ROW EXECUTE PROCEDURE japan_partioning_insert_function();"""
+
+
+        cursor = self.conn.cursor()
+        cursor.execute(JAPAN_PARTIONING_INSERT_FUNCTION)
+        cursor.execute(JAPAN_PARTIONING_INSERT_TRIGGER)
+        self.conn.commit()
+
     def db_create_indexes(self):
         cursor = self.conn.cursor()
         cursor.execute("CREATE INDEX ON location (start_time)")
@@ -126,7 +157,13 @@ class DatabaseHelper(object):
         cursor.execute("CREATE INDEX country_name_index ON country (name)")
         cursor.execute("CREATE INDEX spatial_location_lng_twodec_index ON spatial_location (lng_twodec)")
         cursor.execute("CREATE INDEX spatial_location_lat_twodec_index ON spatial_location (lat_twodec)")
+        cursor.execute("CREATE INDEX ON japan_partioning (start_time)")
+        cursor.execute("CREATE INDEX ON japan_partioning (end_time)")
+        cursor.execute("CREATE INDEX ON japan_partioning using gist (location)")
+        cursor.execute("CREATE INDEX ON japan_partioning (useruuid)")
+        cursor.execute("CREATE INDEX user_loc_index ON japan_partioning (useruuid,location)")
         self.conn.commit()
+
 
     def db_teardown(self):
         cursor = self.conn.cursor()

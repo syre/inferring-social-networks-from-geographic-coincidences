@@ -100,8 +100,7 @@ class Predictor():
         """
         lat = int(lat * 10**self.spatial_resolution_decimals) / 10.0**self.spatial_resolution_decimals
         lng = int(lng * 10**self.spatial_resolution_decimals) / 10.0**self.spatial_resolution_decimals
-        start_time = self.min_datetime+(timedelta(minutes=self.timebin_size)*time_bin)
-        return self.database.find_cooccurrences_within_area(lng, lat, start_time, self.timebin_size, self.spatial_resolution_decimals)
+        return self.database.find_cooccurrences_within_area(lng, lat, time_bin)
 
     def calculate_corr(self, user1, user2):
         """
@@ -168,7 +167,7 @@ class Predictor():
             lat = cooc[4]
             arr_leav_value = 0
             spatial_bin = self.calculate_spatial_bin(lng, lat)
-            time_bins = self.map_time_to_timebins(start_time, end_time)
+            time_bins = cooc[5]
             # check if one of the users are in the previous timebin but not both
             previous_list = self.find_users_in_cooccurrence(lng, lat, time_bins[0]-1)
             current_list = self.find_users_in_cooccurrence(lng, lat, time_bins[0])
@@ -228,11 +227,10 @@ class Predictor():
 
             coocs_w_value = 0
 
-            spatial_bin = self.calculate_spatial_bin(lng, lat)
-            time_bins = self.map_time_to_timebins(start_time, end_time)
+            time_bins = cooc[5]
 
             for time_bin in time_bins:
-                users = self.find_users_in_cooccurrence(spatial_bin, time_bin)
+                users = self.find_users_in_cooccurrence(lng, lat, time_bin)
                 num_users = len(users)
                 coocs_w_value += num_users
             
@@ -266,7 +264,7 @@ class Predictor():
             coocs = self.database.find_cooccurrences(pair[0], cell_size, self.timebin_size, useruuid2=pair[1], asGeoJSON=False)
             count = 0
             for cooc in coocs:
-                timebins = self.map_time_to_timebins(cooc[1], cooc[2])
+                timebins = cooc[5]
                 user_lengths = [len(self.find_users_in_cooccurrence(cooc[3], cooc[4], bin)) for bin in timebins]
                 if all(length==2 for length in user_lengths):
                     count += 1
@@ -288,4 +286,7 @@ if __name__ == '__main__':
     #print(len(p.find_users_in_cooccurrence(13.2263406245194, 55.718135067203, 521)))
     #print(timeit.timeit('p.find_users_in_cooccurrence(13.2263406245194, 55.718135067203, 521)', number=1, setup="from Predictor import Predictor;JAPAN_TUPLE = (120, 150, 20, 45);p = Predictor(60, grid_boundaries_tuple=JAPAN_TUPLE, spatial_resolution_decimals=2)"))
     #print(p.calculate_arr_leav("9b3edd01-b821-40c9-9f75-10cb32aa14b6", "3084b64d-e773-4daa-aeea-cc3b069594f3"))
-    p.find_friend_pairs()
+    #p.find_friend_pairs()
+    #p.calculate_arr_leav('cfd65fd1-59d5-47d7-a032-1c93bed191d6', '052db813-aab4-4317-8c4d-fb772007ff12')
+
+    p.map_time_to_timebins(start_time, end_time)

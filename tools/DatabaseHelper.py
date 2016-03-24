@@ -361,51 +361,57 @@ class DatabaseHelper(object):
         Returns:
             list -- list cooccurrences with useruuid, start_time, end_time, geojsoned location
         """
+        cursor = self.conn.cursor()
+        
         start = query = ""
+        
         if points_w_distances:
             start ="AND NOT ST_DWithin(location, ST_MakePoint("
             query = " AND NOT ST_DWithin(location, ST_MakePoint(".join(["{0}, {1}), {2})". format(element[0][0],element[0][1],element[1]) for element in points_w_distances])
-        cursor = self.conn.cursor()
+
         
         second_user_query = ""
         if useruuid2:
-            second_user_query = " and location.useruuid = '{}'".format(useruuid2)
-
+            second_user_query = " AND location.useruuid = '{}'".format(useruuid2)
+        if asGeoJSON:
+            lat_lng_format = "ST_AsGeoJSON(location)"
+        else:
+            lat_lng_format = "ST_X(location::geometry), ST_Y(location::geometry)"
         cursor.execute(""" 
             with auxiliary_user_table as (
-            SELECT useruuid as user, start_time as start, end_time as slut, ST_X(location::geometry) as longitude, ST_Y(location::geometry) as latitude 
+            SELECT useruuid as user, ST_X(location::geometry) as longitude, ST_Y(location::geometry) as latitude
             FROM location 
             WHERE location.useruuid = (%s))
-            SELECT useruuid, start_time, end_time, ST_AsGeoJSON(location)
+            SELECT useruuid, """ + lat_lng_format + """, array_agg(t.time_bin_number)
+                    LEFT JOIN Timebin t on time_bin.loc_id = location.id
+                    GROUP BY location.id
                     FROM location, auxiliary_user_table
                     WHERE location.useruuid != auxiliary_user_table.user
+                    """ + second_user_query + """
                     AND (
                     (start_time between start - interval '%s minutes' AND slut + interval '%s minutes') OR 
                     (start_time < start - interval '%s minutes' AND end_time > slut + interval '%s minutes') OR
                     (end_time between start - interval '%s minutes' AND slut + interval '%s minutes')
                     )
-                    AND (abs(ST_X(location::geometry)-longitude) <= (%s) and abs(ST_Y(location::geometry)-latitude) <= (%s)) """ + (start + query) + second_user_query + ";",
+                    AND (abs(ST_X(location::geometry)-longitude) <= (%s) and abs(ST_Y(location::geometry)-latitude) <= (%s)) """ + (start + query) + ";",
                     (useruuid, time_threshold_in_minutes/2, time_threshold_in_minutes/2, time_threshold_in_minutes/2, time_threshold_in_minutes/2, time_threshold_in_minutes/2, time_threshold_in_minutes/2, cell_size, cell_size))
        
         return cursor.fetchall()
 
 
 
-    def find_cooccurrences_within_area(self, lng, lat, start_time, time_threshold_in_minutes, spatial_resolution_decimals):
+    def find_cooccurrences_within_area(self, lng, lat, time_bin):
         end_time = start_time+datetime.timedelta(minutes=time_threshold_in_minutes)
         
         cursor = self.conn.cursor()
         cursor.execute("""
                 SELECT DISTINCT(useruuid)
                 FROM location
-                INNER JOIN spatial_location ON location.spatial_loc_id=spatial_location.id 
+                INNER JOIN spatial_location ON location.spatial_loc_id=spatial_location.id
+                INNER JOIN time_bin on location.id=time_bin.loc_id
                 WHERE lng_twodec=(%s) AND lat_twodec=(%s)
-                  AND (
-                    (start_time between (%s) AND (%s)) OR 
-                    (start_time < (%s) AND end_time > (%s)) OR
-                    (end_time between (%s) AND (%s))
-                    )
-            """,(lng, lat, start_time, end_time, start_time, end_time, start_time, end_time,))
+                AND time_bin = (%s)
+            """,(lng, lat, time_bin))
 
         return [row[0] for row in cursor.fetchall()]
 
@@ -464,7 +470,7 @@ class DatabaseHelper(object):
                 print("no place found")
 
             cursor.execute("UPDATE location set country = (%s), area= (%s), place= (%s) ", (country, area, place))
-        cursor.commit()
+        self.conn.commit()
 
     def get_all_cooccurrences_as_network(self, time_threshold_in_minutes=60*24, cell_size=0.001):
         cursor = self.conn.cursor()

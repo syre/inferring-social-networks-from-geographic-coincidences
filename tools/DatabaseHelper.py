@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 from collections import defaultdict
-import requests
 import psycopg2
 import json
 import math
@@ -380,7 +379,7 @@ class DatabaseHelper(object):
                     (start_time < (%s) AND end_time > (%s)) OR
                     (end_time between (%s) AND (%s))
                     )
-            """,(lng,lat, start_time, end_time, start_time, end_time, start_time, end_time,))
+            """,(lng, lat, start_time, end_time, start_time, end_time, start_time, end_time,))
 
         return [row[0] for row in cursor.fetchall()]
 
@@ -413,30 +412,33 @@ class DatabaseHelper(object):
         for record in records:
             list_of_records.append(record)
 
-        with open('missing.json', 'w') as outfile:
+        with open('missing_records.json', 'w') as outfile:
             json.dump(list_of_records, outfile)
 
     def insert_missing_geographical_data(self):
-        
-        for record in records:
+        with open('missing_data.json', 'r') as infile:
+            records = json.load(infile)
 
+        for record in records:
             country = address["country"]
             if state in address:
                 area = address["state"]
             elif state_district in address:
                 area = address["state_district"]
+            else:
+                area = ""
+                print("no area found")
 
             if "city" in address:
                 place = address["city"]
             elif "town" in address:
                 place = address["town"]
             else:
+                place = ""
                 print("no place found")
 
             cursor.execute("UPDATE location set country = (%s), area= (%s), place= (%s) ", (country, area, place))
-
         cursor.commit()
-        raise NotImplementedError
 
     def get_all_cooccurrences_as_network(self, time_threshold_in_minutes=60*24, cell_size=0.001):
         cursor = self.conn.cursor()
@@ -586,8 +588,8 @@ class DatabaseHelper(object):
 
 if __name__ == '__main__':
     d = DatabaseHelper()
-    print(d.find_cooccurrences("f67ae795-1f2b-423c-ba30-cdd5cbb23662", 0.001, 60*24, useruuid2="f3437039-936a-41d6-93a0-d34ab4424a96"))
-    d.dump_missing_geographical_rows()
+    #print(d.find_cooccurrences("f67ae795-1f2b-423c-ba30-cdd5cbb23662", 0.001, 60*24, useruuid2="f3437039-936a-41d6-93a0-d34ab4424a96"))
+    #d.dump_missing_geographical_rows()
     #d.drop_tables()
     #d.db_setup()
     #d.insert_all_from_json()

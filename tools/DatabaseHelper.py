@@ -398,7 +398,7 @@ class DatabaseHelper(object):
                     )
                     AND (abs(ST_X(location::geometry)-longitude) <= (%s) and abs(ST_Y(location::geometry)-latitude) <= (%s)) """ + (start + query) + "GROUP BY location.id" + ";",
                     (useruuid, time_threshold_in_minutes/2, time_threshold_in_minutes/2, time_threshold_in_minutes/2, time_threshold_in_minutes/2, time_threshold_in_minutes/2, time_threshold_in_minutes/2, cell_size, cell_size))
-       
+        
         return cursor.fetchall()
 
 
@@ -411,7 +411,7 @@ class DatabaseHelper(object):
                 INNER JOIN spatial_location ON location.spatial_loc_id=spatial_location.id
                 INNER JOIN time_bin on location.id=time_bin.loc_id
                 WHERE lng_twodec=(%s) AND lat_twodec=(%s)
-                AND time_bin.loc_id = %s
+                AND time_bin.time_bin_number = %s
             """,(lng, lat, time_bin))
 
         return [row[0] for row in cursor.fetchall()]

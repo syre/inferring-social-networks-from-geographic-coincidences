@@ -222,7 +222,7 @@ class DatabaseHelper(object):
         start_time = parser.parse(start_time)
         end_time = parser.parse(end_time)
         duration = end_time-start_time
-        min_datetime = parser.parse('2015-08-09 22:25:33.766+02')
+        min_datetime = parser.parse('2015-08-09+02')
         duration = duration.total_seconds()/60.0 #in minutes
         start_diff = (start_time-min_datetime).total_seconds()/60.0
         start_bin = math.floor(start_diff/60) #tag højde for 0??
@@ -386,7 +386,7 @@ class DatabaseHelper(object):
             SELECT useruuid as user, start_time as start, end_time as slut, ST_X(location::geometry) as longitude, ST_Y(location::geometry) as latitude
             FROM location 
             WHERE location.useruuid = (%s))
-            SELECT useruuid, """ + lat_lng_format + """, array_agg(time_bin.time_bin_number)
+            SELECT useruuid, """ + lat_lng_format + """, array_agg(time_bin.time_bin_number), start_time, end_time
                     FROM location, auxiliary_user_table, time_bin
                     WHERE time_bin.loc_id = location.id AND
                     location.useruuid != auxiliary_user_table.user

@@ -411,7 +411,7 @@ class DatabaseHelper(object):
                 INNER JOIN spatial_location ON location.spatial_loc_id=spatial_location.id
                 INNER JOIN time_bin on location.id=time_bin.loc_id
                 WHERE lng_twodec=(%s) AND lat_twodec=(%s)
-                AND time_bin.time_bin_number = %s
+                AND time_bin.time_bin_number = (%s)
             """,(lng, lat, time_bin))
 
         return [row[0] for row in cursor.fetchall()]

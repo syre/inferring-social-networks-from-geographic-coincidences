@@ -100,6 +100,7 @@ class Predictor():
         """
         lat = int(lat * 10**self.spatial_resolution_decimals) / 10.0**self.spatial_resolution_decimals
         lng = int(lng * 10**self.spatial_resolution_decimals) / 10.0**self.spatial_resolution_decimals
+
         return self.database.find_cooccurrences_within_area(lng, lat, time_bin)
 
     def calculate_corr(self, user1, user2):
@@ -165,7 +166,8 @@ class Predictor():
             lat = cooc[2]
             arr_leav_value = 0
             spatial_bin = self.calculate_spatial_bin(lng, lat)
-            time_bins = cooc[3]
+            # sort timebins to reliably get previous and next timebins outside their cooc
+            time_bins = sorted(cooc[3])
             # check if one of the users are in the previous timebin but not both
             previous_list = self.find_users_in_cooccurrence(lng, lat, time_bins[0]-1)
             current_list = self.find_users_in_cooccurrence(lng, lat, time_bins[0])

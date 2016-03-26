@@ -221,7 +221,7 @@ class DatabaseHelper(object):
         start_time = parser.parse(start_time)
         end_time = parser.parse(end_time)
         duration = end_time-start_time
-        min_datetime = parser.parse('2015-08-09+02')
+        min_datetime = parser.parse('2015-08-09 00:00:00+02')
         duration = duration.total_seconds()/60.0 #in minutes
         start_diff = (start_time-min_datetime).total_seconds()/60.0
         start_bin = math.floor(start_diff/60) #tag højde for 0??
@@ -622,7 +622,7 @@ if __name__ == '__main__':
     d = DatabaseHelper()
     #print(d.find_cooccurrences("f67ae795-1f2b-423c-ba30-cdd5cbb23662", 0.001, 60*24, useruuid2="f3437039-936a-41d6-93a0-d34ab4424a96"))
     #d.dump_missing_geographical_rows()
-    #d.drop_tables()
-    #d.db_setup()
-    #d.insert_all_from_json()
-    #d.db_create_indexes()
+    d.drop_tables()
+    d.db_setup()
+    d.insert_all_from_json()
+    d.db_create_indexes()

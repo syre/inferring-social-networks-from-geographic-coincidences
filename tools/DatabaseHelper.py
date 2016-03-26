@@ -126,10 +126,6 @@ class DatabaseHelper(object):
         cursor.execute(self.CREATE_TABLE_TIME_BIN)
         self.conn.commit()
 
-
-
-     
-
     def db_create_indexes(self):
         cursor = self.conn.cursor()
         cursor.execute("CREATE INDEX ON location (start_time)")
@@ -140,6 +136,7 @@ class DatabaseHelper(object):
         cursor.execute("CREATE INDEX country_name_index ON country (name)")
         cursor.execute("CREATE INDEX spatial_location_lng_twodec_index ON spatial_location (lng_twodec)")
         cursor.execute("CREATE INDEX spatial_location_lat_twodec_index ON spatial_location (lat_twodec)")
+        cursor.execute("CREATE INDEX ON time_bin(time_bin_number)")
         self.conn.commit()
 
 
@@ -347,7 +344,7 @@ class DatabaseHelper(object):
             locations = cursor.fetchall()
         return locations
 
-    def find_cooccurrences(self, useruuid, cell_size, time_threshold_in_minutes, points_w_distances=[], useruuid2=None):
+    def find_cooccurrences(self, useruuid, cell_size, time_threshold_in_minutes, points_w_distances=[], useruuid2=None, asGeoJSON=True):
         """ find all cooccurrences for a user
         
         find all cooccurrences for a user within a cell_size and time window (time_threshold_in_minutes)
@@ -385,30 +382,27 @@ class DatabaseHelper(object):
             lat_lng_format = "ST_X(location::geometry), ST_Y(location::geometry)"
         cursor.execute(""" 
             with auxiliary_user_table as (
-            SELECT useruuid as user, ST_X(location::geometry) as longitude, ST_Y(location::geometry) as latitude
+            SELECT useruuid as user, start_time as start, end_time as slut, ST_X(location::geometry) as longitude, ST_Y(location::geometry) as latitude
             FROM location 
             WHERE location.useruuid = (%s))
-            SELECT useruuid, """ + lat_lng_format + """, array_agg(t.time_bin_number)
-                    LEFT JOIN Timebin t on time_bin.loc_id = location.id
-                    GROUP BY location.id
-                    FROM location, auxiliary_user_table
-                    WHERE location.useruuid != auxiliary_user_table.user
+            SELECT useruuid, """ + lat_lng_format + """, array_agg(time_bin.time_bin_number)
+                    FROM location, auxiliary_user_table, time_bin
+                    WHERE time_bin.loc_id = location.id AND
+                    location.useruuid != auxiliary_user_table.user
                     """ + second_user_query + """
                     AND (
                     (start_time between start - interval '%s minutes' AND slut + interval '%s minutes') OR 
                     (start_time < start - interval '%s minutes' AND end_time > slut + interval '%s minutes') OR
                     (end_time between start - interval '%s minutes' AND slut + interval '%s minutes')
                     )
-                    AND (abs(ST_X(location::geometry)-longitude) <= (%s) and abs(ST_Y(location::geometry)-latitude) <= (%s)) """ + (start + query) + ";",
+                    AND (abs(ST_X(location::geometry)-longitude) <= (%s) and abs(ST_Y(location::geometry)-latitude) <= (%s)) """ + (start + query) + "GROUP BY location.id" + ";",
                     (useruuid, time_threshold_in_minutes/2, time_threshold_in_minutes/2, time_threshold_in_minutes/2, time_threshold_in_minutes/2, time_threshold_in_minutes/2, time_threshold_in_minutes/2, cell_size, cell_size))
-       
+        
         return cursor.fetchall()
 
 
 
     def find_cooccurrences_within_area(self, lng, lat, time_bin):
-        end_time = start_time+datetime.timedelta(minutes=time_threshold_in_minutes)
-        
         cursor = self.conn.cursor()
         cursor.execute("""
                 SELECT DISTINCT(useruuid)
@@ -416,7 +410,7 @@ class DatabaseHelper(object):
                 INNER JOIN spatial_location ON location.spatial_loc_id=spatial_location.id
                 INNER JOIN time_bin on location.id=time_bin.loc_id
                 WHERE lng_twodec=(%s) AND lat_twodec=(%s)
-                AND time_bin = (%s)
+                AND time_bin.time_bin_number = (%s)
             """,(lng, lat, time_bin))
 
         return [row[0] for row in cursor.fetchall()]
@@ -628,7 +622,7 @@ if __name__ == '__main__':
     d = DatabaseHelper()
     #print(d.find_cooccurrences("f67ae795-1f2b-423c-ba30-cdd5cbb23662", 0.001, 60*24, useruuid2="f3437039-936a-41d6-93a0-d34ab4424a96"))
     #d.dump_missing_geographical_rows()
-    d.drop_tables()
-    d.db_setup()
-    d.insert_all_from_json()
-    d.db_create_indexes()
+    #d.drop_tables()
+    #d.db_setup()
+    #d.insert_all_from_json()
+    #d.db_create_indexes()

@@ -149,11 +149,10 @@ class DatabaseHelper(object):
 
     def insert_all_from_json(self, path=""):
         file_names = ["all_201509.json","all_201510.json","all_201511.json"]
-        for file_name in file_names:
+        for file_name in tqdm(file_names):
             with open(os.path.join(path, file_name), 'r') as json_file:
                 raw_data = json.load(json_file)
-            print("Antal rows = {}".format(len(raw_data)))
-            for row in tqdm(raw_data):
+            for row in tqdm(raw_data, nested=True):
                 if row["region"]:
                     self.insert_region(row)
                 if row["country"]:

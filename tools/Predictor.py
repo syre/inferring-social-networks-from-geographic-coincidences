@@ -80,8 +80,8 @@ class Predictor():
                         ('8adbdca6-cfe9-40df-af2a-fca8bd3f255d', 'b252468a-6b8d-48ad-9db0-53e0a7559526'),
                         ('1e068685-c708-44a9-86ba-9e174f137163', '82e1405e-7b7a-4786-a80e-72a826adbd2a'),
 
-
                         ]
+
         non_friend_pairs = [('1e5139c4-fd02-44fa-afef-42efd07ed7f0', '85f8bd3b-ac83-4679-8de1-73cc3d507300'),
                             ('1e0e560f-ffea-488f-ba61-895cdb3f7d63', '8b0bdc7e-b176-417a-8d57-2f65e64f372e'),
                             ('1e068685-c708-44a9-86ba-9e174f137163', 'b3b24ce2-ec50-4f22-aa6c-9da70f6937c2'),
@@ -381,7 +381,7 @@ if __name__ == '__main__':
     #print(len(p.find_users_in_cooccurrence(13.2263406245194, 55.718135067203, 521)))
     #print(timeit.timeit('p.find_users_in_cooccurrence(13.2263406245194, 55.718135067203, 521)', number=1, setup="from Predictor import Predictor;JAPAN_TUPLE = (120, 150, 20, 45);p = Predictor(60, grid_boundaries_tuple=JAPAN_TUPLE, spatial_resolution_decimals=2)"))
     #print(p.calculate_arr_leav("9b3edd01-b821-40c9-9f75-10cb32aa14b6", "3084b64d-e773-4daa-aeea-cc3b069594f3"))
-    p.find_friend_and_nonfriend_pairs()
-    #p.predict()
+    #p.find_friend_and_nonfriend_pairs()
+    p.predict()
     #p.find_friend_pairs2()
     #p.calculate_arr_leav('cfd65fd1-59d5-47d7-a032-1c93bed191d6', '052db813-aab4-4317-8c4d-fb772007ff12')

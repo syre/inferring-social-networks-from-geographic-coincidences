@@ -385,9 +385,7 @@ class DatabaseHelper(object):
                 useruuid                    AS USER, 
                 t.arr                       AS aux_timebins, 
                 spatial_location.lng_twodec AS aux_spatial_lng, 
-                spatial_location.lat_twodec AS aux_spatial_lat, 
-                start_time                  AS aux_start_time, 
-                end_time                    AS aux_end_time 
+                spatial_location.lat_twodec AS aux_spatial_lat
          FROM   location 
                 inner join spatial_location 
                         ON spatial_location.id = location.spatial_loc_id 
@@ -397,14 +395,10 @@ class DatabaseHelper(object):
                            GROUP  BY time_bin.loc_id) t 
                        ON t.loc_id = location.id 
          WHERE  location.useruuid = 'f67ae795-1f2b-423c-ba30-cdd5cbb23662') 
-SELECT DISTINCT ON (location.id) location.id, 
-                                 useruuid, 
-                                 start_time AS start_time1, 
-                                 end_time   AS end_time1, 
-                                 aux_start_time, 
-                                 aux_end_time, 
-                                 u.arr,
-                                 """ + lat_lng_format + """, 
+SELECT DISTINCT ON (location.id) 
+                                 useruuid,
+                                 """ + lat_lng_format + """,
+                                 u.arr, 
                                  aux_user_table.aux_timebins 
 FROM   location 
        inner join spatial_location 
@@ -643,7 +637,7 @@ WHERE  aux_user_table.aux_timebins && u.arr
 
 if __name__ == '__main__':
     d = DatabaseHelper()
-    print(d.find_cooccurrences("f67ae795-1f2b-423c-ba30-cdd5cbb23662", useruuid2="f3437039-936a-41d6-93a0-d34ab4424a96"))
+    print(d.find_cooccurrences("f67ae795-1f2b-423c-ba30-cdd5cbb23662", useruuid2="f3437039-936a-41d6-93a0-d34ab4424a96", asGeoJSON=False))
     #d.dump_missing_geographical_rows()
     #d.drop_tables()
     #d.db_setup()

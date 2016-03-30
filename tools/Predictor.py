@@ -227,7 +227,6 @@ class Predictor():
 
         Feature ID: coocs_w
         """
-        cell_size = pow(10, -self.spatial_resolution_decimals)
         cooccurrences = self.database.find_cooccurrences(user1, useruuid2=user2, asGeoJSON=False)
         coocs_w_values = []
         if len(cooccurrences) == 0:
@@ -270,7 +269,6 @@ class Predictor():
         pass
     
     def find_friend_and_nonfriend_pairs(self):
-        cell_size = pow(10, -self.spatial_resolution_decimals)
         user_pairs = pickle.load( open( "cooc_userPairs.p", "rb" ) )
         user_pairs.sort(key=lambda tup: tup[2])
         friend_pairs = []
@@ -312,7 +310,6 @@ class Predictor():
         return friend_pairs, nonfriend_pairs
 
     def find_friend_and_nonfriend_pairs2(self):
-        cell_size = pow(10, -self.spatial_resolution_decimals)
         user_pairs = pickle.load( open( "cooc_userPairs.p", "rb" ) )
         user_pairs.sort(key=lambda tup: tup[2])
         single_coocs = []

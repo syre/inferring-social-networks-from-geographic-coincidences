@@ -219,13 +219,10 @@ class DatabaseHelper(object):
         cursor = self.conn.cursor()
         start_time = parser.parse(start_time)
         end_time = parser.parse(end_time)
-        duration = end_time-start_time
         min_datetime = parser.parse('2015-08-09 00:00:00+02')
-        duration = duration.total_seconds()/60.0 #in minutes
-        start_diff = (start_time-min_datetime).total_seconds()/60.0
-        start_bin = math.floor(start_diff/60) #tag højde for 0??
-        end_bin = math.ceil((duration/60))
-        time_bins = list(range(start_bin, start_bin+end_bin+1))
+        start_bin = math.floor(((start_time-min_datetime).total_seconds()/60.0)/60)        
+        end_bin = math.ceil(((end_time-min_datetime).total_seconds()/60.0)/60)
+        time_bins = list(range(start_bin, end_bin))
         for tbin in time_bins:
             cursor.execute("""INSERT INTO time_bin (time_bin_number, loc_id) VALUES(%s, %s) """,(tbin,loc_id))
 

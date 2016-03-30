@@ -435,7 +435,7 @@ WHERE  aux_user_table.aux_timebins && u.arr
 
     def get_distribution_cooccurrences(self, x_useruuid, y_useruuid, time_threshold_in_minutes=60*24, cell_size=0.001):
 
-        cooccurrences = self.find_cooccurrences(x_useruuid, cell_size, time_threshold_in_minutes, points_w_distances=[], useruuid2=y_useruuid)
+        cooccurrences = self.find_cooccurrences(x_useruuid, points_w_distances=[], useruuid2=y_useruuid)
 
         time_dict = {}
         start = datetime.datetime.strptime("01-09-2015", "%d-%m-%Y")

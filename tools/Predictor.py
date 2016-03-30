@@ -53,13 +53,13 @@ class Predictor():
 
         X = np.ndarray(shape=(len(friend_pairs)+len(non_friend_pairs),4), dtype="float")
         for index, pair in tqdm(enumerate(friend_pairs)):
-            X[index:,0] = len(self.database.find_cooccurrences(pair[0], 0.01, 60, useruuid2=pair[1]))
+            X[index:,0] = len(self.database.find_cooccurrences(pair[0], useruuid2=pair[1]))
             X[index:,1] = self.calculate_corr(pair[0], pair[1])
             X[index:,2] = self.calculate_arr_leav(pair[0], pair[1])
             X[index:,3] = self.calculate_coocs_w(pair[0], pair[1])
 
         for index, pair in tqdm(enumerate(non_friend_pairs, start=len(friend_pairs))):
-            X[index:,0] = len(self.database.find_cooccurrences(pair[0], 0.01, 60, useruuid2=pair[1]))
+            X[index:,0] = len(self.database.find_cooccurrences(pair[0], useruuid2=pair[1]))
             X[index:,1] = self.calculate_corr(pair[0], pair[1])
             X[index:,2] = self.calculate_arr_leav(pair[0], pair[1])
             X[index:,3] = self.calculate_coocs_w(pair[0], pair[1])
@@ -124,14 +124,14 @@ class Predictor():
         time_bin_range = self.map_time_to_timebins(self.min_datetime, self.max_datetime)
         array_size = abs(self.GRID_MAX_LAT-self.GRID_MIN_LAT)*abs(self.GRID_MAX_LNG-self.GRID_MIN_LNG)
 
-        for bin in time_bin_range:
+        for time_bin in time_bin_range:
             user1_vector = np.zeros(array_size, dtype=bool)
             for location in user1_locations:
                 start_time = location[1]
                 end_time = location[2]
                 lng = location[3]
                 lat = location[4]
-                if bin in self.map_time_to_timebins(start_time, end_time):
+                if time_bin in self.map_time_to_timebins(start_time, end_time):
                     user1_vector[self.calculate_spatial_bin(lng, lat)] = 1
                     break
             user2_vector = np.zeros(array_size, dtype=bool)
@@ -162,11 +162,13 @@ class Predictor():
 
         Feature ID: arr_leav
         """
-        cell_size = pow(10, -self.spatial_resolution_decimals)
+
         cooccurrences = self.database.find_cooccurrences(user1, useruuid2=user2, asGeoJSON=False)
         arr_leav_values = []
         if len(cooccurrences) == 0:
+            print("no cooccurrences for users: {} and {}".format(user1, user2))
             return 0
+
         for cooc in cooccurrences:
             lng = cooc[1]
             lat = cooc[2]
@@ -175,31 +177,32 @@ class Predictor():
             # sort timebins to reliably get previous and next timebins outside their cooc
             user1_time_bins = cooc[3]
             user2_time_bins = cooc[4]
-            # check if one of the users are in the previous timebin but not both
-            previous_list = self.find_users_in_cooccurrence(lng, lat, time_bins[0]-1)
-            current_list = self.find_users_in_cooccurrence(lng, lat, time_bins[0])
-            next_list = self.find_users_in_cooccurrence(lng, lat, time_bins[-1]+1)
 
-            
-            number_of_new_arrivals = len(set(current_list)-set(previous_list))
-            number_of_leavers = len(set(next_list)-set(current_list))
-
-           
-            if (user1 in previous_list and user2 not in previous_list) or (user1 not in previous_list and user2 in previous_list):
+            if not (min(user1_time_bins) == min(user2_time_bins)):
                 # non-synchronously arrival
                 arr_leav_value += 0
             else:
                 # synchronous arrival
+                before_arrive_list = self.find_users_in_cooccurrence(lng, lat, min(user1_time_bins)-1)
+                arrive_list = self.find_users_in_cooccurrence(lng, lat, min(user1_time_bins))
+
+                number_of_new_arrivals = len(set(arrive_list)-set(before_arrive_list))
+
                 if number_of_new_arrivals == 0:
                     arr_leav_value+=1
                 else:
                     arr_leav_value += (1/(number_of_new_arrivals))
 
-            if (user1 in next_list and user2 not in next_list) or (user1 not in next_list and user2 in next_list):
+            if not (max(user1_time_bins) == max(user2_time_bins)):
                 # non-synchronously leaving
                 arr_leav_value += 0
             else:
                 # synchronous leaving
+                leave_list = self.find_users_in_cooccurrence(lng, lat, max(user1_time_bins))
+                after_leave_list = self.find_users_in_cooccurrence(lng, lat, max(user1_time_bins)+1)
+
+                number_of_leavers = len(set(after_leave_list)-set(leave_list))
+                
                 if number_of_leavers == 0:
                     arr_leav_value+=1
                 else:
@@ -227,30 +230,31 @@ class Predictor():
         cell_size = pow(10, -self.spatial_resolution_decimals)
         cooccurrences = self.database.find_cooccurrences(user1, useruuid2=user2, asGeoJSON=False)
         coocs_w_values = []
+        if len(cooccurrences) == 0:
+            return 0
         for cooc in cooccurrences:
             lng = cooc[1]
             lat = cooc[2]
 
             coocs_w_value = 0
 
-            time_bins = cooc[3]
-
-            for time_bin in time_bins:
+            user1_time_bins = cooc[3]
+            user2_time_bins = cooc[4]
+            common_time_bins = set(user1_time_bins) & set(user2_time_bins)
+            for time_bin in common_time_bins:
                 users = self.find_users_in_cooccurrence(lng, lat, time_bin)
                 num_users = len(users)
                 
                 if num_users < 2:
-                    print("only " + str(num_users) + " together in timebin")
+                    print("only {} together in timebin for users: {} and {}".format(str(num_users), user1, user2))
                     continue
                 coocs_w_value += num_users
             
-            coocs_w_value /= len(time_bins)
+            coocs_w_value /= len(common_time_bins)
 
             # 2 users is ideal thus returning highest value 1, else return lesser value proportional to amount of users
-            if coocs_w_value > 2:
-                coocs_w_values.append(1/(coocs_w_value-1))
-        if len(cooccurrences) == 0:
-            return 0
+            coocs_w_values.append(1/(coocs_w_value-1))
+
         return sum(coocs_w_values)/len(cooccurrences)
     
     def calculate_specificity(self, user1, user2):
@@ -272,7 +276,7 @@ class Predictor():
         friend_pairs = []
         nonfriend_pairs = []
         for pair in tqdm(user_pairs):
-            coocs = self.database.find_cooccurrences(pair[0], cell_size, self.timebin_size, useruuid2=pair[1], asGeoJSON=False)
+            coocs = self.database.find_cooccurrences(pair[0], useruuid2=pair[1], asGeoJSON=False)
             count = 0
             was_pair = False
             for cooc in coocs:
@@ -313,7 +317,7 @@ class Predictor():
         user_pairs.sort(key=lambda tup: tup[2])
         single_coocs = []
         for pair in user_pairs:
-            coocs = self.database.find_cooccurrences(pair[0], cell_size, self.timebin_size, useruuid2=pair[1], asGeoJSON=False)
+            coocs = self.database.find_cooccurrences(pair[0], useruuid2=pair[1], asGeoJSON=False)
             count = 0
             for cooc in coocs:
                 timebins = self.map_time_to_timebins(cooc[4], cooc[5])
@@ -334,6 +338,7 @@ if __name__ == '__main__':
     #print(timeit.timeit('p.find_users_in_cooccurrence(13.2263406245194, 55.718135067203, 521)', number=1, setup="from Predictor import Predictor;JAPAN_TUPLE = (120, 150, 20, 45);p = Predictor(60, grid_boundaries_tuple=JAPAN_TUPLE, spatial_resolution_decimals=2)"))
     #print(p.calculate_arr_leav("9b3edd01-b821-40c9-9f75-10cb32aa14b6", "3084b64d-e773-4daa-aeea-cc3b069594f3"))
     friends, nonfriends = p.load_friend_and_nonfriend_pairs()
+    p.save_friend_and_nonfriend_pairs(friends, nonfriends)
     print(len(friends))
     print(len(nonfriends))
     p.generate_dataset(friends, nonfriends)

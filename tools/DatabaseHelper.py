@@ -343,7 +343,7 @@ class DatabaseHelper(object):
             locations = cursor.fetchall()
         return locations
 
-    def find_cooccurrences(self, useruuid, cell_size, time_threshold_in_minutes, points_w_distances=[], useruuid2=None, asGeoJSON=True):
+    def find_cooccurrences(self, useruuid, points_w_distances=[], useruuid2=None, asGeoJSON=True):
         """ find all cooccurrences for a user
         
         find all cooccurrences for a user within a cell_size and time window (time_threshold_in_minutes)
@@ -374,28 +374,52 @@ class DatabaseHelper(object):
         
         second_user_query = ""
         if useruuid2:
-            second_user_query = " AND location.useruuid = '{}'".format(useruuid2)
+            second_user_query = " AND location.useruuid = '{}' ".format(useruuid2)
         if asGeoJSON:
             lat_lng_format = "ST_AsGeoJSON(location)"
         else:
             lat_lng_format = "ST_X(location::geometry), ST_Y(location::geometry)"
-        cursor.execute(""" 
-            with auxiliary_user_table as (
-            SELECT useruuid as user, start_time as start, end_time as slut, ST_X(location::geometry) as longitude, ST_Y(location::geometry) as latitude
-            FROM location 
-            WHERE location.useruuid = (%s))
-            SELECT useruuid, """ + lat_lng_format + """, array_agg(time_bin.time_bin_number), start_time, end_time
-                    FROM location, auxiliary_user_table, time_bin
-                    WHERE time_bin.loc_id = location.id AND
-                    location.useruuid != auxiliary_user_table.user
-                    """ + second_user_query + """
-                    AND (
-                    (start_time between start - interval '%s minutes' AND slut + interval '%s minutes') OR 
-                    (start_time < start - interval '%s minutes' AND end_time > slut + interval '%s minutes') OR
-                    (end_time between start - interval '%s minutes' AND slut + interval '%s minutes')
-                    )
-                    AND (abs(ST_X(location::geometry)-longitude) <= (%s) and abs(ST_Y(location::geometry)-latitude) <= (%s)) """ + (start + query) + "GROUP BY location.id" + ";",
-                    (useruuid, time_threshold_in_minutes/2, time_threshold_in_minutes/2, time_threshold_in_minutes/2, time_threshold_in_minutes/2, time_threshold_in_minutes/2, time_threshold_in_minutes/2, cell_size, cell_size))
+
+        cursor.execute("""WITH aux_user_table 
+     AS (SELECT location.id, 
+                useruuid                    AS USER, 
+                t.arr                       AS aux_timebins, 
+                spatial_location.lng_twodec AS aux_spatial_lng, 
+                spatial_location.lat_twodec AS aux_spatial_lat, 
+                start_time                  AS aux_start_time, 
+                end_time                    AS aux_end_time 
+         FROM   location 
+                inner join spatial_location 
+                        ON spatial_location.id = location.spatial_loc_id 
+                left join (SELECT loc_id, 
+                                  Array_agg(time_bin_number) AS arr 
+                           FROM   time_bin 
+                           GROUP  BY time_bin.loc_id) t 
+                       ON t.loc_id = location.id 
+         WHERE  location.useruuid = 'f67ae795-1f2b-423c-ba30-cdd5cbb23662') 
+SELECT DISTINCT ON (location.id) location.id, 
+                                 useruuid, 
+                                 start_time AS start_time1, 
+                                 end_time   AS end_time1, 
+                                 aux_start_time, 
+                                 aux_end_time, 
+                                 u.arr,
+                                 """ + lat_lng_format + """, 
+                                 aux_user_table.aux_timebins 
+FROM   location 
+       inner join spatial_location 
+               ON spatial_location.id = location.spatial_loc_id 
+       left join (SELECT loc_id, 
+                         Array_agg(time_bin_number) AS arr 
+                  FROM   time_bin 
+                  GROUP  BY time_bin.loc_id) u 
+              ON u.loc_id = location.id 
+       inner join aux_user_table 
+               ON location.useruuid != aux_user_table.USER 
+WHERE  aux_user_table.aux_timebins && u.arr 
+       AND spatial_location.lng_twodec = aux_spatial_lng 
+       AND spatial_location.lat_twodec = aux_spatial_lat
+       """ + second_user_query + (start + query) + "ORDER BY location.id" + ";",(useruuid))
         
         return cursor.fetchall()
 
@@ -619,7 +643,7 @@ class DatabaseHelper(object):
 
 if __name__ == '__main__':
     d = DatabaseHelper()
-    #print(d.find_cooccurrences("f67ae795-1f2b-423c-ba30-cdd5cbb23662", 0.001, 60*24, useruuid2="f3437039-936a-41d6-93a0-d34ab4424a96"))
+    print(d.find_cooccurrences("f67ae795-1f2b-423c-ba30-cdd5cbb23662", useruuid2="f3437039-936a-41d6-93a0-d34ab4424a96"))
     #d.dump_missing_geographical_rows()
     #d.drop_tables()
     #d.db_setup()

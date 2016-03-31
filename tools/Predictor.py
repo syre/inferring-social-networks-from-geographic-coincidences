@@ -322,10 +322,9 @@ class Predictor():
                     if len(result) >=5:
                         count = 0
                         for cooc in result:
-                            lng = cooc[1]
-                            lat = cooc[2]
-                            common_time_bins = list(set(cooc[3]) & set(cooc[4]))
-                            user_lengths = [len(self.find_users_in_cooccurrence(lng, lat, tbin)) for tbin in common_time_bins]
+                            spatial_bin = cooc[1]
+                            common_time_bins = list(set(cooc[2]) & set(cooc[2]))
+                            user_lengths = [len(self.find_users_in_cooccurrence(spatial_bin, tbin)) for tbin in common_time_bins]
 
                             if all([length==2 for length in user_lengths]):
                                 count+=1

@@ -320,8 +320,8 @@ class Predictor():
             for user2 in tqdm(users, nested=True):
                 if user != user2 and user not in user_dict[user2] and user2 not in user_dict[user]:
                     result = self.database.find_cooccurrences(user, [[(139.743862,35.630338), 1000]], user2, asGeoJSON=False)
+                    friend_flag = False
                     if len(result) >=5:
-                        friend_flag = False
                         count = 0
                         for cooc in result:
                             spatial_bin = cooc[1]

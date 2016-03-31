@@ -311,7 +311,7 @@ class Predictor():
 
                     user_dict[user2].append(user)
                     user_dict[user].append(user2)
-                    if not friend_flag:
+                    if not friend_flag and len(result)>0:
                         nonfriends.append((user, user2))
 
         return friends, nonfriends

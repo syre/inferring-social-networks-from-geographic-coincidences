@@ -3,6 +3,7 @@ import DatabaseHelper
 import math
 import datetime
 from datetime import datetime, timedelta
+from collections import defaultdict
 from pytz import timezone
 import numpy as np
 from scipy import stats
@@ -326,6 +327,39 @@ class Predictor():
                     print(pair)
                     break
         return single_coocs
+
+
+
+
+    def find_friend_pairs(self):
+        user_dict = defaultdict(dict)
+        result_users = []
+        users = self.database.get_users_in_country("Japan")
+        for user in tqdm(users):
+            user_dict[user] = []
+
+        for user in tqdm(users):
+            for user2 in tqdm(users, nested=True):
+                if user != user2 and user not in user_dict[user2] and user2 not in user_dict[user]:
+                    result = self.database.find_cooccurrences(user, [[(139.743862,35.630338), 1000]], user2, asGeoJSON=False)
+                    if len(result) >=5:
+                        count = 0
+                        for cooc in result:
+                            lng = cooc[1]
+                            lat = cooc[2]
+                            common_time_bins = list(set(cooc[3]) & set(cooc[4]))
+                            user_lengths = [len(self.find_users_in_cooccurrence(lng, lat, tbin)) for tbin in common_time_bins]
+
+                            if all([length==2 for length in user_lengths]):
+                                count+=1
+
+                            if count>=5:
+                                result_users.append((user, user2, len(result)))
+                                break
+
+                    user_dict[user2].append(user)
+                    user_dict[user].append(user2)
+        pickle.dump( result_users, open( "friendPairs.p", "wb" ) )
 
 if __name__ == '__main__':
     JAPAN_TUPLE = (120, 150, 20, 45)

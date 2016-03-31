@@ -91,7 +91,7 @@ class Predictor():
         lng = math.trunc(lng*pow(10,self.spatial_resolution_decimals))
         return (abs(self.GRID_MAX_LAT - self.GRID_MIN_LAT) * (lat-self.GRID_MIN_LAT)) + (lng-self.GRID_MIN_LNG)
     
-    def find_users_in_cooccurrence(self, lng, lat, time_bin):
+    def find_users_in_cooccurrence(self, spatial_bin, time_bin):
         """
         Find all users who's been in a given cooccurrence
             Arguments:
@@ -102,10 +102,7 @@ class Predictor():
                 list -- list of user_uuids
         
         """
-        lat = int(lat * 10**self.spatial_resolution_decimals) / 10.0**self.spatial_resolution_decimals
-        lng = int(lng * 10**self.spatial_resolution_decimals) / 10.0**self.spatial_resolution_decimals
-
-        return self.database.find_cooccurrences_within_area(lng, lat, time_bin)
+        return self.database.find_cooccurrences_within_area(spatial_bin, time_bin)
 
     def calculate_corr(self, user1, user2):
         """
@@ -170,21 +167,20 @@ class Predictor():
             return 0
 
         for cooc in cooccurrences:
-            lng = cooc[1]
-            lat = cooc[2]
+            spatial_bin = cooc[1]
             arr_leav_value = 0
 
             # sort timebins to reliably get previous and next timebins outside their cooc
-            user1_time_bins = cooc[3]
-            user2_time_bins = cooc[4]
+            user1_time_bins = cooc[2]
+            user2_time_bins = cooc[3]
 
             if not (min(user1_time_bins) == min(user2_time_bins)):
                 # non-synchronously arrival
                 arr_leav_value += 0
             else:
                 # synchronous arrival
-                before_arrive_list = self.find_users_in_cooccurrence(lng, lat, min(user1_time_bins)-1)
-                arrive_list = self.find_users_in_cooccurrence(lng, lat, min(user1_time_bins))
+                before_arrive_list = self.find_users_in_cooccurrence(spatial_bin, min(user1_time_bins)-1)
+                arrive_list = self.find_users_in_cooccurrence(spatial_bin, min(user1_time_bins))
 
                 number_of_new_arrivals = len(set(arrive_list)-set(before_arrive_list))
 
@@ -198,8 +194,8 @@ class Predictor():
                 arr_leav_value += 0
             else:
                 # synchronous leaving
-                leave_list = self.find_users_in_cooccurrence(lng, lat, max(user1_time_bins))
-                after_leave_list = self.find_users_in_cooccurrence(lng, lat, max(user1_time_bins)+1)
+                leave_list = self.find_users_in_cooccurrence(spatial_bin, max(user1_time_bins))
+                after_leave_list = self.find_users_in_cooccurrence(spatial_bin, max(user1_time_bins)+1)
 
                 number_of_leavers = len(set(after_leave_list)-set(leave_list))
                 
@@ -236,12 +232,12 @@ class Predictor():
             lat = cooc[2]
 
             coocs_w_value = 0
-
-            user1_time_bins = cooc[3]
-            user2_time_bins = cooc[4]
+            spatial_bin = cooc[1]
+            user1_time_bins = cooc[2]
+            user2_time_bins = cooc[3]
             common_time_bins = set(user1_time_bins) & set(user2_time_bins)
             for time_bin in common_time_bins:
-                users = self.find_users_in_cooccurrence(lng, lat, time_bin)
+                users = self.find_users_in_cooccurrence(spatial_bin, time_bin)
                 num_users = len(users)
                 
                 if num_users < 2:
@@ -278,8 +274,10 @@ class Predictor():
             count = 0
             was_pair = False
             for cooc in coocs:
-                timebins = cooc[3]
-                user_lengths = [len(self.find_users_in_cooccurrence(cooc[1], cooc[2], bin)) for bin in timebins]
+                user2_timebins = cooc[2]
+                user1_timebins = cooc[3]
+                timebins = set(user1_timebins) & set(user2_timebins)
+                user_lengths = [len(self.find_users_in_cooccurrence(cooc[1], bin)) for bin in timebins]
                 if all(length==2 for length in user_lengths):
                     count += 1
                 if count >= 5:
@@ -293,7 +291,6 @@ class Predictor():
         return friend_pairs, nonfriend_pairs
     
     def save_friend_and_nonfriend_pairs(self, friend_pairs, nonfriend_pairs):
-
         json_dict = {"friends":[], "nonfriends":[]}
         for friend in friend_pairs:
             json_dict["friends"].append({"user1":friend[0], "user2":friend[1], "count":friend[2]})
@@ -302,6 +299,7 @@ class Predictor():
         
         with open("friends_and_nonfriends.json","w+") as fp:
             json.dump(json_dict, fp)
+
     def load_friend_and_nonfriend_pairs(self):
         with open("friends_and_nonfriends.json", "r") as fp:
             json_dict = json.load(fp)
@@ -309,36 +307,21 @@ class Predictor():
         nonfriend_pairs = [(x["user1"],x["user2"],x["count"]) for x in json_dict["nonfriends"]]
         return friend_pairs, nonfriend_pairs
 
-    def find_friend_and_nonfriend_pairs2(self):
-        user_pairs = pickle.load( open( "cooc_userPairs.p", "rb" ) )
-        user_pairs.sort(key=lambda tup: tup[2])
-        single_coocs = []
-        for pair in user_pairs:
-            coocs = self.database.find_cooccurrences(pair[0], useruuid2=pair[1], asGeoJSON=False)
-            count = 0
-            for cooc in coocs:
-                timebins = self.map_time_to_timebins(cooc[4], cooc[5])
-                user_lengths = [len(self.find_users_in_cooccurrence(cooc[1], cooc[2], bin)) for bin in timebins]
-                if all(length==2 for length in user_lengths):
-                    count += 1
-                if count >= 5:
-                    single_coocs.append(pair)
-                    print(pair)
-                    break
-        return single_coocs
-
 if __name__ == '__main__':
     JAPAN_TUPLE = (120, 150, 20, 45)
     decimals = 2
-    p = Predictor(60, grid_boundaries_tuple=JAPAN_TUPLE, spatial_resolution_decimals=decimals)
+    p = Predictor(60)
   #print(len(p.find_users_in_cooccurrence(13.2263406245194, 55.718135067203, 521)))
     #print(timeit.timeit('p.find_users_in_cooccurrence(13.2263406245194, 55.718135067203, 521)', number=1, setup="from Predictor import Predictor;JAPAN_TUPLE = (120, 150, 20, 45);p = Predictor(60, grid_boundaries_tuple=JAPAN_TUPLE, spatial_resolution_decimals=2)"))
     #print(p.calculate_arr_leav("9b3edd01-b821-40c9-9f75-10cb32aa14b6", "3084b64d-e773-4daa-aeea-cc3b069594f3"))
-    friends, nonfriends = p.load_friend_and_nonfriend_pairs()
-    p.save_friend_and_nonfriend_pairs(friends, nonfriends)
-    print(len(friends))
-    print(len(nonfriends))
-    p.generate_dataset(friends, nonfriends)
+    #friends, nonfriends = p.load_friend_and_nonfriend_pairs()
+    #print(friends)
+    #print(nonfriends)
+    p.find_friend_and_nonfriend_pairs()
+    #p.save_friend_and_nonfriend_pairs(friends, nonfriends)
+    #print(len(friends))
+    #print(len(nonfriends))
+    #p.generate_dataset(friends, nonfriends)
     #p.predict()
     #p.find_friend_pairs2()
     #p.calculate_arr_leav('cfd65fd1-59d5-47d7-a032-1c93bed191d6', '052db813-aab4-4317-8c4d-fb772007ff12')

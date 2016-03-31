@@ -16,40 +16,33 @@ from GeoCalculation import GeoCalculation
 
 class DatabaseHelper(object):
     """docstring for DatabaseHelper"""
-    def __init__(self, path_to_settings=""):
+    def __init__(self, path_to_settings="", grid_boundaries_tuple=(-180, 180, -90, 90), spatial_resolution_decimals = 3):
+
         self.settings_dict = self.load_login(file_name="settings.cfg", key_split="=", path=path_to_settings)
         self.conn = psycopg2.connect("host='{}' dbname='{}' user='{}' password='{}'".
             format(self.settings_dict["HOSTNAME"], self.settings_dict["DBNAME"], 
                 self.settings_dict["USER"], self.settings_dict["PASS"]))
-
-        self.CREATE_TABLE_USER = """CREATE TABLE "user" ( useruuid text PRIMARY KEY NOT NULL)"""
-        self.CREATE_TABLE_PLACE = """CREATE TABLE "place" (name text PRIMARY KEY)"""
-        self.CREATE_TABLE_AREA = """CREATE TABLE "area" (name text PRIMARY KEY)"""
-        self.CREATE_TABLE_COUNTRY = """CREATE TABLE "country" (name text PRIMARY KEY)"""
-        self.CREATE_TABLE_REGION = """CREATE TABLE "region" (name text PRIMARY KEY)"""
-        self.CREATE_TABLE_LOCATION = """CREATE TABLE "location" ( id SERIAL PRIMARY KEY,
+        
+        self.spatial_resolution_decimals = spatial_resolution_decimals
+        self.GRID_MIN_LNG = (grid_boundaries_tuple[0] + 180) * pow(10, spatial_resolution_decimals)
+        self.GRID_MAX_LNG = (grid_boundaries_tuple[1] + 180) * pow(10, spatial_resolution_decimals)
+        self.GRID_MIN_LAT = (grid_boundaries_tuple[2] + 90) * pow(10, spatial_resolution_decimals)
+        self.GRID_MAX_LAT = (grid_boundaries_tuple[3] + 90) * pow(10, spatial_resolution_decimals)
+        
+        self.CREATE_TABLE_LOCATION = """CREATE TABLE "location" (id serial PRIMARY KEY,
+                                                           useruuid text NOT NULL,
                                                            start_time timestamptz NOT NULL,
                                                            end_time timestamptz NOT NULL,
                                                            location GEOGRAPHY(POINT,4326),
                                                            altitude INTEGER NOT NULL,
                                                            accuracy INTEGER NOT NULL,
-                                                           region text references region(name),
-                                                           country text references country(name),
-                                                           area text references area(name),
-                                                           place text references place(name),
-                                                           useruuid text references "user" (useruuid),
-                                                           spatial_loc_id integer references "spatial_location" (id))"""
+                                                           region text,
+                                                           country text,
+                                                           area text,
+                                                           place text,
+                                                           time_bins integer[],
+                                                           spatial_bin bigint)"""
 
-        self.CREATE_TABLE_SPATIAL_LOCATION = """CREATE TABLE "spatial_location" (
-                                                    id SERIAL PRIMARY KEY,
-                                                    lng_twodec NUMERIC(5,2) NOT NULL,
-                                                    lat_twodec NUMERIC(5,2) NOT NULL)"""
-
-
-        self.CREATE_TABLE_TIME_BIN = """CREATE TABLE "time_bin" (
-                                                    id SERIAL PRIMARY KEY,
-                                                    time_bin_number integer NOT NULL,
-                                                    loc_id integer references "location" (id))"""
 
         self.geo_calc = GeoCalculation()
         # if database is setup
@@ -116,14 +109,7 @@ class DatabaseHelper(object):
     def db_setup(self):
         cursor = self.conn.cursor()
         cursor.execute("CREATE EXTENSION IF NOT EXISTS POSTGIS;")
-        cursor.execute(self.CREATE_TABLE_USER)
-        cursor.execute(self.CREATE_TABLE_PLACE)
-        cursor.execute(self.CREATE_TABLE_AREA)
-        cursor.execute(self.CREATE_TABLE_COUNTRY)
-        cursor.execute(self.CREATE_TABLE_REGION)
-        cursor.execute(self.CREATE_TABLE_SPATIAL_LOCATION)
         cursor.execute(self.CREATE_TABLE_LOCATION)
-        cursor.execute(self.CREATE_TABLE_TIME_BIN)
         self.conn.commit()
 
     def db_create_indexes(self):
@@ -132,18 +118,14 @@ class DatabaseHelper(object):
         cursor.execute("CREATE INDEX ON location (end_time)")
         cursor.execute("CREATE INDEX ON location using gist (location)")
         cursor.execute("CREATE INDEX ON location (useruuid)")
-        cursor.execute("CREATE INDEX user_loc_index ON location (useruuid,location)")
-        cursor.execute("CREATE INDEX country_name_index ON country (name)")
-        cursor.execute("CREATE INDEX spatial_location_lng_twodec_index ON spatial_location (lng_twodec)")
-        cursor.execute("CREATE INDEX spatial_location_lat_twodec_index ON spatial_location (lat_twodec)")
-        cursor.execute("CREATE INDEX ON time_bin(time_bin_number)")
-        cursor.execute("CREATE INDEX ON time_bin(loc_id)")
+        cursor.execute("CREATE INDEX ON location (spatial_bin)")
+        cursor.execute("CREATE INDEX ON location (time_bins)")
         self.conn.commit()
 
 
     def db_teardown(self):
         cursor = self.conn.cursor()
-        cursor.execute("DROP TABLE user, place, area, country, region, location, spatial_location")
+        cursor.execute("DROP TABLE location")
 
     def insert_all_from_json(self, path=""):
         file_names = ["all_201509.json","all_201510.json","all_201511.json"]
@@ -151,72 +133,27 @@ class DatabaseHelper(object):
             with open(os.path.join(path, file_name), 'r') as json_file:
                 raw_data = json.load(json_file)
             for row in tqdm(raw_data, nested=True):
-                if row["region"]:
-                    self.insert_region(row)
-                if row["country"]:
-                    self.insert_country(row)
-                if row["area"]:
-                    self.insert_area(row)
-                if row["name"]:
-                    self.insert_place(row)
-                self.insert_user(row)
-                self.insert_spatial_location(row)
                 self.insert_location(row)
-
-    def insert_user(self, row):
-        cursor = self.conn.cursor()
-        cursor.execute("""SELECT 1 from "user" where "user".useruuid = (%s) limit 1""",(row["useruuid"],))
-        if cursor.rowcount == 0:
-            cursor.execute("""INSERT INTO "user" (useruuid) VALUES (%s)""",(row["useruuid"],))
-            self.conn.commit()
-
-
-    def insert_region(self, row):
-        cursor = self.conn.cursor()
-        cursor.execute("""SELECT 1 from region where region.name = (%s) limit 1""",(row["region"],))
-        if cursor.rowcount == 0:
-            cursor.execute("""INSERT INTO region (name) VALUES (%s)""",(row["region"],))
-            self.conn.commit()
-
-    def insert_spatial_location(self, row):
-        cursor = self.conn.cursor()
-        lng_twodec = int(row["longitude"] * 10**2) / 10.0**2
-        lat_twodec = int(row["latitude"] * 10**2) / 10.0**2
-        
-        cursor.execute(""" SELECT 1 from spatial_location where spatial_location.lng_twodec = (%s) and spatial_location.lat_twodec = (%s) limit 1""", (lng_twodec, lat_twodec))
-        if cursor.rowcount == 0:
-            cursor.execute(""" INSERT INTO spatial_location (lng_twodec, lat_twodec) values (%s,%s)""", (lng_twodec, lat_twodec))
-            self.conn.commit()
 
 
     def insert_location(self, row):
         cursor = self.conn.cursor()
-        area = None
-        country = None
-        place = None
-        region = None
+        spatial_bin = self.calculate_spatial_bin(row["longitude"],row["latitude"])
+        time_bins = self.calculate_time_bins(row["start_time"], row["end_time"])
 
-        if row["area"]:
-            area = row["area"]
-        if row["country"]:
-            country = row["country"]
-        if row["name"]:
-            place = row["name"]
-        if row["region"]:
-            region = row["region"]
-        lng_twodec = int(row["longitude"] * 10**2) / 10.0**2
-        lat_twodec = int(row["latitude"] * 10**2) / 10.0**2
-        cursor.execute(""" SELECT id from spatial_location where spatial_location.lng_twodec = (%s) and spatial_location.lat_twodec = (%s)""", (lng_twodec, lat_twodec))
-        spatial_id = cursor.fetchone()[0]
-        cursor.execute(""" INSERT INTO location (start_time, end_time, location, altitude, accuracy, region, country, area, place, useruuid, spatial_loc_id)
-                       VALUES (%s,%s,ST_SetSRID(ST_MakePoint(%s, %s),4326),%s,%s,%s,%s,%s,%s,%s, %s) RETURNING id""",(row["start_time"],row["end_time"],row["longitude"],row["latitude"],
-                        row["altitude"],row["accuracy"], region, country, area, place, row["useruuid"], spatial_id))
-        loc_id = cursor.fetchone()[0]
-        self.insert_timebin(row["start_time"], row["end_time"], loc_id)
+        cursor.execute(""" INSERT INTO location (useruuid, start_time, end_time, location, altitude, accuracy, region, country, area, place, time_bins, spatial_bin)
+                       VALUES (%s,%s,%s,ST_SetSRID(ST_MakePoint(%s, %s),4326),%s,%s,%s,%s,%s,%s,%s,%s)""",(row["useruuid"],row["start_time"],row["end_time"],row["longitude"],row["latitude"],
+                        row["altitude"],row["accuracy"], row["region"], row["country"], row["area"], row["name"], time_bins, spatial_bin))
         self.conn.commit()
+    
+    def calculate_spatial_bin(self, lng, lat):
+        lat += 90.0
+        lng += 180.0
+        lat = math.trunc(lat*pow(10,self.spatial_resolution_decimals))
+        lng = math.trunc(lng*pow(10,self.spatial_resolution_decimals))
+        return (abs(self.GRID_MAX_LAT - self.GRID_MIN_LAT) * (lat-self.GRID_MIN_LAT)) + (lng-self.GRID_MIN_LNG)
 
-
-    def insert_timebin(self, start_time, end_time, loc_id):
+    def calculate_time_bins(self, start_time, end_time):
         cursor = self.conn.cursor()
         start_time = parser.parse(start_time)
         end_time = parser.parse(end_time)
@@ -224,29 +161,7 @@ class DatabaseHelper(object):
         start_bin = math.floor(((start_time-min_datetime).total_seconds()/60.0)/60)        
         end_bin = math.ceil(((end_time-min_datetime).total_seconds()/60.0)/60)
         time_bins = list(range(start_bin, end_bin))
-        for tbin in time_bins:
-            cursor.execute("""INSERT INTO time_bin (time_bin_number, loc_id) VALUES(%s, %s) """,(tbin,loc_id))
-
-    def insert_country(self, row):
-        cursor = self.conn.cursor()
-        cursor.execute("""SELECT 1 from country where country.name = (%s) limit 1""",(row["country"],))
-        if cursor.rowcount == 0:
-            cursor.execute("""INSERT INTO country (name) VALUES (%s)""",(row["country"],))
-            self.conn.commit()
-
-    def insert_area(self, row):
-        cursor = self.conn.cursor()
-        cursor.execute("""SELECT 1 from area where area.name = (%s) limit 1""",(row["area"],))
-        if cursor.rowcount == 0:
-            cursor.execute("""INSERT INTO area (name) VALUES (%s)""",(row["area"],))
-            self.conn.commit()
-
-    def insert_place(self, row):
-        cursor = self.conn.cursor()
-        cursor.execute("""SELECT 1 from place where place.name = (%s) limit 1""",(row["name"],))
-        if cursor.rowcount == 0:
-            cursor.execute("""INSERT INTO place (name) VALUES (%s)""",(row["name"],))
-            self.conn.commit()
+        return time_bins
 
     def get_distributions_numbers(self, feature, num_bins = 20, max_value=0):
         cursor = self.conn.cursor()
@@ -373,60 +288,37 @@ class DatabaseHelper(object):
         second_user_query = ""
         if useruuid2:
             second_user_query = " AND location.useruuid = '{}' ".format(useruuid2)
-        if asGeoJSON:
-            lat_lng_format = "ST_AsGeoJSON(location)"
-        else:
-            lat_lng_format = "ST_X(location::geometry), ST_Y(location::geometry)"
 
-        cursor.execute("""WITH aux_user_table 
+        cursor.execute("""WITH user1_table 
      AS (SELECT location.id, 
-                useruuid                    AS USER, 
-                t.arr                       AS aux_timebins, 
-                spatial_location.lng_twodec AS aux_spatial_lng, 
-                spatial_location.lat_twodec AS aux_spatial_lat
+                useruuid, 
+                time_bins, 
+                spatial_bin
          FROM   location 
-                inner join spatial_location 
-                        ON spatial_location.id = location.spatial_loc_id 
-                left join (SELECT loc_id, 
-                                  Array_agg(time_bin_number) AS arr 
-                           FROM   time_bin 
-                           GROUP  BY time_bin.loc_id) t 
-                       ON t.loc_id = location.id 
          WHERE  location.useruuid = %s) 
-SELECT DISTINCT ON (location.id) 
-                                 useruuid,
-                                 """ + lat_lng_format + """,
-                                 u.arr, 
-                                 aux_user_table.aux_timebins 
+SELECT                          location.useruuid,
+                                 location.spatial_bin,
+                                 location.time_bins, 
+                                 user1_table.time_bins
 FROM   location 
-       inner join spatial_location 
-               ON spatial_location.id = location.spatial_loc_id 
-       left join (SELECT loc_id, 
-                         Array_agg(time_bin_number) AS arr 
-                  FROM   time_bin 
-                  GROUP  BY time_bin.loc_id) u 
-              ON u.loc_id = location.id 
-       inner join aux_user_table 
-               ON location.useruuid != aux_user_table.USER 
-WHERE  aux_user_table.aux_timebins && u.arr 
-       AND spatial_location.lng_twodec = aux_spatial_lng 
-       AND spatial_location.lat_twodec = aux_spatial_lat
-       """ + second_user_query + (start + query) + "ORDER BY location.id" + ";",(useruuid))
+       inner join user1_table
+               ON location.useruuid != user1_table.useruuid
+WHERE  user1_table.time_bins && location.time_bins
+       AND user1_table.spatial_bin = location.spatial_bin
+       """ + second_user_query + (start + query) + ";",(useruuid,))
         
         return cursor.fetchall()
 
 
 
-    def find_cooccurrences_within_area(self, lng, lat, time_bin):
+    def find_cooccurrences_within_area(self, spatial_bin, time_bin):
         cursor = self.conn.cursor()
         cursor.execute("""
                 SELECT DISTINCT(useruuid)
                 FROM location
-                INNER JOIN spatial_location ON location.spatial_loc_id=spatial_location.id
-                INNER JOIN time_bin on location.id=time_bin.loc_id
-                WHERE lng_twodec=(%s) AND lat_twodec=(%s)
-                AND time_bin.time_bin_number = (%s)
-            """,(lng, lat, time_bin))
+                WHERE location.spatial_bin=(%s)
+                AND %s = ANY(location.time_bins)
+            """,(spatial_bin, time_bin))
 
         return [row[0] for row in cursor.fetchall()]
 
@@ -637,7 +529,7 @@ if __name__ == '__main__':
     d = DatabaseHelper()
     #print(d.find_cooccurrences("f67ae795-1f2b-423c-ba30-cdd5cbb23662", useruuid2="f3437039-936a-41d6-93a0-d34ab4424a96", asGeoJSON=False))
     #d.dump_missing_geographical_rows()
-    d.drop_tables()
-    d.db_setup()
-    d.insert_all_from_json()
-    d.db_create_indexes()
+    #d.drop_tables()
+    #d.db_setup()
+    #d.insert_all_from_json()
+    #d.db_create_indexes()

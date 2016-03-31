@@ -52,25 +52,25 @@ class Predictor():
         friend_pairs = random.sample(friend_pairs, 100)
         non_friend_pairs = random.sample(non_friend_pairs, 100)
 
-        X = np.ndarray(shape=(len(friend_pairs)+len(non_friend_pairs),4), dtype="float")
+        X = np.ndarray(shape=(len(friend_pairs)+len(non_friend_pairs),3), dtype="float")
         for index, pair in tqdm(enumerate(friend_pairs)):
             X[index:,0] = len(self.database.find_cooccurrences(pair[0], useruuid2=pair[1]))
-            X[index:,1] = self.calculate_corr(pair[0], pair[1])
-            X[index:,2] = self.calculate_arr_leav(pair[0], pair[1])
-            X[index:,3] = self.calculate_coocs_w(pair[0], pair[1])
+            X[index:,1] = self.calculate_arr_leav(pair[0], pair[1])
+            X[index:,2] = self.calculate_coocs_w(pair[0], pair[1])
+            #X[index:,3] = self.calculate_corr(pair[0], pair[1])
+            
 
         for index, pair in tqdm(enumerate(non_friend_pairs, start=len(friend_pairs))):
             X[index:,0] = len(self.database.find_cooccurrences(pair[0], useruuid2=pair[1]))
-            X[index:,1] = self.calculate_corr(pair[0], pair[1])
-            X[index:,2] = self.calculate_arr_leav(pair[0], pair[1])
-            X[index:,3] = self.calculate_coocs_w(pair[0], pair[1])
+            X[index:,1] = self.calculate_arr_leav(pair[0], pair[1])
+            X[index:,2] = self.calculate_coocs_w(pair[0], pair[1])
+            #X[index:,3] = self.calculate_corr(pair[0], pair[1])
         
         y = np.array([1 for x in range(len(friend_pairs))] + [0 for x in range(len(non_friend_pairs))])
 
         return X,y
 
-    def predict(self):
-        X, y = self.generate_dataset()
+    def predict(self, X, y):
         tree = sklearn.ensemble.RandomForestClassifier()
         X_train, X_test, y_train, y_test = cross_validation.train_test_split(X, y, test_size=0.4, random_state=0)
         tree.fit(X_train, y_train)
@@ -320,9 +320,11 @@ if __name__ == '__main__':
     #JAPAN_TUPLE = (120, 150, 20, 45)
     #decimals = 2
     p = Predictor(60)
-    friends, nonfriends = p.find_friend_and_nonfriend_pairs()
-    p.save_friend_and_nonfriend_pairs(friends, nonfriends)
-
+    #friends, nonfriends = p.find_friend_and_nonfriend_pairs()
+    #p.save_friend_and_nonfriend_pairs(friends, nonfriends)
+    friends, nonfriends = p.load_friend_and_nonfriend_pairs()
+    X, y = p.generate_dataset(friends, nonfriends)
+    p.predict(X, y)
   #print(len(p.find_users_in_cooccurrence(13.2263406245194, 55.718135067203, 521)))
     #print(timeit.timeit('p.find_users_in_cooccurrence(13.2263406245194, 55.718135067203, 521)', number=1, setup="from Predictor import Predictor;JAPAN_TUPLE = (120, 150, 20, 45);p = Predictor(60, grid_boundaries_tuple=JAPAN_TUPLE, spatial_resolution_decimals=2)"))
     #print(p.calculate_arr_leav("9b3edd01-b821-40c9-9f75-10cb32aa14b6", "3084b64d-e773-4daa-aeea-cc3b069594f3"))

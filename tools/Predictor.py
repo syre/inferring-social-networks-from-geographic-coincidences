@@ -310,7 +310,8 @@ class Predictor():
 
     def find_friend_pairs(self):
         user_dict = defaultdict(dict)
-        result_users = []
+        friends = []
+        nonfriends = []
         users = self.database.get_users_in_country("Japan")
         for user in tqdm(users):
             user_dict[user] = []
@@ -320,6 +321,7 @@ class Predictor():
                 if user != user2 and user not in user_dict[user2] and user2 not in user_dict[user]:
                     result = self.database.find_cooccurrences(user, [[(139.743862,35.630338), 1000]], user2, asGeoJSON=False)
                     if len(result) >=5:
+                        friend_flag = False
                         count = 0
                         for cooc in result:
                             spatial_bin = cooc[1]
@@ -330,31 +332,31 @@ class Predictor():
                                 count+=1
 
                             if count>=5:
-                                result_users.append((user, user2, len(result)))
+                                friend_flag = True
+                                friends.append((user, user2, len(result)))
                                 break
 
                     user_dict[user2].append(user)
                     user_dict[user].append(user2)
-        
-        nonfriends = []
-        for u in users:
-            if not any([user[0]==u or user[1] == u for user in result_users]):
-                nonfriends.append(u)
+                    if not friend_flag:
+                        nonfriends.append((user, user2))
 
-        pickle.dump( result_users, open( "friendPairs.p", "wb" ) )
+
+        pickle.dump( friends, open( "friendPairs.p", "wb" ) )
         pickle.dump( nonfriends, open( "nonfriends.p", "wb" ) )
 
 if __name__ == '__main__':
     JAPAN_TUPLE = (120, 150, 20, 45)
     decimals = 2
     p = Predictor(60)
+    p.find_friend_pairs()
   #print(len(p.find_users_in_cooccurrence(13.2263406245194, 55.718135067203, 521)))
     #print(timeit.timeit('p.find_users_in_cooccurrence(13.2263406245194, 55.718135067203, 521)', number=1, setup="from Predictor import Predictor;JAPAN_TUPLE = (120, 150, 20, 45);p = Predictor(60, grid_boundaries_tuple=JAPAN_TUPLE, spatial_resolution_decimals=2)"))
     #print(p.calculate_arr_leav("9b3edd01-b821-40c9-9f75-10cb32aa14b6", "3084b64d-e773-4daa-aeea-cc3b069594f3"))
     #friends, nonfriends = p.load_friend_and_nonfriend_pairs()
     #print(friends)
     #print(nonfriends)
-    p.find_friend_and_nonfriend_pairs()
+    #p.find_friend_and_nonfriend_pairs()
     #p.save_friend_and_nonfriend_pairs(friends, nonfriends)
     #print(len(friends))
     #print(len(nonfriends))

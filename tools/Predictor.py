@@ -265,50 +265,23 @@ class Predictor():
         """
         pass
     
-    def find_friend_and_nonfriend_pairs(self):
-        user_pairs = pickle.load( open( "cooc_userPairs.p", "rb" ) )
-        user_pairs.sort(key=lambda tup: tup[2])
-        friend_pairs = []
-        nonfriend_pairs = []
-        for pair in tqdm(user_pairs):
-            coocs = self.database.find_cooccurrences(pair[0], useruuid2=pair[1], asGeoJSON=False)
-            count = 0
-            was_pair = False
-            for cooc in coocs:
-                user2_timebins = cooc[2]
-                user1_timebins = cooc[3]
-                timebins = set(user1_timebins) & set(user2_timebins)
-                user_lengths = [len(self.find_users_in_cooccurrence(cooc[1], bin)) for bin in timebins]
-                if all(length==2 for length in user_lengths):
-                    count += 1
-                if count >= 5:
-                    friend_pairs.append(pair)
-                    was_pair = True
-                    print("friend-pair: " + str(pair))
-                    break
-            if not was_pair:
-                nonfriend_pairs.append(pair)
-                print("non-friend pair: " + str(pair))
-        return friend_pairs, nonfriend_pairs
+
     
     def save_friend_and_nonfriend_pairs(self, friend_pairs, nonfriend_pairs):
-        json_dict = {"friends":[], "nonfriends":[]}
-        for friend in friend_pairs:
-            json_dict["friends"].append({"user1":friend[0], "user2":friend[1], "count":friend[2]})
-        for nonfriend in nonfriend_pairs:
-            json_dict["nonfriends"].append({"user1":nonfriend[0], "user2":nonfriend[1], "count":nonfriend[2]})
-        
-        with open("friends_and_nonfriends.json","w+") as fp:
-            json.dump(json_dict, fp)
+        with open( "friend_pairs.pickle", "wb" ) as fp:
+            pickle.dump(friend_pairs, fp)
+        with open( "nonfriend_pairs.pickle", "wb" ) as fp:
+            pickle.dump(nonfriend_pairs, fp)
 
     def load_friend_and_nonfriend_pairs(self):
-        with open("friends_and_nonfriends.json", "r") as fp:
-            json_dict = json.load(fp)
-        friend_pairs = [(x["user1"],x["user2"],x["count"]) for x in json_dict["friends"]]
-        nonfriend_pairs = [(x["user1"],x["user2"],x["count"]) for x in json_dict["nonfriends"]]
+        with open( "friend_pairs.pickle", "rb" ) as fp:
+            friend_pairs = pickle.load(fp)
+        with open( "nonfriend_pairs.pickle", "rb" ) as fp:
+            nonfriend_pairs = pickle.load(fp)
+
         return friend_pairs, nonfriend_pairs
 
-    def find_friend_pairs(self):
+    def find_friend_and_nonfriend_pairs(self):
         user_dict = defaultdict(dict)
         friends = []
         nonfriends = []
@@ -341,15 +314,15 @@ class Predictor():
                     if not friend_flag:
                         nonfriends.append((user, user2))
 
-
-        pickle.dump( friends, open( "friendPairs.p", "wb" ) )
-        pickle.dump( nonfriends, open( "nonfriends.p", "wb" ) )
+        return friends, nonfriends
 
 if __name__ == '__main__':
-    JAPAN_TUPLE = (120, 150, 20, 45)
-    decimals = 2
+    #JAPAN_TUPLE = (120, 150, 20, 45)
+    #decimals = 2
     p = Predictor(60)
-    p.find_friend_pairs()
+    friends, nonfriends = p.find_friend_and_nonfriend_pairs()
+    p.save_friend_and_nonfriend_pairs(friends, nonfriends)
+
   #print(len(p.find_users_in_cooccurrence(13.2263406245194, 55.718135067203, 521)))
     #print(timeit.timeit('p.find_users_in_cooccurrence(13.2263406245194, 55.718135067203, 521)', number=1, setup="from Predictor import Predictor;JAPAN_TUPLE = (120, 150, 20, 45);p = Predictor(60, grid_boundaries_tuple=JAPAN_TUPLE, spatial_resolution_decimals=2)"))
     #print(p.calculate_arr_leav("9b3edd01-b821-40c9-9f75-10cb32aa14b6", "3084b64d-e773-4daa-aeea-cc3b069594f3"))

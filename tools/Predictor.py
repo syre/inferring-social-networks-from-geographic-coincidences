@@ -335,8 +335,14 @@ class Predictor():
 
                     user_dict[user2].append(user)
                     user_dict[user].append(user2)
-        pickle.dump( result_users, open( "friendPairs.p", "wb" ) )
+        
+        nonfriends = []
+        for u in users:
+            if not any([user[0]==u or user[1] == u for user in result_users]):
+                nonfriends.append(u)
 
+        pickle.dump( result_users, open( "friendPairs.p", "wb" ) )
+        pickle.dump( nonfriends, open( "nonfriends.p", "wb" ) )
 
 if __name__ == '__main__':
     JAPAN_TUPLE = (120, 150, 20, 45)

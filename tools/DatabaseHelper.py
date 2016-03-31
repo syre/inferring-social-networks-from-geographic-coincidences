@@ -137,6 +137,7 @@ class DatabaseHelper(object):
         cursor.execute("CREATE INDEX spatial_location_lng_twodec_index ON spatial_location (lng_twodec)")
         cursor.execute("CREATE INDEX spatial_location_lat_twodec_index ON spatial_location (lat_twodec)")
         cursor.execute("CREATE INDEX ON time_bin(time_bin_number)")
+        cursor.execute("CREATE INDEX ON time_bin(loc_id)")
         self.conn.commit()
 
 
@@ -391,7 +392,7 @@ class DatabaseHelper(object):
                            FROM   time_bin 
                            GROUP  BY time_bin.loc_id) t 
                        ON t.loc_id = location.id 
-         WHERE  location.useruuid = 'f67ae795-1f2b-423c-ba30-cdd5cbb23662') 
+         WHERE  location.useruuid = %s) 
 SELECT DISTINCT ON (location.id) 
                                  useruuid,
                                  """ + lat_lng_format + """,
@@ -634,9 +635,9 @@ WHERE  aux_user_table.aux_timebins && u.arr
 
 if __name__ == '__main__':
     d = DatabaseHelper()
-    print(d.find_cooccurrences("f67ae795-1f2b-423c-ba30-cdd5cbb23662", useruuid2="f3437039-936a-41d6-93a0-d34ab4424a96", asGeoJSON=False))
+    #print(d.find_cooccurrences("f67ae795-1f2b-423c-ba30-cdd5cbb23662", useruuid2="f3437039-936a-41d6-93a0-d34ab4424a96", asGeoJSON=False))
     #d.dump_missing_geographical_rows()
-    #d.drop_tables()
-    #d.db_setup()
-    #d.insert_all_from_json()
-    #d.db_create_indexes()
+    d.drop_tables()
+    d.db_setup()
+    d.insert_all_from_json()
+    d.db_create_indexes()

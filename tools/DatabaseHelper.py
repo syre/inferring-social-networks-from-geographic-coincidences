@@ -411,7 +411,7 @@ FROM   location
 WHERE  aux_user_table.aux_timebins && u.arr 
        AND spatial_location.lng_twodec = aux_spatial_lng 
        AND spatial_location.lat_twodec = aux_spatial_lat
-       """ + second_user_query + (start + query) + "ORDER BY location.id" + ";",(useruuid))
+       """ + second_user_query + (start + query) + "ORDER BY location.id" + ";",(useruuid,))
         
         return cursor.fetchall()
 

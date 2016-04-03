@@ -242,13 +242,15 @@ class DatabaseHelper(object):
         data, names = zip(*sorted(zip(data, names)))
         return data, names
 
-    def get_locations_for_user(self, useruuid, country=None):
+    def get_locations_for_user(self, useruuid, country=None, spatial_bin=None):
         country_query =""
         if country:
             country_query = " AND location.country = '{}'".format(country)
+        if spatial_bin:
+            spatial_query = " AND location.spatial_bin = '{}'".format(spatial_bin)
         cursor = self.conn.cursor()
         cursor.execute("""SELECT useruuid, start_time, end_time, ST_X(location::geometry), ST_Y(location::geometry) from location 
-            where location.useruuid = (%s) """+country_query+""";""",(useruuid,))
+            where location.useruuid = (%s) """ + country_query + spatial_query + """;""",(useruuid,))
         if cursor.rowcount == 0:
             print("no locations for useruuid")
             return
@@ -311,16 +313,28 @@ WHERE  user1_table.time_bins && location.time_bins
 
 
 
-    def find_cooccurrences_within_area(self, spatial_bin, time_bin):
+    def find_cooccurrences_within_area(self, spatial_bin, time_bin=None):
         cursor = self.conn.cursor()
+        if time_bin:
+            time_bin_part = "AND {} = ANY(location.time_bins)".format(time_bin)
         cursor.execute("""
                 SELECT DISTINCT(useruuid)
                 FROM location
-                WHERE location.spatial_bin=(%s)
-                AND %s = ANY(location.time_bins)
-            """,(spatial_bin, time_bin))
+                WHERE location.spatial_bin=(%s)""" + time_bin_part + """
+                ;""",(spatial_bin))
 
         return [row[0] for row in cursor.fetchall()]
+
+    def find_number_of_records_for_location(self, spatial_bin, useruuid=None):
+        if useruuid:
+            user_part = "AND location.useruuid = (%s)"
+        cursor = self.conn.cursor()
+        cursor.execute("""
+            SELECT COUNT(*)
+            FROM location
+            WHERE location.spatial_bin=(%s)""" + user_part + """;
+            """,(spatial_bin))
+        return cursor.fetchall()[0]
 
 
     def get_distribution_cooccurrences(self, x_useruuid, y_useruuid, time_threshold_in_minutes=60*24, cell_size=0.001):

@@ -278,9 +278,25 @@ class Predictor():
         return math.exp(shannon_entropy)
     
     def calculate_weighted_frequency(self, user1, user2):
-        raise NotImplementedError
+        """
+        Inferring realworld relationships from spatiotemporal data paper p. 19 and 23-25
+        """
+        cooccurrences = self.database.find_cooccurrences(user1, useruuid2=user2, asGeoJSON=False)
+        spatial_bins_counts = collections.Counter([cooc[1] for cooc in cooccurrences])
 
-    
+        weighted_frequency = 0
+        for spatial_bin, count in spatial_bins_counts.items():
+            unique_users = self.database.find_cooccurrences_within_area(spatial_bin)
+            location_entropy = 0
+            for user in unique_users:
+                v_lu = self.database.get_locations_for_user(user, spatial_bin)
+                v_l = self.database.find_number_of_records_for_location(spatial_bin)
+                prob = len(v_lu)/len(v_l)
+                location_entropy += prob*math.log(prob, 2)
+            location_entropy = -location_entropy
+            weighted_frequency += count * math.exp(-location_entropy)
+        return weighted_frequency
+
     def save_friend_and_nonfriend_pairs(self, friend_pairs, nonfriend_pairs):
         with open( "friend_pairs.pickle", "wb" ) as fp:
             pickle.dump(friend_pairs, fp)

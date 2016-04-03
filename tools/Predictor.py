@@ -3,7 +3,7 @@ import DatabaseHelper
 import math
 import datetime
 from datetime import datetime, timedelta
-from collections import defaultdict
+import collections
 from pytz import timezone
 import numpy as np
 from scipy import stats
@@ -265,6 +265,20 @@ class Predictor():
 
         """
         pass
+
+    def calculate_diversity(self, user1, user2):
+        """
+        Diversity quantifies how many locations the cooccurrences between two people represent.
+        Can either use Shannon or Renyi Entropy.
+        From inferring realworld relationships from spatiotemporal data paper p. 23.
+        """
+        cooccurrences = self.database.find_cooccurrences(user1, useruuid2=user2, asGeoJSON=False)
+        frequency = len(cooccurrences)
+        spatial_bins_counts = collections.Counter([cooc[1] for cooc in cooccurrences])
+
+        shannon_entropy = -sum([(count/frequency)*math.log(count/frequency) for bin,count in spatial_bins_counts.items()])
+
+        return exp(shannon_entropy)
     
 
     
@@ -283,7 +297,6 @@ class Predictor():
         return friend_pairs, nonfriend_pairs
 
     def find_friend_and_nonfriend_pairs(self, ratio=0.05):
-        user_dict = defaultdict(dict)
         friends = []
         nonfriends = []
         users = self.database.get_users_in_country("Japan")
@@ -299,11 +312,11 @@ class Predictor():
                     user_lengths = [len(self.find_users_in_cooccurrence(spatial_bin, tbin)) for tbin in common_time_bins]
                     if all([length==2 for length in user_lengths]):
                         count+=1
-                    if (count/no_coocs)>=ratio:
+                    if (count/no_coocs) >= ratio:
                         isFriends = True
                         friends.append((pair[0],pair[1], no_coocs))
                         break
-            if not isFriends and no_coocs>0:
+            if not isFriends and no_coocs > 0:
                 nonfriends.append((pair[0], pair[1]))
         return friends, nonfriends
 

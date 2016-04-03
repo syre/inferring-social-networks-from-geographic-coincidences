@@ -278,7 +278,7 @@ class Predictor():
         return math.exp(shannon_entropy)
     
     def calculate_weighted_frequency(self, user1, user2):
-        
+        raise NotImplementedError
 
     
     def save_friend_and_nonfriend_pairs(self, friend_pairs, nonfriend_pairs):

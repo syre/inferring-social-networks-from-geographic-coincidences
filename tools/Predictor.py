@@ -278,7 +278,7 @@ class Predictor():
 
         shannon_entropy = -sum([(count/frequency)*math.log(count/frequency) for bin,count in spatial_bins_counts.items()])
 
-        return exp(shannon_entropy)
+        return math.exp(shannon_entropy)
     
 
     

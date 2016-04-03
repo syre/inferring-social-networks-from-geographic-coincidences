@@ -266,17 +266,19 @@ class Predictor():
     def calculate_diversity(self, user1, user2):
         """
         Diversity quantifies how many locations the cooccurrences between two people represent.
-        Can either use Shannon or Renyi Entropy.
+        Can either use Shannon or Renyi Entropy, right now uses Shannon
         From inferring realworld relationships from spatiotemporal data paper p. 23.
         """
         cooccurrences = self.database.find_cooccurrences(user1, useruuid2=user2, asGeoJSON=False)
         frequency = len(cooccurrences)
         spatial_bins_counts = collections.Counter([cooc[1] for cooc in cooccurrences])
 
-        shannon_entropy = -sum([(count/frequency)*math.log(count/frequency) for bin,count in spatial_bins_counts.items()])
+        shannon_entropy = -sum([(count/frequency)*math.log(count/frequency, 2) for bin,count in spatial_bins_counts.items()])
 
         return math.exp(shannon_entropy)
     
+    def calculate_weighted_frequency(self, user1, user2):
+        
 
     
     def save_friend_and_nonfriend_pairs(self, friend_pairs, nonfriend_pairs):

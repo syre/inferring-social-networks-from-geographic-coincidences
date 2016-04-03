@@ -50,11 +50,13 @@ class Predictor():
         #    format(self.GRID_MIN_LNG, self.GRID_MAX_LNG, self.GRID_MIN_LAT, self.GRID_MAX_LAT))
     
     def generate_dataset(self, friend_pairs, non_friend_pairs):
-        X = np.ndarray(shape=(len(friend_pairs)+len(non_friend_pairs),3), dtype="float")
+        X = np.ndarray(shape=(len(friend_pairs)+len(non_friend_pairs),5), dtype="float")
         for index, pair in tqdm(enumerate(friend_pairs)):
             X[index:,0] = len(self.database.find_cooccurrences(pair[0], useruuid2=pair[1]))
             X[index:,1] = self.calculate_arr_leav(pair[0], pair[1])
             X[index:,2] = self.calculate_coocs_w(pair[0], pair[1])
+            X[index,3] = self.calculate_diversity(pair[0], pair[1])
+            X[index,4] = self.calculate_weighted_frequency(pair[0], pair[1])
             #X[index:,3] = self.calculate_corr(pair[0], pair[1])
             
 
@@ -62,6 +64,8 @@ class Predictor():
             X[index:,0] = len(self.database.find_cooccurrences(pair[0], useruuid2=pair[1]))
             X[index:,1] = self.calculate_arr_leav(pair[0], pair[1])
             X[index:,2] = self.calculate_coocs_w(pair[0], pair[1])
+            X[index,3] = self.calculate_diversity(pair[0], pair[1])
+            X[index,4] = self.calculate_weighted_frequency(pair[0], pair[1])
             #X[index:,3] = self.calculate_corr(pair[0], pair[1])
         
         y = np.array([1 for x in range(len(friend_pairs))] + [0 for x in range(len(non_friend_pairs))])
@@ -289,10 +293,11 @@ class Predictor():
             unique_users = self.database.find_cooccurrences_within_area(spatial_bin)
             location_entropy = 0
             for user in unique_users:
-                v_lu = self.database.get_locations_for_user(user, spatial_bin)
+                v_lu = self.database.get_locations_for_user(user, spatial_bin=spatial_bin)
                 v_l = self.database.find_number_of_records_for_location(spatial_bin)
                 prob = len(v_lu)/len(v_l)
-                location_entropy += prob*math.log(prob, 2)
+                if prob != 0:
+                    location_entropy += prob*math.log(prob, 2)
             location_entropy = -location_entropy
             weighted_frequency += count * math.exp(-location_entropy)
         return weighted_frequency
@@ -339,9 +344,9 @@ if __name__ == '__main__':
     #JAPAN_TUPLE = (120, 150, 20, 45)
     #decimals = 2
     p = Predictor(60)
-    friends, nonfriends = p.find_friend_and_nonfriend_pairs()
-    p.save_friend_and_nonfriend_pairs(friends, nonfriends)
-    print("Friends = {}\nNonfriends = {}".format(len(friends),len(nonfriends)))
+    #friends, nonfriends = p.find_friend_and_nonfriend_pairs()
+    #p.save_friend_and_nonfriend_pairs(friends, nonfriends)
+    friends, nonfriends = p.load_friend_and_nonfriend_pairs()
     X, y = p.generate_dataset(friends, nonfriends)
     p.predict(X, y)
   #print(len(p.find_users_in_cooccurrence(13.2263406245194, 55.718135067203, 521)))

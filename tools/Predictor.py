@@ -46,13 +46,10 @@ class Predictor():
         self.GRID_MAX_LNG = (grid_boundaries_tuple[1] + 180) * pow(10, spatial_resolution_decimals)
         self.GRID_MIN_LAT = (grid_boundaries_tuple[2] + 90) * pow(10, spatial_resolution_decimals)
         self.GRID_MAX_LAT = (grid_boundaries_tuple[3] + 90) * pow(10, spatial_resolution_decimals)
-        print("GRID_MIN_LNG = {}\nGRID_MAX_LNG = {}\nGRID_MIN_LAT = {}\nGRID_MAX_LAT = {}\n------------------".
-            format(self.GRID_MIN_LNG, self.GRID_MAX_LNG, self.GRID_MIN_LAT, self.GRID_MAX_LAT))
+        #print("GRID_MIN_LNG = {}\nGRID_MAX_LNG = {}\nGRID_MIN_LAT = {}\nGRID_MAX_LAT = {}\n------------------".
+        #    format(self.GRID_MIN_LNG, self.GRID_MAX_LNG, self.GRID_MIN_LAT, self.GRID_MAX_LAT))
     
     def generate_dataset(self, friend_pairs, non_friend_pairs):
-        friend_pairs = random.sample(friend_pairs, 231)
-        non_friend_pairs = random.sample(non_friend_pairs, 231)
-
         X = np.ndarray(shape=(len(friend_pairs)+len(non_friend_pairs),3), dtype="float")
         for index, pair in tqdm(enumerate(friend_pairs)):
             X[index:,0] = len(self.database.find_cooccurrences(pair[0], useruuid2=pair[1]))
@@ -326,8 +323,9 @@ if __name__ == '__main__':
     p = Predictor(60)
     friends, nonfriends = p.find_friend_and_nonfriend_pairs()
     p.save_friend_and_nonfriend_pairs(friends, nonfriends)
-    #X, y = p.generate_dataset(friends, nonfriends)
-    #p.predict(X, y)
+    print("Friends = {}\nNonfriends = {}".format(len(friends),len(nonfriends)))
+    X, y = p.generate_dataset(friends, nonfriends)
+    p.predict(X, y)
   #print(len(p.find_users_in_cooccurrence(13.2263406245194, 55.718135067203, 521)))
     #print(timeit.timeit('p.find_users_in_cooccurrence(13.2263406245194, 55.718135067203, 521)', number=1, setup="from Predictor import Predictor;JAPAN_TUPLE = (120, 150, 20, 45);p = Predictor(60, grid_boundaries_tuple=JAPAN_TUPLE, spatial_resolution_decimals=2)"))
     #print(p.calculate_arr_leav("9b3edd01-b821-40c9-9f75-10cb32aa14b6", "3084b64d-e773-4daa-aeea-cc3b069594f3"))

@@ -15,6 +15,7 @@ from tqdm import tqdm
 import pickle
 import json
 import random
+import itertools
 
 class Predictor():
     def __init__(self, 
@@ -49,8 +50,8 @@ class Predictor():
             format(self.GRID_MIN_LNG, self.GRID_MAX_LNG, self.GRID_MIN_LAT, self.GRID_MAX_LAT))
     
     def generate_dataset(self, friend_pairs, non_friend_pairs):
-        friend_pairs = random.sample(friend_pairs, 100)
-        non_friend_pairs = random.sample(non_friend_pairs, 100)
+        friend_pairs = random.sample(friend_pairs, 231)
+        non_friend_pairs = random.sample(non_friend_pairs, 231)
 
         X = np.ndarray(shape=(len(friend_pairs)+len(non_friend_pairs),3), dtype="float")
         for index, pair in tqdm(enumerate(friend_pairs)):
@@ -286,46 +287,34 @@ class Predictor():
         friends = []
         nonfriends = []
         users = self.database.get_users_in_country("Japan")
-        for user in tqdm(users):
-            user_dict[user] = []
-
-        for user in tqdm(users):
-            for user2 in tqdm(users, nested=True):
-                if user != user2 and user not in user_dict[user2] and user2 not in user_dict[user]:
-                    result = self.database.find_cooccurrences(user, [[(139.743862,35.630338), 1000]], user2, asGeoJSON=False)
-                    no_coocs = len(result)
-                    friend_flag = False
-                    if no_coocs >=5:
-                        count = 0
-                        for cooc in result:
-                            spatial_bin = cooc[1]
-                            common_time_bins = list(set(cooc[2]) & set(cooc[2]))
-                            user_lengths = [len(self.find_users_in_cooccurrence(spatial_bin, tbin)) for tbin in common_time_bins]
-
-                            if all([length==2 for length in user_lengths]):
-                                count+=1
-
-                            if (count/no_coocs)>=ratio:
-                                friend_flag = True
-                                friends.append((user, user2, no_coocs))
-                                break
-
-                    user_dict[user2].append(user)
-                    user_dict[user].append(user2)
-                    if not friend_flag and no_coocs>0:
-                        nonfriends.append((user, user2))
-
+        for pair in tqdm(itertools.combinations(users, 2)):
+            result = self.database.find_cooccurrences(pair[0], [[(139.743862,35.630338), 1000]], pair[1], asGeoJSON=False)
+            no_coocs = len(result)
+            isFriends = False
+            if no_coocs >=5:
+                count = 0
+                for cooc in result:
+                    spatial_bin = cooc[1]
+                    common_time_bins = list(set(cooc[2]) & set(cooc[2]))
+                    user_lengths = [len(self.find_users_in_cooccurrence(spatial_bin, tbin)) for tbin in common_time_bins]
+                    if all([length==2 for length in user_lengths]):
+                        count+=1
+                    if (count/no_coocs)>=ratio:
+                        isFriends = True
+                        friends.append((pair[0],pair[1], no_coocs))
+                        break
+            if not isFriends and no_coocs>0:
+                nonfriends.append((pair[0], pair[1]))
         return friends, nonfriends
 
 if __name__ == '__main__':
     #JAPAN_TUPLE = (120, 150, 20, 45)
     #decimals = 2
     p = Predictor(60)
-    #friends, nonfriends = p.find_friend_and_nonfriend_pairs()
-    #p.save_friend_and_nonfriend_pairs(friends, nonfriends)
-    friends, nonfriends = p.load_friend_and_nonfriend_pairs()
-    X, y = p.generate_dataset(friends, nonfriends)
-    p.predict(X, y)
+    friends, nonfriends = p.find_friend_and_nonfriend_pairs()
+    p.save_friend_and_nonfriend_pairs(friends, nonfriends)
+    #X, y = p.generate_dataset(friends, nonfriends)
+    #p.predict(X, y)
   #print(len(p.find_users_in_cooccurrence(13.2263406245194, 55.718135067203, 521)))
     #print(timeit.timeit('p.find_users_in_cooccurrence(13.2263406245194, 55.718135067203, 521)', number=1, setup="from Predictor import Predictor;JAPAN_TUPLE = (120, 150, 20, 45);p = Predictor(60, grid_boundaries_tuple=JAPAN_TUPLE, spatial_resolution_decimals=2)"))
     #print(p.calculate_arr_leav("9b3edd01-b821-40c9-9f75-10cb32aa14b6", "3084b64d-e773-4daa-aeea-cc3b069594f3"))

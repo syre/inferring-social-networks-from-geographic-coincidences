@@ -281,7 +281,7 @@ class Predictor():
 
         return friend_pairs, nonfriend_pairs
 
-    def find_friend_and_nonfriend_pairs(self):
+    def find_friend_and_nonfriend_pairs(self, ratio=0.05):
         user_dict = defaultdict(dict)
         friends = []
         nonfriends = []
@@ -293,8 +293,9 @@ class Predictor():
             for user2 in tqdm(users, nested=True):
                 if user != user2 and user not in user_dict[user2] and user2 not in user_dict[user]:
                     result = self.database.find_cooccurrences(user, [[(139.743862,35.630338), 1000]], user2, asGeoJSON=False)
+                    no_coocs = len(result)
                     friend_flag = False
-                    if len(result) >=5:
+                    if no_coocs >=5:
                         count = 0
                         for cooc in result:
                             spatial_bin = cooc[1]
@@ -304,14 +305,14 @@ class Predictor():
                             if all([length==2 for length in user_lengths]):
                                 count+=1
 
-                            if count>=5:
+                            if (count/no_coocs)>=ratio:
                                 friend_flag = True
-                                friends.append((user, user2, len(result)))
+                                friends.append((user, user2, no_coocs))
                                 break
 
                     user_dict[user2].append(user)
                     user_dict[user].append(user2)
-                    if not friend_flag and len(result)>0:
+                    if not friend_flag and no_coocs>0:
                         nonfriends.append((user, user2))
 
         return friends, nonfriends

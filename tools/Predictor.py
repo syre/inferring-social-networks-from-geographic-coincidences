@@ -273,12 +273,23 @@ class Predictor():
         frequency = len(cooccurrences)
         spatial_bins_counts = collections.Counter([cooc[1] for cooc in cooccurrences])
 
-        shannon_entropy = -sum([(count/frequency)*math.log(count/frequency) for bin,count in spatial_bins_counts.items()])
+        shannon_entropy = -sum([(count/frequency)*math.log(count/frequency) for _,count in spatial_bins_counts.items()])
 
         return math.exp(shannon_entropy)
     
-
+    def save_x_and_y(self, x, y):
+        with open( "datasetX.pickle", "wb" ) as fp:
+            pickle.dump(x, fp)
+        with open( "datasetY.pickle", "wb" ) as fp:
+            pickle.dump(y, fp)
     
+    def load_x_and_y(self):
+        with open( "datasetX.pickle", "rb" ) as fp:
+            x = pickle.load(fp)
+        with open( "datasetY.pickle", "rb" ) as fp:
+            y = pickle.load(fp)
+        return x, y
+
     def save_friend_and_nonfriend_pairs(self, friend_pairs, nonfriend_pairs):
         with open( "friend_pairs.pickle", "wb" ) as fp:
             pickle.dump(friend_pairs, fp)
@@ -325,6 +336,7 @@ if __name__ == '__main__':
     p.save_friend_and_nonfriend_pairs(friends, nonfriends)
     print("Friends = {}\nNonfriends = {}".format(len(friends),len(nonfriends)))
     X, y = p.generate_dataset(friends, nonfriends)
+    p.save_x_and_y(X,y)
     p.predict(X, y)
   #print(len(p.find_users_in_cooccurrence(13.2263406245194, 55.718135067203, 521)))
     #print(timeit.timeit('p.find_users_in_cooccurrence(13.2263406245194, 55.718135067203, 521)', number=1, setup="from Predictor import Predictor;JAPAN_TUPLE = (120, 150, 20, 45);p = Predictor(60, grid_boundaries_tuple=JAPAN_TUPLE, spatial_resolution_decimals=2)"))

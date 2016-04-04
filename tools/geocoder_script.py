@@ -18,7 +18,14 @@ def fetch_missing_geographical_data():
         lat = record[2]
         print(lng, lat)
         payload = {"format":"json", "lon":lng, "lat":lat, "email":"syrelyre@gmail.com", "accept-language":"en-us", "User-Agent":"Data Science App"}
-        response = json.loads(requests.get(URL, params=payload).text)
+        while True:
+            try:
+                response = json.loads(requests.get(URL, params=payload).text)
+                break
+            except requests.exceptions.ConnectionError as e:
+                print("Exception: {}".format(str(e)))
+                time.sleep(1)
+        
         if "address" in response:
             address = response["address"]
             address["lat"] = lat

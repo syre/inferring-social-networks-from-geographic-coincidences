@@ -50,11 +50,13 @@ class Predictor():
         #    format(self.GRID_MIN_LNG, self.GRID_MAX_LNG, self.GRID_MIN_LAT, self.GRID_MAX_LAT))
     
     def generate_dataset(self, friend_pairs, non_friend_pairs, friend_size = None, nonfriend_size = None):
-        X = np.ndarray(shape=(len(friend_pairs)+len(non_friend_pairs),5), dtype="float")
+        
         if friend_size:
             friend_pairs = random.sample(friend_pairs, friend_size)
         if nonfriend_size:
             non_friend_pairs = random.sample(non_friend_pairs, nonfriend_size)
+        
+        X = np.ndarray(shape=(len(friend_pairs)+len(non_friend_pairs),6), dtype="float")
 
         for index, pair in tqdm(enumerate(friend_pairs)):
             X[index:,0] = len(self.database.find_cooccurrences(pair[0], useruuid2=pair[1]))
@@ -62,7 +64,7 @@ class Predictor():
             X[index:,2] = self.calculate_coocs_w(pair[0], pair[1])
             X[index,3] = self.calculate_diversity(pair[0], pair[1])
             X[index,4] = self.calculate_unique_cooccurrences(pair[0], pair[1])
-            #X[index,5] = self.calculate_weighted_frequency(pair[0], pair[1])
+            X[index,5] = self.calculate_weighted_frequency(pair[0], pair[1])
             #X[index:,3] = self.calculate_corr(pair[0], pair[1])
             
 
@@ -72,7 +74,7 @@ class Predictor():
             X[index:,2] = self.calculate_coocs_w(pair[0], pair[1])
             X[index,3] = self.calculate_diversity(pair[0], pair[1])
             X[index,4] = self.calculate_unique_cooccurrences(pair[0], pair[1])
-            #X[index,5] = self.calculate_weighted_frequency(pair[0], pair[1])
+            X[index,5] = self.calculate_weighted_frequency(pair[0], pair[1])
             #X[index:,3] = self.calculate_corr(pair[0], pair[1])
         
         y = np.array([1 for x in range(len(friend_pairs))] + [0 for x in range(len(non_friend_pairs))])
@@ -293,7 +295,7 @@ class Predictor():
 
         shannon_entropy = -sum([(count/frequency)*math.log(count/frequency, 2) for _,count in spatial_bins_counts.items()])
 
-        return math.exp(shannon_entropy)
+        return np.exp(shannon_entropy)
     
     def save_x_and_y(self, x, y):
         with open( "datasetX.pickle", "wb" ) as fp:
@@ -312,6 +314,7 @@ class Predictor():
     def calculate_weighted_frequency(self, user1, user2):
         """
         Inferring realworld relationships from spatiotemporal data paper p. 19 and 23-25
+        Tells how important co-occurrences are at non-crowded places
         """
         cooccurrences = self.database.find_cooccurrences(user1, useruuid2=user2, asGeoJSON=False)
         spatial_bins_counts = collections.Counter([cooc[1] for cooc in cooccurrences])
@@ -327,9 +330,7 @@ class Predictor():
                 if prob != 0:
                     location_entropy += prob*math.log(prob, 2)
             location_entropy = -location_entropy
-            print(-location_entropy)
-            print(count)
-            weighted_frequency += count * math.exp(-location_entropy)
+            weighted_frequency += count * np.exp(-location_entropy)
         return weighted_frequency
 
     def save_friend_and_nonfriend_pairs(self, friend_pairs, nonfriend_pairs):
@@ -374,18 +375,10 @@ if __name__ == '__main__':
     #JAPAN_TUPLE = (120, 150, 20, 45)
     #decimals = 2
     p = Predictor(60)
-<<<<<<< HEAD
-    friends, nonfriends = p.find_friend_and_nonfriend_pairs()
-    p.save_friend_and_nonfriend_pairs(friends, nonfriends)
-    print("Friends = {}\nNonfriends = {}".format(len(friends),len(nonfriends)))
-    X, y = p.generate_dataset(friends, nonfriends)
-    p.save_x_and_y(X,y)
-=======
     #friends, nonfriends = p.find_friend_and_nonfriend_pairs()
     #p.save_friend_and_nonfriend_pairs(friends, nonfriends)
     friends, nonfriends = p.load_friend_and_nonfriend_pairs()
     X, y = p.generate_dataset(friends, nonfriends, 100, 100)
->>>>>>> 59146a8fae77bdbe20233b351e8a87d7394bc29f
     p.predict(X, y)
    #p.find_friend_and_nonfriend_pairs()
     #p.save_friend_and_nonfriend_pairs(friends, nonfriends)

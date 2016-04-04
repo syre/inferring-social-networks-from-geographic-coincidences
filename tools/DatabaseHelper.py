@@ -348,7 +348,7 @@ WHERE  user1_table.time_bins && location.time_bins
                                 time_bins, 
                                 spatial_bin
                          FROM   location 
-                         WHERE  location.useruuid ='02dc237f-417c-4a5b-9441-052d4b454dc5' AND time_bins && ARRAY[878]) 
+                         WHERE  location.useruuid =(%s) AND time_bins && ARRAY[(%s)]) 
                 SELECT  location.useruuid,
                         location.spatial_bin,
                         user1_table.spatial_bin AS user1_spatial,
@@ -357,7 +357,7 @@ WHERE  user1_table.time_bins && location.time_bins
                 FROM   location 
                        inner join user1_table
                                ON user1_table.time_bins && location.time_bins
-                WHERE  location.useruuid='89f0e050-7d96-4046-a952-73efddb7482e' AND user1_table.spatial_bin = location.spatial_bin""")
+                WHERE  location.useruuid=(%s) AND user1_table.spatial_bin = location.spatial_bin""",user1,time_bin,user2)
         if cursor.rowcount>=1:
             return True
         return False

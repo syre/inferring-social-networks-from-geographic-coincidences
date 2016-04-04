@@ -2,6 +2,7 @@
 import json
 import requests
 import time
+import pickle
 
 def fetch_missing_geographical_data():
     """
@@ -12,6 +13,7 @@ def fetch_missing_geographical_data():
     with open('missing_records.json', 'r') as infile:
             records = json.load(infile)
     addresses = []
+    faults = []
     for record in records:
         rec_id = record[0]
         lng = record[1]
@@ -27,14 +29,23 @@ def fetch_missing_geographical_data():
                 time.sleep(1)
         
         if "address" in response:
-            address = response["address"]
-            address["lat"] = lat
-            address["lng"] = lng
-            addresses.append(address)
+            try:
+                address = response["address"]
+                address["lat"] = lat
+                address["lng"] = lng
+                addresses.append(address)
+            except ValueError as e:
+                print("ValueError: {}".format(str(e)))
+                faults.append((rec_id, lng, lat))
         time.sleep(1)
 
     with open('missing_data.json', 'w') as outfile:
         json.dump(addresses, outfile)
+        
+    if faults:
+        with open('faults.pickle', 'wb') as outfile:
+            pickle.dump(faults, outfile)
+
 
 if __name__ == '__main__':
 	fetch_missing_geographical_data()

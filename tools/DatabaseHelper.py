@@ -323,6 +323,29 @@ WHERE  user1_table.time_bins && location.time_bins
         return [row[0] for row in cursor.fetchall()]
 
 
+    def has_met_in_timebin(self, user1, user2, time_bin):
+        cursor = self.conn.cursor()
+        cursor.execute("""
+                WITH user1_table 
+                     AS (SELECT location.id, 
+                                useruuid, 
+                                time_bins, 
+                                spatial_bin
+                         FROM   location 
+                         WHERE  location.useruuid ='02dc237f-417c-4a5b-9441-052d4b454dc5' AND time_bins && ARRAY[878]) 
+                SELECT  location.useruuid,
+                        location.spatial_bin,
+                        user1_table.spatial_bin AS user1_spatial,
+                        location.time_bins, 
+                        user1_table.time_bins
+                FROM   location 
+                       inner join user1_table
+                               ON user1_table.time_bins && location.time_bins
+                WHERE  location.useruuid='89f0e050-7d96-4046-a952-73efddb7482e' AND user1_table.spatial_bin = location.spatial_bin""")
+        if cursor.rowcount>=1:
+            return True
+        return False
+
     def get_distribution_cooccurrences(self, x_useruuid, y_useruuid, time_threshold_in_minutes=60*24, cell_size=0.001):
 
         cooccurrences = self.find_cooccurrences(x_useruuid, points_w_distances=[], useruuid2=y_useruuid)

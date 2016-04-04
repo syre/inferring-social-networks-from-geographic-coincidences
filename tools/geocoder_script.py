@@ -22,26 +22,29 @@ def fetch_missing_geographical_data():
         payload = {"format":"json", "lon":lng, "lat":lat, "email":"syrelyre@gmail.com", "accept-language":"en-us", "User-Agent":"Data Science App"}
         while True:
             try:
-                response = json.loads(requests.get(URL, params=payload).text)
+                response = requests.get(URL, params=payload).text
                 break
             except requests.exceptions.ConnectionError as e:
                 print("Exception: {}".format(str(e)))
                 time.sleep(1)
         
+        try:
+            response = json.loads(response)
+        except (Exception, ValueError) as e:
+            print("ValueError: {}".format(str(e)))
+            faults.append((rec_id, lng, lat))
+        
         if "address" in response:
-            try:
                 address = response["address"]
                 address["lat"] = lat
                 address["lng"] = lng
                 addresses.append(address)
-            except ValueError as e:
-                print("ValueError: {}".format(str(e)))
-                faults.append((rec_id, lng, lat))
+                
         time.sleep(1)
 
     with open('missing_data.json', 'w') as outfile:
         json.dump(addresses, outfile)
-        
+
     if faults:
         with open('faults.pickle', 'wb') as outfile:
             pickle.dump(faults, outfile)

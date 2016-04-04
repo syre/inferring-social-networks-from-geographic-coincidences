@@ -49,12 +49,20 @@ class Predictor():
         #print("GRID_MIN_LNG = {}\nGRID_MAX_LNG = {}\nGRID_MIN_LAT = {}\nGRID_MAX_LAT = {}\n------------------".
         #    format(self.GRID_MIN_LNG, self.GRID_MAX_LNG, self.GRID_MIN_LAT, self.GRID_MAX_LAT))
     
-    def generate_dataset(self, friend_pairs, non_friend_pairs):
-        X = np.ndarray(shape=(len(friend_pairs)+len(non_friend_pairs),3), dtype="float")
+    def generate_dataset(self, friend_pairs, non_friend_pairs, friend_size = None, nonfriend_size = None):
+        X = np.ndarray(shape=(len(friend_pairs)+len(non_friend_pairs),5), dtype="float")
+        if friend_size:
+            friend_pairs = random.sample(friend_pairs, friend_size)
+        if nonfriend_size:
+            non_friend_pairs = random.sample(non_friend_pairs, nonfriend_size)
+
         for index, pair in tqdm(enumerate(friend_pairs)):
             X[index:,0] = len(self.database.find_cooccurrences(pair[0], useruuid2=pair[1]))
             X[index:,1] = self.calculate_arr_leav(pair[0], pair[1])
             X[index:,2] = self.calculate_coocs_w(pair[0], pair[1])
+            X[index,3] = self.calculate_diversity(pair[0], pair[1])
+            X[index,4] = self.calculate_unique_cooccurrences(pair[0], pair[1])
+            #X[index,5] = self.calculate_weighted_frequency(pair[0], pair[1])
             #X[index:,3] = self.calculate_corr(pair[0], pair[1])
             
 
@@ -62,6 +70,9 @@ class Predictor():
             X[index:,0] = len(self.database.find_cooccurrences(pair[0], useruuid2=pair[1]))
             X[index:,1] = self.calculate_arr_leav(pair[0], pair[1])
             X[index:,2] = self.calculate_coocs_w(pair[0], pair[1])
+            X[index,3] = self.calculate_diversity(pair[0], pair[1])
+            X[index,4] = self.calculate_unique_cooccurrences(pair[0], pair[1])
+            #X[index,5] = self.calculate_weighted_frequency(pair[0], pair[1])
             #X[index:,3] = self.calculate_corr(pair[0], pair[1])
         
         y = np.array([1 for x in range(len(friend_pairs))] + [0 for x in range(len(non_friend_pairs))])
@@ -145,6 +156,13 @@ class Predictor():
             if correlation[1] < 0.05:
                 correlation_sum += correlation[0]
         return correlation_sum
+
+    def calculate_unique_cooccurrences(self, user1, user2):
+        """
+        Calculates how many unique spatial bins they have had cooccurrences in
+        """
+        cooccurrences = self.database.find_cooccurrences(user1, useruuid2=user2, asGeoJSON=False)
+        return len(set([cooc[1] for cooc in cooccurrences]))
 
     def calculate_arr_leav(self, user1, user2):
         """
@@ -266,14 +284,14 @@ class Predictor():
     def calculate_diversity(self, user1, user2):
         """
         Diversity quantifies how many locations the cooccurrences between two people represent.
-        Can either use Shannon or Renyi Entropy.
+        Can either use Shannon or Renyi Entropy, right now uses Shannon
         From inferring realworld relationships from spatiotemporal data paper p. 23.
         """
         cooccurrences = self.database.find_cooccurrences(user1, useruuid2=user2, asGeoJSON=False)
         frequency = len(cooccurrences)
         spatial_bins_counts = collections.Counter([cooc[1] for cooc in cooccurrences])
 
-        shannon_entropy = -sum([(count/frequency)*math.log(count/frequency) for _,count in spatial_bins_counts.items()])
+        shannon_entropy = -sum([(count/frequency)*math.log(count/frequency, 2) for _,count in spatial_bins_counts.items()])
 
         return math.exp(shannon_entropy)
     
@@ -289,6 +307,30 @@ class Predictor():
         with open( "datasetY.pickle", "rb" ) as fp:
             y = pickle.load(fp)
         return x, y
+
+    
+    def calculate_weighted_frequency(self, user1, user2):
+        """
+        Inferring realworld relationships from spatiotemporal data paper p. 19 and 23-25
+        """
+        cooccurrences = self.database.find_cooccurrences(user1, useruuid2=user2, asGeoJSON=False)
+        spatial_bins_counts = collections.Counter([cooc[1] for cooc in cooccurrences])
+
+        weighted_frequency = 0
+        for spatial_bin, count in spatial_bins_counts.items():
+            unique_users = self.database.find_cooccurrences_within_area(spatial_bin)
+            location_entropy = 0
+            for user in unique_users:
+                v_lu = self.database.get_locations_for_user(user, spatial_bin=spatial_bin)
+                v_l = self.database.find_number_of_records_for_location(spatial_bin)
+                prob = len(v_lu)/len(v_l)
+                if prob != 0:
+                    location_entropy += prob*math.log(prob, 2)
+            location_entropy = -location_entropy
+            print(-location_entropy)
+            print(count)
+            weighted_frequency += count * math.exp(-location_entropy)
+        return weighted_frequency
 
     def save_friend_and_nonfriend_pairs(self, friend_pairs, nonfriend_pairs):
         with open( "friend_pairs.pickle", "wb" ) as fp:
@@ -332,23 +374,21 @@ if __name__ == '__main__':
     #JAPAN_TUPLE = (120, 150, 20, 45)
     #decimals = 2
     p = Predictor(60)
+<<<<<<< HEAD
     friends, nonfriends = p.find_friend_and_nonfriend_pairs()
     p.save_friend_and_nonfriend_pairs(friends, nonfriends)
     print("Friends = {}\nNonfriends = {}".format(len(friends),len(nonfriends)))
     X, y = p.generate_dataset(friends, nonfriends)
     p.save_x_and_y(X,y)
-    p.predict(X, y)
-  #print(len(p.find_users_in_cooccurrence(13.2263406245194, 55.718135067203, 521)))
-    #print(timeit.timeit('p.find_users_in_cooccurrence(13.2263406245194, 55.718135067203, 521)', number=1, setup="from Predictor import Predictor;JAPAN_TUPLE = (120, 150, 20, 45);p = Predictor(60, grid_boundaries_tuple=JAPAN_TUPLE, spatial_resolution_decimals=2)"))
-    #print(p.calculate_arr_leav("9b3edd01-b821-40c9-9f75-10cb32aa14b6", "3084b64d-e773-4daa-aeea-cc3b069594f3"))
-    #friends, nonfriends = p.load_friend_and_nonfriend_pairs()
-    #print(friends)
-    #print(nonfriends)
-    #p.find_friend_and_nonfriend_pairs()
+=======
+    #friends, nonfriends = p.find_friend_and_nonfriend_pairs()
     #p.save_friend_and_nonfriend_pairs(friends, nonfriends)
-    #print(len(friends))
-    #print(len(nonfriends))
+    friends, nonfriends = p.load_friend_and_nonfriend_pairs()
+    X, y = p.generate_dataset(friends, nonfriends, 100, 100)
+>>>>>>> 59146a8fae77bdbe20233b351e8a87d7394bc29f
+    p.predict(X, y)
+   #p.find_friend_and_nonfriend_pairs()
+    #p.save_friend_and_nonfriend_pairs(friends, nonfriends)
     #p.generate_dataset(friends, nonfriends)
     #p.predict()
-    #p.find_friend_pairs2()
     #p.calculate_arr_leav('cfd65fd1-59d5-47d7-a032-1c93bed191d6', '052db813-aab4-4317-8c4d-fb772007ff12')

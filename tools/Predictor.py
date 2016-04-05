@@ -86,15 +86,6 @@ class Predictor():
         X_train, X_test, y_train, y_test = cross_validation.train_test_split(X, y, test_size=0.4, random_state=0)
         tree.fit(X_train, y_train)
         print(tree.score(X_test, y_test))
-
-
-    def map_time_to_timebins(self, start_time, end_time):
-        duration = end_time-start_time
-        duration = duration.total_seconds()/60.0 #in minutes
-        start_diff = (start_time-self.min_datetime).total_seconds()/60.0
-        start_bin = math.floor(start_diff/self.timebin_size) #tag højde for 0??
-        end_bin = math.ceil((duration/self.timebin_size))
-        return range(start_bin, start_bin+end_bin+1)
             
     def calculate_spatial_bin(self, lng, lat):
         lat += 90.0
@@ -159,14 +150,14 @@ class Predictor():
                 correlation_sum += correlation[0]
         return correlation_sum
 
-    def calculate_unique_cooccurrences(self, user1, user2):
+    def calculate_unique_cooccurrences(self, cooccurrences):
         """
         Calculates how many unique spatial bins they have had cooccurrences in
         """
-        cooccurrences = self.database.find_cooccurrences(user1, useruuid2=user2, asGeoJSON=False)
+
         return len(set([cooc[1] for cooc in cooccurrences]))
 
-    def calculate_arr_leav(self, user1, user2):
+    def calculate_arr_leav(self, cooccurrences):
         """
         We propose that if two persons arrive at a location at the same time and/or
         leave the location synchronously it yields a stronger signal than if two people
@@ -179,10 +170,9 @@ class Predictor():
         Feature ID: arr_leav
         """
 
-        cooccurrences = self.database.find_cooccurrences(user1, useruuid2=user2, asGeoJSON=False)
         arr_leav_values = []
         if len(cooccurrences) == 0:
-            print("no cooccurrences for users: {} and {}".format(user1, user2))
+            print("no cooccurrences in arr_leav")
             return 0
 
         for cooc in cooccurrences:
@@ -228,7 +218,7 @@ class Predictor():
         return sum(arr_leav_values)/len(cooccurrences)
 
 
-    def calculate_coocs_w(self, user1, user2):
+    def calculate_coocs_w(self, cooccurrences):
         """
         While other researchers use entropy to weight the social impact of meetings, our
         data allows us to introduce a more precise measure. We use anonymous statistics
@@ -242,7 +232,7 @@ class Predictor():
 
         Feature ID: coocs_w
         """
-        cooccurrences = self.database.find_cooccurrences(user1, useruuid2=user2, asGeoJSON=False)
+
         coocs_w_values = []
         if len(cooccurrences) == 0:
             return 0
@@ -260,7 +250,7 @@ class Predictor():
                 num_users = len(users)
                 
                 if num_users < 2:
-                    print("only {} together in timebin for users: {} and {}".format(str(num_users), user1, user2))
+                    print("only {} together in timebin, coocs_w".format(str(num_users))
                     continue
                 coocs_w_value += num_users
             
@@ -283,13 +273,13 @@ class Predictor():
         """
         pass
 
-    def calculate_diversity(self, user1, user2):
+    def calculate_diversity(self, cooccurrences):
         """
         Diversity quantifies how many locations the cooccurrences between two people represent.
         Can either use Shannon or Renyi Entropy, right now uses Shannon
         From inferring realworld relationships from spatiotemporal data paper p. 23.
         """
-        cooccurrences = self.database.find_cooccurrences(user1, useruuid2=user2, asGeoJSON=False)
+
         frequency = len(cooccurrences)
         spatial_bins_counts = collections.Counter([cooc[1] for cooc in cooccurrences])
 
@@ -311,12 +301,12 @@ class Predictor():
         return x, y
 
     
-    def calculate_weighted_frequency(self, user1, user2):
+    def calculate_weighted_frequency(self, cooccurrences):
         """
         Inferring realworld relationships from spatiotemporal data paper p. 19 and 23-25
         Tells how important co-occurrences are at non-crowded places
         """
-        cooccurrences = self.database.find_cooccurrences(user1, useruuid2=user2, asGeoJSON=False)
+
         spatial_bins_counts = collections.Counter([cooc[1] for cooc in cooccurrences])
 
         weighted_frequency = 0

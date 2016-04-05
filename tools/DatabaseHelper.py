@@ -134,7 +134,7 @@ class DatabaseHelper(object):
                 raw_data = json.load(json_file)
             for row in tqdm(raw_data, nested=True):
                 self.insert_location(row)
-
+        
 
     def insert_location(self, row):
         cursor = self.conn.cursor()
@@ -259,7 +259,7 @@ class DatabaseHelper(object):
             locations = cursor.fetchall()
         return locations
 
-    def find_cooccurrences(self, useruuid, points_w_distances=[], useruuid2=None, asGeoJSON=True):
+    def find_cooccurrences(self, useruuid, points_w_distances=[], useruuid2=None, asGeoJSON=True, min_timebin = None, max_timebin = None):
         """ find all cooccurrences for a user
         
         find all cooccurrences for a user within a cell_size and time window (time_threshold_in_minutes)
@@ -272,9 +272,10 @@ class DatabaseHelper(object):
             time_threshold_in_minutes {integer} -- [description]
         
         Keyword Arguments:
-            points_w_distances {list of lists} -- list of lists with point (longitude,latitude) (as tuple) and distance in meter (default: {[]})
+            points_w_distances {list of lists} -- list of lists with point (longitude,latitude) (as tuple) and distance in meter that are excluded from cooccurrences (default: {[]})
                                                   Example [[(139.743862,35.630338), 1000]]
             useruuid2 {string} -- optional argument for when you only want cooccurrences with that other user
+            asGeoJSON {bool} -- determines whether the location should be returned as GeoJSON or ST_X and ST_Y
         
         Returns:
             list -- list cooccurrences with useruuid, start_time, end_time, geojsoned location
@@ -292,23 +293,29 @@ class DatabaseHelper(object):
         if useruuid2:
             second_user_query = " AND location.useruuid = '{}' ".format(useruuid2)
 
+        range_query = ""
+        if (min_timebin != None and max_timebin != None):
+            range_query = " AND {} =< min(location.time_bins) AND {} >= max(location.time_bins)".format(min_timebin, max_timebin)
+
+
         cursor.execute("""WITH user1_table 
      AS (SELECT location.id, 
                 useruuid, 
                 time_bins, 
                 spatial_bin
          FROM   location 
-         WHERE  location.useruuid = %s) 
+         WHERE  location.useruuid = %s""" + range_query + """) 
 SELECT                          location.useruuid,
                                  location.spatial_bin,
                                  location.time_bins, 
-                                 user1_table.time_bins
+                                 user1_table.time_bins,
+                                 user1_table.useruuid
 FROM   location 
        inner join user1_table
                ON location.useruuid != user1_table.useruuid
 WHERE  user1_table.time_bins && location.time_bins
        AND user1_table.spatial_bin = location.spatial_bin
-       """ + second_user_query + (start + query) + ";",(useruuid,))
+       """ + second_user_query + (start + query) + range_query + ";",(useruuid,))
         
         return cursor.fetchall()
 

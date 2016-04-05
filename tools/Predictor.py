@@ -383,5 +383,4 @@ if __name__ == '__main__':
    #p.find_friend_and_nonfriend_pairs()
     #p.save_friend_and_nonfriend_pairs(friends, nonfriends)
     #p.generate_dataset(friends, nonfriends)
-    #p.predict()
     #p.calculate_arr_leav('cfd65fd1-59d5-47d7-a032-1c93bed191d6', '052db813-aab4-4317-8c4d-fb772007ff12')

@@ -250,7 +250,7 @@ class Predictor():
                 num_users = len(users)
                 
                 if num_users < 2:
-                    print("only {} together in timebin, coocs_w".format(str(num_users))
+                    print("only {} together in timebin, coocs_w".format(str(num_users)))
                     continue
                 coocs_w_value += num_users
             
@@ -361,16 +361,30 @@ class Predictor():
                 nonfriends.append((pair[0], pair[1]))
         return friends, nonfriends
 
+    
+    def find_cooccurrences_numpy(self, useruuid, useruuid2, arr):
+        pass
+
 if __name__ == '__main__':
     #JAPAN_TUPLE = (120, 150, 20, 45)
     #decimals = 2
     p = Predictor(60)
     #friends, nonfriends = p.find_friend_and_nonfriend_pairs()
     #p.save_friend_and_nonfriend_pairs(friends, nonfriends)
-    friends, nonfriends = p.load_friend_and_nonfriend_pairs()
-    X, y = p.generate_dataset(friends, nonfriends, 100, 100)
-    p.predict(X, y)
+    #friends, nonfriends = p.load_friend_and_nonfriend_pairs()
+    #X, y = p.generate_dataset(friends, nonfriends, 100, 100)
+    #p.predict(X, y)
    #p.find_friend_and_nonfriend_pairs()
     #p.save_friend_and_nonfriend_pairs(friends, nonfriends)
     #p.generate_dataset(friends, nonfriends)
     #p.calculate_arr_leav('cfd65fd1-59d5-47d7-a032-1c93bed191d6', '052db813-aab4-4317-8c4d-fb772007ff12')
+    country_dict, numpy_arr = database.load_numpy_matrix()
+    labels = ["user", "spatial_bin", "time_bin", "country"]
+    print(country_dict["Japan"])
+    japan_arr = numpy_arr[np.in1d([numpy_arr[:,3]], [country_dict["Japan"]])]
+    unique_japan_users = np.unique(japan_arr[:, [0]])
+    for user_pair in itertools.combinations(unique_japan_users, 2):
+        print(user_pair)
+        
+    print(unique_japan_users)
+    cooccurrences = d.find_cooccurrences_numpy(japan_arr)

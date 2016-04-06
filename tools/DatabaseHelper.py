@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from collections import defaultdict
+import pickle
 import psycopg2
 import json
 import math
@@ -11,6 +12,8 @@ import dateutil
 from dateutil import parser
 import time
 from tqdm import tqdm
+import numpy as np
+import itertools
 
 from GeoCalculation import GeoCalculation
 
@@ -134,7 +137,6 @@ class DatabaseHelper(object):
                 raw_data = json.load(json_file)
             for row in tqdm(raw_data, nested=True):
                 self.insert_location(row)
-        
 
     def insert_location(self, row):
         cursor = self.conn.cursor()
@@ -461,9 +463,9 @@ WHERE  user1_table.time_bins && location.time_bins
         return {"nodes":nodes, "edges":edges}
 
     def get_users_with_most_updates(self):
-    	cursor = self.conn.cursor()
-    	cursor.execute("select useruuid from location group by useruuid order by count(*) desc;")
-    	return [element[0] for element in cursor.fetchall()]
+        cursor = self.conn.cursor()
+        cursor.execute("select useruuid from location group by useruuid order by count(*) desc;")
+        return [element[0] for element in cursor.fetchall()]
 
     def get_locations_by_country(self, country, start_datetime, end_datetime):
         cursor = self.conn.cursor()
@@ -569,13 +571,95 @@ WHERE  user1_table.time_bins && location.time_bins
         cursor.execute("""SELECT MAX(start_time) FROM location WHERE country=(%s);""",(country,))
         return cursor.fetchall()[0][0]
 
+    def generate_numpy_matrix_from_json(self, path=""):
+        file_names = ["all_201509.json","all_201510.json","all_201511.json"]
+        useruuid_dict = {}
+        country_dict = {}
+        
+        user_count = 0
+        country_count = 0
+
+        numpy_arr = np.ndarray(shape=(0, 4))
+        for file_name in tqdm(file_names):
+            with open(os.path.join(path, file_name), 'r') as json_file:
+                raw_data = json.load(json_file)
+            for row in tqdm(raw_data, nested=True):
+                spatial_bin = self.calculate_spatial_bin(row["longitude"],row["latitude"])
+                time_bins = self.calculate_time_bins(row["start_time"], row["end_time"])
+                for time_bin in time_bins:
+                    if row["useruuid"] not in useruuid_dict:
+                        user_count += 1
+                        useruuid_dict[row["useruuid"]] = user_count
+                    if row["country"] not in country_dict:
+                        country_count += 1
+                        country_dict[row["country"]] = country_count
+                    useruuid = useruuid_dict[row["useruuid"]]
+                    country = country_dict[row["country"]]
+
+                    numpy_arr = np.vstack((numpy_arr, np.array([useruuid, spatial_bin, time_bin, country])))
+
+        with open("pickled_users.pickle","wb") as f:
+            pickle.dump(useruuid_dict, f)
+        
+        with open("pickled_countries.pickle","wb") as f:
+            pickle.dump(country_dict, f)
+        
+        with open("pickled_locations.npy","wb") as f:
+            np.save(f, numpy_arr)
+        
+        return numpy_arr
+
+    def load_numpy_matrix(self):
+        with open("pickled_users.pickle","rb") as f:
+            users = pickle.load(f)
+        
+        with open("pickled_countries.pickle","rb") as f:
+            countries = pickle.load(f)
+        
+        with open("pickled_locations.npy","rb") as f:
+            numpy_arr = np.load(f)
+        return users, countries, numpy_arr
+
+    def generate_cooccurrences_array_numpy(self, arr):
+        unique_users = np.unique(arr[:, [0]])
+        labels = ["useruuid1", "useruuid2", "time_bin", "spatial_bin"]
+        cooccurrences_arr = np.ndarray(shape=(len(unique_users)**2, 4))
+        for user_pair in itertools.combinations(unique_users, 2):
+            user1 = user_pair[0]
+            user2 = user_pair[1]
+            # extract time and spatial bin columns
+            user1_arr = arr[(arr[:,0] == user1)]
+            user2_arr = arr[(arr[:,0] == user2)]
+
+            user1_arr = user1_arr[:, [1,2]]
+            user2_arr = user2_arr[:, [1,2]]
+            user1_indexes = np.unique(np.array(np.all((user1_arr[:,None,:]==user2_arr[None,:,:]),axis=-1).nonzero()).T[:,[0]])
+            cooccurrences = user1_arr[user1_indexes]
+            user1_col = np.empty(shape=(cooccurrences.shape[0], 1))
+            user2_col = np.empty(shape=(cooccurrences.shape[0], 1))
+            user1_col.fill(user1)
+            user2_col.fill(user2)
+            cooccurrences = np.hstack((np.column_stack((user1_col, user2_col)), cooccurrences))
+            cooccurrences_arr = np.vstack((cooccurrences_arr, cooccurrences))
+        return cooccurrences_arr
+
 
 
 if __name__ == '__main__':
     d = DatabaseHelper()
     #print(d.find_cooccurrences("f67ae795-1f2b-423c-ba30-cdd5cbb23662", useruuid2="f3437039-936a-41d6-93a0-d34ab4424a96", asGeoJSON=False))
     #d.dump_missing_geographical_rows()
-    d.drop_tables()
-    d.db_setup()
-    d.insert_all_from_json()
-    d.db_create_indexes()
+    #d.drop_tables()
+    #d.db_setup()
+    #d.insert_all_from_json()
+    #d.db_create_indexes()
+    users, countries, locations_arr = d.load_numpy_matrix()
+    labels = ["user", "spatial_bin", "time_bin", "country"]
+
+    japan_arr = locations_arr[np.in1d([locations_arr[:,3]], [country_dict["Japan"]])]
+    #cooccurrences = d.generate_cooccurrences_array_numpy(japan_arr)
+    #with open("cooccurrences.npy","wb") as f:
+    #        np.save(f, cooccurrences)
+    with open("cooccurrences.npy", "rb") as f:
+            cooccurrences = np.load(f)
+    print(len(cooccurrences))

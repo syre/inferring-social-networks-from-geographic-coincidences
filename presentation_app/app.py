@@ -35,10 +35,10 @@ def get_geodata_async(country, start_date, end_date):
         async_result = pool.apply_async(g.get_and_generate, (country, start_date, end_date))
         return async_result.get()
 
-def get_cooccurrences_async(useruuid, cell_size, time_threshold, points_w_distances=[]):
+def get_cooccurrences_async(useruuid, points_w_distances=[]):
         print("App: Henter Geo-data data...")
         # tuple of args for foo, please note a "," at the end of the arguments
-        async_result = pool.apply_async(g.get_geo_data_from_occurrences, (useruuid, cell_size, time_threshold, points_w_distances))
+        async_result = pool.apply_async(g.get_geo_data_from_occurrences, (useruuid, points_w_distances))
         return async_result.get()
 
 @app.errorhandler(404)
@@ -151,7 +151,7 @@ def data_geojson():
 def data_cooccurrences():
     useruuid = request.args.get("useruuid")
     points_w_distances = [[(139.743862,35.630338), 1000]]
-    cooccurrences = get_cooccurrences_async(useruuid, 0.001, 60*24, points_w_distances)
+    cooccurrences = get_cooccurrences_async(useruuid, points_w_distances)
 
     return flask.jsonify(cooccurrences)
 

@@ -112,12 +112,12 @@ class GeoData(object):
         print("geodata fetched from database")
         return wanted_data
 
-    def get_geo_data_from_occurrences(self, useruuid, cell_size, time_threshold_in_hours, points_w_distances=[]):
+    def get_geo_data_from_occurrences(self, useruuid, points_w_distances=[]):
         user_colors = self.databasehelper.get_user_colors()
         # receive locations for user we want co-occurrences on
         locations = self.databasehelper.get_locations_for_user(useruuid)
         # retrieve locations that co-occur with useruuids locations
-        cooccurrences = self.databasehelper.find_cooccurrences(useruuid, cell_size, time_threshold_in_hours,points_w_distances)
+        cooccurrences = self.databasehelper.find_cooccurrences(useruuid, points_w_distances)
 
         features = []
         # append main user

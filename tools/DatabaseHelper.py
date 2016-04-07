@@ -634,7 +634,7 @@ WHERE  user1_table.time_bins && location.time_bins
             # extract time and spatial bin columns
             user1_arr = user1_arr[:, [1,2]]
             user2_arr = user2_arr[:, [1,2]]
-
+            # retrieve indexes where rows are identical
             user1_indexes = np.unique(np.array(np.all((user1_arr[:,None,:]==user2_arr[None,:,:]),axis=-1).nonzero()).T[:,[0]])
             cooccurrences = user1_arr[user1_indexes]
             user1_col = np.empty(shape=(cooccurrences.shape[0], 1))

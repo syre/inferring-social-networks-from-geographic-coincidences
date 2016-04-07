@@ -365,11 +365,47 @@ class Predictor():
     def calculate_unique_cooccurrences_numpy(self, cooc_arr):
         return np.unique(cooc_arr[:,2]).shape[0]
 
-    def calculate_arr_leave_numpy(self, arr):
-        pass
-    
+    def calculate_arr_leave_numpy(self, cooc_arr, loc_arr):
+        arr_leav_values = []
+        for row in cooc_arr:
+            arr_leav_value = 0
+            
+            user1_present_in_previous = loc_arr[(loc_arr[:,0] == row[0]) & (loc_arr[:,2] == row[3]-1) & (loc_arr[:,1] == row[2])].size
+            user2_present_in_previous = loc_arr[(loc_arr[:,0] == row[1]) & (loc_arr[:,2] == row[3]-1) & (loc_arr[:,1] == row[2])].size
+            if not user1_present_in_previous and not user2_present_in_previous:
+                # synchronous arrival
+                # finds users in previous timebin with spatial bin
+                before_arrive_list = loc_arr[(loc_arr[:,2] == row[3]-1) & (loc_arr[:,1] == row[2])][:,0]
+                # finds users in current timebin with spatial bin
+                arrive_list = loc_arr[(loc_arr[:,2] == row[3]) & (loc_arr[:,1] == row[2])][:,0]
+                num_arrivals = np.setdiff1d(arrive_list, before_arrive_list, assume_unique=True).shape[0]
+                if num_arrivals == 0:
+                    arr_leav_value += 1
+                else:
+                    arr_leav_value += (1/num_arrivals)
+
+            user1_present_in_next = loc_arr[(loc_arr[:,0] == row[0]) & (loc_arr[:,2] == row[3]+1) & (loc_arr[:,1] == row[2])].size
+            user2_present_in_next = loc_arr[(loc_arr[:,0] == row[1]) & (loc_arr[:,2] == row[3]+1) & (loc_arr[:,1] == row[2])].size
+            if not user1_present_in_next and not user1_present_in_previous:
+                # synchronous leaving
+                leave_list = loc_arr[(loc_arr[:,2] == row[3]) & (loc_arr[:,1] == row[2])][:,0]
+                # finds users in current timebin with spatial bin
+                after_leave_list = loc_arr[(loc_arr[:,2] == row[3]+1) & (loc_arr[:,1] == row[2])][:,0]
+                num_leavers = np.setdiff1d(after_leave_list, leave_list, assume_unique=True).shape[0]
+                if num_leavers == 0:
+                    arr_leav_value += 1
+                else:
+                    arr_leav_value += (1/num_leavers)
+        arr_leav_values.append(arr_leav_value)
+
+        return sum(arr_leav_values)/cooc_arr.shape[0]
+
     def calculate_coocs_w(self, cooc_arr, loc_arr):
-        pass
+        coocs_w_values = []
+        for row in cooc_arr:
+            coocs_w_value = loc_arr[(loc_arr[:,1] == row[2]) & (loc_arr[:,2] == row[3])].shape[0]
+            coocs_w_values.append(1/(coocs_w_value))
+        sum(coocs_w_values)/cooc_arr.shape[0]
     
     def calculate_diversity_numpy(self, cooc_arr):
         frequency = cooc_arr.shape[0]
@@ -412,4 +448,6 @@ if __name__ == '__main__':
     print(p.calculate_unique_cooccurrences_numpy(cooccurrences))
     print(len(cooccurrences))
     print(p.calculate_diversity_numpy(cooccurrences))
-    print(p.calculate_weighted_frequency_numpy(cooccurrences, locations_arr))
+    #print(p.calculate_weighted_frequency_numpy(cooccurrences, locations_arr))
+    #print(p.calculate_arr_leave_numpy(cooccurrences, locations_arr))
+    print(p.calculate_coocs_w(cooccurrences, locations_arr))

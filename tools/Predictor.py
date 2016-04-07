@@ -362,21 +362,54 @@ class Predictor():
         return friends, nonfriends
 
     
-    def find_cooccurrences_numpy(self, useruuid, useruuid2, arr):
+    def calculate_unique_cooccurrences_numpy(self, cooc_arr):
+        return np.unique(cooc_arr[:,2]).shape[0]
+
+    def calculate_arr_leave_numpy(self, arr):
         pass
+    
+    def calculate_coocs_w(self, cooc_arr, loc_arr):
+        pass
+    
+    def calculate_diversity_numpy(self, cooc_arr):
+        frequency = cooc_arr.shape[0]
+        _, counts = np.unique(cooc_arr[:,2], return_counts=True)
+
+        shannon_entropy = -np.sum((counts/frequency)*(np.log2(counts/frequency)))
+        return np.exp(shannon_entropy)
+
+    def calculate_weighted_frequency_numpy(self, cooc_arr, loc_arr):
+        weighted_frequency = 0
+        spatial_bins, counts = np.unique(cooc_arr[:,2], return_counts=True)
+        for spatial_bin, count in zip(spatial_bins, counts):
+            # get all locations with spatial bin
+            locs_with_spatial = loc_arr[loc_arr[:,1] == spatial_bin]
+            location_entropy = 0
+            for user in np.unique(locs_with_spatial[:,0]):
+                # get all locations for user
+                v_lu = locs_with_spatial[locs_with_spatial[:,0] == user]
+                # get all locations for spatial bin
+                v_l = locs_with_spatial
+                prob = v_lu.shape[0]/v_l.shape[0]
+                if prob != 0:
+                    location_entropy += prob*np.log2(prob)
+            location_entropy = -location_entropy
+            weighted_frequency += count * np.exp(-location_entropy)
+        return weighted_frequency
 
 if __name__ == '__main__':
     #JAPAN_TUPLE = (120, 150, 20, 45)
     #decimals = 2
     p = Predictor(60)
+    d = DatabaseHelper.DatabaseHelper()
     users, countries, locations_arr = d.load_numpy_matrix()
-    labels = ["user", "spatial_bin", "time_bin", "country"]
+    locations_labels = ["user", "spatial_bin", "time_bin", "country"]
+    cooccurrences_labels = ["user1", "user2", "spatial_bin", "time_bin"]
 
-    japan_arr = locations_arr[np.in1d([locations_arr[:,3]], [country_dict["Japan"]])]
-    cooccurrences = d.generate_cooccurrences_array_numpy(japan_arr)
-    
-    with open("cooccurrences.npy","wb") as f:
-            np.save(f, cooccurrences)
+    japan_arr = locations_arr[np.in1d([locations_arr[:,3]], [countries["Japan"]])]
     with open("cooccurrences.npy", "rb") as f:
             cooccurrences = np.load(f)
-    #print(len(cooccurrences))
+    print(p.calculate_unique_cooccurrences_numpy(cooccurrences))
+    print(len(cooccurrences))
+    print(p.calculate_diversity_numpy(cooccurrences))
+    print(p.calculate_weighted_frequency_numpy(cooccurrences, locations_arr))

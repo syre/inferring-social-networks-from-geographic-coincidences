@@ -622,16 +622,19 @@ WHERE  user1_table.time_bins && location.time_bins
     def generate_cooccurrences_array_numpy(self, arr):
         unique_users = np.unique(arr[:, [0]])
         labels = ["useruuid1", "useruuid2", "time_bin", "spatial_bin"]
-        cooccurrences_arr = np.ndarray(shape=(len(unique_users)**2, 4))
+        cooccurrences_arr = np.ndarray(shape=(0, 4))
+        # generate all combinations of users
         for user_pair in itertools.combinations(unique_users, 2):
             user1 = user_pair[0]
             user2 = user_pair[1]
-            # extract time and spatial bin columns
+            # find locations for user1 and user2
             user1_arr = arr[(arr[:,0] == user1)]
             user2_arr = arr[(arr[:,0] == user2)]
-
+            
+            # extract time and spatial bin columns
             user1_arr = user1_arr[:, [1,2]]
             user2_arr = user2_arr[:, [1,2]]
+
             user1_indexes = np.unique(np.array(np.all((user1_arr[:,None,:]==user2_arr[None,:,:]),axis=-1).nonzero()).T[:,[0]])
             cooccurrences = user1_arr[user1_indexes]
             user1_col = np.empty(shape=(cooccurrences.shape[0], 1))
@@ -652,14 +655,14 @@ if __name__ == '__main__':
     #d.db_setup()
     #d.insert_all_from_json()
     #d.db_create_indexes()
-    d.generate_numpy_matrix_from_json()
-    #users, countries, locations_arr = d.load_numpy_matrix()
-    #labels = ["user", "spatial_bin", "time_bin", "country"]
+    #d.generate_numpy_matrix_from_json()
+    users, countries, locations_arr = d.load_numpy_matrix()
+    labels = ["user", "spatial_bin", "time_bin", "country"]
 
-    #japan_arr = locations_arr[np.in1d([locations_arr[:,3]], [country_dict["Japan"]])]
-    #cooccurrences = d.generate_cooccurrences_array_numpy(japan_arr)
-    #with open("cooccurrences.npy","wb") as f:
-    #        np.save(f, cooccurrences)
+    japan_arr = locations_arr[np.in1d([locations_arr[:,3]], [countries["Japan"]])]
+    cooccurrences = d.generate_cooccurrences_array_numpy(japan_arr)
+    with open("cooccurrences.npy","wb") as f:
+            np.save(f, cooccurrences)
     #with open("cooccurrences.npy", "rb") as f:
     #        cooccurrences = np.load(f)
     #print(len(cooccurrences))

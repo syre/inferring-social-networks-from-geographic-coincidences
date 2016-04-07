@@ -47,7 +47,7 @@ class DatabaseHelper(object):
         self.geo_calc = GeoCalculation()
         # if database is setup
         if self.db_setup_test():
-            all_users = self.get_distinct_feature("useruuid","user")
+            all_users = self.get_distinct_feature("useruuid","location")
             colors = []
             self.user_colors = defaultdict(dict)
             for user in all_users:
@@ -103,7 +103,7 @@ class DatabaseHelper(object):
 
     def db_setup_test(self):
         cursor = self.conn.cursor()
-        cursor.execute("select exists(select * from information_schema.tables where table_name=%s)", ('user',))
+        cursor.execute("select exists(select * from information_schema.tables where table_name=%s)", ('location',))
         return cursor.fetchone()[0]
 
     def db_setup(self):

@@ -578,8 +578,7 @@ WHERE  user1_table.time_bins && location.time_bins
         
         user_count = 0
         country_count = 0
-
-        numpy_arr = np.ndarray(shape=(0, 4))
+        locations = []
         for file_name in tqdm(file_names):
             with open(os.path.join(path, file_name), 'r') as json_file:
                 raw_data = json.load(json_file)
@@ -596,8 +595,8 @@ WHERE  user1_table.time_bins && location.time_bins
                     useruuid = useruuid_dict[row["useruuid"]]
                     country = country_dict[row["country"]]
 
-                    numpy_arr = np.vstack((numpy_arr, np.array([useruuid, spatial_bin, time_bin, country])))
-
+                    locations.append([useruuid, spatial_bin, time_bin, country])
+        locations = np.array(locations)
         with open("pickled_users.pickle","wb") as f:
             pickle.dump(useruuid_dict, f)
         
@@ -605,9 +604,9 @@ WHERE  user1_table.time_bins && location.time_bins
             pickle.dump(country_dict, f)
         
         with open("pickled_locations.npy","wb") as f:
-            np.save(f, numpy_arr)
+            np.save(f, locations)
         
-        return numpy_arr
+        return locations
 
     def load_numpy_matrix(self):
         with open("pickled_users.pickle","rb") as f:
@@ -653,13 +652,14 @@ if __name__ == '__main__':
     #d.db_setup()
     #d.insert_all_from_json()
     #d.db_create_indexes()
-    users, countries, locations_arr = d.load_numpy_matrix()
-    labels = ["user", "spatial_bin", "time_bin", "country"]
+    d.generate_numpy_matrix_from_json()
+    #users, countries, locations_arr = d.load_numpy_matrix()
+    #labels = ["user", "spatial_bin", "time_bin", "country"]
 
-    japan_arr = locations_arr[np.in1d([locations_arr[:,3]], [country_dict["Japan"]])]
+    #japan_arr = locations_arr[np.in1d([locations_arr[:,3]], [country_dict["Japan"]])]
     #cooccurrences = d.generate_cooccurrences_array_numpy(japan_arr)
     #with open("cooccurrences.npy","wb") as f:
     #        np.save(f, cooccurrences)
-    with open("cooccurrences.npy", "rb") as f:
-            cooccurrences = np.load(f)
-    print(len(cooccurrences))
+    #with open("cooccurrences.npy", "rb") as f:
+    #        cooccurrences = np.load(f)
+    #print(len(cooccurrences))

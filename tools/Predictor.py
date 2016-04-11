@@ -50,7 +50,11 @@ class Predictor():
         #    format(self.GRID_MIN_LNG, self.GRID_MAX_LNG, self.GRID_MIN_LAT, self.GRID_MAX_LAT))
     
     def generate_dataset(self, friend_pairs, non_friend_pairs, friend_size = None, nonfriend_size = None):
-        
+        users, countries, locations_arr = d.load_numpy_matrix()
+        japan_arr = locations_arr[np.in1d([locations_arr[:,3]], [countries["Japan"]])]
+        with open("cooccurrences.npy", "rb") as f:
+            coocs = np.load(f)
+
         if friend_size:
             friend_pairs = random.sample(friend_pairs, friend_size)
         if nonfriend_size:
@@ -59,22 +63,33 @@ class Predictor():
         X = np.ndarray(shape=(len(friend_pairs)+len(non_friend_pairs),6), dtype="float")
 
         for index, pair in tqdm(enumerate(friend_pairs)):
-            X[index:,0] = len(self.database.find_cooccurrences(pair[0], useruuid2=pair[1]))
-            X[index:,1] = self.calculate_arr_leav(pair[0], pair[1])
-            X[index:,2] = self.calculate_coocs_w(pair[0], pair[1])
-            X[index,3] = self.calculate_diversity(pair[0], pair[1])
-            X[index,4] = self.calculate_unique_cooccurrences(pair[0], pair[1])
-            X[index,5] = self.calculate_weighted_frequency(pair[0], pair[1])
+            user1 = users[pair[0]]
+            user2 = users[pair[1]]
+
+            pair1_coocs = coocs[(coocs[:,0] == user1) & (coocs[:,1] == user2)]
+            pair2_coocs = coocs[(coocs[:,0] == user2) & (coocs[:,1] == user1)]
+            pair_coocs = np.vstack((pair1_coocs, pair2_coocs))
+            #X[index:,0] = pair_coocs.shape[0]
+            X[index:,1] = self.calculate_arr_leav_numpy(pair_coocs, japan_arr)
+            X[index,2] = self.calculate_diversity_numpy(pair_coocs)
+            X[index,3] = self.calculate_unique_cooccurrences_numpy(pair_coocs)
+            X[index,4] = self.calculate_weighted_frequency_numpy(pair_coocs, japan_arr)
+            X[index:,5] = self.calculate_coocs_w_numpy(pair_coocs, japan_arr)
             #X[index:,3] = self.calculate_corr(pair[0], pair[1])
             
 
         for index, pair in tqdm(enumerate(non_friend_pairs, start=len(friend_pairs))):
-            X[index:,0] = len(self.database.find_cooccurrences(pair[0], useruuid2=pair[1]))
-            X[index:,1] = self.calculate_arr_leav(pair[0], pair[1])
-            X[index:,2] = self.calculate_coocs_w(pair[0], pair[1])
-            X[index,3] = self.calculate_diversity(pair[0], pair[1])
-            X[index,4] = self.calculate_unique_cooccurrences(pair[0], pair[1])
-            X[index,5] = self.calculate_weighted_frequency(pair[0], pair[1])
+            user1 = users[pair[0]]
+            user2 = users[pair[1]]
+            pair1_coocs = coocs[(coocs[:,0] == user1) & (coocs[:,1] == user2)]
+            pair2_coocs = coocs[(coocs[:,0] == user2) & (coocs[:,1] == user1)]
+            pair_coocs = np.vstack((pair1_coocs, pair2_coocs))
+            X[index:,0] = pair_coocs.shape[0]
+            X[index:,1] = self.calculate_arr_leav_numpy(pair_coocs, japan_arr)
+            X[index,2] = self.calculate_diversity_numpy(pair_coocs)
+            X[index,3] = self.calculate_unique_cooccurrences_numpy(pair_coocs)
+            X[index,4] = self.calculate_weighted_frequency_numpy(pair_coocs, japan_arr)
+            X[index:,5] = self.calculate_coocs_w_numpy(pair_coocs, japan_arr)
             #X[index:,3] = self.calculate_corr(pair[0], pair[1])
         
         y = np.array([1 for x in range(len(friend_pairs))] + [0 for x in range(len(non_friend_pairs))])
@@ -250,7 +265,7 @@ class Predictor():
                 num_users = len(users)
                 
                 if num_users < 2:
-                    print("only {} together in timebin, coocs_w".format(str(num_users))
+                    print("only {} together in timebin, coocs_w".format(str(num_users)))
                     continue
                 coocs_w_value += num_users
             
@@ -361,16 +376,104 @@ class Predictor():
                 nonfriends.append((pair[0], pair[1]))
         return friends, nonfriends
 
+    
+    def calculate_unique_cooccurrences_numpy(self, cooc_arr):
+        return np.unique(cooc_arr[:,2]).shape[0]
+
+    def calculate_arr_leav_numpy(self, cooc_arr, loc_arr):
+        if cooc_arr.shape[0] == 0:
+            print("no cooccurrences in arr_leav")
+            return 0
+        arr_leav_values = []
+        for row in cooc_arr:
+            arr_leav_value = 0
+            
+            user1_present_in_previous = loc_arr[(loc_arr[:,0] == row[0]) & (loc_arr[:,2] == row[3]-1) & (loc_arr[:,1] == row[2])].size
+            user2_present_in_previous = loc_arr[(loc_arr[:,0] == row[1]) & (loc_arr[:,2] == row[3]-1) & (loc_arr[:,1] == row[2])].size
+            if not user1_present_in_previous and not user2_present_in_previous:
+                # synchronous arrival
+                # finds users in previous timebin with spatial bin
+                before_arrive_list = loc_arr[(loc_arr[:,2] == row[3]-1) & (loc_arr[:,1] == row[2])][:,0]
+                # finds users in current timebin with spatial bin
+                arrive_list = loc_arr[(loc_arr[:,2] == row[3]) & (loc_arr[:,1] == row[2])][:,0]
+                num_arrivals = np.setdiff1d(arrive_list, before_arrive_list, assume_unique=True).shape[0]
+                if num_arrivals == 0:
+                    arr_leav_value += 1
+                else:
+                    arr_leav_value += (1/num_arrivals)
+
+            user1_present_in_next = loc_arr[(loc_arr[:,0] == row[0]) & (loc_arr[:,2] == row[3]+1) & (loc_arr[:,1] == row[2])].size
+            user2_present_in_next = loc_arr[(loc_arr[:,0] == row[1]) & (loc_arr[:,2] == row[3]+1) & (loc_arr[:,1] == row[2])].size
+            if not user1_present_in_next and not user1_present_in_previous:
+                # synchronous leaving
+                leave_list = loc_arr[(loc_arr[:,2] == row[3]) & (loc_arr[:,1] == row[2])][:,0]
+                # finds users in current timebin with spatial bin
+                after_leave_list = loc_arr[(loc_arr[:,2] == row[3]+1) & (loc_arr[:,1] == row[2])][:,0]
+                num_leavers = np.setdiff1d(after_leave_list, leave_list, assume_unique=True).shape[0]
+                if num_leavers == 0:
+                    arr_leav_value += 1
+                else:
+                    arr_leav_value += (1/num_leavers)
+            arr_leav_values.append(arr_leav_value)
+
+        return sum(arr_leav_values)/cooc_arr.shape[0]
+
+    def calculate_coocs_w_numpy(self, cooc_arr, loc_arr):
+        if cooc_arr.shape[0] == 0:
+            print("no cooccurrences for cooc_w")
+            return 0
+        coocs_w_values = []
+        for row in cooc_arr:
+            coocs_w_value = loc_arr[(loc_arr[:,1] == row[2]) & (loc_arr[:,2] == row[3])].shape[0]
+            coocs_w_values.append(1/(coocs_w_value-1))
+        return sum(coocs_w_values)/cooc_arr.shape[0]
+    
+    def calculate_diversity_numpy(self, cooc_arr):
+        frequency = cooc_arr.shape[0]
+        _, counts = np.unique(cooc_arr[:,2], return_counts=True)
+
+        shannon_entropy = -np.sum((counts/frequency)*(np.log2(counts/frequency)))
+        return np.exp(shannon_entropy)
+
+    def calculate_weighted_frequency_numpy(self, cooc_arr, loc_arr):
+        weighted_frequency = 0
+        spatial_bins, counts = np.unique(cooc_arr[:,2], return_counts=True)
+        for spatial_bin, count in zip(spatial_bins, counts):
+            # get all locations with spatial bin
+            locs_with_spatial = loc_arr[loc_arr[:,1] == spatial_bin]
+            location_entropy = 0
+            for user in np.unique(locs_with_spatial[:,0]):
+                # get all locations for user
+                v_lu = locs_with_spatial[locs_with_spatial[:,0] == user]
+                # get all locations for spatial bin
+                v_l = locs_with_spatial
+                prob = v_lu.shape[0]/v_l.shape[0]
+                if prob != 0:
+                    location_entropy += prob*np.log2(prob)
+            location_entropy = -location_entropy
+            weighted_frequency += count * np.exp(-location_entropy)
+        return weighted_frequency
+
 if __name__ == '__main__':
     #JAPAN_TUPLE = (120, 150, 20, 45)
     #decimals = 2
     p = Predictor(60)
+    d = DatabaseHelper.DatabaseHelper()
+    #users, countries, locations_arr = d.load_numpy_matrix()
+    locations_labels = ["user", "spatial_bin", "time_bin", "country"]
+    cooccurrences_labels = ["user1", "user2", "spatial_bin", "time_bin"]
     #friends, nonfriends = p.find_friend_and_nonfriend_pairs()
     #p.save_friend_and_nonfriend_pairs(friends, nonfriends)
     friends, nonfriends = p.load_friend_and_nonfriend_pairs()
     X, y = p.generate_dataset(friends, nonfriends, 100, 100)
-    p.predict(X, y)
-   #p.find_friend_and_nonfriend_pairs()
-    #p.save_friend_and_nonfriend_pairs(friends, nonfriends)
-    #p.generate_dataset(friends, nonfriends)
-    #p.calculate_arr_leav('cfd65fd1-59d5-47d7-a032-1c93bed191d6', '052db813-aab4-4317-8c4d-fb772007ff12')
+    print(X,y)
+    p.predict(X,y)
+    #japan_arr = locations_arr[np.in1d([locations_arr[:,3]], [countries["Japan"]])]
+    #with open("cooccurrences.npy", "rb") as f:
+    #        cooccurrences = np.load(f)
+    #print(p.calculate_unique_cooccurrences_numpy(cooccurrences))
+    #print(len(cooccurrences))
+    #print(p.calculate_diversity_numpy(cooccurrences))
+    #print(p.calculate_weighted_frequency_numpy(cooccurrences, locations_arr))
+    #print(p.calculate_arr_leave_numpy(cooccurrences, locations_arr))
+    #print(p.calculate_coocs_w(cooccurrences, locations_arr))

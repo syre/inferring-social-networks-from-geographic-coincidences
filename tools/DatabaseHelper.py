@@ -130,13 +130,15 @@ class DatabaseHelper(object):
         cursor = self.conn.cursor()
         cursor.execute("DROP TABLE location")
 
-    def insert_all_from_json(self, path=""):
-        file_names = ["all_201509.json","all_201510.json","all_201511.json"]
-        for file_name in tqdm(file_names):
+    def insert_from_json(self, path="", filenames=["all_201509.json","all_201510.json","all_201511.json"], callback_func=lambda x: insert_location(x)):
+        for file_name in tqdm(filenames):
             with open(os.path.join(path, file_name), 'r') as json_file:
                 raw_data = json.load(json_file)
             for row in tqdm(raw_data, nested=True):
-                self.insert_location(row)
+                callback_func(row)
+
+    def load_application_logs_from_json(self, path=""):
+        file_names = ["all_app_201509.json", "all_app_201510.json", "all_app_201511.json"]
 
     def insert_location(self, row):
         cursor = self.conn.cursor()
@@ -655,14 +657,19 @@ if __name__ == '__main__':
     #d.db_setup()
     #d.insert_all_from_json()
     #d.db_create_indexes()
+    filenames = ["all_app_201509.json","all_app_201510.json","all_app_201511.json"]
+    application_names = []
+    callback_func = lambda row: application_names.append(row["package_name"])
+    d.insert_from_json(filenames=filenames, callback_func=callback_func)
+    print(Counter(application_names).most_common(50))
     #d.generate_numpy_matrix_from_json()
-    users, countries, locations_arr = d.load_numpy_matrix()
-    labels = ["user", "spatial_bin", "time_bin", "country"]
+    #users, countries, locations_arr = d.load_numpy_matrix()
+    #labels = ["user", "spatial_bin", "time_bin", "country"]
 
-    japan_arr = locations_arr[np.in1d([locations_arr[:,3]], [countries["Japan"]])]
-    cooccurrences = d.generate_cooccurrences_array_numpy(japan_arr)
-    with open("cooccurrences.npy","wb") as f:
-            np.save(f, cooccurrences)
+    #japan_arr = locations_arr[np.in1d([locations_arr[:,3]], [countries["Japan"]])]
+    #cooccurrences = d.generate_cooccurrences_array_numpy(japan_arr)
+    #with open("cooccurrences.npy","wb") as f:
+    #        np.save(f, cooccurrences)
     #with open("cooccurrences.npy", "rb") as f:
     #        cooccurrences = np.load(f)
     #print(len(cooccurrences))

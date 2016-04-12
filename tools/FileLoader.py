@@ -4,6 +4,7 @@ import json
 import os
 import pickle
 
+
 class FileLoader():
     def generate_data_from_json(self, filenames, callback_func, path=""):
         for file_name in tqdm(filenames):

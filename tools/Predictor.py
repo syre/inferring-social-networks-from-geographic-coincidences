@@ -333,19 +333,7 @@ class Predictor():
             weighted_frequency += count * np.exp(-location_entropy)
         return weighted_frequency
 
-    def save_friend_and_nonfriend_pairs(self, friend_pairs, nonfriend_pairs):
-        with open( "friend_pairs.pickle", "wb" ) as fp:
-            pickle.dump(friend_pairs, fp)
-        with open( "nonfriend_pairs.pickle", "wb" ) as fp:
-            pickle.dump(nonfriend_pairs, fp)
 
-    def load_friend_and_nonfriend_pairs(self):
-        with open( "friend_pairs.pickle", "rb" ) as fp:
-            friend_pairs = pickle.load(fp)
-        with open( "nonfriend_pairs.pickle", "rb" ) as fp:
-            nonfriend_pairs = pickle.load(fp)
-
-        return friend_pairs, nonfriend_pairs
 
     def find_friend_and_nonfriend_pairs(self):
         phone_features = ["com.android.incallui"]
@@ -358,7 +346,7 @@ class Predictor():
         
         rows = []
         callback_func = lambda row: rows.append(row)
-        d.insert_from_json(filenames=filenames, callback_func=callback_func)
+        self.database.insert_from_json(filenames=filenames, callback_func=callback_func)
 
         japan_users = self.database.get_users_in_country("Japan")
         japan_records = [row for row in rows if row["useruuid"] in japan_users]
@@ -382,8 +370,9 @@ class Predictor():
                     print(x["package_name"])
                     pairs.append((useruuid_x, useruuid_y, start_diff, end_diff))
                     print(useruuid_x, useruuid_y, start_diff, end_diff)
-                    print(len(self.database.find_cooccurrences(useruuid_x,points_w_distances=[[(139.743862,35.630338), 1000]], useruuid2=useruuid_y)))
-                    print("--------------------------------------------------------------------")
+                    print(len(self.database.find_cooccurrences(useruuid_x, 
+                              points_w_distances=[[(139.743862,35.630338), 1000]], useruuid2=useruuid_y)))
+                    print("----------------------------------------------------")
 
         print(len(pairs))
 

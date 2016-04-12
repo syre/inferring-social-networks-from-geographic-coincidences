@@ -1,23 +1,20 @@
 #!/usr/bin/env python3
-from collections import defaultdict
 import pickle
 import psycopg2
 import json
 import math
 import os
-from collections import defaultdict, Counter
+from collections import defaultdict
 import random
 import datetime
-import dateutil
 from dateutil import parser
-import time
 from tqdm import tqdm
 import numpy as np
 import itertools
 
 from GeoCalculation import GeoCalculation
-
-class DatabaseHelper(object):
+from FileLoader import FileLoader
+class DatabaseHelper():
     """docstring for DatabaseHelper"""
     def __init__(self, path_to_settings="", grid_boundaries_tuple=(-180, 180, -90, 90), spatial_resolution_decimals = 3):
 
@@ -129,16 +126,6 @@ class DatabaseHelper(object):
     def db_teardown(self):
         cursor = self.conn.cursor()
         cursor.execute("DROP TABLE location")
-
-    def insert_from_json(self, path="", filenames=["all_201509.json","all_201510.json","all_201511.json"], callback_func=lambda x: insert_location(x)):
-        for file_name in tqdm(filenames):
-            with open(os.path.join(path, file_name), 'r') as json_file:
-                raw_data = json.load(json_file)
-            for row in tqdm(raw_data, nested=True):
-                callback_func(row)
-
-    def load_application_logs_from_json(self, path=""):
-        file_names = ["all_app_201509.json", "all_app_201510.json", "all_app_201511.json"]
 
     def insert_location(self, row):
         cursor = self.conn.cursor()
@@ -648,7 +635,6 @@ WHERE  user1_table.time_bins && location.time_bins
         return cooccurrences_arr
 
 
-
 if __name__ == '__main__':
     d = DatabaseHelper()
     #print(d.find_cooccurrences("f67ae795-1f2b-423c-ba30-cdd5cbb23662", useruuid2="f3437039-936a-41d6-93a0-d34ab4424a96", asGeoJSON=False))
@@ -657,10 +643,12 @@ if __name__ == '__main__':
     #d.db_setup()
     #d.insert_all_from_json()
     #d.db_create_indexes()
-    filenames = ["all_app_201509.json","all_app_201510.json","all_app_201511.json"]
+   
     rows = []
     callback_func = lambda row: rows.append(row)
-    d.insert_from_json(filenames=filenames, callback_func=callback_func)
+    fl = FileLoader()
+    fl.generate_app_data_from_json(callback_func=callback_func)
+
     app_names = ["Phone", "WhatsApp Messenger", "Messaging", "WeChat", "Hangouts", "Messenger", "Slack", 
                 "Verizon Messages", "Couple - Relationship App", "DingTalk", "LINE: Free Calls & Messages",
                 "Skype - free IM & video calls", "Telegram", "KakaoTalk: Free Calls & Text", "Viber", "Snapchat"]

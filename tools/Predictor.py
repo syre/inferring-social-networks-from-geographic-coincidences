@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 import DatabaseHelper
 import math
-import datetime
 from dateutil import parser
-from datetime import datetime, timedelta
+from datetime import datetime
 import collections
 from pytz import timezone
 import numpy as np
@@ -11,13 +10,10 @@ from scipy import stats
 import sklearn
 import sklearn.ensemble
 from sklearn import cross_validation
-import timeit
 from tqdm import tqdm
 import pickle
-import json
 import random
-import itertools
-
+import FileLoader
 class Predictor():
     def __init__(self, 
                  timebin_size_in_minutes,
@@ -37,6 +33,7 @@ class Predictor():
                 to_date: end-date used for timebin range
         """
         self.database = DatabaseHelper.DatabaseHelper()
+        self.fileloader = FileLoader.FileLoader()
         self.min_datetime = from_date
         self.max_datetime = to_date
         self.timebin_size = timebin_size_in_minutes
@@ -61,7 +58,7 @@ class Predictor():
         if nonfriend_size:
             non_friend_pairs = random.sample(non_friend_pairs, nonfriend_size)
         
-        X = np.ndarray(shape=(len(friend_pairs)+len(non_friend_pairs),6), dtype="float")
+        X = np.ndarray(shape=(len(friend_pairs)+len(non_friend_pairs), 6), dtype="float")
 
         for index, pair in tqdm(enumerate(friend_pairs)):
             user1 = users[pair[0]]
@@ -70,13 +67,11 @@ class Predictor():
             pair1_coocs = coocs[(coocs[:,0] == user1) & (coocs[:,1] == user2)]
             pair2_coocs = coocs[(coocs[:,0] == user2) & (coocs[:,1] == user1)]
             pair_coocs = np.vstack((pair1_coocs, pair2_coocs))
-            #X[index:,0] = pair_coocs.shape[0]
             X[index:,1] = self.calculate_arr_leav_numpy(pair_coocs, japan_arr)
             X[index,2] = self.calculate_diversity_numpy(pair_coocs)
             X[index,3] = self.calculate_unique_cooccurrences_numpy(pair_coocs)
             X[index,4] = self.calculate_weighted_frequency_numpy(pair_coocs, japan_arr)
             X[index:,5] = self.calculate_coocs_w_numpy(pair_coocs, japan_arr)
-            #X[index:,3] = self.calculate_corr(pair[0], pair[1])
             
 
         for index, pair in tqdm(enumerate(non_friend_pairs, start=len(friend_pairs))):
@@ -118,8 +113,7 @@ class Predictor():
                 lng {float} -- longitude
                 time_bin {integer} -- time bin index
             Returns:
-                list -- list of user_uuids
-        
+                list -- list of user_uuids       
         """
         return self.database.find_cooccurrences_within_area(spatial_bin, time_bin)
 
@@ -354,7 +348,6 @@ class Predictor():
         return friend_pairs, nonfriend_pairs
 
     def find_friend_and_nonfriend_pairs(self):
-        filenames = ["all_app_201509.json","all_app_201510.json","all_app_201511.json"]
         phone_features = ["com.android.incallui"]
         phone_time_limit = 10
         im_features = ['com.snapchat.android', 'com.Slack', 'com.verizon.messaging.vzmsgs', 'jp.naver.line.android',
@@ -476,7 +469,6 @@ if __name__ == '__main__':
     #JAPAN_TUPLE = (120, 150, 20, 45)
     #decimals = 2
     p = Predictor(60)
-    d = DatabaseHelper.DatabaseHelper()
     #users, countries, locations_arr = d.load_numpy_matrix()
     #locations_labels = ["user", "spatial_bin", "time_bin", "country"]
     #cooccurrences_labels = ["user1", "user2", "spatial_bin", "time_bin"]

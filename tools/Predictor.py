@@ -2,6 +2,7 @@
 import DatabaseHelper
 import math
 import datetime
+from dateutil import parser
 from datetime import datetime, timedelta
 import collections
 from pytz import timezone
@@ -352,29 +353,46 @@ class Predictor():
 
         return friend_pairs, nonfriend_pairs
 
-    def find_friend_and_nonfriend_pairs(self, ratio=0.05):
-        friends = []
-        nonfriends = []
-        users = self.database.get_users_in_country("Japan")
-        for pair in tqdm(itertools.combinations(users, 2)):
-            result = self.database.find_cooccurrences(pair[0], [[(139.743862,35.630338), 1000]], pair[1], asGeoJSON=False)
-            no_coocs = len(result)
-            isFriends = False
-            if no_coocs >=5:
-                count = 0
-                for cooc in result:
-                    spatial_bin = cooc[1]
-                    common_time_bins = list(set(cooc[2]) & set(cooc[2]))
-                    user_lengths = [len(self.find_users_in_cooccurrence(spatial_bin, tbin)) for tbin in common_time_bins]
-                    if all([length==2 for length in user_lengths]):
-                        count+=1
-                    if (count/no_coocs) >= ratio:
-                        isFriends = True
-                        friends.append((pair[0],pair[1], no_coocs))
-                        break
-            if not isFriends and no_coocs > 0:
-                nonfriends.append((pair[0], pair[1]))
-        return friends, nonfriends
+    def find_friend_and_nonfriend_pairs(self):
+        filenames = ["all_app_201509.json","all_app_201510.json","all_app_201511.json"]
+        phone_features = ["com.android.incallui"]
+        phone_time_limit = 10
+        im_features = ['com.snapchat.android', 'com.Slack', 'com.verizon.messaging.vzmsgs', 'jp.naver.line.android',
+                       'com.whatsapp', 'org.telegram.messenger', 'com.google.android.talk', 'com.viber.voip', 'com.alibaba.android.rimet', 
+                       'com.skype.raider', 'com.sonyericsson.conversations', 'com.kakao.talk', 'com.google.android.apps.messaging',
+                       'com.facebook.orca', 'com.tenthbit.juliet', 'com.tencent.mm']
+
+        
+        rows = []
+        callback_func = lambda row: rows.append(row)
+        d.insert_from_json(filenames=filenames, callback_func=callback_func)
+
+        japan_users = self.database.get_users_in_country("Japan")
+        japan_records = [row for row in rows if row["useruuid"] in japan_users]
+
+        communication_records = [row for row in japan_records if row["package_name"] in phone_features+im_features and row["useruuid"] in japan_users]
+
+        pairs = []
+        for x in tqdm(communication_records):
+            start_time_x = parser.parse(x["start_time"])
+            end_time_x = parser.parse(x["end_time"])
+            useruuid_x = x["useruuid"]
+            for y in communication_records:
+                useruuid_y = y["useruuid"]
+                if useruuid_x == useruuid_y or x["package_name"] != y["package_name"]:
+                    continue
+                start_time_y = parser.parse(y["start_time"])
+                end_time_y = parser.parse(y["end_time"])
+                start_diff = abs(start_time_x-start_time_y).seconds
+                end_diff = abs(end_time_x-end_time_y).seconds
+                if start_diff < 20 and end_diff < 20:
+                    print(x["package_name"])
+                    pairs.append((useruuid_x, useruuid_y, start_diff, end_diff))
+                    print(useruuid_x, useruuid_y, start_diff, end_diff)
+                    print(len(self.database.find_cooccurrences(useruuid_x,points_w_distances=[[(139.743862,35.630338), 1000]], useruuid2=useruuid_y)))
+                    print("--------------------------------------------------------------------")
+
+        print(len(pairs))
 
     
     def calculate_unique_cooccurrences_numpy(self, cooc_arr):
@@ -460,14 +478,15 @@ if __name__ == '__main__':
     p = Predictor(60)
     d = DatabaseHelper.DatabaseHelper()
     #users, countries, locations_arr = d.load_numpy_matrix()
-    locations_labels = ["user", "spatial_bin", "time_bin", "country"]
-    cooccurrences_labels = ["user1", "user2", "spatial_bin", "time_bin"]
+    #locations_labels = ["user", "spatial_bin", "time_bin", "country"]
+    #cooccurrences_labels = ["user1", "user2", "spatial_bin", "time_bin"]
     #friends, nonfriends = p.find_friend_and_nonfriend_pairs()
     #p.save_friend_and_nonfriend_pairs(friends, nonfriends)
-    friends, nonfriends = p.load_friend_and_nonfriend_pairs()
-    X, y = p.generate_dataset(friends, nonfriends, 100, 100)
-    print(X,y)
-    p.predict(X,y)
+    #friends, nonfriends = p.load_friend_and_nonfriend_pairs()
+    #X, y = p.generate_dataset(friends, nonfriends, 100, 100)
+    #print(X,y)
+    #p.predict(X,y)
+    p.find_friend_and_nonfriend_pairs()
     #japan_arr = locations_arr[np.in1d([locations_arr[:,3]], [countries["Japan"]])]
     #with open("cooccurrences.npy", "rb") as f:
     #        cooccurrences = np.load(f)

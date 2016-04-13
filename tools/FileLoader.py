@@ -39,6 +39,11 @@ class FileLoader():
 
         return friend_pairs, nonfriend_pairs
 
+    def load_cooccurrences(self):
+        with open("cooccurrences.npy", "rb") as f:
+                coocs = np.load(f)
+        return coocs
+
     def save_x_and_y(self, x, y):
         with open("datasetX.pickle", "wb") as fp:
             pickle.dump(x, fp)

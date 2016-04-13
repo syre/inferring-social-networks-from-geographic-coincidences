@@ -53,12 +53,12 @@ class Predictor():
             grid_boundaries_tuple[3] + 90) * pow(10, spatial_resolution_decimals)
 
     def generate_dataset(self, friend_pairs, non_friend_pairs, friend_size=None, nonfriend_size=None):
-        users, countries, locations_arr = self.database_helper.load_numpy_matrix()
+        users, countries, locations_arr = self.file_loader.load_numpy_matrix()
         japan_arr = locations_arr[
             np.in1d([locations_arr[:, 3]], [countries["Japan"]])]
-        with open("cooccurrences.npy", "rb") as f:
-            coocs = np.load(f)
 
+        coocs = self.file_loader.load_cooccurrences()
+        datahelper = self.dataset_helper
         if friend_size:
             friend_pairs = random.sample(friend_pairs, friend_size)
         if nonfriend_size:
@@ -76,12 +76,12 @@ class Predictor():
             pair2_coocs = coocs[
                 (coocs[:, 0] == user2) & (coocs[:, 1] == user1)]
             pair_coocs = np.vstack((pair1_coocs, pair2_coocs))
-            X[index:, 1] = self.calculate_arr_leav_numpy(pair_coocs, japan_arr)
-            X[index, 2] = self.calculate_diversity_numpy(pair_coocs)
-            X[index, 3] = self.calculate_unique_cooccurrences_numpy(pair_coocs)
-            X[index, 4] = self.calculate_weighted_frequency_numpy(
+            X[index:, 1] = datahelper.calculate_arr_leav(pair_coocs, japan_arr)
+            X[index, 2] = datahelper.calculate_diversity(pair_coocs)
+            X[index, 3] = datahelper.calculate_unique_cooccurrences(pair_coocs)
+            X[index, 4] = datahelper.calculate_weighted_frequency(
                 pair_coocs, japan_arr)
-            X[index:, 5] = self.calculate_coocs_w_numpy(pair_coocs, japan_arr)
+            X[index:, 5] = datahelper.calculate_coocs_w(pair_coocs, japan_arr)
 
         for index, pair in tqdm(enumerate(non_friend_pairs, start=len(friend_pairs))):
             user1 = users[pair[0]]
@@ -92,12 +92,12 @@ class Predictor():
                 (coocs[:, 0] == user2) & (coocs[:, 1] == user1)]
             pair_coocs = np.vstack((pair1_coocs, pair2_coocs))
             X[index:, 0] = pair_coocs.shape[0]
-            X[index:, 1] = self.calculate_arr_leav_numpy(pair_coocs, japan_arr)
-            X[index, 2] = self.calculate_diversity_numpy(pair_coocs)
-            X[index, 3] = self.calculate_unique_cooccurrences_numpy(pair_coocs)
-            X[index, 4] = self.calculate_weighted_frequency_numpy(
+            X[index:, 1] = datahelper.calculate_arr_leav(pair_coocs, japan_arr)
+            X[index, 2] = datahelper.calculate_diversity(pair_coocs)
+            X[index, 3] = datahelper.calculate_unique_cooccurrences(pair_coocs)
+            X[index, 4] = datahelper.calculate_weighted_frequency_numpy(
                 pair_coocs, japan_arr)
-            X[index:, 5] = self.calculate_coocs_w_numpy(pair_coocs, japan_arr)
+            X[index:, 5] = datahelper.calculate_coocs_w(pair_coocs, japan_arr)
 
         y = np.array([1 for x in range(len(friend_pairs))] +
                      [0 for x in range(len(non_friend_pairs))])

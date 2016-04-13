@@ -7,7 +7,7 @@ import itertools
 class DatasetHelper():
 
     def __init__(self):
-        self.file_loader = FileLoader.FileLoader()
+        self.file_loader = FileLoader()
 
     def calculate_unique_cooccurrences(self, cooc_arr):
         return np.unique(cooc_arr[:, 2]).shape[0]

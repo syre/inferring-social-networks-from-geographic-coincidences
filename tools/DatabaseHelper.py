@@ -12,7 +12,6 @@ from tqdm import tqdm
 import numpy as np
 import itertools
 
-from GeoCalculation import GeoCalculation
 from FileLoader import FileLoader
 
 
@@ -62,7 +61,6 @@ class DatabaseHelper():
                 time_bins integer[],
                 spatial_bin bigint)"""
 
-        self.geo_calc = GeoCalculation()
         # if database is setup
         if self.db_setup_test():
             all_users = self.get_distinct_feature("useruuid", "location")

@@ -132,3 +132,15 @@ class FileLoader():
         self.save_numpy_matrix(useruuid_dict, country_dict, locations)
 
         return locations
+
+    def load_by_filename(self, filename):
+        dot = filename.rfind(".")
+        if filename[dot+1:] == "json":
+            with open(os.path.join("data", filename), 'r') as json_file:
+                return json.load(json_file)
+        elif filename[dot+1:] == "pickle":
+            with open(os.path.join("data", filename), "rb") as f:
+                return pickle.load(f)
+        else:
+            with open(os.path.join("data", filename), "r") as f:
+                return f.readlines()

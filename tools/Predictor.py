@@ -18,7 +18,6 @@ import random
 class Predictor():
 
     def __init__(self,
-                 timebin_size_in_minutes,
                  from_date=datetime.strptime(
                      "2015-09-01", "%Y-%m-%d").replace(tzinfo=timezone("Asia/Tokyo")),
                  to_date=datetime.strptime(
@@ -41,7 +40,6 @@ class Predictor():
         self.file_loader = FileLoader()
         self.min_datetime = from_date
         self.max_datetime = to_date
-        self.timebin_size = timebin_size_in_minutes
         self.spatial_resolution_decimals = spatial_resolution_decimals
         self.country = country
 
@@ -357,7 +355,7 @@ class Predictor():
 if __name__ == '__main__':
     #JAPAN_TUPLE = (120, 150, 20, 45)
     #decimals = 2
-    p = Predictor(60)
+    p = Predictor()
     #users, countries, locations_arr = d.load_numpy_matrix()
     #locations_labels = ["user", "spatial_bin", "time_bin", "country"]
     #cooccurrences_labels = ["user1", "user2", "spatial_bin", "time_bin"]

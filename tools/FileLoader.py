@@ -34,3 +34,16 @@ class FileLoader():
             nonfriend_pairs = pickle.load(fp)
 
         return friend_pairs, nonfriend_pairs
+
+    def save_x_and_y(self, x, y):
+        with open("datasetX.pickle", "wb") as fp:
+            pickle.dump(x, fp)
+        with open("datasetY.pickle", "wb") as fp:
+            pickle.dump(y, fp)
+
+    def load_x_and_y(self):
+        with open("datasetX.pickle", "rb") as fp:
+            x = pickle.load(fp)
+        with open("datasetY.pickle", "rb") as fp:
+            y = pickle.load(fp)
+        return x, y

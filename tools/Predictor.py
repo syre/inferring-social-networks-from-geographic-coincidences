@@ -11,7 +11,6 @@ import sklearn
 import sklearn.ensemble
 from sklearn import cross_validation
 from tqdm import tqdm
-import pickle
 import random
 import FileLoader
 
@@ -46,8 +45,6 @@ class Predictor():
         self.GRID_MAX_LNG = (grid_boundaries_tuple[1] + 180) * pow(10, spatial_resolution_decimals)
         self.GRID_MIN_LAT = (grid_boundaries_tuple[2] + 90) * pow(10, spatial_resolution_decimals)
         self.GRID_MAX_LAT = (grid_boundaries_tuple[3] + 90) * pow(10, spatial_resolution_decimals)
-        #print("GRID_MIN_LNG = {}\nGRID_MAX_LNG = {}\nGRID_MIN_LAT = {}\nGRID_MAX_LAT = {}\n------------------".
-        #    format(self.GRID_MIN_LNG, self.GRID_MAX_LNG, self.GRID_MIN_LAT, self.GRID_MAX_LAT))
     
     def generate_dataset(self, friend_pairs, non_friend_pairs, friend_size = None, nonfriend_size = None):
         users, countries, locations_arr = d.load_numpy_matrix()
@@ -82,13 +79,12 @@ class Predictor():
             pair1_coocs = coocs[(coocs[:,0] == user1) & (coocs[:,1] == user2)]
             pair2_coocs = coocs[(coocs[:,0] == user2) & (coocs[:,1] == user1)]
             pair_coocs = np.vstack((pair1_coocs, pair2_coocs))
-            X[index:,0] = pair_coocs.shape[0]
-            X[index:,1] = self.calculate_arr_leav_numpy(pair_coocs, japan_arr)
-            X[index,2] = self.calculate_diversity_numpy(pair_coocs)
-            X[index,3] = self.calculate_unique_cooccurrences_numpy(pair_coocs)
-            X[index,4] = self.calculate_weighted_frequency_numpy(pair_coocs, japan_arr)
-            X[index:,5] = self.calculate_coocs_w_numpy(pair_coocs, japan_arr)
-            #X[index:,3] = self.calculate_corr(pair[0], pair[1])
+            X[index:, 0] = pair_coocs.shape[0]
+            X[index:, 1] = self.calculate_arr_leav_numpy(pair_coocs, japan_arr)
+            X[index, 2] = self.calculate_diversity_numpy(pair_coocs)
+            X[index, 3] = self.calculate_unique_cooccurrences_numpy(pair_coocs)
+            X[index, 4] = self.calculate_weighted_frequency_numpy(pair_coocs, japan_arr)
+            X[index:, 5] = self.calculate_coocs_w_numpy(pair_coocs, japan_arr)
 
         y = np.array([1 for x in range(len(friend_pairs))] + [0 for x in range(len(non_friend_pairs))])
 
@@ -206,7 +202,7 @@ class Predictor():
                 number_of_new_arrivals = len(set(arrive_list)-set(before_arrive_list))
 
                 if number_of_new_arrivals == 0:
-                    arr_leav_value+=1
+                    arr_leav_value += 1
                 else:
                     arr_leav_value += (1/(number_of_new_arrivals))
 
@@ -221,7 +217,7 @@ class Predictor():
                 number_of_leavers = len(set(after_leave_list)-set(leave_list))
                 
                 if number_of_leavers == 0:
-                    arr_leav_value+=1
+                    arr_leav_value += 1
                 else:
                     arr_leav_value += (1/(number_of_leavers))
             
@@ -298,18 +294,7 @@ class Predictor():
 
         return np.exp(shannon_entropy)
     
-    def save_x_and_y(self, x, y):
-        with open( "datasetX.pickle", "wb" ) as fp:
-            pickle.dump(x, fp)
-        with open( "datasetY.pickle", "wb" ) as fp:
-            pickle.dump(y, fp)
-    
-    def load_x_and_y(self):
-        with open( "datasetX.pickle", "rb" ) as fp:
-            x = pickle.load(fp)
-        with open( "datasetY.pickle", "rb" ) as fp:
-            y = pickle.load(fp)
-        return x, y
+
 
     
     def calculate_weighted_frequency(self, cooccurrences):

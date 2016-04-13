@@ -9,10 +9,10 @@ class DatasetHelper():
     def __init__(self):
         self.file_loader = FileLoader.FileLoader()
 
-    def calculate_unique_cooccurrences_numpy(self, cooc_arr):
+    def calculate_unique_cooccurrences(self, cooc_arr):
         return np.unique(cooc_arr[:, 2]).shape[0]
 
-    def calculate_arr_leav_numpy(self, cooc_arr, loc_arr):
+    def calculate_arr_leav(self, cooc_arr, loc_arr):
         if cooc_arr.shape[0] == 0:
             print("no cooccurrences in arr_leav")
             return 0
@@ -60,7 +60,7 @@ class DatasetHelper():
 
         return sum(arr_leav_values)/cooc_arr.shape[0]
 
-    def calculate_coocs_w_numpy(self, cooc_arr, loc_arr):
+    def calculate_coocs_w(self, cooc_arr, loc_arr):
         if cooc_arr.shape[0] == 0:
             print("no cooccurrences for cooc_w")
             return 0
@@ -71,7 +71,7 @@ class DatasetHelper():
             coocs_w_values.append(1/(coocs_w_value-1))
         return sum(coocs_w_values)/cooc_arr.shape[0]
 
-    def calculate_diversity_numpy(self, cooc_arr):
+    def calculate_diversity(self, cooc_arr):
         frequency = cooc_arr.shape[0]
         _, counts = np.unique(cooc_arr[:, 2], return_counts=True)
 
@@ -79,7 +79,7 @@ class DatasetHelper():
                                   (np.log2(counts/frequency)))
         return np.exp(shannon_entropy)
 
-    def calculate_weighted_frequency_numpy(self, cooc_arr, loc_arr):
+    def calculate_weighted_frequency(self, cooc_arr, loc_arr):
         weighted_frequency = 0
         spatial_bins, counts = np.unique(cooc_arr[:, 2], return_counts=True)
         for spatial_bin, count in zip(spatial_bins, counts):
@@ -98,7 +98,7 @@ class DatasetHelper():
             weighted_frequency += count * np.exp(-location_entropy)
         return weighted_frequency
 
-    def generate_cooccurrences_array_numpy(self, arr):
+    def generate_cooccurrences_array(self, arr):
         unique_users = np.unique(arr[:, [0]])
         labels = ["useruuid1", "useruuid2", "time_bin", "spatial_bin"]
         cooccurrences_arr = np.ndarray(shape=(0, 4))

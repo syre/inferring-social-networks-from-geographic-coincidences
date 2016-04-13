@@ -1,0 +1,74 @@
+{
+  "type": "record",
+  "name": "ApplicationActivity",
+  "namespace": "com.sonymobile.lifelog.schema",
+  "fields": [
+    {
+      "name": "timestamp_seen",
+      "type": "long",
+      "default": 0,
+      "doc": "Milliseconds since the epoch indicating UTC date and time when this record was posted on the firehose. This field is created and added by the ETL pipeline."
+    },
+    {
+      "name": "id",
+      "type": "string",
+      "doc": "Activity UUID"
+    },
+    {
+      "name": "deleted_time",
+      "type": "string",
+      "default": "",
+      "doc": "If this activity has been deleted, this is the timestamp when it occurred"
+    },
+    {
+      "name": "useruuid",
+      "type": "string",
+      "doc": "User UUID"
+    },
+    {
+      "name": "start_time",
+      "type": "string",
+      "doc": "Start time"
+    },
+    {
+      "name": "end_time",
+      "type": "string",
+      "doc": "End time"
+    },
+    {
+      "name": "package_name",
+      "type": "string",
+      "doc": "The package name of the started application"
+    },
+    {
+      "name": "application_name",
+      "type": "string",
+      "doc": "The human readable name of the started application"
+    },
+    {
+      "name": "category",
+      "type": "string",
+      "doc": "The application category, as decided by Lifelog"
+    },
+    {
+      "name": "genre",
+      "type": "string",
+      "doc": "The application genre, as found in Google Play",
+      "default": ""
+    },
+    {
+      "name": "icon",
+      "type": "string",
+      "doc": "The application icon, as an URL to an image"
+    },
+    {
+      "name": "devices",
+      "type": {
+        "type": "array",
+        "items": "com.sonymobile.lifelog.schema.Device"
+      },
+      "doc": "Devices used during this activity"
+    }
+  ],
+  "doc": "Application activity"
+}

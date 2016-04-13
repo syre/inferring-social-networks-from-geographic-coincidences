@@ -217,13 +217,15 @@ class DatabaseHelper():
         if feature == "country":
             cursor = self.conn.cursor()
             cursor.execute(
-                """select country, count(*) from location group by country order by count(*) desc;""")
+                """select country, count(*) from location group by country
+                order by count(*) desc;""")
             result = cursor.fetchall()
             countries = [row[0] for row in result]
             count = [row[1] for row in result]
             # return with order value =(-count) to sort by count descending
             return {"results": [{"Countries": x[0], "Count": x[1],
-                                 "Order":-x[1]} for x in zip(countries, count)],
+                                 "Order":-x[1]}
+                                 for x in zip(countries, count)],
                     'x_axis': "Countries", 'y_axis': "Count"}
 
     def auxiliary_function_velocity(self, lst_start_time, lst_end_time,
@@ -292,7 +294,7 @@ class DatabaseHelper():
             spatial_query = " AND location.spatial_bin = '{}'".format(
                 spatial_bin)
         cursor = self.conn.cursor()
-        cursor.execute("""SELECT useruuid, start_time, end_time, 
+        cursor.execute("""SELECT useruuid, start_time, end_time,
             ST_X(location::geometry), ST_Y(location::geometry) from location
             where location.useruuid = (%s) """ +
                        country_query + spatial_query + """;""", (useruuid,))
@@ -439,7 +441,8 @@ class DatabaseHelper():
         end = datetime.datetime.strptime("01-12-2015", "%d-%m-%Y")
         # generate range of dates from start to end with interval of 1 day
         date_generated = [
-            start + datetime.timedelta(days=x) for x in range(0, (end-start).days)]
+            start + datetime.timedelta(days=x) for x in range(0, (end-start).
+                                                              days)]
 
         for date in date_generated:
             time_dict[date.strftime("%d/%m/%Y")] = 0
@@ -503,7 +506,8 @@ class DatabaseHelper():
             locations = self.get_locations_for_user(user)
             if not any(node['id'] == user for node in nodes):
                 nodes.append(
-                    {"id": user, "label": user, "color": self.user_colors[user]})
+                    {"id": user, "label": user,
+                        "color": self.user_colors[user]})
             cooccurrences = []
             for location in locations:
                 start_time = location[1]
@@ -515,7 +519,7 @@ class DatabaseHelper():
             #   start_time and time_threshold_in_hours/2 after end_time
             # this also means time window can get really long, what are the
             # consequences?
-            cursor.execute(""" SELECT useruuid AS geom from location 
+            cursor.execute(""" SELECT useruuid AS geom from location
                 where location.useruuid != (%s)
                 and (start_time between (%s) - interval '%s minutes'
                 and (%s)) and (end_time between (%s) and (%s) +
@@ -550,7 +554,7 @@ class DatabaseHelper():
 
     def get_locations_by_country(self, country, start_datetime, end_datetime):
         cursor = self.conn.cursor()
-        cursor.execute(""" SELECT useruuid, ST_AsGeoJSON(location) AS geom, 
+        cursor.execute(""" SELECT useruuid, ST_AsGeoJSON(location) AS geom,
             start_time, end_time FROM location
             WHERE country=(%s) AND
             ((start_time, end_time) OVERLAPS ((%s), (%s)));""",
@@ -571,7 +575,7 @@ class DatabaseHelper():
             print("hurtig")
             total_rows = []
             cursor.execute(
-                """SELECT country, SUM((end_time-start_time)) AS 
+                """SELECT country, SUM((end_time-start_time)) AS
                 total_diff_time, count(*) AS number_rows_for_user
                 FROM location GROUP BY country ORDER BY country;""")
             result = cursor.fetchall()
@@ -594,7 +598,7 @@ class DatabaseHelper():
         else:
             cursor = self.conn.cursor()
             cursor.execute(
-                """ SELECT useruuid, SUM((end_time-start_time)) AS 
+                """ SELECT useruuid, SUM((end_time-start_time)) AS
                 total_diff_time, count(*) AS number_rows_for_user
                 FROM location WHERE country=(%s) GROUP BY useruuid;""",
                 (country,))
@@ -676,89 +680,10 @@ class DatabaseHelper():
             (country,))
         return cursor.fetchall()[0][0]
 
-    def generate_numpy_matrix_from_json(self, path=""):
-        file_names = ["all_201509.json", "all_201510.json", "all_201511.json"]
-        useruuid_dict = {}
-        country_dict = {}
-
-        user_count = 0
-        country_count = 0
-        locations = []
-        for file_name in tqdm(file_names):
-            with open(os.path.join(path, file_name), 'r') as json_file:
-                raw_data = json.load(json_file)
-            for row in tqdm(raw_data, nested=True):
-                spatial_bin = self.calculate_spatial_bin(
-                    row["longitude"], row["latitude"])
-                time_bins = self.calculate_time_bins(
-                    row["start_time"], row["end_time"])
-                for time_bin in time_bins:
-                    if row["useruuid"] not in useruuid_dict:
-                        user_count += 1
-                        useruuid_dict[row["useruuid"]] = user_count
-                    if row["country"] not in country_dict:
-                        country_count += 1
-                        country_dict[row["country"]] = country_count
-                    useruuid = useruuid_dict[row["useruuid"]]
-                    country = country_dict[row["country"]]
-
-                    locations.append(
-                        [useruuid, spatial_bin, time_bin, country])
-        locations = np.array(locations)
-        with open("pickled_users.pickle", "wb") as f:
-            pickle.dump(useruuid_dict, f)
-        with open("pickled_countries.pickle", "wb") as f:
-            pickle.dump(country_dict, f)
-        with open("pickled_locations.npy", "wb") as f:
-            np.save(f, locations)
-
-        return locations
-
-    def load_numpy_matrix(self):
-        with open("pickled_users.pickle", "rb") as f:
-            users = pickle.load(f)
-
-        with open("pickled_countries.pickle", "rb") as f:
-            countries = pickle.load(f)
-
-        with open("pickled_locations.npy", "rb") as f:
-            numpy_arr = np.load(f)
-        return users, countries, numpy_arr
-
-    def generate_cooccurrences_array_numpy(self, arr):
-        unique_users = np.unique(arr[:, [0]])
-        labels = ["useruuid1", "useruuid2", "time_bin", "spatial_bin"]
-        cooccurrences_arr = np.ndarray(shape=(0, 4))
-        # generate all combinations of users
-        for user_pair in itertools.combinations(unique_users, 2):
-            user1 = user_pair[0]
-            user2 = user_pair[1]
-            # find locations for user1 and user2
-            user1_arr = arr[(arr[:, 0] == user1)]
-            user2_arr = arr[(arr[:, 0] == user2)]
-
-            # extract time and spatial bin columns
-            user1_arr = user1_arr[:, [1, 2]]
-            user2_arr = user2_arr[:, [1, 2]]
-            # retrieve indexes where rows are identical
-            user1_indexes = np.unique(np.array(np.all(
-                (user1_arr[:, None, :] == user2_arr[None, :, :]), axis=-1).
-                nonzero()).T[:, [0]])
-            cooccurrences = user1_arr[user1_indexes]
-            user1_col = np.empty(shape=(cooccurrences.shape[0], 1))
-            user2_col = np.empty(shape=(cooccurrences.shape[0], 1))
-            user1_col.fill(user1)
-            user2_col.fill(user2)
-            cooccurrences = np.hstack(
-                (np.column_stack((user1_col, user2_col)), cooccurrences))
-            cooccurrences_arr = np.vstack((cooccurrences_arr, cooccurrences))
-        return cooccurrences_arr
-
-
 if __name__ == '__main__':
     d = DatabaseHelper()
-    #print(d.find_cooccurrences("f67ae795-1f2b-423c-ba30-cdd5cbb23662",
-    #useruuid2="f3437039-936a-41d6-93a0-d34ab4424a96", asGeoJSON=False))
+    # print(d.find_cooccurrences("f67ae795-1f2b-423c-ba30-cdd5cbb23662",
+    # useruuid2="f3437039-936a-41d6-93a0-d34ab4424a96", asGeoJSON=False))
     # d.dump_missing_geographical_rows()
     # d.drop_tables()
     # d.db_setup()
@@ -802,7 +727,7 @@ if __name__ == '__main__':
     #users, countries, locations_arr = d.load_numpy_matrix()
     #labels = ["user", "spatial_bin", "time_bin", "country"]
 
-    #japan_arr = locations_arr[np.in1d([locations_arr[:,3]],
+    # japan_arr = locations_arr[np.in1d([locations_arr[:,3]],
     #[countries["Japan"]])]
     #cooccurrences = d.generate_cooccurrences_array_numpy(japan_arr)
     # with open("cooccurrences.npy","wb") as f:

@@ -297,6 +297,7 @@ class Predictor():
                        'com.facebook.orca', 'com.tenthbit.juliet',
                        'com.tencent.mm']
         user_info_dict = self.file_loader.generate_demographics_from_csv()
+        user_info_dict = self.file_loader.filter_demographic_outliers(user_info_dict)
         rows = []
 
         def callback_func(row): rows.append(row)
@@ -337,25 +338,7 @@ class Predictor():
 
 
 if __name__ == '__main__':
-    #JAPAN_TUPLE = (120, 150, 20, 45)
-    #decimals = 2
     p = Predictor()
-    #users, countries, locations_arr = d.load_numpy_matrix()
-    #locations_labels = ["user", "spatial_bin", "time_bin", "country"]
-    #cooccurrences_labels = ["user1", "user2", "spatial_bin", "time_bin"]
-    #friends, nonfriends = p.find_friend_and_nonfriend_pairs()
-    #p.save_friend_and_nonfriend_pairs(friends, nonfriends)
-    #friends, nonfriends = p.load_friend_and_nonfriend_pairs()
-    #X, y = p.generate_dataset(friends, nonfriends, 100, 100)
     # print(X,y)
     # p.predict(X,y)
     p.find_friend_and_nonfriend_pairs()
-    #japan_arr = locations_arr[np.in1d([locations_arr[:,3]], [countries["Japan"]])]
-    # with open("cooccurrences.npy", "rb") as f:
-    #        cooccurrences = np.load(f)
-    # print(p.calculate_unique_cooccurrences_numpy(cooccurrences))
-    # print(len(cooccurrences))
-    # print(p.calculate_diversity_numpy(cooccurrences))
-    #print(p.calculate_weighted_frequency_numpy(cooccurrences, locations_arr))
-    #print(p.calculate_arr_leave_numpy(cooccurrences, locations_arr))
-    #print(p.calculate_coocs_w(cooccurrences, locations_arr))

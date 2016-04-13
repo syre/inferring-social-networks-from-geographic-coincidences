@@ -11,6 +11,8 @@ import csv
 
 
 class FileLoader():
+    def __init__(self):
+        self.DATA_PATH = os.path.join(os.path.dirname(__file__), "data")
 
     def generate_data_from_json(self, filenames, callback_func, path="data"):
         for file_name in tqdm(filenames):
@@ -23,12 +25,16 @@ class FileLoader():
         file_name = "user_data.csv"
         user_info_dict = defaultdict(list)
 
-        with open(os.path.join(path, file_name)) as csv_file:
+        with open(os.path.join(self.DATA_PATH, file_name)) as csv_file:
             reader = csv.reader(csv_file)
             for row in reader:
                 birthdate = parser.parse(row[2])
                 age = datetime.now()-birthdate
-                user_info_dict[row[0]] = {"gender": row[1], "age": age.days/365}
+                user_info_dict[row[0]] = {"gender": row[1], "age": int(age.days/365), "birthdate": row[2]}
+        return user_info_dict
+
+    def filter_demographic_outliers(self, user_info_dict):
+        user_info_dict = defaultdict(list, {k: v for k, v in user_info_dict.items() if v["birthdate"] != "1990-01-01" and v["birthdate"] != "1981-01-01" and v["birthdate"] != "1980-12-01"})
         return user_info_dict
 
     def generate_app_data_from_json(self, callback_func, path="data"):
@@ -48,48 +54,48 @@ class FileLoader():
             pickle.dump(nonfriend_pairs, fp)
 
     def load_friend_and_nonfriend_pairs(self):
-        with open(os.path.join("data", "friend_pairs.pickle"), "rb") as fp:
+        with open(os.path.join(self.DATA_PATH, "friend_pairs.pickle"), "rb") as fp:
             friend_pairs = pickle.load(fp)
-        with open(os.path.join("data", "nonfriend_pairs.pickle"), "rb") as fp:
+        with open(os.path.join(self.DATA_PATH, "nonfriend_pairs.pickle"), "rb") as fp:
             nonfriend_pairs = pickle.load(fp)
 
         return friend_pairs, nonfriend_pairs
 
     def load_cooccurrences(self):
-        with open(os.path.join("data", "cooccurrences.npy"), "rb") as f:
+        with open(os.path.join(self.DATA_PATH, "cooccurrences.npy"), "rb") as f:
             coocs = np.load(f)
         return coocs
 
     def save_x_and_y(self, x, y):
-        with open(os.path.join("data", "datasetX.pickle"), "wb") as fp:
+        with open(os.path.join(self.DATA_PATH, "datasetX.pickle"), "wb") as fp:
             pickle.dump(x, fp)
-        with open(os.path.join("data", "datasetY.pickle"), "wb") as fp:
+        with open(os.path.join(self.DATA_PATH, "data", "datasetY.pickle"), "wb") as fp:
             pickle.dump(y, fp)
 
     def load_x_and_y(self):
-        with open(os.path.join("data", "datasetX.pickle"), "rb") as fp:
+        with open(os.path.join(self.DATA_PATH, "datasetX.pickle"), "rb") as fp:
             x = pickle.load(fp)
-        with open(os.path.join("data", "datasetY.pickle"), "rb") as fp:
+        with open(os.path.join(self.DATA_PATH, "datasetY.pickle"), "rb") as fp:
             y = pickle.load(fp)
         return x, y
 
     def load_numpy_matrix(self):
-        with open(os.path.join("data", "pickled_users.pickle"), "rb") as f:
+        with open(os.path.join(self.DATA_PATH, "pickled_users.pickle"), "rb") as f:
             users = pickle.load(f)
 
-        with open(os.path.join("data", "pickled_countries.pickle"), "rb") as f:
+        with open(os.path.join(self.DATA_PATH, "pickled_countries.pickle"), "rb") as f:
             countries = pickle.load(f)
 
-        with open(os.path.join("data", "pickled_locations.npy"), "rb") as f:
+        with open(os.path.join(self.DATA_PATH, "pickled_locations.npy"), "rb") as f:
             numpy_arr = np.load(f)
         return users, countries, numpy_arr
 
     def save_numpy_matrix(self, useruuid_dict, country_dict, locations):
-        with open("pickled_users.pickle", "wb") as f:
+        with open(os.path.join(self.DATA_PATH, "pickled_users.pickle"), "wb") as f:
             pickle.dump(useruuid_dict, f)
-        with open("pickled_countries.pickle", "wb") as f:
+        with open(os.path.join(self.DATA_PATH, "pickled_countries.pickle"), "wb") as f:
             pickle.dump(country_dict, f)
-        with open("pickled_locations.npy", "wb") as f:
+        with open(os.path.join(self.DATA_PATH, "pickled_locations.npy"), "wb") as f:
             np.save(f, locations)
 
     def generate_numpy_matrix_from_json(self):

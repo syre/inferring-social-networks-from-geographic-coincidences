@@ -8,7 +8,7 @@ import numpy as np
 
 class FileLoader():
 
-    def generate_data_from_json(self, filenames, callback_func, path=""):
+    def generate_data_from_json(self, filenames, callback_func, path="data"):
         for file_name in tqdm(filenames):
             with open(os.path.join(path, file_name), 'r') as json_file:
                 raw_data = json.load(json_file)
@@ -26,49 +26,57 @@ class FileLoader():
         return self.generate_data_from_json(filenames, callback_func, path)
 
     def save_friend_and_nonfriend_pairs(self, friend_pairs, nonfriend_pairs):
-        with open("friend_pairs.pickle", "wb") as fp:
+        with open(os.path.join("data", "friend_pairs.pickle"), "wb") as fp:
             pickle.dump(friend_pairs, fp)
-        with open("nonfriend_pairs.pickle", "wb") as fp:
+        with open(os.path.join("data", "nonfriend_pairs.pickle"), "wb") as fp:
             pickle.dump(nonfriend_pairs, fp)
 
     def load_friend_and_nonfriend_pairs(self):
-        with open("friend_pairs.pickle", "rb") as fp:
+        with open(os.path.join("data", "friend_pairs.pickle"), "rb") as fp:
             friend_pairs = pickle.load(fp)
-        with open("nonfriend_pairs.pickle", "rb") as fp:
+        with open(os.path.join("data", "nonfriend_pairs.pickle"), "rb") as fp:
             nonfriend_pairs = pickle.load(fp)
 
         return friend_pairs, nonfriend_pairs
 
     def load_cooccurrences(self):
-        with open("cooccurrences.npy", "rb") as f:
+        with open(os.path.join("data", "cooccurrences.npy"), "rb") as f:
                 coocs = np.load(f)
         return coocs
 
     def save_x_and_y(self, x, y):
-        with open("datasetX.pickle", "wb") as fp:
+        with open(os.path.join("data", "datasetX.pickle"), "wb") as fp:
             pickle.dump(x, fp)
-        with open("datasetY.pickle", "wb") as fp:
+        with open(os.path.join("data", "datasetY.pickle"), "wb") as fp:
             pickle.dump(y, fp)
 
     def load_x_and_y(self):
-        with open("datasetX.pickle", "rb") as fp:
+        with open(os.path.join("data", "datasetX.pickle"), "rb") as fp:
             x = pickle.load(fp)
-        with open("datasetY.pickle", "rb") as fp:
+        with open(os.path.join("data", "datasetY.pickle"), "rb") as fp:
             y = pickle.load(fp)
         return x, y
 
     def load_numpy_matrix(self):
-        with open("pickled_users.pickle", "rb") as f:
+        with open(os.path.join("data", "pickled_users.pickle"), "rb") as f:
             users = pickle.load(f)
 
-        with open("pickled_countries.pickle", "rb") as f:
+        with open(os.path.join("data", "pickled_countries.pickle"), "rb") as f:
             countries = pickle.load(f)
 
-        with open("pickled_locations.npy", "rb") as f:
+        with open(os.path.join("data", "pickled_locations.npy"), "rb") as f:
             numpy_arr = np.load(f)
         return users, countries, numpy_arr
 
-    def generate_numpy_matrix_from_json(self, path=""):
+    def save_numpy_matrix(self, useruuid_dict, country_dict, locations):
+        with open("pickled_users.pickle", "wb") as f:
+            pickle.dump(useruuid_dict, f)
+        with open("pickled_countries.pickle", "wb") as f:
+            pickle.dump(country_dict, f)
+        with open("pickled_locations.npy", "wb") as f:
+            np.save(f, locations)
+
+    def generate_numpy_matrix_from_json(self, path="data"):
         file_names = ["all_201509.json", "all_201510.json", "all_201511.json"]
         useruuid_dict = {}
         country_dict = {}
@@ -97,11 +105,7 @@ class FileLoader():
                     locations.append(
                         [useruuid, spatial_bin, time_bin, country])
         locations = np.array(locations)
-        with open("pickled_users.pickle", "wb") as f:
-            pickle.dump(useruuid_dict, f)
-        with open("pickled_countries.pickle", "wb") as f:
-            pickle.dump(country_dict, f)
-        with open("pickled_locations.npy", "wb") as f:
-            np.save(f, locations)
+
+        self.save_numpy_matrix(useruuid_dict, country_dict, locations)
 
         return locations

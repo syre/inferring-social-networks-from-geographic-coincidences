@@ -22,7 +22,7 @@ class Predictor():
                      "2015-09-01", "%Y-%m-%d").replace(tzinfo=timezone("Asia/Tokyo")),
                  to_date=datetime.strptime(
                      "2015-11-30", "%Y-%m-%d").replace(tzinfo=timezone("Asia/Tokyo")),
-                 grid_boundaries_tuple=(-180, 180, -90, 90), spatial_resolution_decimals=3,
+                 spatial_resolution_decimals=3,
                  country="Japan"):
         """
             Constructor
@@ -30,8 +30,6 @@ class Predictor():
             Args:
                 timebin_size_in_minutes: size of timebin in minutes - for example 60 to get hourly timebin
                 spatial_resolution_decimals: spatial resolution - used for spatial binning, for example 3 to get lng and lat down to 0.001 precision
-                grid_boundaries_tuple: boundaries of map - used for spatial binning,
-                                       Japan for example is within the range of lng: 120 - 150 and lat: 20-45, thus (120, 150, 20, 45)
                 from_date: start-date used for timebin range
                 to_date: end-date used for timebin range
         """
@@ -42,15 +40,6 @@ class Predictor():
         self.max_datetime = to_date
         self.spatial_resolution_decimals = spatial_resolution_decimals
         self.country = country
-
-        self.GRID_MIN_LNG = (
-            grid_boundaries_tuple[0] + 180) * pow(10, spatial_resolution_decimals)
-        self.GRID_MAX_LNG = (
-            grid_boundaries_tuple[1] + 180) * pow(10, spatial_resolution_decimals)
-        self.GRID_MIN_LAT = (
-            grid_boundaries_tuple[2] + 90) * pow(10, spatial_resolution_decimals)
-        self.GRID_MAX_LAT = (
-            grid_boundaries_tuple[3] + 90) * pow(10, spatial_resolution_decimals)
 
     def generate_dataset(self, friend_pairs, non_friend_pairs, friend_size=None, nonfriend_size=None):
         users, countries, locations_arr = self.file_loader.load_numpy_matrix()
@@ -110,13 +99,6 @@ class Predictor():
             X, y, test_size=0.4, random_state=0)
         tree.fit(X_train, y_train)
         print(tree.score(X_test, y_test))
-
-    def calculate_spatial_bin(self, lng, lat):
-        lat += 90.0
-        lng += 180.0
-        lat = math.trunc(lat*pow(10, self.spatial_resolution_decimals))
-        lng = math.trunc(lng*pow(10, self.spatial_resolution_decimals))
-        return (abs(self.GRID_MAX_LAT - self.GRID_MIN_LAT) * (lat-self.GRID_MIN_LAT)) + (lng-self.GRID_MIN_LNG)
 
     def find_users_in_cooccurrence(self, spatial_bin, time_bin):
         """
@@ -303,6 +285,7 @@ class Predictor():
         return weighted_frequency
 
     def find_friend_and_nonfriend_pairs(self):
+
         phone_features = ["com.android.incallui"]
         im_features = ['com.snapchat.android', 'com.Slack',
                        'com.verizon.messaging.vzmsgs', 'jp.naver.line.android',
@@ -313,7 +296,7 @@ class Predictor():
                        'com.kakao.talk', 'com.google.android.apps.messaging',
                        'com.facebook.orca', 'com.tenthbit.juliet',
                        'com.tencent.mm']
-
+        user_info_dict = self.file_loader.generate_demographics_from_csv()
         rows = []
 
         def callback_func(row): rows.append(row)
@@ -344,6 +327,7 @@ class Predictor():
                     pairs.append(
                         (useruuid_x, useruuid_y, start_diff, end_diff))
                     print(useruuid_x, useruuid_y, start_diff, end_diff)
+                    print(user_info_dict[useruuid_x], user_info_dict[useruuid_y])
                     print(len(self.database_helper.find_cooccurrences(useruuid_x,
                                                                       points_w_distances=[[(139.743862, 35.630338), 1000]], useruuid2=useruuid_y)))
                     print(

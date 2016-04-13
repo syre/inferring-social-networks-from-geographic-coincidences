@@ -4,6 +4,10 @@ import json
 import os
 import pickle
 import numpy as np
+from collections import defaultdict
+from dateutil import parser
+from datetime import datetime
+import csv
 
 
 class FileLoader():
@@ -14,6 +18,18 @@ class FileLoader():
                 raw_data = json.load(json_file)
             for row in tqdm(raw_data):
                 callback_func(row)
+
+    def generate_demographics_from_csv(self, path="data"):
+        file_name = "user_data.csv"
+        user_info_dict = defaultdict(list)
+
+        with open(os.path.join(path, file_name)) as csv_file:
+            reader = csv.reader(csv_file)
+            for row in reader:
+                birthdate = parser.parse(row[2])
+                age = datetime.now()-birthdate
+                user_info_dict[row[0]] = {"gender": row[1], "age": age.days/365}
+        return user_info_dict
 
     def generate_app_data_from_json(self, callback_func, path="data"):
         filenames = [
@@ -41,7 +57,7 @@ class FileLoader():
 
     def load_cooccurrences(self):
         with open(os.path.join("data", "cooccurrences.npy"), "rb") as f:
-                coocs = np.load(f)
+            coocs = np.load(f)
         return coocs
 
     def save_x_and_y(self, x, y):

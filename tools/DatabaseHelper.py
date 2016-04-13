@@ -12,7 +12,6 @@ from tqdm import tqdm
 import numpy as np
 import itertools
 
-from GeoCalculation import GeoCalculation
 from FileLoader import FileLoader
 
 
@@ -34,18 +33,10 @@ class DatabaseHelper():
                          self.settings_dict["PASS"]))
 
         self.spatial_resolution_decimals = spatial_resolution_decimals
-        self.GRID_MIN_LNG = (
-            grid_boundaries_tuple[0] + 180) *
-        pow(10, spatial_resolution_decimals)
-        self.GRID_MAX_LNG = (
-            grid_boundaries_tuple[1] + 180) *
-        pow(10, spatial_resolution_decimals)
-        self.GRID_MIN_LAT = (
-            grid_boundaries_tuple[2] + 90) *
-        pow(10, spatial_resolution_decimals)
-        self.GRID_MAX_LAT = (
-            grid_boundaries_tuple[3] + 90) *
-        pow(10, spatial_resolution_decimals)
+        self.GRID_MIN_LNG = (grid_boundaries_tuple[0] + 180) * pow(10, spatial_resolution_decimals)
+        self.GRID_MAX_LNG = (grid_boundaries_tuple[1] + 180) * pow(10, spatial_resolution_decimals)
+        self.GRID_MIN_LAT = (grid_boundaries_tuple[2] + 90) * pow(10, spatial_resolution_decimals)
+        self.GRID_MAX_LAT = (grid_boundaries_tuple[3] + 90) * pow(10, spatial_resolution_decimals)
 
         self.CREATE_TABLE_LOCATION = """
             CREATE TABLE "location" (id serial PRIMARY KEY,
@@ -62,7 +53,6 @@ class DatabaseHelper():
                 time_bins integer[],
                 spatial_bin bigint)"""
 
-        self.geo_calc = GeoCalculation()
         # if database is setup
         if self.db_setup_test():
             all_users = self.get_distinct_feature("useruuid", "location")
@@ -199,9 +189,7 @@ class DatabaseHelper():
 
         query = "SELECT "+", ".join(["count(CASE WHEN {2} >= {0} AND {2} < {1} \
             THEN 1 END)".format(element, element+step_size, feature)
-            for element in range(0, end_value, step_size)])+
-        ", count(CASE WHEN {0} > {1} THEN 1 END)".
-        format(feature, max_value-step_size)+" from location"
+            for element in range(0, end_value, step_size)]) + ", count(CASE WHEN {0} > {1} THEN 1 END)".format(feature, max_value-step_size)+" from location"
         cursor.execute(query)
         results = list(cursor.fetchall()[0])
 
@@ -225,7 +213,7 @@ class DatabaseHelper():
             # return with order value =(-count) to sort by count descending
             return {"results": [{"Countries": x[0], "Count": x[1],
                                  "Order":-x[1]}
-                                 for x in zip(countries, count)],
+                                for x in zip(countries, count)],
                     'x_axis': "Countries", 'y_axis': "Count"}
 
     def auxiliary_function_velocity(self, lst_start_time, lst_end_time,
@@ -342,8 +330,7 @@ class DatabaseHelper():
 
         if points_w_distances:
             start = "AND NOT ST_DWithin(location, ST_MakePoint("
-            query = " AND NOT ST_DWithin(location, ST_MakePoint(".
-            join(["{0}, {1}), {2})". format(element[0][0], element[0][1],
+            query = " AND NOT ST_DWithin(location, ST_MakePoint(".join(["{0}, {1}), {2})". format(element[0][0], element[0][1],
                                             element[1]) for element in
                   points_w_distances])
 

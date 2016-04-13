@@ -16,7 +16,9 @@ from GeoCalculation import GeoCalculation
 from FileLoader import FileLoader
 class DatabaseHelper():
     """docstring for DatabaseHelper"""
-    def __init__(self, path_to_settings="", grid_boundaries_tuple=(-180, 180, -90, 90), spatial_resolution_decimals = 3):
+    def __init__(self, path_to_settings="",
+                 grid_boundaries_tuple=(-180, 180, -90, 90),
+                 spatial_resolution_decimals=3):
 
         self.settings_dict = self.load_login(file_name="settings.cfg", key_split="=", path=path_to_settings)
         self.conn = psycopg2.connect("host='{}' dbname='{}' user='{}' password='{}'".
@@ -75,11 +77,11 @@ class DatabaseHelper():
         """
         
         if len(allready_gen)<(255*255*255):
-            r = lambda: random.randint(0,255)
-            color = '#%02X%02X%02X' % (r(),r(),r())
+            r = lambda: random.randint(0, 255)
+            color = '#%02X%02X%02X' % (r(), r(), r())
             while color in allready_gen:
-                r = lambda: random.randint(0,255)
-                color = '#%02X%02X%02X' % (r(),r(),r())
+                r = lambda: random.randint(0, 255)
+                color = '#%02X%02X%02X' % (r(), r(), r())
             return color
         raise NameError('No more colors left to choose')
 
@@ -96,10 +98,9 @@ class DatabaseHelper():
             d[key] = []
             for value in values:
                 d[key].append(value)
-            if len(d[key])==1:
+            if len(d[key]) == 1:
                 d[key] = d[key][0]
         return d
-
 
     def db_setup_test(self):
         cursor = self.conn.cursor()
@@ -122,7 +123,6 @@ class DatabaseHelper():
         cursor.execute("CREATE INDEX ON location (time_bins)")
         self.conn.commit()
 
-
     def db_teardown(self):
         cursor = self.conn.cursor()
         cursor.execute("DROP TABLE location")
@@ -136,7 +136,7 @@ class DatabaseHelper():
                        VALUES (%s,%s,%s,ST_SetSRID(ST_MakePoint(%s, %s),4326),%s,%s,%s,%s,%s,%s,%s,%s)""",(row["useruuid"],row["start_time"],row["end_time"],row["longitude"],row["latitude"],
                         row["altitude"],row["accuracy"], row["region"], row["country"], row["area"], row["name"], time_bins, spatial_bin))
         self.conn.commit()
-    
+
     def calculate_spatial_bin(self, lng, lat):
         lat += 90.0
         lng += 180.0
@@ -279,13 +279,12 @@ class DatabaseHelper():
             start ="AND NOT ST_DWithin(location, ST_MakePoint("
             query = " AND NOT ST_DWithin(location, ST_MakePoint(".join(["{0}, {1}), {2})". format(element[0][0],element[0][1],element[1]) for element in points_w_distances])
 
-        
         second_user_query = ""
         if useruuid2:
             second_user_query = " AND location.useruuid = '{}' ".format(useruuid2)
 
         range_query = ""
-        if (min_timebin != None and max_timebin != None):
+        if (min_timebin is not None and max_timebin is not None):
             range_query = " AND {} =< min(location.time_bins) AND {} >= max(location.time_bins)".format(min_timebin, max_timebin)
 
 
@@ -468,7 +467,6 @@ WHERE  user1_table.time_bins && location.time_bins
         cursor.execute("create schema public;")
         self.conn.commit()
 
-
     def get_boxplot_duration(self, country, for_all_countries=False):
         cursor = self.conn.cursor()
         data = []
@@ -549,7 +547,6 @@ WHERE  user1_table.time_bins && location.time_bins
             SELECT users3 FROM auxiliary_ratios WHERE ratio>=(%s);""",(country,ratio,))
         return [user[0] for user in cursor.fetchall()]
 
-
     def get_min_start_time_for_country(self, country):
         cursor = self.conn.cursor()
         cursor.execute("""SELECT MIN(start_time) FROM location WHERE country=(%s);""",(country,))
@@ -586,25 +583,23 @@ WHERE  user1_table.time_bins && location.time_bins
 
                     locations.append([useruuid, spatial_bin, time_bin, country])
         locations = np.array(locations)
-        with open("pickled_users.pickle","wb") as f:
+        with open("pickled_users.pickle", "wb") as f:
             pickle.dump(useruuid_dict, f)
-        
-        with open("pickled_countries.pickle","wb") as f:
+        with open("pickled_countries.pickle", "wb") as f:
             pickle.dump(country_dict, f)
-        
-        with open("pickled_locations.npy","wb") as f:
+        with open("pickled_locations.npy", "wb") as f:
             np.save(f, locations)
-        
+
         return locations
 
     def load_numpy_matrix(self):
-        with open("pickled_users.pickle","rb") as f:
+        with open("pickled_users.pickle", "rb") as f:
             users = pickle.load(f)
-        
-        with open("pickled_countries.pickle","rb") as f:
+
+        with open("pickled_countries.pickle", "rb") as f:
             countries = pickle.load(f)
-        
-        with open("pickled_locations.npy","rb") as f:
+
+        with open("pickled_locations.npy", "rb") as f:
             numpy_arr = np.load(f)
         return users, countries, numpy_arr
 
@@ -617,14 +612,14 @@ WHERE  user1_table.time_bins && location.time_bins
             user1 = user_pair[0]
             user2 = user_pair[1]
             # find locations for user1 and user2
-            user1_arr = arr[(arr[:,0] == user1)]
-            user2_arr = arr[(arr[:,0] == user2)]
-            
+            user1_arr = arr[(arr[:, 0] == user1)]
+            user2_arr = arr[(arr[:, 0] == user2)]
+
             # extract time and spatial bin columns
-            user1_arr = user1_arr[:, [1,2]]
-            user2_arr = user2_arr[:, [1,2]]
+            user1_arr = user1_arr[:, [1, 2]]
+            user2_arr = user2_arr[:, [1, 2]]
             # retrieve indexes where rows are identical
-            user1_indexes = np.unique(np.array(np.all((user1_arr[:,None,:]==user2_arr[None,:,:]),axis=-1).nonzero()).T[:,[0]])
+            user1_indexes = np.unique(np.array(np.all((user1_arr[:, None, :] == user2_arr[None,:,:]),axis=-1).nonzero()).T[:,[0]])
             cooccurrences = user1_arr[user1_indexes]
             user1_col = np.empty(shape=(cooccurrences.shape[0], 1))
             user2_col = np.empty(shape=(cooccurrences.shape[0], 1))
@@ -650,8 +645,8 @@ if __name__ == '__main__':
     fl.generate_app_data_from_json(callback_func=callback_func)
 
     app_names = ["Phone", "WhatsApp Messenger", "Messaging", "WeChat", "Hangouts", "Messenger", "Slack", 
-                "Verizon Messages", "Couple - Relationship App", "DingTalk", "LINE: Free Calls & Messages",
-                "Skype - free IM & video calls", "Telegram", "KakaoTalk: Free Calls & Text", "Viber", "Snapchat"]
+                 "Verizon Messages", "Couple - Relationship App", "DingTalk", "LINE: Free Calls & Messages",
+                 "Skype - free IM & video calls", "Telegram", "KakaoTalk: Free Calls & Text", "Viber", "Snapchat"]
     
     package_names = ['com.kakao.talk', 'com.sonyericsson.conversations', 'com.facebook.orca', 'com.android.incallui',
                      'com.google.android.apps.messaging', 'jp.naver.line.android', 'com.whatsapp',

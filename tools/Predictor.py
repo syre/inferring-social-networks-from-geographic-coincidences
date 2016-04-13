@@ -14,6 +14,8 @@ from tqdm import tqdm
 import pickle
 import random
 import FileLoader
+
+
 class Predictor():
     def __init__(self, 
                  timebin_size_in_minutes,
@@ -67,12 +69,12 @@ class Predictor():
             pair1_coocs = coocs[(coocs[:,0] == user1) & (coocs[:,1] == user2)]
             pair2_coocs = coocs[(coocs[:,0] == user2) & (coocs[:,1] == user1)]
             pair_coocs = np.vstack((pair1_coocs, pair2_coocs))
-            X[index:,1] = self.calculate_arr_leav_numpy(pair_coocs, japan_arr)
-            X[index,2] = self.calculate_diversity_numpy(pair_coocs)
-            X[index,3] = self.calculate_unique_cooccurrences_numpy(pair_coocs)
-            X[index,4] = self.calculate_weighted_frequency_numpy(pair_coocs, japan_arr)
-            X[index:,5] = self.calculate_coocs_w_numpy(pair_coocs, japan_arr)
-            
+            X[index:, 1] = self.calculate_arr_leav_numpy(pair_coocs, japan_arr)
+            X[index, 2] = self.calculate_diversity_numpy(pair_coocs)
+            X[index, 3] = self.calculate_unique_cooccurrences_numpy(pair_coocs)
+            X[index, 4] = self.calculate_weighted_frequency_numpy(pair_coocs, japan_arr)
+            X[index:, 5] = self.calculate_coocs_w_numpy(pair_coocs, japan_arr)
+
 
         for index, pair in tqdm(enumerate(non_friend_pairs, start=len(friend_pairs))):
             user1 = users[pair[0]]
@@ -87,7 +89,7 @@ class Predictor():
             X[index,4] = self.calculate_weighted_frequency_numpy(pair_coocs, japan_arr)
             X[index:,5] = self.calculate_coocs_w_numpy(pair_coocs, japan_arr)
             #X[index:,3] = self.calculate_corr(pair[0], pair[1])
-        
+
         y = np.array([1 for x in range(len(friend_pairs))] + [0 for x in range(len(non_friend_pairs))])
 
         return X,y
@@ -97,14 +99,14 @@ class Predictor():
         X_train, X_test, y_train, y_test = cross_validation.train_test_split(X, y, test_size=0.4, random_state=0)
         tree.fit(X_train, y_train)
         print(tree.score(X_test, y_test))
-            
+
     def calculate_spatial_bin(self, lng, lat):
         lat += 90.0
         lng += 180.0
-        lat = math.trunc(lat*pow(10,self.spatial_resolution_decimals))
-        lng = math.trunc(lng*pow(10,self.spatial_resolution_decimals))
+        lat = math.trunc(lat*pow(10, self.spatial_resolution_decimals))
+        lng = math.trunc(lng*pow(10, self.spatial_resolution_decimals))
         return (abs(self.GRID_MAX_LAT - self.GRID_MIN_LAT) * (lat-self.GRID_MIN_LAT)) + (lng-self.GRID_MIN_LNG)
-    
+
     def find_users_in_cooccurrence(self, spatial_bin, time_bin):
         """
         Find all users who's been in a given cooccurrence
@@ -227,7 +229,6 @@ class Predictor():
 
         return sum(arr_leav_values)/len(cooccurrences)
 
-
     def calculate_coocs_w(self, cooccurrences):
         """
         While other researchers use entropy to weight the social impact of meetings, our
@@ -258,19 +259,19 @@ class Predictor():
             for time_bin in common_time_bins:
                 users = self.find_users_in_cooccurrence(spatial_bin, time_bin)
                 num_users = len(users)
-                
+
                 if num_users < 2:
                     print("only {} together in timebin, coocs_w".format(str(num_users)))
                     continue
                 coocs_w_value += num_users
-            
+
             coocs_w_value /= len(common_time_bins)
 
             # 2 users is ideal thus returning highest value 1, else return lesser value proportional to amount of users
             coocs_w_values.append(1/(coocs_w_value-1))
 
         return sum(coocs_w_values)/len(cooccurrences)
-    
+
     def calculate_specificity(self, user1, user2):
         """
         The asymmetric specificity Sij defined as fraction of time person pi spends with
@@ -333,20 +334,21 @@ class Predictor():
             weighted_frequency += count * np.exp(-location_entropy)
         return weighted_frequency
 
-
-
     def find_friend_and_nonfriend_pairs(self):
         phone_features = ["com.android.incallui"]
-        phone_time_limit = 10
-        im_features = ['com.snapchat.android', 'com.Slack', 'com.verizon.messaging.vzmsgs', 'jp.naver.line.android',
-                       'com.whatsapp', 'org.telegram.messenger', 'com.google.android.talk', 'com.viber.voip', 'com.alibaba.android.rimet', 
-                       'com.skype.raider', 'com.sonyericsson.conversations', 'com.kakao.talk', 'com.google.android.apps.messaging',
-                       'com.facebook.orca', 'com.tenthbit.juliet', 'com.tencent.mm']
+        im_features = ['com.snapchat.android', 'com.Slack',
+                       'com.verizon.messaging.vzmsgs', 'jp.naver.line.android',
+                       'com.whatsapp', 'org.telegram.messenger',
+                       'com.google.android.talk', 'com.viber.voip',
+                       'com.alibaba.android.rimet', 
+                       'com.skype.raider', 'com.sonyericsson.conversations',
+                       'com.kakao.talk', 'com.google.android.apps.messaging',
+                       'com.facebook.orca', 'com.tenthbit.juliet',
+                       'com.tencent.mm']
 
-        
         rows = []
-        callback_func = lambda row: rows.append(row)
-        self.database.insert_from_json(filenames=filenames, callback_func=callback_func)
+        def callback_func(row): rows.append(row)
+        self.fileloader.generate_app_data_from_json(callback_func=callback_func)
 
         japan_users = self.database.get_users_in_country("Japan")
         japan_records = [row for row in rows if row["useruuid"] in japan_users]
@@ -376,9 +378,8 @@ class Predictor():
 
         print(len(pairs))
 
-    
     def calculate_unique_cooccurrences_numpy(self, cooc_arr):
-        return np.unique(cooc_arr[:,2]).shape[0]
+        return np.unique(cooc_arr[:, 2]).shape[0]
 
     def calculate_arr_leav_numpy(self, cooc_arr, loc_arr):
         if cooc_arr.shape[0] == 0:
@@ -388,22 +389,22 @@ class Predictor():
         for row in cooc_arr:
             arr_leav_value = 0
             
-            user1_present_in_previous = loc_arr[(loc_arr[:,0] == row[0]) & (loc_arr[:,2] == row[3]-1) & (loc_arr[:,1] == row[2])].size
-            user2_present_in_previous = loc_arr[(loc_arr[:,0] == row[1]) & (loc_arr[:,2] == row[3]-1) & (loc_arr[:,1] == row[2])].size
+            user1_present_in_previous = loc_arr[(loc_arr[:,0] == row[0]) & (loc_arr[:, 2] == row[3]-1) & (loc_arr[:, 1] == row[2])].size
+            user2_present_in_previous = loc_arr[(loc_arr[:,0] == row[1]) & (loc_arr[:, 2] == row[3]-1) & (loc_arr[:, 1] == row[2])].size
             if not user1_present_in_previous and not user2_present_in_previous:
                 # synchronous arrival
                 # finds users in previous timebin with spatial bin
-                before_arrive_list = loc_arr[(loc_arr[:,2] == row[3]-1) & (loc_arr[:,1] == row[2])][:,0]
+                before_arrive_list = loc_arr[(loc_arr[:,2] == row[3]-1) & (loc_arr[:, 1] == row[2])][:, 0]
                 # finds users in current timebin with spatial bin
-                arrive_list = loc_arr[(loc_arr[:,2] == row[3]) & (loc_arr[:,1] == row[2])][:,0]
+                arrive_list = loc_arr[(loc_arr[:,2] == row[3]) & (loc_arr[:, 1] == row[2])][:, 0]
                 num_arrivals = np.setdiff1d(arrive_list, before_arrive_list, assume_unique=True).shape[0]
                 if num_arrivals == 0:
                     arr_leav_value += 1
                 else:
                     arr_leav_value += (1/num_arrivals)
 
-            user1_present_in_next = loc_arr[(loc_arr[:,0] == row[0]) & (loc_arr[:,2] == row[3]+1) & (loc_arr[:,1] == row[2])].size
-            user2_present_in_next = loc_arr[(loc_arr[:,0] == row[1]) & (loc_arr[:,2] == row[3]+1) & (loc_arr[:,1] == row[2])].size
+            user1_present_in_next = loc_arr[(loc_arr[:, 0] == row[0]) & (loc_arr[:, 2] == row[3]+1) & (loc_arr[:, 1] == row[2])].size
+            user2_present_in_next = loc_arr[(loc_arr[:, 0] == row[1]) & (loc_arr[:, 2] == row[3]+1) & (loc_arr[:, 1] == row[2])].size
             if not user1_present_in_next and not user1_present_in_previous:
                 # synchronous leaving
                 leave_list = loc_arr[(loc_arr[:,2] == row[3]) & (loc_arr[:,1] == row[2])][:,0]
@@ -424,27 +425,29 @@ class Predictor():
             return 0
         coocs_w_values = []
         for row in cooc_arr:
-            coocs_w_value = loc_arr[(loc_arr[:,1] == row[2]) & (loc_arr[:,2] == row[3])].shape[0]
+            coocs_w_value = loc_arr[(loc_arr[:, 1] == row[2]) &
+                                    (loc_arr[:, 2] == row[3])].shape[0]
             coocs_w_values.append(1/(coocs_w_value-1))
         return sum(coocs_w_values)/cooc_arr.shape[0]
-    
+
     def calculate_diversity_numpy(self, cooc_arr):
         frequency = cooc_arr.shape[0]
-        _, counts = np.unique(cooc_arr[:,2], return_counts=True)
+        _, counts = np.unique(cooc_arr[:, 2], return_counts=True)
 
-        shannon_entropy = -np.sum((counts/frequency)*(np.log2(counts/frequency)))
+        shannon_entropy = -np.sum((counts/frequency) *
+                                  (np.log2(counts/frequency)))
         return np.exp(shannon_entropy)
 
     def calculate_weighted_frequency_numpy(self, cooc_arr, loc_arr):
         weighted_frequency = 0
-        spatial_bins, counts = np.unique(cooc_arr[:,2], return_counts=True)
+        spatial_bins, counts = np.unique(cooc_arr[:, 2], return_counts=True)
         for spatial_bin, count in zip(spatial_bins, counts):
             # get all locations with spatial bin
-            locs_with_spatial = loc_arr[loc_arr[:,1] == spatial_bin]
+            locs_with_spatial = loc_arr[loc_arr[:, 1] == spatial_bin]
             location_entropy = 0
-            for user in np.unique(locs_with_spatial[:,0]):
+            for user in np.unique(locs_with_spatial[:, 0]):
                 # get all locations for user
-                v_lu = locs_with_spatial[locs_with_spatial[:,0] == user]
+                v_lu = locs_with_spatial[locs_with_spatial[:, 0] == user]
                 # get all locations for spatial bin
                 v_l = locs_with_spatial
                 prob = v_lu.shape[0]/v_l.shape[0]

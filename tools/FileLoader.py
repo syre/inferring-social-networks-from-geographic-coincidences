@@ -15,14 +15,14 @@ class FileLoader():
             for row in tqdm(raw_data):
                 callback_func(row)
 
-    def generate_app_data_from_json(self, callback_func, path=""):
+    def generate_app_data_from_json(self, callback_func, path="data"):
         filenames = [
             "all_app_201509.json", "all_app_201510.json", "all_app_201511.json"]
         return self.generate_data_from_json(filenames, callback_func, path)
 
-    def generate_location_data_from_json(self, callback_func, path=""):
+    def generate_location_data_from_json(self, callback_func, path="data"):
         filenames = [
-            "all_app_201509.json", "all_app_201510.json", "all_app_201511.json"]
+            "all_201509.json", "all_201510.json", "all_201511.json"]
         return self.generate_data_from_json(filenames, callback_func, path)
 
     def save_friend_and_nonfriend_pairs(self, friend_pairs, nonfriend_pairs):
@@ -76,34 +76,35 @@ class FileLoader():
         with open("pickled_locations.npy", "wb") as f:
             np.save(f, locations)
 
-    def generate_numpy_matrix_from_json(self, path="data"):
-        file_names = ["all_201509.json", "all_201510.json", "all_201511.json"]
+    def generate_numpy_matrix_from_json(self):
         useruuid_dict = {}
         country_dict = {}
 
         user_count = 0
         country_count = 0
+        rows = []
         locations = []
-        for file_name in tqdm(file_names):
-            with open(os.path.join(path, file_name), 'r') as json_file:
-                raw_data = json.load(json_file)
-            for row in tqdm(raw_data, nested=True):
-                spatial_bin = self.calculate_spatial_bin(
-                    row["longitude"], row["latitude"])
-                time_bins = self.calculate_time_bins(
-                    row["start_time"], row["end_time"])
-                for time_bin in time_bins:
-                    if row["useruuid"] not in useruuid_dict:
-                        user_count += 1
-                        useruuid_dict[row["useruuid"]] = user_count
-                    if row["country"] not in country_dict:
-                        country_count += 1
-                        country_dict[row["country"]] = country_count
-                    useruuid = useruuid_dict[row["useruuid"]]
-                    country = country_dict[row["country"]]
 
-                    locations.append(
-                        [useruuid, spatial_bin, time_bin, country])
+        def callback_func(row): rows.append(row)
+        self.generate_location_data_from_json(callback_func)
+
+        for row in tqdm(rows):
+            spatial_bin = self.calculate_spatial_bin(
+                row["longitude"], row["latitude"])
+            time_bins = self.calculate_time_bins(
+                row["start_time"], row["end_time"])
+            for time_bin in time_bins:
+                if row["useruuid"] not in useruuid_dict:
+                    user_count += 1
+                    useruuid_dict[row["useruuid"]] = user_count
+                if row["country"] not in country_dict:
+                    country_count += 1
+                    country_dict[row["country"]] = country_count
+                useruuid = useruuid_dict[row["useruuid"]]
+                country = country_dict[row["country"]]
+
+                locations.append(
+                    [useruuid, spatial_bin, time_bin, country])
         locations = np.array(locations)
 
         self.save_numpy_matrix(useruuid_dict, country_dict, locations)

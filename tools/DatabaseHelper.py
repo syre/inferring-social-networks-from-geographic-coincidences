@@ -682,16 +682,11 @@ class DatabaseHelper():
 
 if __name__ == '__main__':
     d = DatabaseHelper()
-    # print(d.find_cooccurrences("f67ae795-1f2b-423c-ba30-cdd5cbb23662",
-    # useruuid2="f3437039-936a-41d6-93a0-d34ab4424a96", asGeoJSON=False))
-    # d.dump_missing_geographical_rows()
-    # d.drop_tables()
-    # d.db_setup()
-    # d.insert_all_from_json()
-    # d.db_create_indexes()
 
     rows = []
-    callback_func = lambda row: rows.append(row)
+
+    def callback_func(row): rows.append(row)
+
     fl = FileLoader()
     fl.generate_app_data_from_json(callback_func=callback_func)
 
@@ -722,16 +717,3 @@ if __name__ == '__main__':
                 name_dict[row["application_name"]].append(row["package_name"])
 
     print(name_dict)
-
-    # d.generate_numpy_matrix_from_json()
-    #users, countries, locations_arr = d.load_numpy_matrix()
-    #labels = ["user", "spatial_bin", "time_bin", "country"]
-
-    # japan_arr = locations_arr[np.in1d([locations_arr[:,3]],
-    #[countries["Japan"]])]
-    #cooccurrences = d.generate_cooccurrences_array_numpy(japan_arr)
-    # with open("cooccurrences.npy","wb") as f:
-    #        np.save(f, cooccurrences)
-    # with open("cooccurrences.npy", "rb") as f:
-    #        cooccurrences = np.load(f)
-    # print(len(cooccurrences))

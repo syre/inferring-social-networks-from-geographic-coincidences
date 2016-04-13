@@ -317,7 +317,7 @@ class Predictor():
         rows = []
 
         def callback_func(row): rows.append(row)
-        self.fileloader.generate_app_data_from_json(
+        self.file_loader.generate_app_data_from_json(
             callback_func=callback_func)
 
         japan_users = self.database_helper.get_users_in_country("Japan")

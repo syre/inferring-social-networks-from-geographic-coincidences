@@ -8,7 +8,7 @@ import numpy as np
 
 class FileLoader():
 
-    def generate_data_from_json(self, filenames, callback_func, path=""):
+    def generate_data_from_json(self, filenames, callback_func, path="data"):
         for file_name in tqdm(filenames):
             with open(os.path.join(path, file_name), 'r') as json_file:
                 raw_data = json.load(json_file)
@@ -76,7 +76,7 @@ class FileLoader():
         with open("pickled_locations.npy", "wb") as f:
             np.save(f, locations)
 
-    def generate_numpy_matrix_from_json(self, path=""):
+    def generate_numpy_matrix_from_json(self, path="data"):
         file_names = ["all_201509.json", "all_201510.json", "all_201511.json"]
         useruuid_dict = {}
         country_dict = {}

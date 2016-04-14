@@ -2,6 +2,7 @@
 from FileLoader import FileLoader
 import numpy as np
 import itertools
+from tqdm import tqdm
 
 
 class DatasetHelper():
@@ -101,9 +102,9 @@ class DatasetHelper():
     def generate_cooccurrences_array(self, loc_arr):
         unique_users = np.unique(loc_arr[:, [0]])
         labels = ["useruuid1", "useruuid2", "time_bin", "spatial_bin"]
-        cooccurrences_arr = np.ndarray(shape=(0, 4))
+        cooccurrences_list = []
         # generate all combinations of users
-        for user_pair in itertools.combinations(unique_users, 2):
+        for user_pair in tqdm(list(itertools.combinations(unique_users, 2))):
             user1 = user_pair[0]
             user2 = user_pair[1]
             # find locations for user1 and user2
@@ -117,13 +118,10 @@ class DatasetHelper():
             user1_indexes = np.unique(np.array(np.all(
                 (user1_arr[:, None, :] == user2_arr[None, :, :]), axis=-1).nonzero()).T[:, [0]])
             cooccurrences = user1_arr[user1_indexes]
-            user1_col = np.empty(shape=(cooccurrences.shape[0], 1))
-            user2_col = np.empty(shape=(cooccurrences.shape[0], 1))
-            user1_col.fill(user1)
-            user2_col.fill(user2)
-            cooccurrences = np.hstack(
-                (np.column_stack((user1_col, user2_col)), cooccurrences))
-            cooccurrences_arr = np.vstack((cooccurrences_arr, cooccurrences))
-        return cooccurrences_arr
+            for cooc in cooccurrences:
+                spatial_bin = cooc[0]
+                time_bin = cooc[1]
+                cooccurrences_list.append([user1, user2, spatial_bin, time_bin])
+        return np.array(cooccurrences_list)
 
 

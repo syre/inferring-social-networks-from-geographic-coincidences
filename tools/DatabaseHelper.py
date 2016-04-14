@@ -247,7 +247,7 @@ class DatabaseHelper():
     def get_locations_for_numpy(self):
         cursor = self.conn.cursor()
         cursor.execute(
-            """SELECT useruuid, spatial_bin, time_bins, country 
+            """SELECT useruuid, spatial_bin, time_bins, country
             FROM location;""")
         return cursor.fetchall()
 
@@ -255,7 +255,7 @@ class DatabaseHelper():
         raw_data = defaultdict(dict)
         cursor = self.conn.cursor()
         cursor.execute(
-            """select useruuid,  start_time, end_time,  
+            """select useruuid,  start_time, end_time,
             ST_X(location::geometry), ST_Y(location::geometry) from location
             where country=(%s) order by start_time;""", (country,))
         result = cursor.fetchall()
@@ -358,7 +358,7 @@ class DatabaseHelper():
                 time_bins,
                 spatial_bin
         FROM    location
-        WHERE   location.useruuid = %s""" + range_query + """) 
+        WHERE   location.useruuid = %s""" + range_query + """)
         SELECT  location.useruuid,
                 location.spatial_bin,
                 location.time_bins,
@@ -707,8 +707,7 @@ class DatabaseHelper():
         return locations
 
     def update_missing_records(self):
-        fl = FileLoader()
-        data = fl.load_missing_data()
+        data = self.file_loader.load_missing_data()
         REAL_COUNTRIES = {'Republic of China': 'China',
                           'Islamic Republic of Iran': 'Iran',
                           'Republic of the Philippines': 'Philippines',

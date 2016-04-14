@@ -719,7 +719,6 @@ class DatabaseHelper():
 
         return useruuid_dict, country_dict, locations
 
-
     def update_missing_records(self):
         data = self.file_loader.load_missing_data()
         REAL_COUNTRIES = {'Republic of China': 'China',
@@ -754,6 +753,14 @@ class DatabaseHelper():
              spatial_bin=%s""",
                            (element[0], element[1]))
             self.conn.commit()
+
+    def delete_users(self, users):
+        cursor = self.conn.cursor()
+        for user in users:
+            cursor.execute(""" DELETE FROM location WHERE useruuid=%s""",
+                           (user, ))
+            self.conn.commit()
+
 if __name__ == '__main__':
     d = DatabaseHelper()
     # d.update_missing_records()

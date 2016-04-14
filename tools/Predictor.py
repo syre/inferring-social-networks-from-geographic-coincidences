@@ -4,9 +4,8 @@ from FileLoader import FileLoader
 from DatasetHelper import DatasetHelper
 import math
 from dateutil import parser
-from datetime import datetime
 import collections
-from pytz import timezone
+
 import numpy as np
 import sklearn
 import sklearn.ensemble
@@ -18,33 +17,23 @@ import random
 class Predictor():
 
     def __init__(self,
-                 from_date=datetime.strptime(
-                     "2015-09-01", "%Y-%m-%d").replace(tzinfo=timezone("Asia/Tokyo")),
-                 to_date=datetime.strptime(
-                     "2015-11-30", "%Y-%m-%d").replace(tzinfo=timezone("Asia/Tokyo")),
-                 spatial_resolution_decimals=3,
                  country="Japan"):
         """
             Constructor
 
             Args:
-                timebin_size_in_minutes: size of timebin in minutes - for example 60 to get hourly timebin
-                spatial_resolution_decimals: spatial resolution - used for spatial binning, for example 3 to get lng and lat down to 0.001 precision
-                from_date: start-date used for timebin range
-                to_date: end-date used for timebin range
+                   country: country used for generating dataset and prediction
         """
         self.database_helper = DatabaseHelper()
         self.dataset_helper = DatasetHelper()
         self.file_loader = FileLoader()
-        self.min_datetime = from_date
-        self.max_datetime = to_date
-        self.spatial_resolution_decimals = spatial_resolution_decimals
+
         self.country = country
 
     def generate_dataset(self, friend_pairs, non_friend_pairs, friend_size=None, nonfriend_size=None):
         users, countries, locations_arr = self.file_loader.load_numpy_matrix()
-        japan_arr = locations_arr[
-            np.in1d([locations_arr[:, 3]], [countries["Japan"]])]
+        country_arr = locations_arr[
+            np.in1d([locations_arr[:, 3]], [countries[self.country]])]
 
         coocs = self.file_loader.load_cooccurrences()
         datahelper = self.dataset_helper
@@ -65,12 +54,12 @@ class Predictor():
             pair2_coocs = coocs[
                 (coocs[:, 0] == user2) & (coocs[:, 1] == user1)]
             pair_coocs = np.vstack((pair1_coocs, pair2_coocs))
-            X[index:, 1] = datahelper.calculate_arr_leav(pair_coocs, japan_arr)
+            X[index:, 1] = datahelper.calculate_arr_leav(pair_coocs, country_arr)
             X[index, 2] = datahelper.calculate_diversity(pair_coocs)
             X[index, 3] = datahelper.calculate_unique_cooccurrences(pair_coocs)
             X[index, 4] = datahelper.calculate_weighted_frequency(
-                pair_coocs, japan_arr)
-            X[index:, 5] = datahelper.calculate_coocs_w(pair_coocs, japan_arr)
+                pair_coocs, country_arr)
+            X[index:, 5] = datahelper.calculate_coocs_w(pair_coocs, country_arr)
 
         for index, pair in tqdm(enumerate(non_friend_pairs, start=len(friend_pairs))):
             user1 = users[pair[0]]
@@ -81,12 +70,12 @@ class Predictor():
                 (coocs[:, 0] == user2) & (coocs[:, 1] == user1)]
             pair_coocs = np.vstack((pair1_coocs, pair2_coocs))
             X[index:, 0] = pair_coocs.shape[0]
-            X[index:, 1] = datahelper.calculate_arr_leav(pair_coocs, japan_arr)
+            X[index:, 1] = datahelper.calculate_arr_leav(pair_coocs, country_arr)
             X[index, 2] = datahelper.calculate_diversity(pair_coocs)
             X[index, 3] = datahelper.calculate_unique_cooccurrences(pair_coocs)
             X[index, 4] = datahelper.calculate_weighted_frequency_numpy(
-                pair_coocs, japan_arr)
-            X[index:, 5] = datahelper.calculate_coocs_w(pair_coocs, japan_arr)
+                pair_coocs, country_arr)
+            X[index:, 5] = datahelper.calculate_coocs_w(pair_coocs, country_arr)
 
         y = np.array([1 for x in range(len(friend_pairs))] +
                      [0 for x in range(len(non_friend_pairs))])
@@ -304,11 +293,11 @@ class Predictor():
         self.file_loader.generate_app_data_from_json(
             callback_func=callback_func)
 
-        japan_users = self.database_helper.get_users_in_country("Japan")
-        japan_records = [row for row in rows if row["useruuid"] in japan_users]
+        country_users = self.database_helper.get_users_in_country(self.country)
+        country_records = [row for row in rows if row["useruuid"] in country_users]
 
-        communication_records = [row for row in japan_records if row[
-            "package_name"] in phone_features+im_features and row["useruuid"] in japan_users]
+        communication_records = [row for row in country_records if row[
+            "package_name"] in phone_features+im_features and row["useruuid"] in country_users]
 
         friend_pairs = []
         non_friend_pairs = []
@@ -337,9 +326,6 @@ class Predictor():
                 else:
                     non_friend_pairs.append(useruuid_x, useruuid_y)
         return friend_pairs, non_friend_pairs
-
-
-        
 
 
 if __name__ == '__main__':

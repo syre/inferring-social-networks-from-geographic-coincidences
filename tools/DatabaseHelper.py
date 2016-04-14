@@ -361,7 +361,7 @@ class DatabaseHelper():
                 time_bins,
                 spatial_bin
         FROM    location
-        WHERE   location.useruuid = %s""" + range_query + """) 
+        WHERE   location.useruuid = %s""" + range_query + """)
         SELECT  location.useruuid,
                 location.spatial_bin,
                 location.time_bins,
@@ -710,8 +710,7 @@ class DatabaseHelper():
         return locations
 
     def update_missing_records(self):
-        fl = FileLoader()
-        data = fl.load_missing_data()
+        data = self.file_loader.load_missing_data()
         REAL_COUNTRIES = {'Republic of China': 'China',
                           'Islamic Republic of Iran': 'Iran',
                           'Republic of the Philippines': 'Philippines',

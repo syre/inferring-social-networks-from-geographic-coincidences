@@ -247,6 +247,13 @@ class DatabaseHelper():
             print("hov!!!")
             return 0.0
 
+    def get_locations_for_numpy(self):
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """SELECT useruuid, spatial_bin, time_bins, country 
+            FROM location;""")
+        return cursor.fetchall()
+
     def get_velocity_for_users(self, country):
         raw_data = defaultdict(dict)
         cursor = self.conn.cursor()

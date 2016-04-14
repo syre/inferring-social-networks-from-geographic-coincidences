@@ -250,7 +250,7 @@ class DatabaseHelper():
     def get_locations_for_numpy(self):
         cursor = self.conn.cursor()
         cursor.execute(
-            """SELECT useruuid, spatial_bin, time_bins, country 
+            """SELECT useruuid, spatial_bin, time_bins, country
             FROM location;""")
         return cursor.fetchall()
 
@@ -258,7 +258,7 @@ class DatabaseHelper():
         raw_data = defaultdict(dict)
         cursor = self.conn.cursor()
         cursor.execute(
-            """select useruuid,  start_time, end_time,  
+            """select useruuid,  start_time, end_time,
             ST_X(location::geometry), ST_Y(location::geometry) from location
             where country=(%s) order by start_time;""", (country,))
         result = cursor.fetchall()

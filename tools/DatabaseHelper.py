@@ -100,7 +100,7 @@ class DatabaseHelper():
     def load_login(self, file_name="login.txt", key_split="##",
                    value_split=",", has_header=False, path=""):
         d = {}
-        with open(os.path.join(path, file_name), 'r') as f:
+        with open(os.path.join(os.path.dirname(__file__), path, file_name), 'r') as f:
             lines = f.readlines()
         if has_header:
             lines.pop(0)

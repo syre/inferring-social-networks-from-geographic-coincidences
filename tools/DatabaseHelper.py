@@ -477,33 +477,6 @@ class DatabaseHelper():
         with open('missing_records.json', 'w') as outfile:
             json.dump(list_of_records, outfile)
 
-    def insert_missing_geographical_data(self):
-        with open('missing_data.json', 'r') as infile:
-            records = json.load(infile)
-
-        for record in records:
-            country = address["country"]
-            if state in address:
-                area = address["state"]
-            elif state_district in address:
-                area = address["state_district"]
-            else:
-                area = ""
-                print("no area found")
-
-            if "city" in address:
-                place = address["city"]
-            elif "town" in address:
-                place = address["town"]
-            else:
-                place = ""
-                print("no place found")
-
-            cursor.execute(
-                "UPDATE location set country = (%s), area= (%s), place= (%s) ",
-                (country, area, place))
-        self.conn.commit()
-
     def get_all_cooccurrences_as_network(self, time_threshold_in_minutes=60*24,
                                          cell_size=0.001):
         cursor = self.conn.cursor()

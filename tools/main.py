@@ -25,5 +25,4 @@ def update_all_data():
     file_loader.save_x_and_y(X, y)
 
 if __name__ == '__main__':
-    database_helper.delete_test_users()
     update_all_data()

@@ -102,7 +102,7 @@ class FileLoader():
         with open(os.path.join(self.DATA_PATH, "pickled_locations.npy"), "wb") as f:
             np.save(f, locations)
 
-    def generate_numpy_matrix_from_json(self):
+    def generate_numpy_matrix_from_database(self):
         useruuid_dict = {}
         country_dict = {}
 

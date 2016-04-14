@@ -671,6 +671,37 @@ class DatabaseHelper():
             (country,))
         return cursor.fetchall()[0][0]
 
+    def generate_numpy_matrix_from_database(self):
+        useruuid_dict = {}
+        country_dict = {}
+
+        user_count = 0
+        country_count = 0
+        rows = self.get_locations_for_numpy()
+        locations = []
+
+        for row in tqdm(rows):
+            useruuid = row[0]
+            spatial_bin = row[1]
+            time_bins = row[2]
+            country = row[4]
+            if useruuid not in useruuid_dict:
+                user_count += 1
+                useruuid_dict[useruuid] = user_count
+            if country not in country_dict:
+                country_count += 1
+                country_dict[country] = country_count
+            useruuid = useruuid_dict[useruuid]
+            country = country_dict[country]
+            for time_bin in time_bins:
+                locations.append(
+                    [useruuid, spatial_bin, time_bin, country])
+        locations = np.array(locations)
+
+        self.file_loader.save_numpy_matrix(useruuid_dict, country_dict, locations)
+
+        return locations
+
     def update_missing_records(self):
         fl = FileLoader()
         data = fl.load_missing_data()
@@ -708,38 +739,39 @@ class DatabaseHelper():
             self.conn.commit()
 if __name__ == '__main__':
     d = DatabaseHelper()
+    #d.update_missing_records()
+    d.
+    # rows = []
 
-    rows = []
+    # def callback_func(row): rows.append(row)
 
-    def callback_func(row): rows.append(row)
+    # fl = FileLoader()
+    # fl.generate_app_data_from_json(callback_func=callback_func)
 
-    fl = FileLoader()
-    fl.generate_app_data_from_json(callback_func=callback_func)
+    # app_names = ["Phone", "WhatsApp Messenger", "Messaging", "WeChat",
+    #              "Hangouts", "Messenger", "Slack", "Verizon Messages",
+    #              "Couple - Relationship App", "DingTalk",
+    #              "LINE: Free Calls & Messages",
+    #              "Skype - free IM & video calls", "Telegram",
+    #              "KakaoTalk: Free Calls & Text", "Viber", "Snapchat"]
 
-    app_names = ["Phone", "WhatsApp Messenger", "Messaging", "WeChat",
-                 "Hangouts", "Messenger", "Slack", "Verizon Messages",
-                 "Couple - Relationship App", "DingTalk",
-                 "LINE: Free Calls & Messages",
-                 "Skype - free IM & video calls", "Telegram",
-                 "KakaoTalk: Free Calls & Text", "Viber", "Snapchat"]
+    # package_names = ['com.kakao.talk', 'com.sonyericsson.conversations',
+    #                  'com.facebook.orca', 'com.android.incallui',
+    #                  'com.google.android.apps.messaging',
+    #                  'jp.naver.line.android', 'com.whatsapp',
+    #                  'com.sonyericsson.android.socialphonebook',
+    #                  'com.google.android.talk', 'com.verizon.messaging.vzmsgs',
+    #                  'com.skype.raider', 'com.snapchat.android',
+    #                  'com.android.phone', 'com.tencent.mm',
+    #                  'org.telegram.messenger', 'com.Slack',
+    #                  'com.tenthbit.juliet', 'com.viber.voip',
+    #                  'com.google.android.dialer', 'com.alibaba.android.rimet']
+    # name_dict = {}
+    # for row in rows:
+    #     if row["application_name"] in app_names:
+    #         if row["application_name"] not in name_dict:
+    #             name_dict[row["application_name"]] = []
+    #         if row["package_name"] not in name_dict[row["application_name"]]:
+    #             name_dict[row["application_name"]].append(row["package_name"])
 
-    package_names = ['com.kakao.talk', 'com.sonyericsson.conversations',
-                     'com.facebook.orca', 'com.android.incallui',
-                     'com.google.android.apps.messaging',
-                     'jp.naver.line.android', 'com.whatsapp',
-                     'com.sonyericsson.android.socialphonebook',
-                     'com.google.android.talk', 'com.verizon.messaging.vzmsgs',
-                     'com.skype.raider', 'com.snapchat.android',
-                     'com.android.phone', 'com.tencent.mm',
-                     'org.telegram.messenger', 'com.Slack',
-                     'com.tenthbit.juliet', 'com.viber.voip',
-                     'com.google.android.dialer', 'com.alibaba.android.rimet']
-    name_dict = {}
-    for row in rows:
-        if row["application_name"] in app_names:
-            if row["application_name"] not in name_dict:
-                name_dict[row["application_name"]] = []
-            if row["package_name"] not in name_dict[row["application_name"]]:
-                name_dict[row["application_name"]].append(row["package_name"])
-
-    print(name_dict)
+    # print(name_dict)

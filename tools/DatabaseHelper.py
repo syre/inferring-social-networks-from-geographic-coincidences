@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import pickle
 import psycopg2
 import json
 import math
@@ -10,8 +9,6 @@ import datetime
 from dateutil import parser
 from tqdm import tqdm
 import numpy as np
-import itertools
-
 from FileLoader import FileLoader
 
 
@@ -31,7 +28,7 @@ class DatabaseHelper():
                          self.settings_dict["DBNAME"],
                          self.settings_dict["USER"],
                          self.settings_dict["PASS"]))
-
+        self.file_loader = FileLoader()
         self.spatial_resolution_decimals = spatial_resolution_decimals
         self.GRID_MIN_LNG = (
             grid_boundaries_tuple[0] + 180) * pow(10, spatial_resolution_decimals)
@@ -691,7 +688,7 @@ class DatabaseHelper():
             useruuid = row[0]
             spatial_bin = row[1]
             time_bins = row[2]
-            country = row[4]
+            country = row[3]
             if useruuid not in useruuid_dict:
                 user_count += 1
                 useruuid_dict[useruuid] = user_count
@@ -747,7 +744,7 @@ class DatabaseHelper():
 if __name__ == '__main__':
     d = DatabaseHelper()
     #d.update_missing_records()
-    d.
+    d.generate_numpy_matrix_from_database()
     # rows = []
 
     # def callback_func(row): rows.append(row)

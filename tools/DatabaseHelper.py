@@ -4,6 +4,7 @@ import json
 import math
 import os
 from collections import defaultdict
+from pytz import timezone
 import random
 import datetime
 from dateutil import parser
@@ -18,7 +19,11 @@ class DatabaseHelper():
 
     def __init__(self, path_to_settings="",
                  grid_boundaries_tuple=(-180, 180, -90, 90),
-                 spatial_resolution_decimals=3):
+                 spatial_resolution_decimals=3,
+                 from_date=datetime.datetime.strptime(
+                     "2015-09-01", "%Y-%m-%d").replace(tzinfo=timezone("Asia/Tokyo")),
+                 to_date=datetime.datetime.strptime(
+                     "2015-11-30", "%Y-%m-%d").replace(tzinfo=timezone("Asia/Tokyo"))):
 
         self.settings_dict = self.load_login(file_name="settings.cfg",
                                              key_split="=",
@@ -29,6 +34,8 @@ class DatabaseHelper():
                          self.settings_dict["USER"],
                          self.settings_dict["PASS"]))
         self.file_loader = FileLoader()
+        self.min_datetime = from_date
+        self.max_datetime = to_date
         self.spatial_resolution_decimals = spatial_resolution_decimals
         self.GRID_MIN_LNG = (
             grid_boundaries_tuple[0] + 180) * pow(10, spatial_resolution_decimals)

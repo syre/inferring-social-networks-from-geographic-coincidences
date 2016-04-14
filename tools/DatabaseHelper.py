@@ -31,13 +31,17 @@ class DatabaseHelper():
         self.file_loader = FileLoader()
         self.spatial_resolution_decimals = spatial_resolution_decimals
         self.GRID_MIN_LNG = (
-            grid_boundaries_tuple[0] + 180) * pow(10, spatial_resolution_decimals)
+            grid_boundaries_tuple[0] + 180) * pow(10,
+                                                  spatial_resolution_decimals)
         self.GRID_MAX_LNG = (
-            grid_boundaries_tuple[1] + 180) * pow(10, spatial_resolution_decimals)
+            grid_boundaries_tuple[1] + 180) * pow(10,
+                                                  spatial_resolution_decimals)
         self.GRID_MIN_LAT = (
-            grid_boundaries_tuple[2] + 90) * pow(10, spatial_resolution_decimals)
+            grid_boundaries_tuple[2] + 90) * pow(10,
+                                                 spatial_resolution_decimals)
         self.GRID_MAX_LAT = (
-            grid_boundaries_tuple[3] + 90) * pow(10, spatial_resolution_decimals)
+            grid_boundaries_tuple[3] + 90) * pow(10,
+                                                 spatial_resolution_decimals)
 
         self.CREATE_TABLE_LOCATION = """
             CREATE TABLE "location" (id serial PRIMARY KEY,
@@ -97,7 +101,8 @@ class DatabaseHelper():
     def load_login(self, file_name="login.txt", key_split="##",
                    value_split=",", has_header=False, path=""):
         d = {}
-        with open(os.path.join(os.path.dirname(__file__), path, file_name), 'r') as f:
+        with open(os.path.join(os.path.dirname(__file__), path, file_name),
+                  'r') as f:
             lines = f.readlines()
         if has_header:
             lines.pop(0)
@@ -190,7 +195,9 @@ class DatabaseHelper():
 
         query = "SELECT "+", ".join(["count(CASE WHEN {2} >= {0} AND {2} < {1} \
             THEN 1 END)".format(element, element+step_size, feature)
-            for element in range(0, end_value, step_size)]) + ", count(CASE WHEN {0} > {1} THEN 1 END)".format(feature, max_value-step_size)+" from location"
+            for element in range(0, end_value, step_size)]) + \
+            ", count(CASE WHEN {0} > {1} THEN 1 END)".format(
+                feature, max_value-step_size)+" from location"
         cursor.execute(query)
         results = list(cursor.fetchall()[0])
 
@@ -338,9 +345,10 @@ class DatabaseHelper():
 
         if points_w_distances:
             start = "AND NOT ST_DWithin(location, ST_MakePoint("
-            query = " AND NOT ST_DWithin(location, ST_MakePoint(".join(["{0}, {1}), {2})". format(element[0][0], element[0][1],
-                                                                                                  element[1]) for element in
-                                                                        points_w_distances])
+            query = " AND NOT ST_DWithin(location, ST_MakePoint(".join(
+                ["{0}, {1}), {2})". format(element[0][0], element[0][1],
+                                           element[1]) for element in
+                 points_w_distances])
 
         second_user_query = ""
         if useruuid2:
@@ -702,7 +710,8 @@ class DatabaseHelper():
                     [useruuid, spatial_bin, time_bin, country])
         locations = np.array(locations)
 
-        self.file_loader.save_numpy_matrix(useruuid_dict, country_dict, locations)
+        self.file_loader.save_numpy_matrix(
+            useruuid_dict, country_dict, locations)
 
         return locations
 
@@ -742,7 +751,7 @@ class DatabaseHelper():
             self.conn.commit()
 if __name__ == '__main__':
     d = DatabaseHelper()
-    #d.update_missing_records()
+    # d.update_missing_records()
     d.generate_numpy_matrix_from_database()
     # rows = []
 

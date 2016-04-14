@@ -34,7 +34,11 @@ class FileLoader():
         return user_info_dict
 
     def filter_demographic_outliers(self, user_info_dict):
-        user_info_dict = defaultdict(list, {k: v for k, v in user_info_dict.items() if v["birthdate"] != "1990-01-01" and v["birthdate"] != "1981-01-01" and v["birthdate"] != "1980-12-01"})
+        user_info_dict = defaultdict(list, {k: v for k, v in user_info_dict.items()
+                                            if v["birthdate"] != "1990-01-01" and
+                                            v["birthdate"] != "1981-01-01" and
+                                            v["birthdate"] != "1980-12-01" and
+                                            v["age"] > 16 and v["age"] < 100})
         return user_info_dict
 
     def generate_app_data_from_json(self, callback_func, path="data"):

@@ -310,7 +310,8 @@ class Predictor():
         communication_records = [row for row in japan_records if row[
             "package_name"] in phone_features+im_features and row["useruuid"] in japan_users]
 
-        pairs = []
+        friend_pairs = []
+        non_friend_pairs = []
         for x in tqdm(communication_records):
             start_time_x = parser.parse(x["start_time"])
             end_time_x = parser.parse(x["end_time"])
@@ -325,20 +326,26 @@ class Predictor():
                 end_diff = abs(end_time_x-end_time_y).seconds
                 if start_diff < 20 and end_diff < 20:
                     print(x["package_name"])
-                    pairs.append(
-                        (useruuid_x, useruuid_y, start_diff, end_diff))
+                    friend_pairs.append(
+                        (useruuid_x, useruuid_y))
                     print(useruuid_x, useruuid_y, start_diff, end_diff)
                     print(user_info_dict[useruuid_x], user_info_dict[useruuid_y])
                     print(len(self.database_helper.find_cooccurrences(useruuid_x,
                                                                       points_w_distances=[[(139.743862, 35.630338), 1000]], useruuid2=useruuid_y)))
                     print(
                         "----------------------------------------------------")
+                else:
+                    non_friend_pairs.append(useruuid_x, useruuid_y)
+        return friend_pairs, non_friend_pairs
 
-        print(len(pairs))
+
+        
 
 
 if __name__ == '__main__':
     p = Predictor()
+    f = FileLoader()
     # print(X,y)
     # p.predict(X,y)
-    p.find_friend_and_nonfriend_pairs()
+    friends, nonfriends = p.find_friend_and_nonfriend_pairs()
+    f.save_friend_and_nonfriend_pairs(friends, nonfriends)

@@ -754,7 +754,14 @@ class DatabaseHelper():
                            (element[0], element[1]))
             self.conn.commit()
 
-    def delete_users(self, users):
+    def delete_test_users(self):
+        users = ['02cbb276-93e7-4baa-81aa-ea3f5bf6230a',
+                 '3eee0fe1-ef56-42a9-9b16-ee0677c079ee',
+                 '578669a8-4b85-49a2-bf46-5437d6192252',
+                 '7cb9fddd-d3b6-49f8-9259-51b948c2ac1f',
+                 '8298d998-684a-4e90-9a1e-cd0164dabf2e',
+                 'e8d40f3a-1e07-4c26-adfb-39a8366d4bbd',
+                 'ebb04181-3cc2-4fac-a34f-1962a6953081']
         cursor = self.conn.cursor()
         for user in users:
             cursor.execute(""" DELETE FROM location WHERE useruuid=%s""",

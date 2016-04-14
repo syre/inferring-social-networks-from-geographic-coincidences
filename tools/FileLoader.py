@@ -137,6 +137,10 @@ class FileLoader():
 
         return locations
 
+    def load_missing_data(self):
+        with open(os.path.join("data", "missing_data.json"), 'r') as json_file:
+                return json.load(json_file)
+
     def load_by_filename(self, filename):
         dot = filename.rfind(".")
         if filename[dot+1:] == "json":

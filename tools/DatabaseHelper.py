@@ -673,7 +673,7 @@ class DatabaseHelper():
 
     def update_missing_records(self):
         fl = FileLoader()
-        data = fl.load_by_filename("missing_data.json")
+        data = fl.load_missing_data()
         REAL_COUNTRIES = {'Republic of China': 'China',
                           'Islamic Republic of Iran': 'Iran',
                           'Republic of the Philippines': 'Philippines',

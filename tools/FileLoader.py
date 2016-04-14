@@ -70,6 +70,10 @@ class FileLoader():
             coocs = np.load(f)
         return coocs
 
+    def save_cooccurrences(self, coocs):
+        with open(os.path.join(self.DATA_PATH, "cooccurrences.npy"), "wb") as f:
+            np.save(f, coocs)
+
     def save_x_and_y(self, x, y):
         with open(os.path.join(self.DATA_PATH, "datasetX.pickle"), "wb") as fp:
             pickle.dump(x, fp)
@@ -101,41 +105,6 @@ class FileLoader():
             pickle.dump(country_dict, f)
         with open(os.path.join(self.DATA_PATH, "pickled_locations.npy"), "wb") as f:
             np.save(f, locations)
-
-    def generate_numpy_matrix_from_database(self):
-        useruuid_dict = {}
-        country_dict = {}
-
-        user_count = 0
-        country_count = 0
-        rows = []
-        locations = []
-
-        def callback_func(row): rows.append(row)
-        self.generate_location_data_from_json(callback_func)
-
-        for row in tqdm(rows):
-            spatial_bin = self.calculate_spatial_bin(
-                row["longitude"], row["latitude"])
-            time_bins = self.calculate_time_bins(
-                row["start_time"], row["end_time"])
-            for time_bin in time_bins:
-                if row["useruuid"] not in useruuid_dict:
-                    user_count += 1
-                    useruuid_dict[row["useruuid"]] = user_count
-                if row["country"] not in country_dict:
-                    country_count += 1
-                    country_dict[row["country"]] = country_count
-                useruuid = useruuid_dict[row["useruuid"]]
-                country = country_dict[row["country"]]
-
-                locations.append(
-                    [useruuid, spatial_bin, time_bin, country])
-        locations = np.array(locations)
-
-        self.save_numpy_matrix(useruuid_dict, country_dict, locations)
-
-        return locations
 
     def load_missing_data(self):
         with open(os.path.join("data", "missing_data.json"), 'r') as json_file:

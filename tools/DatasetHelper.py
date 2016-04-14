@@ -98,8 +98,8 @@ class DatasetHelper():
             weighted_frequency += count * np.exp(-location_entropy)
         return weighted_frequency
 
-    def generate_cooccurrences_array(self, arr):
-        unique_users = np.unique(arr[:, [0]])
+    def generate_cooccurrences_array(self, loc_arr):
+        unique_users = np.unique(loc_arr[:, [0]])
         labels = ["useruuid1", "useruuid2", "time_bin", "spatial_bin"]
         cooccurrences_arr = np.ndarray(shape=(0, 4))
         # generate all combinations of users
@@ -107,8 +107,8 @@ class DatasetHelper():
             user1 = user_pair[0]
             user2 = user_pair[1]
             # find locations for user1 and user2
-            user1_arr = arr[(arr[:, 0] == user1)]
-            user2_arr = arr[(arr[:, 0] == user2)]
+            user1_arr = loc_arr[(loc_arr[:, 0] == user1)]
+            user2_arr = loc_arr[(loc_arr[:, 0] == user2)]
 
             # extract time and spatial bin columns
             user1_arr = user1_arr[:, [1, 2]]
@@ -125,3 +125,5 @@ class DatasetHelper():
                 (np.column_stack((user1_col, user2_col)), cooccurrences))
             cooccurrences_arr = np.vstack((cooccurrences_arr, cooccurrences))
         return cooccurrences_arr
+
+

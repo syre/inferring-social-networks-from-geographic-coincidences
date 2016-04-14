@@ -140,6 +140,7 @@ class DatabaseHelper():
         cursor.execute("CREATE INDEX ON location (useruuid)")
         cursor.execute("CREATE INDEX ON location (spatial_bin)")
         cursor.execute("CREATE INDEX ON location (time_bins)")
+        cursor.execute("CREATE INDEX ON location (country)")
         self.conn.commit()
 
     def db_teardown(self):
@@ -176,7 +177,6 @@ class DatabaseHelper():
                 (lat-self.GRID_MIN_LAT)) + (lng-self.GRID_MIN_LNG)
 
     def calculate_time_bins(self, start_time, end_time):
-        cursor = self.conn.cursor()
         start_time = parser.parse(start_time)
         end_time = parser.parse(end_time)
         min_datetime = parser.parse('2015-08-09 00:00:00+02')
@@ -709,9 +709,7 @@ class DatabaseHelper():
                     [useruuid, spatial_bin, time_bin, country])
         locations = np.array(locations)
 
-        self.file_loader.save_numpy_matrix(useruuid_dict, country_dict, locations)
-
-        return locations
+        return useruuid_dict, country_dict, locations
 
     def update_missing_records(self):
         data = self.file_loader.load_missing_data()

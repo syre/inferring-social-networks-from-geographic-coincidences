@@ -33,10 +33,14 @@ class DatabaseHelper():
                          self.settings_dict["PASS"]))
 
         self.spatial_resolution_decimals = spatial_resolution_decimals
-        self.GRID_MIN_LNG = (grid_boundaries_tuple[0] + 180) * pow(10, spatial_resolution_decimals)
-        self.GRID_MAX_LNG = (grid_boundaries_tuple[1] + 180) * pow(10, spatial_resolution_decimals)
-        self.GRID_MIN_LAT = (grid_boundaries_tuple[2] + 90) * pow(10, spatial_resolution_decimals)
-        self.GRID_MAX_LAT = (grid_boundaries_tuple[3] + 90) * pow(10, spatial_resolution_decimals)
+        self.GRID_MIN_LNG = (
+            grid_boundaries_tuple[0] + 180) * pow(10, spatial_resolution_decimals)
+        self.GRID_MAX_LNG = (
+            grid_boundaries_tuple[1] + 180) * pow(10, spatial_resolution_decimals)
+        self.GRID_MIN_LAT = (
+            grid_boundaries_tuple[2] + 90) * pow(10, spatial_resolution_decimals)
+        self.GRID_MAX_LAT = (
+            grid_boundaries_tuple[3] + 90) * pow(10, spatial_resolution_decimals)
 
         self.CREATE_TABLE_LOCATION = """
             CREATE TABLE "location" (id serial PRIMARY KEY,
@@ -331,8 +335,8 @@ class DatabaseHelper():
         if points_w_distances:
             start = "AND NOT ST_DWithin(location, ST_MakePoint("
             query = " AND NOT ST_DWithin(location, ST_MakePoint(".join(["{0}, {1}), {2})". format(element[0][0], element[0][1],
-                                            element[1]) for element in
-                  points_w_distances])
+                                                                                                  element[1]) for element in
+                                                                        points_w_distances])
 
         second_user_query = ""
         if useruuid2:
@@ -667,6 +671,41 @@ class DatabaseHelper():
             (country,))
         return cursor.fetchall()[0][0]
 
+    def update_missing_records(self):
+        fl = FileLoader()
+        data = fl.load_by_filename("missing_data.json")
+        REAL_COUNTRIES = {'Republic of China': 'China',
+                          'Islamic Republic of Iran': 'Iran',
+                          'Republic of the Philippines': 'Philippines',
+                          'RSA': 'South Africa',
+                          'Russian Federation': 'Russia',
+                          'Spain (territorial waters)': 'Spain',
+                          'Territorial waters of Bornholm': 'Denmark',
+                          'Territorial waters of Gotland': 'Sweden',
+                          'The Netherlands': 'Netherlands',
+                          'United States of America': 'United States',
+                          'Luxemburg': 'Luxembourg'}
+        s = set()
+        for record in data:
+            try:
+                country = record['country']
+                spatial_bin = self.calculate_spatial_bin(record['lng'],
+                                                         record['lat'])
+                if country in REAL_COUNTRIES:
+                    country = REAL_COUNTRIES[country]
+                s.add((country, spatial_bin))
+            except KeyError:
+                if 'motel' in record:
+                    spatial_bin = self.calculate_spatial_bin(
+                        record['lng'], record['lat'])
+                    s.add(('South Korea', spatial_bin))
+        lst = list(s)
+        cursor = self.conn.cursor()
+        for element in tqdm(lst):
+            cursor.execute("""UPDATE location SET country=%s WHERE country='' AND
+             spatial_bin=%s""",
+                           (element[0], element[1]))
+            self.conn.commit()
 if __name__ == '__main__':
     d = DatabaseHelper()
 

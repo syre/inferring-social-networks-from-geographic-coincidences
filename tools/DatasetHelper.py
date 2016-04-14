@@ -101,7 +101,7 @@ class DatasetHelper():
 
     def generate_cooccurrences_array(self, loc_arr):
         unique_users = np.unique(loc_arr[:, [0]])
-        labels = ["useruuid1", "useruuid2", "time_bin", "spatial_bin"]
+        labels = ["useruuid1", "useruuid2", "spatial_bin", "time_bin"]
         cooccurrences_list = []
         # generate all combinations of users
         for user_pair in tqdm(list(itertools.combinations(unique_users, 2))):

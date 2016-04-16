@@ -378,7 +378,8 @@ class DatabaseHelper():
                 location.spatial_bin,
                 location.time_bins,
                 user1_table.time_bins,
-                user1_table.useruuid
+                user1_table.useruuid,
+                ST_AsGeoJSON(location.location)
         FROM   location
                inner join user1_table
                        ON location.useruuid != user1_table.useruuid

@@ -15,9 +15,7 @@ class FileLoader():
     def __init__(self):
         self.DATA_PATH = os.path.join(os.path.dirname(__file__), "data")
 
-    def generate_data_from_json(self, callback_func, path="data"):
-        filenames = ["all_201509.json", "all_201510.json",
-            "all_201511.json"]
+    def generate_data_from_json(self, filenames, callback_func, path="data"):
         for file_name in tqdm(filenames):
             with open(os.path.join(path, file_name), 'r') as json_file:
                 raw_data = json.load(json_file)

@@ -324,7 +324,7 @@ class Predictor():
                     print(
                         "----------------------------------------------------")
                 else:
-                    non_friend_pairs.append(useruuid_x, useruuid_y)
+                    non_friend_pairs.append((useruuid_x, useruuid_y))
         return friend_pairs, non_friend_pairs
 
 

@@ -168,7 +168,9 @@ def data_geojson():
 def data_cooccurrences():
     useruuid1 = request.args.get("useruuid1")
     useruuid2 = request.args.get("useruuid2")
-    points_w_distances = [[(139.743862, 35.630338), 1000]]
+    # sweden headquarters, centralize this pls
+    points_w_distances = [[(13.2262862, 55.718211), 1000],
+                                              [(17.9529121, 59.4050982),1000]]
     if useruuid2:
         cooccurrences = get_cooccurrences_async(useruuid1, useruuid2, points_w_distances=points_w_distances)
     else:

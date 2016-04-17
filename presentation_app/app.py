@@ -168,13 +168,13 @@ def data_geojson():
 def data_cooccurrences():
     useruuid1 = request.args.get("useruuid1")
     useruuid2 = request.args.get("useruuid2")
-    # sweden headquarters, centralize this pls
-    points_w_distances = [[(13.2262862, 55.718211), 1000],
-                                              [(17.9529121, 59.4050982),1000]]
+    all_filters = [item for sublist in database.filter_places_dict.values() for item in sublist]
     if useruuid2:
-        cooccurrences = get_cooccurrences_async(useruuid1, useruuid2, points_w_distances=points_w_distances)
+        cooccurrences = get_cooccurrences_async(useruuid1, useruuid2,
+                                                points_w_distances=all_filters)
     else:
-        cooccurrences = get_cooccurrences_async(useruuid1,points_w_distances=points_w_distances)
+        cooccurrences = get_cooccurrences_async(useruuid1,
+                                                points_w_distances=all_filters)
     return flask.jsonify(cooccurrences)
 
 

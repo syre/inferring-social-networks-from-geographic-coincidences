@@ -15,9 +15,9 @@ class FileLoader():
     def __init__(self):
         self.DATA_PATH = os.path.join(os.path.dirname(__file__), "data")
 
-    def generate_data_from_json(self, filenames, callback_func, path="data"):
+    def generate_data_from_json(self, filenames, callback_func, path=""):
         for file_name in tqdm(filenames):
-            with open(os.path.join(path, file_name), 'r') as json_file:
+            with open(os.path.join(self.DATA_PATH, file_name), 'r') as json_file:
                 raw_data = json.load(json_file)
             for row in tqdm(raw_data):
                 callback_func(row)
@@ -46,16 +46,16 @@ class FileLoader():
                                             v["age"] > 16 and v["age"] < 100})
         return user_info_dict
 
-    def generate_app_data_from_json(self, callback_func, path="data"):
+    def generate_app_data_from_json(self, callback_func):
         filenames = [
             "all_app_201509.json", "all_app_201510.json",
             "all_app_201511.json"]
-        return self.generate_data_from_json(filenames, callback_func, path)
+        return self.generate_data_from_json(filenames, callback_func)
 
-    def generate_location_data_from_json(self, callback_func, path="data"):
+    def generate_location_data_from_json(self, callback_func):
         filenames = [
             "all_201509.json", "all_201510.json", "all_201511.json"]
-        return self.generate_data_from_json(filenames, callback_func, path)
+        return self.generate_data_from_json(filenames, callback_func)
 
     def save_friend_and_nonfriend_pairs(self, friend_pairs, nonfriend_pairs):
         with open(os.path.join("data", "friend_pairs.pickle"), "wb") as fp:

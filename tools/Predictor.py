@@ -329,7 +329,7 @@ class Predictor():
 
 
 if __name__ == '__main__':
-    p = Predictor("Sweden")
+    p = Predictor("Japan")
     f = FileLoader()
     # print(X,y)
     # p.predict(X,y)

@@ -117,25 +117,27 @@ class GeoData(object):
         print("geodata fetched from database")
         return wanted_data
 
-    def get_geo_data_from_occurrences(self, useruuid, points_w_distances=[]):
+    def get_geo_data_from_occurrences(self, useruuid1, useruuid2, points_w_distances=[]):
         user_colors = self.databasehelper.get_user_colors()
         # receive locations for user we want co-occurrences on
-        locations = self.databasehelper.get_locations_for_user(useruuid)
+        locations = self.databasehelper.get_locations_for_user(useruuid1)
         # retrieve locations that co-occur with useruuids locations
-        cooccurrences = self.databasehelper.find_cooccurrences(
-            useruuid, points_w_distances)
+        if useruuid2:
+            cooccurrences = self.databasehelper.find_cooccurrences(
+            useruuid1, points_w_distances, useruuid2=useruuid2)
+        else:
+            cooccurrences = self.databasehelper.find_cooccurrences(
+                            useruuid1, points_w_distances)
 
         features = []
         # append main user
         features.append(Feature(geometry=MultiLineString([[(loc[3], loc[4]) for loc in locations]]), properties={
-                        "id": useruuid, "name": "null"}, style={'color': "red"}))
+                        "id1": useruuid1, "name": "null"}, style={'color': "red"}))
         # append cooccurrences
         for cooccurrence in cooccurrences:
-            lat_long = json.loads(cooccurrence[3])
-            start_time = cooccurrence[1]
-            end_time = cooccurrence[2]
+            lat_long = json.loads(cooccurrence[5])
             features.append(Feature(geometry=Point(lat_long["coordinates"]), properties={
-                            "id": useruuid, "name": "null"}, style={'color': user_colors[useruuid]}))
+                            "id1": useruuid1, "name": "null"}, style={'color': user_colors[useruuid1]}))
 
         return FeatureCollection(features)
 

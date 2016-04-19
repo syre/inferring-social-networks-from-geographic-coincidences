@@ -2,12 +2,18 @@
 {% block container %}
 <div class="text-center">
 <div class="btn-group">
-<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"> Users <span class="caret"></span></button>
-<ul class="dropdown-menu scrollable-menu" role="menu" style="max-height: 400px; overflow: hidden; overflow-y: auto;">
+<select id="user1-dropdown" class="form-control">
   {% for id in user_list %}
-  <li><a href="/cooccurrences?useruuid={{id}}">{{id}}</a></li>
+  <option>{{id}}</option>
   {% endfor %}
-</ul>
+</select>
+
+<select id="user2-dropdown" class="form-control">
+  {% for id in user_list %}
+  <option>{{id}}</option>
+  {% endfor %}
+</select>
+<button id="cooc-submit-button" type="button" class="btn btn-primary">Submit</button>
 </div>
 </div>
 	<div id="map"></div>
@@ -51,9 +57,13 @@
 			onEachFeature: circles,	
 			style: function(feature) {return {"color": feature.style.color};}
 		}).addTo(map);
-		
-
-        $.getJSON("/data/cooccurrences?useruuid="+encodeURIComponent("{{useruuid}}"), function(data)
+		{% if useruuid2 %}
+			var url = "/data/cooccurrences?useruuid1="+encodeURIComponent("{{useruuid1}}")+"&useruuid2="+encodeURIComponent("{{useruuid2}}");
+		{% else %}
+			var url = "/data/cooccurrences?useruuid1="+encodeURIComponent("{{useruuid1}}");
+		{% endif %}
+        
+        $.getJSON(url, function(data)
         {
             console.log(data);
             var markers = L.markerClusterGroup();

@@ -27,7 +27,6 @@ class Predictor():
         self.database_helper = DatabaseHelper()
         self.dataset_helper = DatasetHelper()
         self.file_loader = FileLoader()
-
         self.country = country
 
     def generate_dataset(self, friend_pairs, non_friend_pairs, friend_size=None, nonfriend_size=None):
@@ -321,16 +320,16 @@ class Predictor():
                     print(useruuid_x, useruuid_y, start_diff, end_diff)
                     print(user_info_dict[useruuid_x], user_info_dict[useruuid_y])
                     print(len(self.database_helper.find_cooccurrences(useruuid_x,
-                                                                      points_w_distances=[[(139.743862, 35.630338), 1000]], useruuid2=useruuid_y)))
+                                                                      points_w_distances=self.database_helper.filter_places_dict[self.country], useruuid2=useruuid_y)))
                     print(
                         "----------------------------------------------------")
                 else:
-                    non_friend_pairs.append(useruuid_x, useruuid_y)
+                    non_friend_pairs.append((useruuid_x, useruuid_y))
         return friend_pairs, non_friend_pairs
 
 
 if __name__ == '__main__':
-    p = Predictor()
+    p = Predictor("Sweden")
     f = FileLoader()
     # print(X,y)
     # p.predict(X,y)

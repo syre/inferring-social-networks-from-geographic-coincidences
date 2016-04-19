@@ -274,7 +274,8 @@ class Predictor():
         return weighted_frequency
 
     def find_friend_and_nonfriend_pairs(self):
-
+        im_within_time = 5*60
+        phone_within_time = 5
         phone_features = ["com.android.incallui"]
         im_features = ['com.snapchat.android', 'com.Slack',
                        'com.verizon.messaging.vzmsgs', 'jp.naver.line.android',
@@ -313,7 +314,7 @@ class Predictor():
                 end_time_y = parser.parse(y["end_time"])
                 start_diff = abs(start_time_x-start_time_y).seconds
                 end_diff = abs(end_time_x-end_time_y).seconds
-                if start_diff < 20 and end_diff < 20:
+                if (x["package_name"] in im_features and start_diff < im_within_time and end_diff < im_within_time) or (x["package_name"] in phone_features and start_diff < phone_within_time and end_diff < phone_within_time):
                     print(x["package_name"])
                     friend_pairs.append(
                         (useruuid_x, useruuid_y))

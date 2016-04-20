@@ -57,6 +57,9 @@ ax.set_xticklabels(times, rotation=90)
 #plt.xticks(times)
 ax.set(xlabel="clock")
 #ax.set_xlim(0, 23)
+for label in ax.xaxis.get_ticklabels():
+    label.set_fontsize(14)
+
 for label in ax.xaxis.get_ticklabels()[::2]:
     label.set_visible(False)
 sns.plt.show()

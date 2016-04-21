@@ -54,11 +54,8 @@ print(len(times))
 ax = sns.distplot(values, bins=(24*60+60)/bin_size)
 ax.set_xticks(np.arange(len(times)))
 ax.set_xticklabels(times, rotation=90)
-#plt.xticks(times)
-ax.set(xlabel="clock")
-#ax.set_xlim(0, 23)
-for label in ax.xaxis.get_ticklabels():
-    label.set_fontsize(14)
+ax.set(xlabel="time of day")
+sns.plt.tick_params(labelsize=14)
 
 [label.set_visible(False) for label in ax.xaxis.get_ticklabels()]
 

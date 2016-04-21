@@ -29,12 +29,21 @@ class Predictor():
         self.file_loader = FileLoader()
         self.country = country
 
-    def generate_dataset(self, friend_pairs, non_friend_pairs, friend_size=None, nonfriend_size=None):
+    def generate_dataset(self, friend_pairs, non_friend_pairs,  min_timebin, max_timebin, friend_size=None, nonfriend_size=None):
         users, countries, locations_arr = self.file_loader.load_numpy_matrix()
+        # get only locations from specific country
         country_arr = locations_arr[
             np.in1d([locations_arr[:, 3]], [countries[self.country]])]
 
+        # filter location array so its between max and min timebin
+        country_arr = country_arr[country_arr[:, 2] <= max_timebin]
+        country_arr = country_arr[country_arr[:, 2] > min_timebin]
+
         coocs = self.file_loader.load_cooccurrences()
+        # filter cooccurrences array between max and min timebin
+        coocs = coocs[coocs[:, 3] <= max_timebin]
+        coocs = coocs[coocs[:, 3] > min_timebin]
+
         datahelper = self.dataset_helper
         if friend_size:
             friend_pairs = random.sample(friend_pairs, friend_size)
@@ -83,6 +92,7 @@ class Predictor():
 
     def predict(self, X, y):
         tree = sklearn.ensemble.RandomForestClassifier()
+
         X_train, X_test, y_train, y_test = cross_validation.train_test_split(
             X, y, test_size=0.4, random_state=0)
         tree.fit(X_train, y_train)
@@ -272,7 +282,7 @@ class Predictor():
             weighted_frequency += count * np.exp(-location_entropy)
         return weighted_frequency
 
-    def find_friend_and_nonfriend_pairs(self):
+    def find_friend_and_nonfriend_pairs(self, min_timebin, max_timebin):
         im_within_time = 5*60
         phone_within_time = 5
         phone_features = ["com.android.incallui"]
@@ -331,7 +341,23 @@ class Predictor():
 if __name__ == '__main__':
     p = Predictor("Japan")
     f = FileLoader()
-    # print(X,y)
-    # p.predict(X,y)
+    d = DatabaseHelper()
+    sept_min_datetime = "2015-09-01 00:00:00+00:00"
+    sept_min_time_bin = d.calculate_time_bins(sept_min_datetime, sept_min_datetime)[0]
+    sept_max_datetime = "2015-09-30 23:59:59+00:00"
+    sept_max_time_bin = d.calculate_time_bins(sept_max_datetime, sept_max_datetime)[0]
+    oct_min_datetime = "2015-10-01 00:00:00+00:00"
+    oct_min_timebin = d.calculate_time_bins(oct_min_datetime, oct_min_datetime)[0]
+    oct_max_datetime = "2015-10-31 23:59:59+00:00"
+    oct_max_timebin = d.calculate_time_bins(oct_max_datetime, oct_max_datetime)[0]
+    nov_min_datetime = "2015-11-01 00:00:00+00:00"
+    nov_min_timebin = d.calculate_time_bins(nov_min_datetime, nov_min_datetime)[0]
+    nov_max_datetime = "2015-11-30 23:59:59+00:00"
+    nov_max_timebin = d.calculate_time_bins(nov_max_datetime, nov_max_datetime)[0]
+
+    X_train, y_train = p.generate_dataset(sept_min_timebin, oct_max_timebin)
+
+    X_test, y_test = p.generate_dataset(nov_min_time, max_datetime)
+    
     friends, nonfriends = p.find_friend_and_nonfriend_pairs()
     f.save_friend_and_nonfriend_pairs(friends, nonfriends)

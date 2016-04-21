@@ -60,6 +60,8 @@ ax.set(xlabel="clock")
 for label in ax.xaxis.get_ticklabels():
     label.set_fontsize(14)
 
-for label in ax.xaxis.get_ticklabels()[::2]:
-    label.set_visible(False)
+[label.set_visible(False) for label in ax.xaxis.get_ticklabels()]
+
+for label in ax.xaxis.get_ticklabels()[::8]:
+    label.set_visible(True)
 sns.plt.show()

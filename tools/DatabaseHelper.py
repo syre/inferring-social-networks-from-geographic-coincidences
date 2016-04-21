@@ -191,8 +191,10 @@ class DatabaseHelper():
         start_bin = math.floor(
             ((start_time-min_datetime).total_seconds()/60.0)/60)
         end_bin = math.ceil(((end_time-min_datetime).total_seconds()/60.0)/60)
-        time_bins = list(range(start_bin, end_bin))
-        return time_bins
+        if start_bin == end_bin:
+            return [start_bin]
+        else:
+            return list(range(start_bin, end_bin))
 
     def get_distributions_numbers(self, feature, num_bins=20, max_value=0):
         cursor = self.conn.cursor()

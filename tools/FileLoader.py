@@ -8,7 +8,7 @@ from collections import defaultdict
 from dateutil import parser
 from datetime import datetime
 import csv
-
+from dateutil import parser
 
 class FileLoader():
 
@@ -46,10 +46,11 @@ class FileLoader():
                                             v["age"] > 16 and v["age"] < 100})
         return user_info_dict
 
-    def generate_app_data_from_json(self, callback_func):
-        filenames = [
-            "all_app_201509.json", "all_app_201510.json",
-            "all_app_201511.json"]
+    def generate_app_data_from_json(self,
+                                    callback_func,
+                                    filenames=["all_app_201509.json",
+                                               "all_app_201510.json",
+                                               "all_app_201511.json"]):
         return self.generate_data_from_json(filenames, callback_func)
 
     def generate_location_data_from_json(self, callback_func):
@@ -137,3 +138,21 @@ class FileLoader():
         else:
             with open(os.path.join("data", filename), "r") as f:
                 return f.readlines()
+
+if __name__ == '__main__':
+    fl = FileLoader()
+    rows = []
+    callback = lambda r: rows.append(r)
+    fl.generate_data_from_json(["all_201509.json"], callback)
+    
+    print(min(rows, key=lambda r:parser.parse(r["start_time"]))["start_time"], max(rows,key=lambda r:parser.parse(r["end_time"]))["end_time"])
+
+    rows = []
+    callback = lambda r: rows.append(r)
+    fl.generate_data_from_json(["all_201510.json"], callback)
+    print(min(rows, key=lambda r:parser.parse(r["start_time"]))["start_time"], max(rows,key=lambda r:parser.parse(r["end_time"]))["end_time"])
+
+    rows = []
+    callback = lambda r: rows.append(r)
+    fl.generate_data_from_json(["all_201511.json"], callback)
+    print(min(rows, key=lambda r:parser.parse(r["start_time"]))["start_time"], max(rows,key=lambda r:parser.parse(r["end_time"]))["end_time"])

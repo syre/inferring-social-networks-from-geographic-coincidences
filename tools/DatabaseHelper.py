@@ -196,6 +196,7 @@ class DatabaseHelper():
         else:
             return list(range(start_bin, end_bin))
 
+
     def get_distributions_numbers(self, feature, num_bins=20, max_value=0):
         cursor = self.conn.cursor()
         if not max_value:

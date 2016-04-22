@@ -58,21 +58,31 @@ class FileLoader():
             "all_201509.json", "all_201510.json", "all_201511.json"]
         return self.generate_data_from_json(filenames, callback_func)
 
-    def save_friend_and_nonfriend_pairs(self, friend_pairs, nonfriend_pairs):
-        with open(os.path.join("data", "friend_pairs.pickle"), "wb") as fp:
-            pickle.dump(friend_pairs, fp)
-        with open(os.path.join("data", "nonfriend_pairs.pickle"), "wb") as fp:
-            pickle.dump(nonfriend_pairs, fp)
+    def save_friend_and_nonfriend_pairs(self, train_friends, train_nonfriends, test_friends, test_nonfriends):
+        with open(os.path.join("data", "train_friends.pickle"), "wb") as fp:
+            pickle.dump(train_friends, fp)
+        with open(os.path.join("data", "train_nonfriends.pickle"), "wb") as fp:
+            pickle.dump(train_nonfriends, fp)
+        with open(os.path.join("data", "test_friends.pickle"), "wb") as fp:
+            pickle.dump(test_friends, fp)
+        with open(os.path.join("data", "test_nonfriends.pickle"), "wb") as fp:
+            pickle.dump(test_nonfriends, fp)
 
     def load_friend_and_nonfriend_pairs(self):
-        with open(os.path.join(self.DATA_PATH, "friend_pairs.pickle"),
+        with open(os.path.join(self.DATA_PATH, "train_friends.pickle"),
                   "rb") as fp:
-            friend_pairs = pickle.load(fp)
-        with open(os.path.join(self.DATA_PATH, "nonfriend_pairs.pickle"),
+            train_friends = pickle.load(fp)
+        with open(os.path.join(self.DATA_PATH, "train_nonfriends.pickle"),
                   "rb") as fp:
-            nonfriend_pairs = pickle.load(fp)
+            train_nonfriends = pickle.load(fp)
+        with open(os.path.join(self.DATA_PATH, "test_friends.pickle"),
+                  "rb") as fp:
+            test_friends = pickle.load(fp)
+        with open(os.path.join(self.DATA_PATH, "test_nonfriends.pickle"),
+                  "rb") as fp:
+            test_nonfriends = pickle.load(fp)
 
-        return friend_pairs, nonfriend_pairs
+        return train_friends, train_nonfriends, test_friends, test_nonfriends
 
     def load_cooccurrences(self):
         with open(os.path.join(self.DATA_PATH, "cooccurrences.npy"),
@@ -84,19 +94,21 @@ class FileLoader():
         with open(os.path.join(self.DATA_PATH, "cooccurrences.npy"), "wb") as f:
             np.save(f, coocs)
 
-    def save_x_and_y(self, x, y):
-        with open(os.path.join(self.DATA_PATH, "datasetX.pickle"), "wb") as fp:
-            pickle.dump(x, fp)
-        with open(os.path.join(self.DATA_PATH, "data", "datasetY.pickle"),
-                  "wb") as fp:
-            pickle.dump(y, fp)
+    def save_x_and_y(self, **kwargs):
+        for key in kwargs: 
+            with open(os.path.join(self.DATA_PATH, str(key)+".pickle"), "wb") as fp:
+                pickle.dump(kwargs[key], fp)
 
     def load_x_and_y(self):
-        with open(os.path.join(self.DATA_PATH, "datasetX.pickle"), "rb") as fp:
-            x = pickle.load(fp)
-        with open(os.path.join(self.DATA_PATH, "datasetY.pickle"), "rb") as fp:
-            y = pickle.load(fp)
-        return x, y
+        with open(os.path.join(self.DATA_PATH, "X_train.pickle"), "rb") as fp:
+            X_train = pickle.load(fp)
+        with open(os.path.join(self.DATA_PATH, "y_train.pickle"), "rb") as fp:
+            y_train = pickle.load(fp)
+        with open(os.path.join(self.DATA_PATH, "X_test.pickle"), "rb") as fp:
+            X_test = pickle.load(fp)
+        with open(os.path.join(self.DATA_PATH, "y_test.pickle"), "rb") as fp:
+            y_test = pickle.load(fp)
+        return X_train, y_train, X_test, y_test
 
     def load_numpy_matrix(self):
         with open(os.path.join(self.DATA_PATH, "pickled_users.pickle"),

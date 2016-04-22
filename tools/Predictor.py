@@ -5,7 +5,7 @@ from DatasetHelper import DatasetHelper
 import math
 from dateutil import parser
 import collections
-
+import itertools
 import numpy as np
 import sklearn
 import sklearn.ensemble
@@ -297,44 +297,48 @@ class Predictor():
                        'com.tencent.mm']
         user_info_dict = self.file_loader.generate_demographics_from_csv()
         user_info_dict = self.file_loader.filter_demographic_outliers(user_info_dict)
-        rows = []
+        rows = collections.defaultdict(list)
+        country_users = self.database_helper.get_users_in_country(self.country)
 
-        def callback_func(row): rows.append(row)
+        def callback_func(row):
+            if row["package_name"] in phone_features+im_features and row["useruuid"] in country_users:
+                rows[row["useruuid"]].append(row)
         self.file_loader.generate_app_data_from_json(
             callback_func=callback_func)
 
-        country_users = self.database_helper.get_users_in_country(self.country)
-        country_records = [row for row in rows if row["useruuid"] in country_users]
-
-        communication_records = [row for row in country_records if row[
-            "package_name"] in phone_features+im_features and row["useruuid"] in country_users]
-
         friend_pairs = []
         non_friend_pairs = []
-        for x in tqdm(communication_records):
-            start_time_x = parser.parse(x["start_time"])
-            end_time_x = parser.parse(x["end_time"])
-            useruuid_x = x["useruuid"]
-            for y in communication_records:
-                useruuid_y = y["useruuid"]
-                if useruuid_x == useruuid_y or x["package_name"] != y["package_name"]:
-                    continue
-                start_time_y = parser.parse(y["start_time"])
-                end_time_y = parser.parse(y["end_time"])
-                start_diff = abs(start_time_x-start_time_y).seconds
-                end_diff = abs(end_time_x-end_time_y).seconds
-                if (x["package_name"] in im_features and start_diff < im_within_time and end_diff < im_within_time) or (x["package_name"] in phone_features and start_diff < phone_within_time and end_diff < phone_within_time):
-                    print(x["package_name"])
-                    friend_pairs.append(
-                        (useruuid_x, useruuid_y))
-                    print(useruuid_x, useruuid_y, start_diff, end_diff)
-                    print(user_info_dict[useruuid_x], user_info_dict[useruuid_y])
-                    print(len(self.database_helper.find_cooccurrences(useruuid_x,
-                                                                      points_w_distances=self.database_helper.filter_places_dict[self.country], useruuid2=useruuid_y)))
-                    print(
-                        "----------------------------------------------------")
-                else:
-                    non_friend_pairs.append((useruuid_x, useruuid_y))
+        for pair in tqdm(list(itertools.combinations(country_users, 2))):
+            user1_records = rows[pair[0]]
+            user2_records = rows[pair[1]]
+            for x in user1_records:
+                start_time_x = parser.parse(x["start_time"])
+                end_time_x = parser.parse(x["end_time"])
+                useruuid_x = x["useruuid"]
+                for y in user2_records:
+                    useruuid_y = y["useruuid"]
+                    if x["package_name"] != y["package_name"]:
+                        continue
+                    start_time_y = parser.parse(y["start_time"])
+                    end_time_y = parser.parse(y["end_time"])
+                    start_diff = abs(start_time_x-start_time_y).seconds
+                    end_diff = abs(end_time_x-end_time_y).seconds
+                    if (x["package_name"] in im_features and start_diff < im_within_time and end_diff < im_within_time) or
+                    (x["package_name"] in phone_features and start_diff < phone_within_time and end_diff < phone_within_time):
+                        print(x["package_name"])
+                        friend_pairs.append(
+                            (useruuid_x, useruuid_y))
+                        print(useruuid_x, useruuid_y, start_diff, end_diff)
+                        print(user_info_dict[useruuid_x], user_info_dict[useruuid_y])
+                        print(len(self.database_helper.find_cooccurrences(useruuid_x,
+                                                                          points_w_distances=self.database_helper.filter_places_dict[self.country],
+                                                                          useruuid2=useruuid_y,
+                                                                          min_timebin=min_timebin,
+                                                                          max_timebin=max_timebin)))
+                        print(
+                            "----------------------------------------------------")
+                    else:
+                        non_friend_pairs.append((useruuid_x, useruuid_y))
         return friend_pairs, non_friend_pairs
 
 
@@ -347,17 +351,16 @@ if __name__ == '__main__':
     sept_max_datetime = "2015-09-30 23:59:59+00:00"
     sept_max_time_bin = d.calculate_time_bins(sept_max_datetime, sept_max_datetime)[0]
     oct_min_datetime = "2015-10-01 00:00:00+00:00"
-    oct_min_timebin = d.calculate_time_bins(oct_min_datetime, oct_min_datetime)[0]
+    oct_min_time_bin = d.calculate_time_bins(oct_min_datetime, oct_min_datetime)[0]
     oct_max_datetime = "2015-10-31 23:59:59+00:00"
-    oct_max_timebin = d.calculate_time_bins(oct_max_datetime, oct_max_datetime)[0]
+    oct_max_time_bin = d.calculate_time_bins(oct_max_datetime, oct_max_datetime)[0]
     nov_min_datetime = "2015-11-01 00:00:00+00:00"
-    nov_min_timebin = d.calculate_time_bins(nov_min_datetime, nov_min_datetime)[0]
+    nov_min_time_bin = d.calculate_time_bins(nov_min_datetime, nov_min_datetime)[0]
     nov_max_datetime = "2015-11-30 23:59:59+00:00"
-    nov_max_timebin = d.calculate_time_bins(nov_max_datetime, nov_max_datetime)[0]
+    nov_max_time_bin = d.calculate_time_bins(nov_max_datetime, nov_max_datetime)[0]
 
-    X_train, y_train = p.generate_dataset(sept_min_timebin, oct_max_timebin)
+    train_friends, train_nonfriends = p.find_friend_and_nonfriend_pairs(sept_min_time_bin, oct_max_time_bin)
+    X_train, y_train = p.generate_dataset(sept_min_time_bin, oct_max_time_bin)
 
-    X_test, y_test = p.generate_dataset(nov_min_time, max_datetime)
-    
-    friends, nonfriends = p.find_friend_and_nonfriend_pairs()
-    f.save_friend_and_nonfriend_pairs(friends, nonfriends)
+    test_friends, test_nonfriends = p.find_friend_and_nonfriend_pairs(nov_min_time_bin, nov_max_time_bin)
+    X_test, y_test = p.generate_dataset(nov_min_time_bin, nov_max_time_bin)

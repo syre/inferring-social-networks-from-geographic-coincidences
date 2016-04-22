@@ -35,7 +35,7 @@ class DatabaseHelper():
                          self.settings_dict["PASS"]))
         self.file_loader = FileLoader()
         self.filter_places_dict = {"Sweden": [[(13.2262862, 55.718211), 1000],
-                                              [(17.9529121, 59.4050982),1000]],
+                                              [(17.9529121, 59.4050982), 1000]],
                                    "Japan": [[(139.743862, 35.630338), 1000]]}
         self.min_datetime = from_date
         self.max_datetime = to_date
@@ -195,7 +195,6 @@ class DatabaseHelper():
             return [start_bin]
         else:
             return list(range(start_bin, end_bin))
-
 
     def get_distributions_numbers(self, feature, num_bins=20, max_value=0):
         cursor = self.conn.cursor()
@@ -370,16 +369,15 @@ class DatabaseHelper():
 
         range_query = ""
         if (min_timebin is not None and max_timebin is not None):
-            range_query = " AND {} =< min(location.time_bins) AND {} >= \
-            max(location.time_bins)".format(
-                min_timebin, max_timebin)
+            range_query = " HAVING(sort(location.time_bins, 'asc'))[1] >= {} AND(sort(location.time_bins, 'desc'))[1] <= {}".format(min_timebin, max_timebin)
+
         cursor.execute("""WITH user1_table 
      AS (SELECT location.id,
                 useruuid,
                 time_bins,
                 spatial_bin
         FROM    location
-        WHERE   location.useruuid = %s""" + range_query + """)
+        WHERE   location.useruuid = %s GROUP BY location.id""" + range_query + """)
         SELECT  location.useruuid,
                 location.spatial_bin,
                 location.time_bins,
@@ -391,7 +389,7 @@ class DatabaseHelper():
                        ON location.useruuid != user1_table.useruuid
         WHERE  user1_table.time_bins && location.time_bins
                AND user1_table.spatial_bin = location.spatial_bin
-       """ + second_user_query + (start + query) + range_query + ";",
+       """ + second_user_query + (start + query) + " GROUP BY location.id, user1_table.time_bins, user1_table.useruuid" + range_query + ";",
                        (useruuid,))
 
         return cursor.fetchall()
@@ -752,4 +750,3 @@ if __name__ == '__main__':
     d = DatabaseHelper()
     # d.update_missing_records()
     d.generate_numpy_matrix_from_database()
-

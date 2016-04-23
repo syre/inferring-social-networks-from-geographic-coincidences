@@ -9,7 +9,6 @@ import itertools
 import numpy as np
 import sklearn
 import sklearn.ensemble
-from sklearn import cross_validation
 from tqdm import tqdm
 import random
 
@@ -17,7 +16,9 @@ import random
 class Predictor():
 
     def __init__(self,
-                 country="Japan"):
+                 country="Japan",
+                 train_datetimes=(),
+                 test_datetimes=()):
         """
             Constructor
 
@@ -28,20 +29,53 @@ class Predictor():
         self.dataset_helper = DatasetHelper()
         self.file_loader = FileLoader()
         self.country = country
+        self.train_datetimes = train_datetimes
+        self.test_datetimes = test_datetimes
 
-    def generate_dataset(self, friend_pairs, non_friend_pairs,  min_timebin, max_timebin, friend_size=None, nonfriend_size=None):
-        users, countries, locations_arr = self.file_loader.load_numpy_matrix()
-        # get only locations from specific country
+    def filter_by_country(self, loc_arr):
         country_arr = locations_arr[
             np.in1d([locations_arr[:, 3]], [countries[self.country]])]
+        return country_arr
 
-        coocs = self.file_loader.load_cooccurrences()
+    def generate_train_dataset(self):
+        min_timebin = self.database_helper.calculate_time_bins(self.train_datetimes[0],self.train_datetimes[0])[0]
+        max_timebin = self.database_helper.calculate_time_bins(self.train_datetimes[1],self.train_datetimes[1])[0]
+
+        users, countries, locations_arr = self.file_loader.load_numpy_matrix_train()
+        # get only locations from specific country
+        country_arr = self.filter_by_country(locations_arr)
+
+        coocs = self.file_loader.load_cooccurrences_train()
+
         # filter location array  and cooc array so its between max and min timebin
         country_arr = country_arr[country_arr[:, 2] <= max_timebin]
         country_arr = country_arr[country_arr[:, 2] > min_timebin]
         coocs = coocs[coocs[:, 3] <= max_timebin]
         coocs = coocs[coocs[:, 3] > min_timebin]
 
+        train_friends, train_nonfriends, _, _ = self.file_loader.load_friend_and_nonfriend_pairs()
+        return self.calculate_features_for_dataset(users, countries, country_arr, coocs, train_friends, train_nonfriends, friend_size=None, nonfriend_size=None)
+
+    def generate_test_dataset(self):
+        min_timebin = self.database_helper.calculate_time_bins(self.test_datetimes[0],self.test_datetimes[0])[0]
+        max_timebin = self.database_helper.calculate_time_bins(self.test_datetimes[1],self.test_datetimes[1])[0]
+
+        users, countries, locations_arr = self.file_loader.load_numpy_matrix_test()
+        # get only locations from specific country
+        country_arr = self.filter_by_country(locations_arr)
+
+        coocs = self.file_loader.load_cooccurrences_test()
+
+        # filter location array  and cooc array so its between max and min timebin
+        country_arr = country_arr[country_arr[:, 2] <= max_timebin]
+        country_arr = country_arr[country_arr[:, 2] > min_timebin]
+        coocs = coocs[coocs[:, 3] <= max_timebin]
+        coocs = coocs[coocs[:, 3] > min_timebin]
+
+        _, _, test_friends, test_nonfriends = self.file_loader.load_friend_and_nonfriend_pairs()
+        return self.calculate_features_for_dataset(users, countries, country_arr, coocs, test_friends, test_nonfriends, friend_size=None, nonfriend_size=None)
+
+    def calculate_features_for_dataset(self, users, countries, loc_arr, coocs, friend_pairs, non_friend_pairs, friend_size=None, nonfriend_size=None):
         datahelper = self.dataset_helper
         if friend_size:
             friend_pairs = random.sample(friend_pairs, friend_size)
@@ -60,12 +94,12 @@ class Predictor():
             pair2_coocs = coocs[
                 (coocs[:, 0] == user2) & (coocs[:, 1] == user1)]
             pair_coocs = np.vstack((pair1_coocs, pair2_coocs))
-            X[index:, 1] = datahelper.calculate_arr_leav(pair_coocs, country_arr)
+            X[index:, 1] = datahelper.calculate_arr_leav(pair_coocs, loc_arr)
             X[index, 2] = datahelper.calculate_diversity(pair_coocs)
             X[index, 3] = datahelper.calculate_unique_cooccurrences(pair_coocs)
             X[index, 4] = datahelper.calculate_weighted_frequency(
-                pair_coocs, country_arr)
-            X[index:, 5] = datahelper.calculate_coocs_w(pair_coocs, country_arr)
+                pair_coocs, loc_arr)
+            X[index:, 5] = datahelper.calculate_coocs_w(pair_coocs, loc_arr)
 
         for index, pair in tqdm(enumerate(non_friend_pairs, start=len(friend_pairs))):
             user1 = users[pair[0]]
@@ -76,12 +110,12 @@ class Predictor():
                 (coocs[:, 0] == user2) & (coocs[:, 1] == user1)]
             pair_coocs = np.vstack((pair1_coocs, pair2_coocs))
             X[index:, 0] = pair_coocs.shape[0]
-            X[index:, 1] = datahelper.calculate_arr_leav(pair_coocs, country_arr)
+            X[index:, 1] = datahelper.calculate_arr_leav(pair_coocs, loc_arr)
             X[index, 2] = datahelper.calculate_diversity(pair_coocs)
             X[index, 3] = datahelper.calculate_unique_cooccurrences(pair_coocs)
             X[index, 4] = datahelper.calculate_weighted_frequency(
-                pair_coocs, country_arr)
-            X[index:, 5] = datahelper.calculate_coocs_w(pair_coocs, country_arr)
+                pair_coocs, loc_arr)
+            X[index:, 5] = datahelper.calculate_coocs_w(pair_coocs, loc_arr)
 
         y = np.array([1 for x in range(len(friend_pairs))] +
                      [0 for x in range(len(non_friend_pairs))])

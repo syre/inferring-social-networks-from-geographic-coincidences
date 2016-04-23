@@ -84,14 +84,24 @@ class FileLoader():
 
         return train_friends, train_nonfriends, test_friends, test_nonfriends
 
-    def load_cooccurrences(self):
-        with open(os.path.join(self.DATA_PATH, "cooccurrences.npy"),
+    def load_cooccurrences_train(self):
+        with open(os.path.join(self.DATA_PATH, "cooccurrences_train.npy"),
                   "rb") as f:
             coocs = np.load(f)
         return coocs
 
-    def save_cooccurrences(self, coocs):
-        with open(os.path.join(self.DATA_PATH, "cooccurrences.npy"), "wb") as f:
+    def load_cooccurrences_test(self):
+        with open(os.path.join(self.DATA_PATH, "cooccurrences_test.npy"),
+                  "rb") as f:
+            coocs = np.load(f)
+        return coocs
+
+    def save_cooccurrences_train(self, coocs):
+        with open(os.path.join(self.DATA_PATH, "cooccurrences_train.npy"), "wb") as f:
+            np.save(f, coocs)
+
+    def save_cooccurrences_test(self, coocs):
+        with open(os.path.join(self.DATA_PATH, "cooccurrences_test.npy"), "wb") as f:
             np.save(f, coocs)
 
     def save_x_and_y(self, **kwargs):
@@ -110,28 +120,53 @@ class FileLoader():
             y_test = pickle.load(fp)
         return X_train, y_train, X_test, y_test
 
-    def load_numpy_matrix(self):
-        with open(os.path.join(self.DATA_PATH, "pickled_users.pickle"),
+    def load_numpy_matrix_train(self):
+        with open(os.path.join(self.DATA_PATH, "pickled_users_train.pickle"),
                   "rb") as f:
             users = pickle.load(f)
 
-        with open(os.path.join(self.DATA_PATH, "pickled_countries.pickle"),
+        with open(os.path.join(self.DATA_PATH, "pickled_countries_train.pickle"),
                   "rb") as f:
             countries = pickle.load(f)
 
-        with open(os.path.join(self.DATA_PATH, "pickled_locations.npy"),
+        with open(os.path.join(self.DATA_PATH, "pickled_locations_train.npy"),
                   "rb") as f:
             numpy_arr = np.load(f)
         return users, countries, numpy_arr
 
-    def save_numpy_matrix(self, useruuid_dict, country_dict, locations):
-        with open(os.path.join(self.DATA_PATH, "pickled_users.pickle"),
+    def load_numpy_matrix_test(self):
+        with open(os.path.join(self.DATA_PATH, "pickled_users_test.pickle"),
+                  "rb") as f:
+            users = pickle.load(f)
+
+        with open(os.path.join(self.DATA_PATH, "pickled_countries_test.pickle"),
+                  "rb") as f:
+            countries = pickle.load(f)
+
+        with open(os.path.join(self.DATA_PATH, "pickled_locations_test.npy"),
+                  "rb") as f:
+            numpy_arr = np.load(f)
+        return users, countries, numpy_arr
+
+    def save_numpy_matrix_test(self, useruuid_dict, country_dict, locations):
+        with open(os.path.join(self.DATA_PATH, "pickled_users_test.pickle"),
                   "wb") as f:
             pickle.dump(useruuid_dict, f)
-        with open(os.path.join(self.DATA_PATH, "pickled_countries.pickle"),
+        with open(os.path.join(self.DATA_PATH, "pickled_countries_test.pickle"),
                   "wb") as f:
             pickle.dump(country_dict, f)
-        with open(os.path.join(self.DATA_PATH, "pickled_locations.npy"),
+        with open(os.path.join(self.DATA_PATH, "pickled_locations_test.npy"),
+                  "wb") as f:
+            np.save(f, locations)
+
+    def save_numpy_matrix_train(self, useruuid_dict, country_dict, locations):
+        with open(os.path.join(self.DATA_PATH, "pickled_users_train.pickle"),
+                  "wb") as f:
+            pickle.dump(useruuid_dict, f)
+        with open(os.path.join(self.DATA_PATH, "pickled_countries_train.pickle"),
+                  "wb") as f:
+            pickle.dump(country_dict, f)
+        with open(os.path.join(self.DATA_PATH, "pickled_locations_train.npy"),
                   "wb") as f:
             np.save(f, locations)
 

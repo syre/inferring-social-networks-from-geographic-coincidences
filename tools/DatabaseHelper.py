@@ -34,9 +34,7 @@ class DatabaseHelper():
                          self.settings_dict["USER"],
                          self.settings_dict["PASS"]))
         self.file_loader = FileLoader()
-        self.filter_places_dict = {"Sweden": [[(13.2262862, 55.718211), 1000],
-                                              [(17.9529121, 59.4050982), 1000]],
-                                   "Japan": [[(139.743862, 35.630338), 1000]]}
+
         self.min_datetime = from_date
         self.max_datetime = to_date
         self.spatial_resolution_decimals = spatial_resolution_decimals
@@ -267,14 +265,14 @@ class DatabaseHelper():
         cursor = self.conn.cursor()
         start = query = ""
         if points_w_distances:
-            start = "AND NOT ST_DWithin(location, ST_MakePoint("
+            start = " WHERE NOT ST_DWithin(location, ST_MakePoint("
             query = " AND NOT ST_DWithin(location, ST_MakePoint(".join(
                 ["{0}, {1}), {2})". format(element[0][0], element[0][1],
                                            element[1]) for element in
                  points_w_distances])
         cursor.execute(
             """SELECT useruuid, spatial_bin, time_bins, country
-            FROM location""" + start + query)
+            FROM location """ + start + query)
         return cursor.fetchall()
 
     def get_velocity_for_users(self, country):

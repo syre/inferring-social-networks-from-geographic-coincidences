@@ -34,9 +34,7 @@ class DatabaseHelper():
                          self.settings_dict["USER"],
                          self.settings_dict["PASS"]))
         self.file_loader = FileLoader()
-        self.filter_places_dict = {"Sweden": [[(13.2262862, 55.718211), 1000],
-                                              [(17.9529121, 59.4050982), 1000]],
-                                   "Japan": [[(139.743862, 35.630338), 1000]]}
+
         self.min_datetime = from_date
         self.max_datetime = to_date
         self.spatial_resolution_decimals = spatial_resolution_decimals
@@ -263,11 +261,18 @@ class DatabaseHelper():
             print("hov!!!")
             return 0.0
 
-    def get_locations_for_numpy(self):
+    def get_locations_for_numpy(self, points_w_distances=[]):
         cursor = self.conn.cursor()
+        start = query = ""
+        if points_w_distances:
+            start = " WHERE NOT ST_DWithin(location, ST_MakePoint("
+            query = " AND NOT ST_DWithin(location, ST_MakePoint(".join(
+                ["{0}, {1}), {2})". format(element[0][0], element[0][1],
+                                           element[1]) for element in
+                 points_w_distances])
         cursor.execute(
             """SELECT useruuid, spatial_bin, time_bins, country
-            FROM location;""")
+            FROM location """ + start + query)
         return cursor.fetchall()
 
     def get_velocity_for_users(self, country):
@@ -668,13 +673,13 @@ class DatabaseHelper():
             (country,))
         return cursor.fetchall()[0][0]
 
-    def generate_numpy_matrix_from_database(self):
+    def generate_numpy_matrix_from_database(self, exclude_points=[]):
         useruuid_dict = {}
         country_dict = {}
 
         user_count = 0
         country_count = 0
-        rows = self.get_locations_for_numpy()
+        rows = self.get_locations_for_numpy(exclude_points)
         locations = []
 
         for row in tqdm(rows):

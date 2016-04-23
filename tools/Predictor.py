@@ -9,7 +9,6 @@ import itertools
 import numpy as np
 import sklearn
 import sklearn.ensemble
-from sklearn import cross_validation
 from tqdm import tqdm
 import random
 
@@ -17,7 +16,9 @@ import random
 class Predictor():
 
     def __init__(self,
-                 country="Japan"):
+                 country="Japan",
+                 train_datetimes=(),
+                 test_datetimes=()):
         """
             Constructor
 
@@ -28,22 +29,53 @@ class Predictor():
         self.dataset_helper = DatasetHelper()
         self.file_loader = FileLoader()
         self.country = country
+        self.train_datetimes = train_datetimes
+        self.test_datetimes = test_datetimes
 
-    def generate_dataset(self, friend_pairs, non_friend_pairs,  min_timebin, max_timebin, friend_size=None, nonfriend_size=None):
-        users, countries, locations_arr = self.file_loader.load_numpy_matrix()
-        # get only locations from specific country
+    def filter_by_country(self, loc_arr):
         country_arr = locations_arr[
             np.in1d([locations_arr[:, 3]], [countries[self.country]])]
+        return country_arr
 
-        # filter location array so its between max and min timebin
+    def generate_train_dataset(self):
+        min_timebin = self.database_helper.calculate_time_bins(self.train_datetimes[0],self.train_datetimes[0])[0]
+        max_timebin = self.database_helper.calculate_time_bins(self.train_datetimes[1],self.train_datetimes[1])[0]
+
+        users, countries, locations_arr = self.file_loader.load_numpy_matrix_train()
+        # get only locations from specific country
+        country_arr = self.filter_by_country(locations_arr)
+
+        coocs = self.file_loader.load_cooccurrences_train()
+
+        # filter location array  and cooc array so its between max and min timebin
         country_arr = country_arr[country_arr[:, 2] <= max_timebin]
         country_arr = country_arr[country_arr[:, 2] > min_timebin]
-
-        coocs = self.file_loader.load_cooccurrences()
-        # filter cooccurrences array between max and min timebin
         coocs = coocs[coocs[:, 3] <= max_timebin]
         coocs = coocs[coocs[:, 3] > min_timebin]
 
+        train_friends, train_nonfriends, _, _ = self.file_loader.load_friend_and_nonfriend_pairs()
+        return self.calculate_features_for_dataset(users, countries, country_arr, coocs, train_friends, train_nonfriends, friend_size=None, nonfriend_size=None)
+
+    def generate_test_dataset(self):
+        min_timebin = self.database_helper.calculate_time_bins(self.test_datetimes[0],self.test_datetimes[0])[0]
+        max_timebin = self.database_helper.calculate_time_bins(self.test_datetimes[1],self.test_datetimes[1])[0]
+
+        users, countries, locations_arr = self.file_loader.load_numpy_matrix_test()
+        # get only locations from specific country
+        country_arr = self.filter_by_country(locations_arr)
+
+        coocs = self.file_loader.load_cooccurrences_test()
+
+        # filter location array  and cooc array so its between max and min timebin
+        country_arr = country_arr[country_arr[:, 2] <= max_timebin]
+        country_arr = country_arr[country_arr[:, 2] > min_timebin]
+        coocs = coocs[coocs[:, 3] <= max_timebin]
+        coocs = coocs[coocs[:, 3] > min_timebin]
+
+        _, _, test_friends, test_nonfriends = self.file_loader.load_friend_and_nonfriend_pairs()
+        return self.calculate_features_for_dataset(users, countries, country_arr, coocs, test_friends, test_nonfriends, friend_size=None, nonfriend_size=None)
+
+    def calculate_features_for_dataset(self, users, countries, loc_arr, coocs, friend_pairs, non_friend_pairs, friend_size=None, nonfriend_size=None):
         datahelper = self.dataset_helper
         if friend_size:
             friend_pairs = random.sample(friend_pairs, friend_size)
@@ -62,12 +94,12 @@ class Predictor():
             pair2_coocs = coocs[
                 (coocs[:, 0] == user2) & (coocs[:, 1] == user1)]
             pair_coocs = np.vstack((pair1_coocs, pair2_coocs))
-            X[index:, 1] = datahelper.calculate_arr_leav(pair_coocs, country_arr)
+            X[index:, 1] = datahelper.calculate_arr_leav(pair_coocs, loc_arr)
             X[index, 2] = datahelper.calculate_diversity(pair_coocs)
             X[index, 3] = datahelper.calculate_unique_cooccurrences(pair_coocs)
             X[index, 4] = datahelper.calculate_weighted_frequency(
-                pair_coocs, country_arr)
-            X[index:, 5] = datahelper.calculate_coocs_w(pair_coocs, country_arr)
+                pair_coocs, loc_arr)
+            X[index:, 5] = datahelper.calculate_coocs_w(pair_coocs, loc_arr)
 
         for index, pair in tqdm(enumerate(non_friend_pairs, start=len(friend_pairs))):
             user1 = users[pair[0]]
@@ -78,12 +110,12 @@ class Predictor():
                 (coocs[:, 0] == user2) & (coocs[:, 1] == user1)]
             pair_coocs = np.vstack((pair1_coocs, pair2_coocs))
             X[index:, 0] = pair_coocs.shape[0]
-            X[index:, 1] = datahelper.calculate_arr_leav(pair_coocs, country_arr)
+            X[index:, 1] = datahelper.calculate_arr_leav(pair_coocs, loc_arr)
             X[index, 2] = datahelper.calculate_diversity(pair_coocs)
             X[index, 3] = datahelper.calculate_unique_cooccurrences(pair_coocs)
             X[index, 4] = datahelper.calculate_weighted_frequency(
-                pair_coocs, country_arr)
-            X[index:, 5] = datahelper.calculate_coocs_w(pair_coocs, country_arr)
+                pair_coocs, loc_arr)
+            X[index:, 5] = datahelper.calculate_coocs_w(pair_coocs, loc_arr)
 
         y = np.array([1 for x in range(len(friend_pairs))] +
                      [0 for x in range(len(non_friend_pairs))])
@@ -322,21 +354,23 @@ class Predictor():
         country_users = self.database_helper.get_users_in_country(self.country)
 
         def callback_func(row):
-            if row["package_name"] in phone_features+messaging_features and row["useruuid"] in country_users:
+            start_bins = self.database_helper.calculate_time_bins(row["start_time"], row["start_time"])
+            end_bins = self.database_helper.calculate_time_bins(row["end_time"], row["end_time"])
+            if row["package_name"] in phone_features+messaging_features and row["useruuid"] in country_users and start_bins[0] >= min_timebin and end_bins[0] < max_timebin:
                 rows[row["useruuid"]].append(row)
         self.file_loader.generate_app_data_from_json(
             callback_func=callback_func)
 
         friend_pairs = []
         non_friend_pairs = []
-        for pair in tqdm(list(itertools.combinations(country_users, 2))):
+        for pair in tqdm(list(itertools.combinations(rows.keys(), 2))):
             user1_records = rows[pair[0]]
             user2_records = rows[pair[1]]
-            coocs = self.database_helper.find_cooccurrences(pair[0],
-                                                            points_w_distances=self.database_helper.filter_places_dict[self.country],
-                                                            useruuid2=pair[1],
-                                                            min_timebin=min_timebin,
-                                                            max_timebin=max_timebin)
+            #coocs = self.database_helper.find_cooccurrences(pair[0],
+            #                                                points_w_distances=self.database_helper.filter_places_dict[self.country],
+            #                                                useruuid2=pair[1],
+            #                                                min_timebin=min_timebin,
+            #                                                max_timebin=max_timebin)
 
             if self.is_friends_on_app_usage(user1_records, user2_records, phone_features, phone_limit, messaging_features, messaging_limit) and self.is_friends_on_homophily(pair[0], pair[1], user_info_dict):
                 friend_pairs.append((pair[0], pair[1]))
@@ -366,7 +400,6 @@ class Predictor():
                         return True
         else:
             return False
-
 
 
 if __name__ == '__main__':

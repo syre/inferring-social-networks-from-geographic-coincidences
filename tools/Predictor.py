@@ -35,12 +35,10 @@ class Predictor():
         country_arr = locations_arr[
             np.in1d([locations_arr[:, 3]], [countries[self.country]])]
 
-        # filter location array so its between max and min timebin
+        coocs = self.file_loader.load_cooccurrences()
+        # filter location array  and cooc array so its between max and min timebin
         country_arr = country_arr[country_arr[:, 2] <= max_timebin]
         country_arr = country_arr[country_arr[:, 2] > min_timebin]
-
-        coocs = self.file_loader.load_cooccurrences()
-        # filter cooccurrences array between max and min timebin
         coocs = coocs[coocs[:, 3] <= max_timebin]
         coocs = coocs[coocs[:, 3] > min_timebin]
 
@@ -322,21 +320,23 @@ class Predictor():
         country_users = self.database_helper.get_users_in_country(self.country)
 
         def callback_func(row):
-            if row["package_name"] in phone_features+messaging_features and row["useruuid"] in country_users:
+            start_bins = self.database_helper.calculate_time_bins(row["start_time"], row["start_time"])
+            end_bins = self.database_helper.calculate_time_bins(row["end_time"], row["end_time"])
+            if row["package_name"] in phone_features+messaging_features and row["useruuid"] in country_users and start_bins[0] >= min_timebin and end_bins[0] < max_timebin:
                 rows[row["useruuid"]].append(row)
         self.file_loader.generate_app_data_from_json(
             callback_func=callback_func)
 
         friend_pairs = []
         non_friend_pairs = []
-        for pair in tqdm(list(itertools.combinations(country_users, 2))):
+        for pair in tqdm(list(itertools.combinations(rows.keys(), 2))):
             user1_records = rows[pair[0]]
             user2_records = rows[pair[1]]
-            coocs = self.database_helper.find_cooccurrences(pair[0],
-                                                            points_w_distances=self.database_helper.filter_places_dict[self.country],
-                                                            useruuid2=pair[1],
-                                                            min_timebin=min_timebin,
-                                                            max_timebin=max_timebin)
+            #coocs = self.database_helper.find_cooccurrences(pair[0],
+            #                                                points_w_distances=self.database_helper.filter_places_dict[self.country],
+            #                                                useruuid2=pair[1],
+            #                                                min_timebin=min_timebin,
+            #                                                max_timebin=max_timebin)
 
             if self.is_friends_on_app_usage(user1_records, user2_records, phone_features, phone_limit, messaging_features, messaging_limit) and self.is_friends_on_homophily(pair[0], pair[1], user_info_dict):
                 friend_pairs.append((pair[0], pair[1]))
@@ -366,7 +366,6 @@ class Predictor():
                         return True
         else:
             return False
-
 
 
 if __name__ == '__main__':

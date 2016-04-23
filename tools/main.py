@@ -15,8 +15,8 @@ def update_all_data():
     users, countries, locations = database_helper.generate_numpy_matrix_from_database()
     file_loader.save_numpy_matrix(users, countries, locations)
     print("processing cooccurrences numpy array")
-    #coocs = dataset_helper.generate_cooccurrences_array(locations)
-    #file_loader.save_cooccurrences(coocs)
+    coocs = dataset_helper.generate_cooccurrences_array(locations)
+    file_loader.save_cooccurrences(coocs)
     coocs = file_loader.load_cooccurrences()
     print("processing friends and nonfriend pairs (train)")
 

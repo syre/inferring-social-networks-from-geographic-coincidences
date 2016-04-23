@@ -90,11 +90,8 @@ class Predictor():
 
         return X, y
 
-    def predict(self, X, y):
+    def predict(self, X_train, y_train, X_test, y_test):
         tree = sklearn.ensemble.RandomForestClassifier()
-
-        X_train, X_test, y_train, y_test = cross_validation.train_test_split(
-            X, y, test_size=0.4, random_state=0)
         tree.fit(X_train, y_train)
         print(tree.score(X_test, y_test))
 
@@ -286,15 +283,39 @@ class Predictor():
         im_within_time = 5*60
         phone_within_time = 5
         phone_features = ["com.android.incallui"]
-        im_features = ['com.snapchat.android', 'com.Slack',
-                       'com.verizon.messaging.vzmsgs', 'jp.naver.line.android',
-                       'com.whatsapp', 'org.telegram.messenger',
-                       'com.google.android.talk', 'com.viber.voip',
+        im_features = ['com.snapchat.android',
+                       'com.Slack',
+                       'com.verizon.messaging.vzmsgs',
+                       'jp.naver.line.android',
+                       'com.whatsapp',
+                       'org.telegram.messenger',
+                       'com.google.android.talk',
+                       'com.viber.voip',
                        'com.alibaba.android.rimet',
-                       'com.skype.raider', 'com.sonyericsson.conversations',
-                       'com.kakao.talk', 'com.google.android.apps.messaging',
-                       'com.facebook.orca', 'com.tenthbit.juliet',
+                       'com.skype.raider',
+                       'com.sonyericsson.conversations',
+                       'com.kakao.talk',
+                       'com.google.android.apps.messaging',
+                       'com.facebook.orca',
+                       'com.tenthbit.juliet',
                        'com.tencent.mm']
+        im_limits = {'com.snapchat.android': (),
+                     'com.Slack': (),
+                     'com.verizon.messaging.vzmsgs': (),
+                     'jp.naver.line.android': (),
+                     'com.whatsapp': (),
+                     'org.telegram.messenger': (),
+                     'com.google.android.talk': (),
+                     'com.viber.voip': (),
+                     'com.alibaba.android.rimet': (),
+                     'com.skype.raider': (),
+                     'com.sonyericsson.conversations': (),
+                     'com.kakao.talk': (),
+                     'com.google.android.apps.messaging': (),
+                     'com.facebook.orca': (),
+                     'com.tenthbit.juliet': (),
+                     'com.tencent.mm': ()}
+
         user_info_dict = self.file_loader.generate_demographics_from_csv()
         user_info_dict = self.file_loader.filter_demographic_outliers(user_info_dict)
         rows = collections.defaultdict(list)
@@ -323,22 +344,22 @@ class Predictor():
                     end_time_y = parser.parse(y["end_time"])
                     start_diff = abs(start_time_x-start_time_y).seconds
                     end_diff = abs(end_time_x-end_time_y).seconds
-                    if (x["package_name"] in im_features and start_diff < im_within_time and end_diff < im_within_time) or
-                    (x["package_name"] in phone_features and start_diff < phone_within_time and end_diff < phone_within_time):
-                        print(x["package_name"])
-                        friend_pairs.append(
-                            (useruuid_x, useruuid_y))
-                        print(useruuid_x, useruuid_y, start_diff, end_diff)
-                        print(user_info_dict[useruuid_x], user_info_dict[useruuid_y])
-                        print(len(self.database_helper.find_cooccurrences(useruuid_x,
+                    if (x["package_name"] in im_features and start_diff < im_within_time and end_diff < im_within_time) or (x["package_name"] in phone_features and start_diff < phone_within_time and end_diff < phone_within_time):
+                        coocs = self.database_helper.find_cooccurrences(useruuid_x,
                                                                           points_w_distances=self.database_helper.filter_places_dict[self.country],
                                                                           useruuid2=useruuid_y,
                                                                           min_timebin=min_timebin,
-                                                                          max_timebin=max_timebin)))
-                        print(
+                                                                          max_timebin=max_timebin)
+                        if (len(coocs) > 1):
+                            friend_pairs.append((useruuid_x, useruuid_y))
+                            print(x["package_name"])
+                            print(useruuid_x, useruuid_y, start_diff, end_diff)
+                            print(user_info_dict[useruuid_x], user_info_dict[useruuid_y])
+                            print()
+                            print(
                             "----------------------------------------------------")
-                    else:
-                        non_friend_pairs.append((useruuid_x, useruuid_y))
+                        else:
+                            non_friend_pairs.append((useruuid_x, useruuid_y))
         return friend_pairs, non_friend_pairs
 
 
@@ -346,21 +367,6 @@ if __name__ == '__main__':
     p = Predictor("Japan")
     f = FileLoader()
     d = DatabaseHelper()
-    sept_min_datetime = "2015-09-01 00:00:00+00:00"
-    sept_min_time_bin = d.calculate_time_bins(sept_min_datetime, sept_min_datetime)[0]
-    sept_max_datetime = "2015-09-30 23:59:59+00:00"
-    sept_max_time_bin = d.calculate_time_bins(sept_max_datetime, sept_max_datetime)[0]
-    oct_min_datetime = "2015-10-01 00:00:00+00:00"
-    oct_min_time_bin = d.calculate_time_bins(oct_min_datetime, oct_min_datetime)[0]
-    oct_max_datetime = "2015-10-31 23:59:59+00:00"
-    oct_max_time_bin = d.calculate_time_bins(oct_max_datetime, oct_max_datetime)[0]
-    nov_min_datetime = "2015-11-01 00:00:00+00:00"
-    nov_min_time_bin = d.calculate_time_bins(nov_min_datetime, nov_min_datetime)[0]
-    nov_max_datetime = "2015-11-30 23:59:59+00:00"
-    nov_max_time_bin = d.calculate_time_bins(nov_max_datetime, nov_max_datetime)[0]
 
-    train_friends, train_nonfriends = p.find_friend_and_nonfriend_pairs(sept_min_time_bin, oct_max_time_bin)
-    X_train, y_train = p.generate_dataset(sept_min_time_bin, oct_max_time_bin)
 
-    test_friends, test_nonfriends = p.find_friend_and_nonfriend_pairs(nov_min_time_bin, nov_max_time_bin)
-    X_test, y_test = p.generate_dataset(nov_min_time_bin, nov_max_time_bin)
+    p.predict()

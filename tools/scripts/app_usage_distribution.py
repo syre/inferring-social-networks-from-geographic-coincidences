@@ -69,6 +69,7 @@ def load_data(features):
 def by_all_days(bin_size, times, rows_dict):
     sns.set(color_codes=True)
     sns.set(style="white", palette="muted")
+    sns.set(font_scale=1.5)
     plot_info = generate_subplot_numbers(len(rows_dict.keys()))
     plot = 0
     for feature, rows in rows_dict.items():
@@ -87,17 +88,21 @@ def by_all_days(bin_size, times, rows_dict):
         #    print("if!!!")
         #    values.append(-1)
         #try:
-        ax = sns.distplot(values, bins=(24*60+60)/bin_size, kde=False)
-        ax.set_xticks(np.arange(len(times)))
-        ax.set_xticklabels(times, rotation=90)
-        ax.set(title="All days ["+feature+"]")
-        ax.set(xlabel="time of day")
-        sns.plt.tick_params(labelsize=14)
 
-        [label.set_visible(False) for label in ax.xaxis.get_ticklabels()]
+        if len(values) > 1:
+            ax = sns.distplot(values, bins=(24*60+60)/bin_size, kde=False, norm_hist=True)
+            ax.set_xticks(np.arange(len(times)))
+            ax.set_xticklabels(times, rotation=90)
+            ax.set(title="All days ["+feature+"]")
+            ax.set(xlabel="time of day")
+            ax.set(ylabel="Probability")
+            
+            sns.plt.tick_params(labelsize=14)
 
-        for label in ax.xaxis.get_ticklabels()[::8]:
-            label.set_visible(True)
+            [label.set_visible(False) for label in ax.xaxis.get_ticklabels()]
+
+            for label in ax.xaxis.get_ticklabels()[::8]:
+                label.set_visible(True)
         #except Exception as e:
         #    print(str(e))
         plot += 1

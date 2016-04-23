@@ -24,7 +24,7 @@ class FileLoader():
 
     def generate_demographics_from_csv(self, path="data"):
         file_name = "user_data.csv"
-        user_info_dict = defaultdict(list)
+        user_info_dict = defaultdict(dict)
 
         with open(os.path.join(self.DATA_PATH, file_name)) as csv_file:
             reader = csv.reader(csv_file)
@@ -37,7 +37,7 @@ class FileLoader():
         return user_info_dict
 
     def filter_demographic_outliers(self, user_info_dict):
-        user_info_dict = defaultdict(list, {k: v for k, v in
+        user_info_dict = defaultdict(dict, {k: v for k, v in
                                             user_info_dict.items()
                                             if v["birthdate"] !=
                                             "1990-01-01" and

@@ -81,7 +81,7 @@ class Predictor():
             X[index:, 1] = datahelper.calculate_arr_leav(pair_coocs, country_arr)
             X[index, 2] = datahelper.calculate_diversity(pair_coocs)
             X[index, 3] = datahelper.calculate_unique_cooccurrences(pair_coocs)
-            X[index, 4] = datahelper.calculate_weighted_frequency_numpy(
+            X[index, 4] = datahelper.calculate_weighted_frequency(
                 pair_coocs, country_arr)
             X[index:, 5] = datahelper.calculate_coocs_w(pair_coocs, country_arr)
 
@@ -280,25 +280,25 @@ class Predictor():
         return weighted_frequency
 
     def find_friend_and_nonfriend_pairs(self, min_timebin, max_timebin):
-        im_within_time = 5*60
-        phone_within_time = 5
+        messaging_limit = 5*60
+        phone_limit = 5
         phone_features = ["com.android.incallui"]
-        im_features = ['com.snapchat.android',
-                       'com.Slack',
-                       'com.verizon.messaging.vzmsgs',
-                       'jp.naver.line.android',
-                       'com.whatsapp',
-                       'org.telegram.messenger',
-                       'com.google.android.talk',
-                       'com.viber.voip',
-                       'com.alibaba.android.rimet',
-                       'com.skype.raider',
-                       'com.sonyericsson.conversations',
-                       'com.kakao.talk',
-                       'com.google.android.apps.messaging',
-                       'com.facebook.orca',
-                       'com.tenthbit.juliet',
-                       'com.tencent.mm']
+        messaging_features = ['com.snapchat.android',
+                              'com.Slack',
+                              'com.verizon.messaging.vzmsgs',
+                              'jp.naver.line.android',
+                              'com.whatsapp',
+                              'org.telegram.messenger',
+                              'com.google.android.talk',
+                              'com.viber.voip',
+                              'com.alibaba.android.rimet',
+                              'com.skype.raider',
+                              'com.sonyericsson.conversations',
+                              'com.kakao.talk',
+                              'com.google.android.apps.messaging',
+                              'com.facebook.orca',
+                              'com.tenthbit.juliet',
+                              'com.tencent.mm']
         im_limits = {'com.snapchat.android': (),
                      'com.Slack': (),
                      'com.verizon.messaging.vzmsgs': (),
@@ -322,7 +322,7 @@ class Predictor():
         country_users = self.database_helper.get_users_in_country(self.country)
 
         def callback_func(row):
-            if row["package_name"] in phone_features+im_features and row["useruuid"] in country_users:
+            if row["package_name"] in phone_features+messaging_features and row["useruuid"] in country_users:
                 rows[row["useruuid"]].append(row)
         self.file_loader.generate_app_data_from_json(
             callback_func=callback_func)
@@ -332,35 +332,41 @@ class Predictor():
         for pair in tqdm(list(itertools.combinations(country_users, 2))):
             user1_records = rows[pair[0]]
             user2_records = rows[pair[1]]
-            for x in user1_records:
+            coocs = self.database_helper.find_cooccurrences(pair[0],
+                                                            points_w_distances=self.database_helper.filter_places_dict[self.country],
+                                                            useruuid2=pair[1],
+                                                            min_timebin=min_timebin,
+                                                            max_timebin=max_timebin)
+
+            if self.is_friends_on_app_usage(user1_records, user2_records, phone_features, phone_limit, messaging_features, messaging_limit) and self.is_friends_on_homophily(pair[0], pair[1], user_info_dict):
+                friend_pairs.append((pair[0], pair[1]))
+            else:
+                non_friend_pairs.append((pair[0], pair[1]))
+
+        return friend_pairs, non_friend_pairs
+
+    def is_friends_on_homophily(self, user_x, user_y, user_info_dict):
+        if "age" not in user_info_dict[user_x] or "age" not in user_info_dict[user_y]:
+            return False
+        return abs(user_info_dict[user_x]["age"]-user_info_dict[user_y]["age"]) < 8
+
+    def is_friends_on_app_usage(self, user1_records, user2_records, phone_features, phone_limit, messaging_features, messaging_limit):
+        for x in user1_records:
                 start_time_x = parser.parse(x["start_time"])
                 end_time_x = parser.parse(x["end_time"])
-                useruuid_x = x["useruuid"]
                 for y in user2_records:
-                    useruuid_y = y["useruuid"]
                     if x["package_name"] != y["package_name"]:
                         continue
                     start_time_y = parser.parse(y["start_time"])
                     end_time_y = parser.parse(y["end_time"])
                     start_diff = abs(start_time_x-start_time_y).seconds
                     end_diff = abs(end_time_x-end_time_y).seconds
-                    if (x["package_name"] in im_features and start_diff < im_within_time and end_diff < im_within_time) or (x["package_name"] in phone_features and start_diff < phone_within_time and end_diff < phone_within_time):
-                        coocs = self.database_helper.find_cooccurrences(useruuid_x,
-                                                                          points_w_distances=self.database_helper.filter_places_dict[self.country],
-                                                                          useruuid2=useruuid_y,
-                                                                          min_timebin=min_timebin,
-                                                                          max_timebin=max_timebin)
-                        if (len(coocs) > 1):
-                            friend_pairs.append((useruuid_x, useruuid_y))
-                            print(x["package_name"])
-                            print(useruuid_x, useruuid_y, start_diff, end_diff)
-                            print(user_info_dict[useruuid_x], user_info_dict[useruuid_y])
-                            print()
-                            print(
-                            "----------------------------------------------------")
-                        else:
-                            non_friend_pairs.append((useruuid_x, useruuid_y))
-        return friend_pairs, non_friend_pairs
+
+                    if (x["package_name"] in messaging_features and start_diff < messaging_limit and end_diff < messaging_limit) or (x["package_name"] in phone_features and start_diff < phone_limit and end_diff < phone_limit):
+                        return True
+        else:
+            return False
+
 
 
 if __name__ == '__main__':

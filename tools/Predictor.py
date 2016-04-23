@@ -373,6 +373,7 @@ if __name__ == '__main__':
     p = Predictor("Japan")
     f = FileLoader()
     d = DatabaseHelper()
-
-
-    p.predict()
+    print(len(list(itertools.combinations(d.get_users_in_country("Japan"),2))))
+    X_train, y_train, X_test, y_test = f.load_x_and_y()
+    print(len(y_train[y_train == 1])+len(y_train[y_test == 1]), len(y_test[y_test == 0])+ len(y_train[y_train == 0]))
+    p.predict(X_train, y_train, X_test, y_test)

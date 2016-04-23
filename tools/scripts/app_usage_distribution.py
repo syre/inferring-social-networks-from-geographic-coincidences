@@ -83,21 +83,21 @@ def by_all_days(bin_size, times, rows_dict):
         print("len(values): {}".format(len(values)))
         print(values[:10])
         print("feature: "+feature)
-        if len(values) > 1:
+        #if len(values) > 1:
         #    print("if!!!")
         #    values.append(-1)
         #try:
-            ax = sns.distplot(values, bins=(24*60+60)/bin_size, kde=False)
-            ax.set_xticks(np.arange(len(times)))
-            ax.set_xticklabels(times, rotation=90)
-            ax.set(title="All days ["+feature+"]")
-            ax.set(xlabel="time of day")
-            sns.plt.tick_params(labelsize=14)
+        ax = sns.distplot(values, bins=(24*60+60)/bin_size, kde=False)
+        ax.set_xticks(np.arange(len(times)))
+        ax.set_xticklabels(times, rotation=90)
+        ax.set(title="All days ["+feature+"]")
+        ax.set(xlabel="time of day")
+        sns.plt.tick_params(labelsize=14)
 
-            [label.set_visible(False) for label in ax.xaxis.get_ticklabels()]
+        [label.set_visible(False) for label in ax.xaxis.get_ticklabels()]
 
-            for label in ax.xaxis.get_ticklabels()[::8]:
-                label.set_visible(True)
+        for label in ax.xaxis.get_ticklabels()[::8]:
+            label.set_visible(True)
         #except Exception as e:
         #    print(str(e))
         plot += 1

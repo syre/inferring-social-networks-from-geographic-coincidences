@@ -36,7 +36,7 @@ class Run(object):
         users_test, countries_test, locations_test = self.database_helper.generate_numpy_matrix_from_database(self.filter_places_dict[self.country])
         file_loader.save_numpy_matrix_test(users_test, countries_test, locations_test)
 
-        print("processing cooccurrences numpy array (train")
+        print("processing cooccurrences numpy array (train)")
         #coocs_train = dataset_helper.generate_cooccurrences_array(locations_train)
         #file_loader.save_cooccurrences_train(coocs_train)
         coocs_test = file_loader.load_cooccurrences_train()

@@ -36,15 +36,15 @@ class Run(object):
         users_test, countries_test, locations_test = self.database_helper.generate_numpy_matrix_from_database(self.filter_places_dict[self.country])
         file_loader.save_numpy_matrix_test(users_test, countries_test, locations_test)
 
-        print("processing cooccurrences numpy array (train")
-        coocs_train = dataset_helper.generate_cooccurrences_array(locations_train)
-        file_loader.save_cooccurrences_train(coocs_train)
-        coocs_test = file_loader.load_cooccurrences_train()
+        print("processing cooccurrences numpy array (train)")
+        #coocs_train = dataset_helper.generate_cooccurrences_array(locations_train)
+        #file_loader.save_cooccurrences_train(coocs_train)
+        #coocs_train = file_loader.load_cooccurrences_train()
 
         print("processing cooccurrences numpy array (test)")
-        coocs_test = dataset_helper.generate_cooccurrences_array(locations_train)
-        file_loader.save_cooccurrences_test(coocs_test)
-        coocs_test = file_loader.load_cooccurrences_test()
+        #coocs_test = dataset_helper.generate_cooccurrences_array(locations_train)
+        #file_loader.save_cooccurrences_test(coocs_test)
+        #coocs_test = file_loader.load_cooccurrences_test()
         print("processing friends and nonfriend pairs (train)")
 
         sept_min_datetime = "2015-09-01 00:00:00+00:00"
@@ -61,17 +61,20 @@ class Run(object):
         nov_max_time_bin = database_helper.calculate_time_bins(nov_max_datetime, nov_max_datetime)[0]
 
         train_friends, train_nonfriends = predictor.find_friend_and_nonfriend_pairs(sept_min_time_bin, oct_max_time_bin)
-        print("processing dataset for machine learning (train)")
-        X_train, y_train = predictor.generate_dataset(train_friends, train_nonfriends, sept_min_time_bin, oct_max_time_bin)
+        
         print("processing friends and nonfriend pairs (test)")
         test_friends, test_nonfriends = predictor.find_friend_and_nonfriend_pairs(nov_min_time_bin, nov_max_time_bin)
-        print("processing dataset for machine learning (test)")
-        X_test, y_test = predictor.generate_dataset(test_friends, test_nonfriends, nov_min_time_bin, nov_max_time_bin)
+        
         print("saving friends")
         file_loader.save_friend_and_nonfriend_pairs(train_friends, train_nonfriends, test_friends, test_nonfriends)
+        
+        print("processing dataset for machine learning (train)")
+        X_train, y_train = predictor.generate_train_dataset()
+        print("processing dataset for machine learning (test)")
+        X_test, y_test = predictor.generate_test_dataset()
         print("saving dataset")
         file_loader.save_x_and_y(X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
-
+        predictor.predict(X_train, y_train, X_test, y_test)
 if __name__ == '__main__':
     train_dates = ("2015-09-01 00:00:00+00:00", "2015-10-31 23:59:59+00:00")
     test_dates = ("2015-11-01 00:00:00+00:00", "2015-11-30 23:59:59+00:00")

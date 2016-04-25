@@ -17,8 +17,8 @@ class Predictor():
 
     def __init__(self,
                  country="Japan",
-                 train_datetimes=(),
-                 test_datetimes=()):
+                 train_datetimes=("2015-09-01 00:00:00+00:00", "2015-10-31 23:59:59+00:00"),
+                 test_datetimes=("2015-11-01 00:00:00+00:00", "2015-11-30 23:59:59+00:00")):
         """
             Constructor
 
@@ -32,9 +32,9 @@ class Predictor():
         self.train_datetimes = train_datetimes
         self.test_datetimes = test_datetimes
 
-    def filter_by_country(self, loc_arr):
-        country_arr = locations_arr[
-            np.in1d([locations_arr[:, 3]], [countries[self.country]])]
+    def filter_by_country(self, loc_arr, countries):
+        country_arr = loc_arr[
+            np.in1d([loc_arr[:, 3]], [countries[self.country]])]
         return country_arr
 
     def generate_train_dataset(self):
@@ -43,7 +43,7 @@ class Predictor():
 
         users, countries, locations_arr = self.file_loader.load_numpy_matrix_train()
         # get only locations from specific country
-        country_arr = self.filter_by_country(locations_arr)
+        country_arr = self.filter_by_country(locations_arr, countries)
 
         coocs = self.file_loader.load_cooccurrences_train()
 
@@ -62,7 +62,7 @@ class Predictor():
 
         users, countries, locations_arr = self.file_loader.load_numpy_matrix_test()
         # get only locations from specific country
-        country_arr = self.filter_by_country(locations_arr)
+        country_arr = self.filter_by_country(locations_arr, countries)
 
         coocs = self.file_loader.load_cooccurrences_test()
 

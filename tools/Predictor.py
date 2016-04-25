@@ -17,8 +17,8 @@ class Predictor():
 
     def __init__(self,
                  country="Japan",
-                 train_datetimes=(),
-                 test_datetimes=()):
+                 train_datetimes=("2015-09-01 00:00:00+00:00", "2015-10-31 23:59:59+00:00"),
+                 test_datetimes=("2015-11-01 00:00:00+00:00", "2015-11-30 23:59:59+00:00")):
         """
             Constructor
 

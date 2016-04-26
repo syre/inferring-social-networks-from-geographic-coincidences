@@ -26,7 +26,6 @@ class Run(object):
                                    test_datetimes=test_dates_strings)
         self.dataset_helper = DatasetHelper()
 
-
     def update_all_data(self):
         print("processing users, countries and locations as numpy matrix (train)")
         users_train, countries_train, locations_train = self.database_helper.generate_numpy_matrix_from_database()
@@ -37,15 +36,14 @@ class Run(object):
         file_loader.save_numpy_matrix_test(users_test, countries_test, locations_test)
 
         print("processing cooccurrences numpy array (train)")
-        #coocs_train = dataset_helper.generate_cooccurrences_array(locations_train)
-        #file_loader.save_cooccurrences_train(coocs_train)
-        #coocs_train = file_loader.load_cooccurrences_train()
+        coocs_train = dataset_helper.generate_cooccurrences_array(locations_train)
+        file_loader.save_cooccurrences_train(coocs_train)
+        coocs_train = file_loader.load_cooccurrences_train()
 
         print("processing cooccurrences numpy array (test)")
-        #coocs_test = dataset_helper.generate_cooccurrences_array(locations_train)
-        #file_loader.save_cooccurrences_test(coocs_test)
-        #coocs_test = file_loader.load_cooccurrences_test()
-        print("processing friends and nonfriend pairs (train)")
+        coocs_test = dataset_helper.generate_cooccurrences_array(locations_test)
+        file_loader.save_cooccurrences_test(coocs_test)
+        coocs_test = file_loader.load_cooccurrences_test()
 
         sept_min_datetime = "2015-09-01 00:00:00+00:00"
         sept_min_time_bin = database_helper.calculate_time_bins(sept_min_datetime, sept_min_datetime)[0]
@@ -60,18 +58,20 @@ class Run(object):
         nov_max_datetime = "2015-11-30 23:59:59+00:00"
         nov_max_time_bin = database_helper.calculate_time_bins(nov_max_datetime, nov_max_datetime)[0]
 
-        train_friends, train_nonfriends = predictor.find_friend_and_nonfriend_pairs(sept_min_time_bin, oct_max_time_bin)
+        print("finding met in next people (train)")
+        met_in_next_train = predictor.find_met_in_next_pairs(oct_min_time_bin, oct_max_time_bin)
+        print("saving met in next people (train)")
+        file_loader.save_met_in_next(met_in_next_pairs_train)
         
-        print("processing friends and nonfriend pairs (test)")
-        test_friends, test_nonfriends = predictor.find_friend_and_nonfriend_pairs(nov_min_time_bin, nov_max_time_bin)
-        
-        print("saving friends")
-        file_loader.save_friend_and_nonfriend_pairs(train_friends, train_nonfriends, test_friends, test_nonfriends)
-        
+        print("finding met in next people (test)")
+        met_in_next_test = predictor.find_met_in_next_pairs(nov_min_time_bin, nov_max_time_bin)
+        print("saving met in next people (test)")
+        file_loader.save_met_in_next(met_in_next_pairs_test)
+
         print("processing dataset for machine learning (train)")
-        X_train, y_train = predictor.generate_train_dataset()
+        X_train, y_train = predictor.generate_train_dataset(users_train, countries_train, locations_train, coocs_train, met_in_next_train)
         print("processing dataset for machine learning (test)")
-        X_test, y_test = predictor.generate_test_dataset()
+        X_test, y_test = predictor.generate_test_dataset(users_test, countries_test, locations_test, coocs_test, met_in_next_test)
         print("saving dataset")
         file_loader.save_x_and_y(X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
         predictor.predict(X_train, y_train, X_test, y_test)

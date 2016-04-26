@@ -58,31 +58,24 @@ class FileLoader():
             "all_201509.json", "all_201510.json", "all_201511.json"]
         return self.generate_data_from_json(filenames, callback_func)
 
-    def save_friend_and_nonfriend_pairs(self, train_friends, train_nonfriends, test_friends, test_nonfriends):
-        with open(os.path.join("data", "train_friends.pickle"), "wb") as fp:
-            pickle.dump(train_friends, fp)
-        with open(os.path.join("data", "train_nonfriends.pickle"), "wb") as fp:
-            pickle.dump(train_nonfriends, fp)
-        with open(os.path.join("data", "test_friends.pickle"), "wb") as fp:
-            pickle.dump(test_friends, fp)
-        with open(os.path.join("data", "test_nonfriends.pickle"), "wb") as fp:
-            pickle.dump(test_nonfriends, fp)
+    def save_met_in_next_train(self, met_in_next_train):
+        with open(os.path.join(self.DATA_PATH, "met_in_next_train.pickle"), "rb") as fp:
+            pickle.dump(met_in_next_train, fp)
 
-    def load_friend_and_nonfriend_pairs(self):
-        with open(os.path.join(self.DATA_PATH, "train_friends.pickle"),
-                  "rb") as fp:
-            train_friends = pickle.load(fp)
-        with open(os.path.join(self.DATA_PATH, "train_nonfriends.pickle"),
-                  "rb") as fp:
-            train_nonfriends = pickle.load(fp)
-        with open(os.path.join(self.DATA_PATH, "test_friends.pickle"),
-                  "rb") as fp:
-            test_friends = pickle.load(fp)
-        with open(os.path.join(self.DATA_PATH, "test_nonfriends.pickle"),
-                  "rb") as fp:
-            test_nonfriends = pickle.load(fp)
+    def save_met_in_next_test(self, met_in_next_test):
+        with open(os.path.join(self.DATA_PATH, "met_in_next_test.pickle"), "rb") as fp:
+            pickle.dump(met_in_next_test, fp)
+    
+    def load_met_in_next_train(self):
+        with open(os.path.join(self.DATA_PATH, "met_in_next_train.pickle"), "rb") as fp:
+            met_in_next_train = pickle.load(fp)
+        return met_in_next_train
+    
+    def load_met_in_next_test(self):
+        with open(os.path.join(self.DATA_PATH, "met_in_next_test.pickle"), "rb") as fp:
+            met_in_next_test = pickle.load(fp)
+        return met_in_next_test
 
-        return train_friends, train_nonfriends, test_friends, test_nonfriends
 
     def load_cooccurrences_train(self):
         with open(os.path.join(self.DATA_PATH, "cooccurrences_train.npy"),

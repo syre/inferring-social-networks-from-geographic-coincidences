@@ -99,6 +99,7 @@ class DatasetHelper():
             location_entropy = -location_entropy
             weighted_frequency += count * np.exp(-location_entropy)
         return weighted_frequency
+
     def generate_cooccurrences_array(self, loc_arr):
         labels = ["useruuid1", "useruuid2", "spatial_bin", "time_bin"]
         coocs_dict = collections.defaultdict(list)
@@ -106,37 +107,31 @@ class DatasetHelper():
         for x in loc_arr:
             coocs_dict[(x[1],x[2])].append(x[0])
         for x, coocs_list in tqdm(coocs_dict.items()):
-            for pair in itertools.combinations(coocs_list, 2):
+            for pair in itertools.combinations(set(coocs_list), 2):
                 cooccurrences.append([pair[0],pair[1],x[0],x[1]])
         return np.array(cooccurrences)
 
-    # def generate_cooccurrences_array(self, loc_arr):
-    #     unique_users = np.unique(loc_arr[:, [0]])
-    #     labels = ["useruuid1", "useruuid2", "spatial_bin", "time_bin"]
-    #     cooccurrences_list = []
-    #     # generate all combinations of users
-    #     for user_pair in tqdm(list(itertools.combinations(unique_users, 2))):
-    #         user1 = user_pair[0]
-    #         user2 = user_pair[1]
-    #         # find locations for user1 and user2
-    #         user1_arr = loc_arr[(loc_arr[:, 0] == user1)]
-    #         user2_arr = loc_arr[(loc_arr[:, 0] == user2)]
+    def generate_cooccurrences_array_old(self, loc_arr):
+        unique_users = np.unique(loc_arr[:, [0]])
+        labels = ["useruuid1", "useruuid2", "spatial_bin", "time_bin"]
+        cooccurrences_list = []
+        # generate all combinations of users
+        for user_pair in tqdm(list(itertools.combinations(unique_users, 2))):
+            user1 = user_pair[0]
+            user2 = user_pair[1]
+            # find locations for user1 and user2
+            user1_arr = loc_arr[(loc_arr[:, 0] == user1)]
+            user2_arr = loc_arr[(loc_arr[:, 0] == user2)]
 
-    #         # extract time and spatial bin columns
-    #         user1_arr = user1_arr[:, [1, 2]]
-    #         user2_arr = user2_arr[:, [1, 2]]
-    #         # create sets of of spatial, time tuples and find the intersection
-    #         nrows, ncols = user2_arr.shape
-    #         dtype={'names':['f{}'.format(i) for i in range(ncols)],
-    #                         'formats':ncols * [user2_arr.dtype]}
-    #         print(user1_arr)
-    #         print(user2_arr)
-
-    #         cooccurrences = np.intersect1d(user1_arr.view(dtype), user2_arr.view(dtype))
-    #         for cooc in cooccurrences:
-    #             spatial_bin = cooc[0]
-    #             time_bin = cooc[1]
-    #             cooccurrences_list.append([user1, user2, spatial_bin, time_bin])
-    #     return np.array(cooccurrences_list)
-
-
+            # extract time and spatial bin columns
+            user1_arr = user1_arr[:, [1, 2]]
+            user2_arr = user2_arr[:, [1, 2]]
+            # create sets of of spatial, time tuples and find the intersection
+            user1_set = set([tuple(x) for x in user1_arr])
+            user2_set = set([tuple(x) for x in user2_arr])
+            cooccurrences = [x for x in user1_set & user2_set]
+            for cooc in cooccurrences:
+                spatial_bin = cooc[0]
+                time_bin = cooc[1]
+                cooccurrences_list.append([user1, user2, spatial_bin, time_bin])
+        return np.array(cooccurrences_list)

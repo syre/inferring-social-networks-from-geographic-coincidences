@@ -12,18 +12,14 @@ dataset_helper = DatasetHelper()
 
 class Run(object):
     """docstring for ClassName"""
-    def __init__(self, train_dates_strings, test_dates_strings, country="Japan"):
+    def __init__(self, country="Japan"):
         self.filter_places_dict = {"Sweden": [[(13.2262862, 55.718211), 1000],
                                               [(17.9529121, 59.4050982), 1000]],
                                    "Japan": [[(139.743862, 35.630338), 1000]]}
-        self.train_dates = train_dates_strings
-        self.test_dates = test_dates_strings
         self.country = country
         self.file_loader = FileLoader()
         self.database_helper = DatabaseHelper()
-        self.predictor = Predictor(country=country,
-                                   train_datetimes=train_dates_strings,
-                                   test_datetimes=test_dates_strings)
+        self.predictor = Predictor(country=country)
         self.dataset_helper = DatasetHelper()
 
     def update_all_data(self):
@@ -80,14 +76,12 @@ class Run(object):
         file_loader.save_met_in_next_test(met_in_next_test)
 
         print("processing dataset for machine learning (train)")
-        X_train, y_train = predictor.generate_train_dataset(users_train, countries_train, locations_train, coocs_train, met_in_next_train)
+        X_train, y_train = predictor.generate_train_dataset(users_train, countries_train, locations_train, coocs_train, met_in_next_train, oct_min_datetime, oct_max_datetime)
         print("processing dataset for machine learning (test)")
-        X_test, y_test = predictor.generate_test_dataset(users_test, countries_test, locations_test, coocs_test, met_in_next_test)
+        X_test, y_test = predictor.generate_test_dataset(users_test, countries_test, locations_test, coocs_test, met_in_next_test, nov_min_datetime, nov_max_datetime)
         print("saving dataset")
         file_loader.save_x_and_y(X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
         predictor.predict(X_train, y_train, X_test, y_test)
 if __name__ == '__main__':
-    train_dates = ("2015-09-01 00:00:00+00:00", "2015-10-31 23:59:59+00:00")
-    test_dates = ("2015-11-01 00:00:00+00:00", "2015-11-30 23:59:59+00:00")
-    r = Run(train_dates_strings=train_dates, test_dates_strings=test_dates, country="Japan")
+    r = Run(country="Japan")
     r.update_all_data()

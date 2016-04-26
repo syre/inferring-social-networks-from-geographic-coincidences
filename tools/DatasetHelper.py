@@ -71,6 +71,7 @@ class DatasetHelper():
             coocs_w_value = loc_arr[(loc_arr[:, 1] == row[2]) &
                                     (loc_arr[:, 2] == row[3])].shape[0]
             coocs_w_values.append(1/(coocs_w_value-1))
+            print(coocs_w_value)
         return sum(coocs_w_values)/cooc_arr.shape[0]
 
     def calculate_diversity(self, cooc_arr):

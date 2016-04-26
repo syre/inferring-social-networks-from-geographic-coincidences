@@ -19,7 +19,8 @@ class Predictor():
                  country="Japan",
                  train_datetimes=(
                      "2015-09-01 00:00:00+00:00", "2015-10-31 23:59:59+00:00"),
-                 test_datetimes=("2015-11-01 00:00:00+00:00", "2015-11-30 23:59:59+00:00")):
+                 test_datetimes=("2015-11-01 00:00:00+00:00",
+                                 "2015-11-30 23:59:59+00:00")):
         """
             Constructor
 
@@ -38,7 +39,8 @@ class Predictor():
             np.in1d([loc_arr[:, 3]], [countries[self.country]])]
         return country_arr
 
-    def generate_train_dataset(self, users, countries, locations_arr, coocs, met_next):
+    def generate_train_dataset(self, users, countries, locations_arr, coocs,
+                               met_next):
         min_timebin = self.database_helper.calculate_time_bins(
             self.train_datetimes[0], self.train_datetimes[0])[0]
         max_timebin = self.database_helper.calculate_time_bins(
@@ -53,9 +55,12 @@ class Predictor():
         coocs = coocs[coocs[:, 3] <= max_timebin]
         coocs = coocs[coocs[:, 3] > min_timebin]
 
-        return self.calculate_features_for_dataset(users, countries, country_arr, coocs, met_next)
+        return self.calculate_features_for_dataset(users, countries,
+                                                   country_arr, coocs,
+                                                   met_next)
 
-    def generate_test_dataset(self, users, countries, locations_arr, coocs, met_next):
+    def generate_test_dataset(self, users, countries, locations_arr, coocs,
+                              met_next):
         min_timebin = self.database_helper.calculate_time_bins(
             self.test_datetimes[0], self.test_datetimes[0])[0]
         max_timebin = self.database_helper.calculate_time_bins(
@@ -71,12 +76,15 @@ class Predictor():
         coocs = coocs[coocs[:, 3] <= max_timebin]
         coocs = coocs[coocs[:, 3] > min_timebin]
 
-        return self.calculate_features_for_dataset(users, countries, country_arr, coocs, met_next)
+        return self.calculate_features_for_dataset(users, countries,
+                                                   country_arr, coocs,
+                                                   met_next)
 
     def find_met_in_next_pairs(self, coocs):
         return np.dstack((coocs[:, 0], coocs[:, 1]))[0]
 
-    def calculate_features_for_dataset(self, users, countries, loc_arr, coocs, met_next):
+    def calculate_features_for_dataset(self, users, countries, loc_arr, coocs,
+                                       met_next):
         datahelper = self.dataset_helper
 
         X = np.ndarray(shape=(len(coocs), 6), dtype="float")
@@ -121,7 +129,8 @@ class Predictor():
             Returns:
                 list -- list of user_uuids       
         """
-        return self.database_helper.find_cooccurrences_within_area(spatial_bin, time_bin)
+        return self.database_helper.find_cooccurrences_within_area(spatial_bin,
+                                                                   time_bin)
 
     def calculate_unique_cooccurrences(self, cooccurrences):
         """

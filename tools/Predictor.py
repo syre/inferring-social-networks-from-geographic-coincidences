@@ -17,7 +17,8 @@ class Predictor():
 
     def __init__(self,
                  country="Japan",
-                 train_datetimes=("2015-09-01 00:00:00+00:00", "2015-10-31 23:59:59+00:00"),
+                 train_datetimes=(
+                     "2015-09-01 00:00:00+00:00", "2015-10-31 23:59:59+00:00"),
                  test_datetimes=("2015-11-01 00:00:00+00:00", "2015-11-30 23:59:59+00:00")):
         """
             Constructor
@@ -38,12 +39,15 @@ class Predictor():
         return country_arr
 
     def generate_train_dataset(self, users, countries, locations_arr, coocs, met_next):
-        min_timebin = self.database_helper.calculate_time_bins(self.train_datetimes[0],self.train_datetimes[0])[0]
-        max_timebin = self.database_helper.calculate_time_bins(self.train_datetimes[1],self.train_datetimes[1])[0]
+        min_timebin = self.database_helper.calculate_time_bins(
+            self.train_datetimes[0], self.train_datetimes[0])[0]
+        max_timebin = self.database_helper.calculate_time_bins(
+            self.train_datetimes[1], self.train_datetimes[1])[0]
         # get only locations from specific country
         country_arr = self.filter_by_country(locations_arr, countries)
 
-        # filter location array  and cooc array so its between max and min timebin
+        # filter location array  and cooc array so its between max and min
+        # timebin
         country_arr = country_arr[country_arr[:, 2] <= max_timebin]
         country_arr = country_arr[country_arr[:, 2] > min_timebin]
         coocs = coocs[coocs[:, 3] <= max_timebin]
@@ -52,19 +56,25 @@ class Predictor():
         return self.calculate_features_for_dataset(users, countries, country_arr, coocs, met_next)
 
     def generate_test_dataset(self, users, countries, locations_arr, coocs, met_next):
-        min_timebin = self.database_helper.calculate_time_bins(self.test_datetimes[0],self.test_datetimes[0])[0]
-        max_timebin = self.database_helper.calculate_time_bins(self.test_datetimes[1],self.test_datetimes[1])[0]
+        min_timebin = self.database_helper.calculate_time_bins(
+            self.test_datetimes[0], self.test_datetimes[0])[0]
+        max_timebin = self.database_helper.calculate_time_bins(
+            self.test_datetimes[1], self.test_datetimes[1])[0]
 
         # get only locations from specific country
         country_arr = self.filter_by_country(locations_arr, countries)
 
-        # filter location array  and cooc array so its between max and min timebin
+        # filter location array  and cooc array so its between max and min
+        # timebin
         country_arr = country_arr[country_arr[:, 2] <= max_timebin]
         country_arr = country_arr[country_arr[:, 2] > min_timebin]
         coocs = coocs[coocs[:, 3] <= max_timebin]
         coocs = coocs[coocs[:, 3] > min_timebin]
 
         return self.calculate_features_for_dataset(users, countries, country_arr, coocs, met_next)
+
+    def find_met_in_next_pairs(self, coocs):
+        return np.dstack((coocs[:, 0], coocs[:, 1]))[0]
 
     def calculate_features_for_dataset(self, users, countries, loc_arr, coocs, met_next):
         datahelper = self.dataset_helper
@@ -87,7 +97,12 @@ class Predictor():
             X[index, 4] = datahelper.calculate_weighted_frequency(
                 pair_coocs, loc_arr)
             X[index:, 5] = datahelper.calculate_coocs_w(pair_coocs, loc_arr)
-            y[index] = (user1, user2) in met_next or (user2, user1) in met_next
+            y[index] = np.any(np.all([met_next[:, 0] == user1,
+                                      met_next[:, 1] == user2], axis=0)) or \
+                np.any(np.all([met_next[:, 0] == user2,
+                               met_next[:, 1] == user1], axis=0))
+
+            #y[index] = (user1, user2) in met_next or (user2, user1) in met_next
 
         return X, y
 
@@ -318,13 +333,16 @@ class Predictor():
                      'com.tencent.mm': ()}
 
         user_info_dict = self.file_loader.generate_demographics_from_csv()
-        user_info_dict = self.file_loader.filter_demographic_outliers(user_info_dict)
+        user_info_dict = self.file_loader.filter_demographic_outliers(
+            user_info_dict)
         rows = collections.defaultdict(list)
         country_users = self.database_helper.get_users_in_country(self.country)
 
         def callback_func(row):
-            start_bins = self.database_helper.calculate_time_bins(row["start_time"], row["start_time"])
-            end_bins = self.database_helper.calculate_time_bins(row["end_time"], row["end_time"])
+            start_bins = self.database_helper.calculate_time_bins(
+                row["start_time"], row["start_time"])
+            end_bins = self.database_helper.calculate_time_bins(
+                row["end_time"], row["end_time"])
             if row["package_name"] in phone_features+messaging_features and row["useruuid"] in country_users and start_bins[0] >= min_timebin and end_bins[0] < max_timebin:
                 rows[row["useruuid"]].append(row)
         self.file_loader.generate_app_data_from_json(
@@ -335,7 +353,7 @@ class Predictor():
         for pair in tqdm(list(itertools.combinations(rows.keys(), 2))):
             user1_records = rows[pair[0]]
             user2_records = rows[pair[1]]
-            #coocs = self.database_helper.find_cooccurrences(pair[0],
+            # coocs = self.database_helper.find_cooccurrences(pair[0],
             #                                                points_w_distances=self.database_helper.filter_places_dict[self.country],
             #                                                useruuid2=pair[1],
             #                                                min_timebin=min_timebin,
@@ -355,18 +373,18 @@ class Predictor():
 
     def is_friends_on_app_usage(self, user1_records, user2_records, phone_features, phone_limit, messaging_features, messaging_limit):
         for x in user1_records:
-                start_time_x = parser.parse(x["start_time"])
-                end_time_x = parser.parse(x["end_time"])
-                for y in user2_records:
-                    if x["package_name"] != y["package_name"]:
-                        continue
-                    start_time_y = parser.parse(y["start_time"])
-                    end_time_y = parser.parse(y["end_time"])
-                    start_diff = abs(start_time_x-start_time_y).seconds
-                    end_diff = abs(end_time_x-end_time_y).seconds
+            start_time_x = parser.parse(x["start_time"])
+            end_time_x = parser.parse(x["end_time"])
+            for y in user2_records:
+                if x["package_name"] != y["package_name"]:
+                    continue
+                start_time_y = parser.parse(y["start_time"])
+                end_time_y = parser.parse(y["end_time"])
+                start_diff = abs(start_time_x-start_time_y).seconds
+                end_diff = abs(end_time_x-end_time_y).seconds
 
-                    if (x["package_name"] in messaging_features and start_diff < messaging_limit and end_diff < messaging_limit) or (x["package_name"] in phone_features and start_diff < phone_limit and end_diff < phone_limit):
-                        return True
+                if (x["package_name"] in messaging_features and start_diff < messaging_limit and end_diff < messaging_limit) or (x["package_name"] in phone_features and start_diff < phone_limit and end_diff < phone_limit):
+                    return True
         else:
             return False
 
@@ -375,7 +393,9 @@ if __name__ == '__main__':
     p = Predictor("Japan")
     f = FileLoader()
     d = DatabaseHelper()
-    print(len(list(itertools.combinations(d.get_users_in_country("Japan"),2))))
+    print(
+        len(list(itertools.combinations(d.get_users_in_country("Japan"), 2))))
     X_train, y_train, X_test, y_test = f.load_x_and_y()
-    print(len(y_train[y_train == 1])+len(y_train[y_test == 1]), len(y_test[y_test == 0])+ len(y_train[y_train == 0]))
+    print(len(y_train[y_train == 1])+len(y_train[y_test == 1]),
+          len(y_test[y_test == 0]) + len(y_train[y_train == 0]))
     p.predict(X_train, y_train, X_test, y_test)

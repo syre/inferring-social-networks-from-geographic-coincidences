@@ -73,8 +73,6 @@ class Predictor():
         # timebin
         country_arr = country_arr[country_arr[:, 2] <= max_timebin]
         country_arr = country_arr[country_arr[:, 2] > min_timebin]
-        coocs = coocs[coocs[:, 3] <= max_timebin]
-        coocs = coocs[coocs[:, 3] > min_timebin]
 
         return self.calculate_features_for_dataset(users, countries,
                                                    country_arr, coocs,
@@ -88,7 +86,7 @@ class Predictor():
         datahelper = self.dataset_helper
 
         X = np.ndarray(shape=(len(coocs), 6), dtype="float")
-        y = np.array(shape=(len(coocs), 1), dtype="int")
+        y = np.empty(shape=(len(coocs), 1), dtype="int")
 
         for index, pair in tqdm(enumerate(coocs)):
             user1 = users[pair[0]]

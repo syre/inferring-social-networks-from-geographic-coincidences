@@ -59,11 +59,11 @@ class FileLoader():
         return self.generate_data_from_json(filenames, callback_func)
 
     def save_met_in_next_train(self, met_in_next_train):
-        with open(os.path.join(self.DATA_PATH, "met_in_next_train.pickle"), "rb") as fp:
+        with open(os.path.join(self.DATA_PATH, "met_in_next_train.pickle"), "wb") as fp:
             pickle.dump(met_in_next_train, fp)
 
     def save_met_in_next_test(self, met_in_next_test):
-        with open(os.path.join(self.DATA_PATH, "met_in_next_test.pickle"), "rb") as fp:
+        with open(os.path.join(self.DATA_PATH, "met_in_next_test.pickle"), "wb") as fp:
             pickle.dump(met_in_next_test, fp)
     
     def load_met_in_next_train(self):

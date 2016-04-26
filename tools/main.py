@@ -27,6 +27,19 @@ class Run(object):
         self.dataset_helper = DatasetHelper()
 
     def update_all_data(self):
+        sept_min_datetime = "2015-09-01 00:00:00+00:00"
+        sept_min_time_bin = database_helper.calculate_time_bins(sept_min_datetime, sept_min_datetime)[0]
+        sept_max_datetime = "2015-09-30 23:59:59+00:00"
+        sept_max_time_bin = database_helper.calculate_time_bins(sept_max_datetime, sept_max_datetime)[0]
+        oct_min_datetime = "2015-10-01 00:00:00+00:00"
+        oct_min_time_bin = database_helper.calculate_time_bins(oct_min_datetime, oct_min_datetime)[0]
+        oct_max_datetime = "2015-10-31 23:59:59+00:00"
+        oct_max_time_bin = database_helper.calculate_time_bins(oct_max_datetime, oct_max_datetime)[0]
+        nov_min_datetime = "2015-11-01 00:00:00+00:00"
+        nov_min_time_bin = database_helper.calculate_time_bins(nov_min_datetime, nov_min_datetime)[0]
+        nov_max_datetime = "2015-11-30 23:59:59+00:00"
+        nov_max_time_bin = database_helper.calculate_time_bins(nov_max_datetime, nov_max_datetime)[0]
+
         print("processing users, countries and locations as numpy matrix (train)")
         users_train, countries_train, locations_train = self.database_helper.generate_numpy_matrix_from_database()
         file_loader.save_numpy_matrix_train(users_train, countries_train, locations_train)
@@ -45,28 +58,26 @@ class Run(object):
         file_loader.save_cooccurrences_test(coocs_test)
         coocs_test = file_loader.load_cooccurrences_test()
 
-        sept_min_datetime = "2015-09-01 00:00:00+00:00"
-        sept_min_time_bin = database_helper.calculate_time_bins(sept_min_datetime, sept_min_datetime)[0]
-        sept_max_datetime = "2015-09-30 23:59:59+00:00"
-        sept_max_time_bin = database_helper.calculate_time_bins(sept_max_datetime, sept_max_datetime)[0]
-        oct_min_datetime = "2015-10-01 00:00:00+00:00"
-        oct_min_time_bin = database_helper.calculate_time_bins(oct_min_datetime, oct_min_datetime)[0]
-        oct_max_datetime = "2015-10-31 23:59:59+00:00"
-        oct_max_time_bin = database_helper.calculate_time_bins(oct_max_datetime, oct_max_datetime)[0]
-        nov_min_datetime = "2015-11-01 00:00:00+00:00"
-        nov_min_time_bin = database_helper.calculate_time_bins(nov_min_datetime, nov_min_datetime)[0]
-        nov_max_datetime = "2015-11-30 23:59:59+00:00"
-        nov_max_time_bin = database_helper.calculate_time_bins(nov_max_datetime, nov_max_datetime)[0]
+        print("processing coocs for met in next (train)")
+        coocs_met_in_next_train = dataset_helper.generate_cooccurrences_array(locations_train)
+        coocs_met_in_next_train = coocs_met_in_next_train[coocs_met_in_next_train[:, 3] <= oct_max_time_bin]
+        coocs_met_in_next_train = coocs_met_in_next_train[coocs_met_in_next_train[:, 3] > oct_min_time_bin]
+
 
         print("finding met in next people (train)")
-        met_in_next_train = predictor.find_met_in_next_pairs(oct_min_time_bin, oct_max_time_bin)
+        met_in_next_train = predictor.find_met_in_next_pairs(coocs_met_in_next_train)
         print("saving met in next people (train)")
-        file_loader.save_met_in_next(met_in_next_pairs_train)
-        
+        file_loader.save_met_in_next_train(met_in_next_train)
+
+        print("processing coocs for met in next (test)")
+        coocs_met_in_next_test = dataset_helper.generate_cooccurrences_array(locations_test)
+        coocs_met_in_next_test = coocs_met_in_next_test[coocs_met_in_next_test[:, 3] <= nov_max_time_bin]
+        coocs_met_in_next_test = coocs_met_in_next_test[coocs_met_in_next_test[:, 3] > nov_min_time_bin]
+
         print("finding met in next people (test)")
-        met_in_next_test = predictor.find_met_in_next_pairs(nov_min_time_bin, nov_max_time_bin)
+        met_in_next_test = predictor.find_met_in_next_pairs(coocs_test)
         print("saving met in next people (test)")
-        file_loader.save_met_in_next(met_in_next_pairs_test)
+        file_loader.save_met_in_next_test(met_in_next_test)
 
         print("processing dataset for machine learning (train)")
         X_train, y_train = predictor.generate_train_dataset(users_train, countries_train, locations_train, coocs_train, met_in_next_train)

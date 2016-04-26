@@ -89,8 +89,8 @@ class Predictor():
         y = np.empty(shape=(len(coocs), 1), dtype="int")
 
         for index, pair in tqdm(enumerate(coocs)):
-            user1 = users[pair[0]]
-            user2 = users[pair[1]]
+            user1 = pair[0]
+            user2 = pair[1]
 
             pair1_coocs = coocs[
                 (coocs[:, 0] == user1) & (coocs[:, 1] == user2)]
@@ -103,12 +103,10 @@ class Predictor():
             X[index, 4] = datahelper.calculate_weighted_frequency(
                 pair_coocs, loc_arr)
             X[index:, 5] = datahelper.calculate_coocs_w(pair_coocs, loc_arr)
-            y[index] = np.any(np.all([met_next[:, 0] == user1,
-                                      met_next[:, 1] == user2], axis=0)) or \
-                np.any(np.all([met_next[:, 0] == user2,
-                               met_next[:, 1] == user1], axis=0))
-
-            #y[index] = (user1, user2) in met_next or (user2, user1) in met_next
+            y[index] = np.any(np.all([[met_next[:, 0]] == user1,
+                                      [met_next[:, 1]] == user2], axis=0)) or \
+                np.any(np.all([[met_next[:, 0]] == user2,
+                               [met_next[:, 1]] == user1], axis=0))
 
         return X, y
 

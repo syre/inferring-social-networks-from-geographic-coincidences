@@ -59,9 +59,8 @@ class Run(object):
         coocs_met_in_next_train = coocs_met_in_next_train[coocs_met_in_next_train[:, 3] <= oct_max_time_bin]
         coocs_met_in_next_train = coocs_met_in_next_train[coocs_met_in_next_train[:, 3] > oct_min_time_bin]
 
-
         print("finding met in next people (train)")
-        met_in_next_train = predictor.find_met_in_next_pairs(coocs_met_in_next_train)
+        met_in_next_train = predictor.extract_and_remove_duplicate_coocs(coocs_met_in_next_train)
         print("saving met in next people (train)")
         file_loader.save_met_in_next_train(met_in_next_train)
 
@@ -71,7 +70,7 @@ class Run(object):
         coocs_met_in_next_test = coocs_met_in_next_test[coocs_met_in_next_test[:, 3] > nov_min_time_bin]
 
         print("finding met in next people (test)")
-        met_in_next_test = predictor.find_met_in_next_pairs(coocs_test)
+        met_in_next_test = predictor.extract_and_remove_duplicate_coocs(coocs_test)
         print("saving met in next people (test)")
         file_loader.save_met_in_next_test(met_in_next_test)
 

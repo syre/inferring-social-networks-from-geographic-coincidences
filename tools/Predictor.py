@@ -78,8 +78,8 @@ class Predictor():
         y = np.empty(shape=(len(coocs_users), 1), dtype="int")
 
         for index, pair in tqdm(enumerate(coocs_users)):
-            user1 = users[pair[0]]
-            user2 = users[pair[1]]
+            user1 = pair[0]
+            user2 = pair[1]
 
             pair_coocs = coocs[
                 (coocs[:, 0] == user1) & (coocs[:, 1] == user2)]

@@ -76,9 +76,9 @@ class Run(object):
         file_loader.save_met_in_next_test(met_in_next_test)
 
         print("processing dataset for machine learning (train)")
-        X_train, y_train = predictor.generate_train_dataset(users_train, countries_train, locations_train, coocs_train, met_in_next_train, oct_min_datetime, oct_max_datetime)
+        X_train, y_train = predictor.generate_dataset(users_train, countries_train, locations_train, coocs_train, met_in_next_train, oct_min_datetime, oct_max_datetime)
         print("processing dataset for machine learning (test)")
-        X_test, y_test = predictor.generate_test_dataset(users_test, countries_test, locations_test, coocs_test, met_in_next_test, nov_min_datetime, nov_max_datetime)
+        X_test, y_test = predictor.generate_dataset(users_test, countries_test, locations_test, coocs_test, met_in_next_test, nov_min_datetime, nov_max_datetime)
         print("saving dataset")
         file_loader.save_x_and_y(X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
         predictor.predict(X_train, y_train, X_test, y_test)

@@ -33,8 +33,8 @@ class Predictor():
             np.in1d([loc_arr[:, 3]], [countries[self.country]])]
         return country_arr
 
-    def generate_train_dataset(self, users, countries, locations_arr, coocs,
-                               met_next, min_timestring, max_timestring):
+    def generate_dataset(self, users, countries, locations_arr, coocs,
+                         met_next, min_timestring, max_timestring):
         min_timebin = self.database_helper.calculate_time_bins(
             min_timestring, min_timestring)[0]
         max_timebin = self.database_helper.calculate_time_bins(
@@ -49,26 +49,6 @@ class Predictor():
         coocs = coocs[coocs[:, 3] <= max_timebin]
         coocs = coocs[coocs[:, 3] > min_timebin]
 
-        return self.calculate_features_for_dataset(users, countries,
-                                                   country_arr, coocs,
-                                                   met_next)
-
-    def generate_test_dataset(self, users, countries, locations_arr, coocs,
-                              met_next, min_timestring, max_timestring):
-        min_timebin = self.database_helper.calculate_time_bins(
-            min_timestring, min_timestring)[0]
-        max_timebin = self.database_helper.calculate_time_bins(
-            max_timestring, max_timestring)[0]
-
-        # get only locations from specific country
-        country_arr = self.filter_by_country(locations_arr, countries)
-
-        # filter location array  and cooc array so its between max and min
-        # timebin
-        country_arr = country_arr[country_arr[:, 2] <= max_timebin]
-        country_arr = country_arr[country_arr[:, 2] > min_timebin]
-        coocs = coocs[coocs[:, 3] <= max_timebin]
-        coocs = coocs[coocs[:, 3] > min_timebin]
         return self.calculate_features_for_dataset(users, countries,
                                                    country_arr, coocs,
                                                    met_next)
@@ -80,10 +60,12 @@ class Predictor():
                                        met_next):
         datahelper = self.dataset_helper
 
+        coocs_users = [tuple(row[0], row[1]) for row in coocs]
+
         X = np.empty(shape=(len(coocs), 6), dtype="float")
         y = np.empty(shape=(len(coocs), 1), dtype="int")
 
-        for index, pair in tqdm(enumerate(coocs)):
+        for index, pair in tqdm(enumerate(coocs_users)):
             user1 = pair[0]
             user2 = pair[1]
 

@@ -71,7 +71,6 @@ class DatasetHelper():
             coocs_w_value = loc_arr[(loc_arr[:, 1] == row[2]) &
                                     (loc_arr[:, 2] == row[3])].shape[0]
             coocs_w_values.append(1/(coocs_w_value-1))
-            print(coocs_w_value)
         return sum(coocs_w_values)/cooc_arr.shape[0]
 
     def calculate_diversity(self, cooc_arr):
@@ -106,10 +105,12 @@ class DatasetHelper():
         coocs_dict = collections.defaultdict(list)
         cooccurrences = []
         for x in loc_arr:
-            coocs_dict[(x[1],x[2])].append(x[0])
+            coocs_dict[(x[1], x[2])].append(x[0])
         for x, coocs_list in tqdm(coocs_dict.items()):
             for pair in itertools.combinations(set(coocs_list), 2):
-                cooccurrences.append([pair[0],pair[1],x[0],x[1]])
+                # make column1 always have the lowest userid
+                pair = sorted(pair)
+                cooccurrences.append([pair[0], pair[1], x[0], x[1]])
         return np.array(cooccurrences)
 
     def generate_cooccurrences_array_old(self, loc_arr):

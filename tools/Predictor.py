@@ -16,11 +16,7 @@ import random
 class Predictor():
 
     def __init__(self,
-                 country="Japan",
-                 train_datetimes=(
-                     "2015-09-01 00:00:00+00:00", "2015-10-31 23:59:59+00:00"),
-                 test_datetimes=("2015-11-01 00:00:00+00:00",
-                                 "2015-11-30 23:59:59+00:00")):
+                 country="Japan"):
         """
             Constructor
 
@@ -31,8 +27,6 @@ class Predictor():
         self.dataset_helper = DatasetHelper()
         self.file_loader = FileLoader()
         self.country = country
-        self.train_datetimes = train_datetimes
-        self.test_datetimes = test_datetimes
 
     def filter_by_country(self, loc_arr, countries):
         country_arr = loc_arr[
@@ -40,11 +34,11 @@ class Predictor():
         return country_arr
 
     def generate_train_dataset(self, users, countries, locations_arr, coocs,
-                               met_next):
+                               met_next, min_timestring, max_timestring):
         min_timebin = self.database_helper.calculate_time_bins(
-            self.train_datetimes[0], self.train_datetimes[0])[0]
+            min_timestring, min_timestring)[0]
         max_timebin = self.database_helper.calculate_time_bins(
-            self.train_datetimes[1], self.train_datetimes[1])[0]
+            max_timestring, max_timestring)[0]
         # get only locations from specific country
         country_arr = self.filter_by_country(locations_arr, countries)
 
@@ -60,11 +54,11 @@ class Predictor():
                                                    met_next)
 
     def generate_test_dataset(self, users, countries, locations_arr, coocs,
-                              met_next):
+                              met_next, min_timestring, max_timestring):
         min_timebin = self.database_helper.calculate_time_bins(
-            self.test_datetimes[0], self.test_datetimes[0])[0]
+            min_timestring, min_timestring)[0]
         max_timebin = self.database_helper.calculate_time_bins(
-            self.test_datetimes[1], self.test_datetimes[1])[0]
+            max_timestring, max_timestring)[0]
 
         # get only locations from specific country
         country_arr = self.filter_by_country(locations_arr, countries)
@@ -73,7 +67,8 @@ class Predictor():
         # timebin
         country_arr = country_arr[country_arr[:, 2] <= max_timebin]
         country_arr = country_arr[country_arr[:, 2] > min_timebin]
-
+        coocs = coocs[coocs[:, 3] <= max_timebin]
+        coocs = coocs[coocs[:, 3] > min_timebin]
         return self.calculate_features_for_dataset(users, countries,
                                                    country_arr, coocs,
                                                    met_next)
@@ -90,31 +85,27 @@ class Predictor():
                                        met_next):
         datahelper = self.dataset_helper
 
-        X = np.ndarray(shape=(len(coocs), 6), dtype="float")
+        X = np.empty(shape=(len(coocs), 6), dtype="float")
         y = np.empty(shape=(len(coocs), 1), dtype="int")
 
         for index, pair in tqdm(enumerate(coocs)):
-            user1 = users[pair[0]]
-            print(pair[1])
-            user2 = users[pair[1]]
-
+            user1 = pair[0]
+            user2 = pair[1]
             pair1_coocs = coocs[
                 (coocs[:, 0] == user1) & (coocs[:, 1] == user2)]
             pair2_coocs = coocs[
                 (coocs[:, 0] == user2) & (coocs[:, 1] == user1)]
             pair_coocs = np.vstack((pair1_coocs, pair2_coocs))
-            X[index:, 1] = datahelper.calculate_arr_leav(pair_coocs, loc_arr)
-            X[index, 2] = datahelper.calculate_diversity(pair_coocs)
-            X[index, 3] = datahelper.calculate_unique_cooccurrences(pair_coocs)
-            X[index, 4] = datahelper.calculate_weighted_frequency(
+            X[index:, 0] = datahelper.calculate_arr_leav(pair_coocs, loc_arr)
+            X[index, 1] = datahelper.calculate_diversity(pair_coocs)
+            X[index, 2] = datahelper.calculate_unique_cooccurrences(pair_coocs)
+            X[index, 3] = datahelper.calculate_weighted_frequency(
                 pair_coocs, loc_arr)
-            X[index:, 5] = datahelper.calculate_coocs_w(pair_coocs, loc_arr)
-            y[index] = np.any(np.all([met_next[:, 0] == user1,
-                                      met_next[:, 1] == user2], axis=0)) or \
-                np.any(np.all([met_next[:, 0] == user2,
-                               met_next[:, 1] == user1], axis=0))
-
-            #y[index] = (user1, user2) in met_next or (user2, user1) in met_next
+            X[index:, 4] = datahelper.calculate_coocs_w(pair_coocs, loc_arr)
+            y[index] = np.any(np.all([[met_next[:, 0]] == user1,
+                                      [met_next[:, 1]] == user2], axis=0)) or \
+                np.any(np.all([[met_next[:, 0]] == user2,
+                               [met_next[:, 1]] == user1], axis=0))
 
         return X, y
 

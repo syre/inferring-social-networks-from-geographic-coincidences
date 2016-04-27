@@ -75,7 +75,7 @@ class Predictor():
         datahelper = self.dataset_helper
         coocs_users = self.extract_and_remove_duplicate_coocs(coocs)
         X = np.empty(shape=(len(coocs_users), 5), dtype="float")
-        y = np.empty(shape=(len(coocs_users), 1), dtype="int")
+        y = np.empty(shape=(1, len(coocs_users)), dtype="int")
 
         for index, pair in tqdm(enumerate(coocs_users), total=coocs_users.shape[0]):
             user1 = pair[0]
@@ -383,9 +383,8 @@ if __name__ == '__main__':
     p = Predictor("Japan")
     f = FileLoader()
     d = DatabaseHelper()
-    print(
-        len(list(itertools.combinations(d.get_users_in_country("Japan"), 2))))
     X_train, y_train, X_test, y_test = f.load_x_and_y()
-    print(len(y_train[y_train == 1])+len(y_train[y_test == 1]),
-          len(y_test[y_test == 0]) + len(y_train[y_train == 0]))
+    print(y_test.shape[0])
+    print(len([y for y in y_test if y == 1]))
+    print(len([y for y in y_train if y == 1]))
     p.predict(X_train, y_train, X_test, y_test)

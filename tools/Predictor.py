@@ -74,8 +74,8 @@ class Predictor():
                                        met_next):
         datahelper = self.dataset_helper
         coocs_users = self.extract_and_remove_duplicate_coocs(coocs)
-        X = np.empty(shape=(len(coocs_users), 5), dtype="float")
-        y = np.empty(shape=len(coocs_users), dtype="int")
+        X = np.zeros(shape=(len(coocs_users), 6), dtype="float")
+        y = np.zeros(shape=len(coocs_users), dtype="int")
 
         for index, pair in tqdm(enumerate(coocs_users), total=coocs_users.shape[0]):
             user1 = pair[0]
@@ -83,21 +83,24 @@ class Predictor():
 
             pair_coocs = coocs[
                 (coocs[:, 0] == user1) & (coocs[:, 1] == user2)]
-
-            X[index:, 0] = datahelper.calculate_arr_leav(pair_coocs, loc_arr)
-            X[index, 1] = datahelper.calculate_diversity(pair_coocs)
-            X[index, 2] = datahelper.calculate_unique_cooccurrences(pair_coocs)
-            X[index, 3] = datahelper.calculate_weighted_frequency(
+            X[index:, 0] = pair_coocs.shape[0]
+            X[index:, 1] = datahelper.calculate_arr_leav(pair_coocs, loc_arr)
+            X[index, 2] = datahelper.calculate_diversity(pair_coocs)
+            X[index, 3] = datahelper.calculate_unique_cooccurrences(pair_coocs)
+            X[index, 4] = datahelper.calculate_weighted_frequency(
                 pair_coocs, loc_arr)
-            X[index:, 4] = datahelper.calculate_coocs_w(pair_coocs, loc_arr)
+            X[index:, 5] = datahelper.calculate_coocs_w(pair_coocs, loc_arr)
             y[index] = np.any(np.all([met_next[:, 0] == user1, met_next[:, 1] == user2], axis=0))
 
         return X, y
 
     def predict(self, X_train, y_train, X_test, y_test):
-        tree = sklearn.ensemble.RandomForestClassifier()
+        tree = sklearn.ensemble.RandomForestClassifier(n_estimators=50)
         tree.fit(X_train, y_train)
         print(tree.score(X_test, y_test))
+        lg = sklearn.linear_model.LogisticRegression()
+        lg.fit(X_train, y_train)
+        print(lg.score(X_test, y_test))
 
     def find_users_in_cooccurrence(self, spatial_bin, time_bin):
         """
@@ -126,6 +129,7 @@ if __name__ == '__main__':
     d = DatabaseHelper()
     X_train, y_train, X_test, y_test = f.load_x_and_y()
     print(y_test.shape[0])
-    print(len([y for y in y_test if y == 1]))
-    print(len([y for y in y_train if y == 1]))
+    print(y_train.shape[0])
+    print("y_train contains {} that didnt meet, and {} that did meet".format(list(y_train).count(0), list(y_train).count(1)))
+    print("y_test contains {} that didnt meet and {} that did meet".format(list(y_test).count(0), list(y_test).count(1)))
     p.predict(X_train, y_train, X_test, y_test)

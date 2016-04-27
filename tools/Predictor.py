@@ -54,20 +54,23 @@ class Predictor():
 
     def find_met_in_next_pairs(self, coocs):
         # Extract only column 0 & 1
-        return np.dstack((coocs[:, 0], coocs[:, 1]))[0]
+        A = np.dstack((coocs[:, 0], coocs[:, 1]))[0]
+        B = np.ascontiguousarray(A).view(np.dtype((np.void, A.dtype.itemsize *
+                                                   A.shape[1])))
+        _, idx = np.unique(B, return_index=True) #Remove dublicate rows
+        return A[idx]
 
     def calculate_features_for_dataset(self, users, countries, loc_arr, coocs,
                                        met_next):
         datahelper = self.dataset_helper
         coocs_users = self.find_unique_pairs_in_coocs(coocs)
-
-        X = np.empty(shape=(len(coocs_users), 6), dtype="float")
+        X = np.empty(shape=(len(coocs_users), 5), dtype="float")
         y = np.empty(shape=(len(coocs_users), 1), dtype="int")
 
-        for index, pair in tqdm(enumerate(coocs_users)):
-            pair = sorted(pair)
-            user1 = pair[0]
-            user2 = pair[1]
+        for index, pair in tqdm(enumerate(coocs)):
+            user1 = users[pair[0]]
+            user2 = users[pair[1]]
+
             pair_coocs = coocs[
                 (coocs[:, 0] == user1) & (coocs[:, 1] == user2)]
 

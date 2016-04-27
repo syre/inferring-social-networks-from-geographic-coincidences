@@ -78,7 +78,17 @@ class Predictor():
                                                    country_arr, coocs,
                                                    met_next)
 
-    def find_met_in_next_pairs(self, coocs):
+    def extract_and_remove_dublicate(self, coocs):
+        """
+        Extract column 0 and 1 and removes dublicates row-wise
+        
+        Arguments:
+            coocs {numpy array} -- Numpy array with at least 2 columns
+        
+        Returns:
+            numpy array -- Numpy array with column 0 and 1 of input array.
+                           Dublicates are removed
+        """
         # Extract only column 0 & 1
         A = np.dstack((coocs[:, 0], coocs[:, 1]))[0]
         B = np.ascontiguousarray(A).view(np.dtype((np.void, A.dtype.itemsize *

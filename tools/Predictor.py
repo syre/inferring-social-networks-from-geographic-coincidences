@@ -121,7 +121,7 @@ class Predictor():
         return len(set([cooc[1] for cooc in cooccurrences]))
 
  
- if __name__ == '__main__':
+if __name__ == '__main__':
     p = Predictor("Japan")
     f = FileLoader()
     d = DatabaseHelper()

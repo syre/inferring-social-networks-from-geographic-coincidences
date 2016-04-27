@@ -15,6 +15,17 @@ class DatasetHelper():
         return np.unique(cooc_arr[:, 2]).shape[0]
 
     def calculate_arr_leav(self, cooc_arr, loc_arr):
+        """
+        We propose that if two persons arrive at a location at the same time and/or
+        leave the location synchronously it yields a stronger signal than if two people
+        are in the same location, but their arrival and leaving are not synchronized. The
+        value is weighted by the number of people who arrived and/or left the building
+        in each particular time bin. Thus, timed arrival of many people in the beginning
+        of the scheduled classes is not as strong a signal as synchronized arrival of a few
+        persons an hour before the class begins. 
+
+        Feature ID: arr_leav
+        """
         if cooc_arr.shape[0] == 0:
             print("no cooccurrences in arr_leav")
             return 0
@@ -63,6 +74,19 @@ class DatasetHelper():
         return sum(arr_leav_values)/cooc_arr.shape[0]
 
     def calculate_coocs_w(self, cooc_arr, loc_arr):
+        """
+        While other researchers use entropy to weight the social impact of meetings, our
+        data allows us to introduce a more precise measure. We use anonymous statistics
+        to estimate the number of all people present in the building in each time bin. We
+        assume the social importance of each co-occurrence to be inversely proportional
+        to the number of people – if only a few persons are there in a location, it is more
+        probable that there is a social bond between them compared to the situation
+        when dozens of people are present.
+
+        Calculates all values of coocs_w for cooccurrences and returns the mean of them 
+
+        Feature ID: coocs_w
+        """
         if cooc_arr.shape[0] == 0:
             print("no cooccurrences for cooc_w")
             return 0
@@ -74,6 +98,11 @@ class DatasetHelper():
         return sum(coocs_w_values)/cooc_arr.shape[0]
 
     def calculate_diversity(self, cooc_arr):
+        """
+        Diversity quantifies how many locations the cooccurrences between two people represent.
+        Can either use Shannon or Renyi Entropy, right now uses Shannon
+        From inferring realworld relationships from spatiotemporal data paper p. 23.
+        """
         frequency = cooc_arr.shape[0]
         _, counts = np.unique(cooc_arr[:, 2], return_counts=True)
 
@@ -82,6 +111,10 @@ class DatasetHelper():
         return np.exp(shannon_entropy)
 
     def calculate_weighted_frequency(self, cooc_arr, loc_arr):
+        """
+        Inferring realworld relationships from spatiotemporal data paper p. 19 and 23-25
+        Tells how important co-occurrences are at non-crowded places
+        """
         weighted_frequency = 0
         spatial_bins, counts = np.unique(cooc_arr[:, 2], return_counts=True)
         for spatial_bin, count in zip(spatial_bins, counts):

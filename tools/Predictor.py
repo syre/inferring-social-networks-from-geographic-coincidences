@@ -60,20 +60,17 @@ class Predictor():
                                        met_next):
         datahelper = self.dataset_helper
 
-        coocs_users = [tuple(row[0], row[1]) for row in coocs]
-
         X = np.empty(shape=(len(coocs), 6), dtype="float")
         y = np.empty(shape=(len(coocs), 1), dtype="int")
 
         for index, pair in tqdm(enumerate(coocs_users)):
+            pair = sorted(pair)
             user1 = pair[0]
             user2 = pair[1]
 
-            pair1_coocs = coocs[
+            pair_coocs = coocs[
                 (coocs[:, 0] == user1) & (coocs[:, 1] == user2)]
-            pair2_coocs = coocs[
-                (coocs[:, 0] == user2) & (coocs[:, 1] == user1)]
-            pair_coocs = np.vstack((pair1_coocs, pair2_coocs))
+
             X[index:, 0] = datahelper.calculate_arr_leav(pair_coocs, loc_arr)
             X[index, 1] = datahelper.calculate_diversity(pair_coocs)
             X[index, 2] = datahelper.calculate_unique_cooccurrences(pair_coocs)

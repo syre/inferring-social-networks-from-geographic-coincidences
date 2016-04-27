@@ -77,7 +77,7 @@ class Predictor():
         X = np.empty(shape=(len(coocs_users), 5), dtype="float")
         y = np.empty(shape=(len(coocs_users), 1), dtype="int")
 
-        for index, pair in tqdm(enumerate(coocs)):
+        for index, pair in tqdm(enumerate(coocs_users)):
             user1 = users[pair[0]]
             user2 = users[pair[1]]
 

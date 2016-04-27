@@ -55,10 +55,10 @@ class Predictor():
     def extract_and_remove_duplicate_coocs(self, coocs):
         """
         Extract column 0 and 1 and removes dublicates row-wise
-        
+
         Arguments:
             coocs {numpy array} -- Numpy array with at least 2 columns
-        
+
         Returns:
             numpy array -- Numpy array with column 0 and 1 of input array.
                            Dublicates are removed
@@ -75,7 +75,7 @@ class Predictor():
         datahelper = self.dataset_helper
         coocs_users = self.extract_and_remove_duplicate_coocs(coocs)
         X = np.empty(shape=(len(coocs_users), 5), dtype="float")
-        y = np.empty(shape=(1, len(coocs_users)), dtype="int")
+        y = np.empty(shape=len(coocs_users), dtype="int")
 
         for index, pair in tqdm(enumerate(coocs_users), total=coocs_users.shape[0]):
             user1 = pair[0]

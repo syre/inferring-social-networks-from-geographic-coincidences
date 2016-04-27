@@ -59,9 +59,10 @@ class Predictor():
     def calculate_features_for_dataset(self, users, countries, loc_arr, coocs,
                                        met_next):
         datahelper = self.dataset_helper
+        coocs_users = self.find_unique_pairs_in_coocs(coocs)
 
-        X = np.empty(shape=(len(coocs), 6), dtype="float")
-        y = np.empty(shape=(len(coocs), 1), dtype="int")
+        X = np.empty(shape=(len(coocs_users), 6), dtype="float")
+        y = np.empty(shape=(len(coocs_users), 1), dtype="int")
 
         for index, pair in tqdm(enumerate(coocs_users)):
             pair = sorted(pair)
@@ -77,9 +78,7 @@ class Predictor():
                 pair_coocs, loc_arr)
             X[index:, 4] = datahelper.calculate_coocs_w(pair_coocs, loc_arr)
             y[index] = np.any(np.all([[met_next[:, 0]] == user1,
-                                      [met_next[:, 1]] == user2], axis=0)) or \
-                np.any(np.all([[met_next[:, 0]] == user2,
-                               [met_next[:, 1]] == user1], axis=0))
+                                      [met_next[:, 1]] == user2], axis=0))
 
         return X, y
 

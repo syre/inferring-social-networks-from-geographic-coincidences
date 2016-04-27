@@ -70,7 +70,7 @@ class Run(object):
         coocs_met_in_next_test = coocs_met_in_next_test[coocs_met_in_next_test[:, 3] > nov_min_time_bin]
 
         print("finding met in next people (test)")
-        met_in_next_test = predictor.extract_and_remove_duplicate_coocs(coocs_test)
+        met_in_next_test = predictor.extract_and_remove_duplicate_coocs(coocs_met_in_next_test)
         print("saving met in next people (test)")
         file_loader.save_met_in_next_test(met_in_next_test)
 

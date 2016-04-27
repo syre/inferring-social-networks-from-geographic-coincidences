@@ -52,7 +52,17 @@ class Predictor():
                                                    country_arr, coocs,
                                                    met_next)
 
-    def find_met_in_next_pairs(self, coocs):
+    def extract_and_remove_duplicate_coocs(self, coocs):
+        """
+        Extract column 0 and 1 and removes dublicates row-wise
+        
+        Arguments:
+            coocs {numpy array} -- Numpy array with at least 2 columns
+        
+        Returns:
+            numpy array -- Numpy array with column 0 and 1 of input array.
+                           Dublicates are removed
+        """
         # Extract only column 0 & 1
         A = np.dstack((coocs[:, 0], coocs[:, 1]))[0]
         B = np.ascontiguousarray(A).view(np.dtype((np.void, A.dtype.itemsize *
@@ -63,7 +73,7 @@ class Predictor():
     def calculate_features_for_dataset(self, users, countries, loc_arr, coocs,
                                        met_next):
         datahelper = self.dataset_helper
-        coocs_users = self.find_unique_pairs_in_coocs(coocs)
+        coocs_users = self.extract_and_remove_duplicate_coocs(coocs)
         X = np.empty(shape=(len(coocs_users), 5), dtype="float")
         y = np.empty(shape=(len(coocs_users), 1), dtype="int")
 

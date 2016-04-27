@@ -79,7 +79,12 @@ class Predictor():
                                                    met_next)
 
     def find_met_in_next_pairs(self, coocs):
-        return np.dstack((coocs[:, 0], coocs[:, 1]))[0]
+        # Extract only column 0 & 1
+        A = np.dstack((coocs[:, 0], coocs[:, 1]))[0]
+        B = np.ascontiguousarray(A).view(np.dtype((np.void, A.dtype.itemsize *
+                                                   A.shape[1])))
+        _, idx = np.unique(B, return_index=True)
+        return A[idx]
 
     def calculate_features_for_dataset(self, users, countries, loc_arr, coocs,
                                        met_next):
@@ -90,6 +95,7 @@ class Predictor():
 
         for index, pair in tqdm(enumerate(coocs)):
             user1 = users[pair[0]]
+            print(pair[1])
             user2 = users[pair[1]]
 
             pair1_coocs = coocs[

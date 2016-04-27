@@ -10,7 +10,6 @@ import numpy as np
 import sklearn
 import sklearn.ensemble
 from tqdm import tqdm
-import random
 
 
 class Predictor():
@@ -54,6 +53,7 @@ class Predictor():
                                                    met_next)
 
     def find_met_in_next_pairs(self, coocs):
+        # Extract only column 0 & 1
         return np.dstack((coocs[:, 0], coocs[:, 1]))[0]
 
     def calculate_features_for_dataset(self, users, countries, loc_arr, coocs,
@@ -67,7 +67,6 @@ class Predictor():
             pair = sorted(pair)
             user1 = pair[0]
             user2 = pair[1]
-
             pair_coocs = coocs[
                 (coocs[:, 0] == user1) & (coocs[:, 1] == user2)]
 

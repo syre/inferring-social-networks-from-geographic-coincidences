@@ -90,8 +90,7 @@ class Predictor():
             X[index, 3] = datahelper.calculate_weighted_frequency(
                 pair_coocs, loc_arr)
             X[index:, 4] = datahelper.calculate_coocs_w(pair_coocs, loc_arr)
-            y[index] = np.any(np.all([[met_next[:, 0]] == user1,
-                                      [met_next[:, 1]] == user2], axis=0))
+            y[index] = np.any(np.all([met_next[:, 0] == user1, met_next[:, 1] == user2], axis=0))
 
         return X, y
 

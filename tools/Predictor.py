@@ -2,14 +2,12 @@
 from DatabaseHelper import DatabaseHelper
 from FileLoader import FileLoader
 from DatasetHelper import DatasetHelper
-import math
-from dateutil import parser
-import collections
-import itertools
 import numpy as np
 import sklearn
 import sklearn.metrics
 import sklearn.ensemble
+import sklearn.svm
+import sklearn.neighbors
 from tqdm import tqdm
 
 class Predictor():
@@ -97,10 +95,22 @@ class Predictor():
         return X, y
 
     def predict(self, X_train, y_train, X_test, y_test):
-        forest = sklearn.ensemble.RandomForestClassifier(n_estimators=10)
+        print("Predicting baseline")
+        lg = sklearn.linear_model.LogisticRegression()
+        lg.fit(X_train[:, 0].reshape(-1, 1), y_train)
+        y_pred = lg.predict(X_test[:, 0].reshape(-1, 1))
+        print(lg.score(X_test[:, 0].reshape(-1, 1), y_test))
+        print("Precision is: {}".format(sklearn.metrics.precision_score(y_test, y_pred)))
+        print("Recall is: {}".format(sklearn.metrics.recall_score(y_test, y_pred)))
+        cm_matrix = sklearn.metrics.confusion_matrix(y_test, y_pred)
+        print(cm_matrix.astype('float') / cm_matrix.sum(axis=1)[:, np.newaxis])
+
+
+        forest = sklearn.ensemble.RandomForestClassifier()
         forest.fit(X_train, y_train)
         y_pred = forest.predict(X_test)
         print(forest.score(X_test, y_test))
+
         print("Precision is: {}".format(sklearn.metrics.precision_score(y_test, y_pred)))
         print("Recall is: {}".format(sklearn.metrics.recall_score(y_test, y_pred)))
         cm_matrix = sklearn.metrics.confusion_matrix(y_test, y_pred)

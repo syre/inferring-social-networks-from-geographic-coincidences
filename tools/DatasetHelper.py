@@ -11,8 +11,36 @@ class DatasetHelper():
     def __init__(self):
         self.file_loader = FileLoader()
 
+    def calculate_countries_in_common(self, user1, user2, loc_arr):
+        user1_countries = loc_arr[loc_arr[:, 0] == user1][:, 3]
+        user2_countries = loc_arr[loc_arr[:, 0] == user2][:, 3]
+        return np.intersect1d(user1_countries, user2_countries).size
+
     def calculate_unique_cooccurrences(self, cooc_arr):
         return np.unique(cooc_arr[:, 2]).shape[0]
+
+    def calculate_number_of_common_travels(self, cooc_arr):
+        bins = cooc_arr[:, [2, 3]]
+        # sort rows by column timebin
+        time_sort = bins[bins[:, 1].argsort()]
+        # split array into consecutive travels
+        # [[s_bin,5],[s_bin,10],[s_bin,11],[s_bin,12],[s_bin,14]] ->
+        # [[s_bin,5], [(s_bin,10),(s_bin,11),(s_bin,12)], [(s_bin,14)]]
+        stepsize = 1
+        consecutive = np.split(time_sort, np.where(np.diff(time_sort[:, 1]) != stepsize)[0]+1)
+        num_common_travels = 0
+        for arr in consecutive:
+            if arr.shape[0] > 1:
+                lst = list(arr[:, 0])
+                count = 0
+                for idx, sub in enumerate(lst, start=1):
+                    if idx >= len(lst):
+                        break
+                    if lst[idx] != sub:
+                        count += 1
+                if count == arr.shape[0]-1:
+                    num_common_travels += 1
+        return num_common_travels
 
     def calculate_arr_leav(self, cooc_arr, loc_arr):
         """

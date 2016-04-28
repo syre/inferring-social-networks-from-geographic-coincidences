@@ -8,9 +8,9 @@ import collections
 import itertools
 import numpy as np
 import sklearn
+import sklearn.metrics
 import sklearn.ensemble
 from tqdm import tqdm
-
 
 class Predictor():
 
@@ -74,7 +74,7 @@ class Predictor():
                                        met_next):
         datahelper = self.dataset_helper
         coocs_users = self.extract_and_remove_duplicate_coocs(coocs)
-        X = np.zeros(shape=(len(coocs_users), 6), dtype="float")
+        X = np.zeros(shape=(len(coocs_users), 8), dtype="float")
         y = np.zeros(shape=len(coocs_users), dtype="int")
 
         for index, pair in tqdm(enumerate(coocs_users), total=coocs_users.shape[0]):
@@ -90,17 +90,32 @@ class Predictor():
             X[index, 4] = datahelper.calculate_weighted_frequency(
                 pair_coocs, loc_arr)
             X[index:, 5] = datahelper.calculate_coocs_w(pair_coocs, loc_arr)
+            X[index:, 6] = datahelper.calculate_countries_in_common(user1, user2, loc_arr)
+            X[index:, 7] = datahelper.calculate_number_of_common_travels(pair_coocs)
             y[index] = np.any(np.all([met_next[:, 0] == user1, met_next[:, 1] == user2], axis=0))
 
         return X, y
 
     def predict(self, X_train, y_train, X_test, y_test):
-        tree = sklearn.ensemble.RandomForestClassifier(n_estimators=50)
-        tree.fit(X_train, y_train)
-        print(tree.score(X_test, y_test))
-        lg = sklearn.linear_model.LogisticRegression()
-        lg.fit(X_train, y_train)
-        print(lg.score(X_test, y_test))
+        forest = sklearn.ensemble.RandomForestClassifier(n_estimators=10)
+        forest.fit(X_train, y_train)
+        y_pred = forest.predict(X_test)
+        print(forest.score(X_test, y_test))
+        print("Precision is: {}".format(sklearn.metrics.precision_score(y_test, y_pred)))
+        print("Recall is: {}".format(sklearn.metrics.recall_score(y_test, y_pred)))
+        cm_matrix = sklearn.metrics.confusion_matrix(y_test, y_pred)
+        print(cm_matrix.astype('float') / cm_matrix.sum(axis=1)[:, np.newaxis])
+        importances = forest.feature_importances_
+        std = np.std([tree.feature_importances_ for tree in forest.estimators_],axis=0)
+        indices = np.argsort(importances)[::-1]
+
+
+        # Print the feature ranking
+        print("Feature ranking:")
+
+        for f in range(X_train.shape[1]):
+            print("%d. feature %d (%f)" % (f + 1, indices[f], importances[indices[f]]))
+
 
     def find_users_in_cooccurrence(self, spatial_bin, time_bin):
         """

@@ -3,6 +3,7 @@ from DatabaseHelper import DatabaseHelper
 from Predictor import Predictor
 from DatasetHelper import DatasetHelper
 from FileLoader import FileLoader
+import numpy as np
 
 file_loader = FileLoader()
 database_helper = DatabaseHelper()
@@ -55,7 +56,7 @@ class Run(object):
         coocs_test = file_loader.load_cooccurrences_test()
 
         print("processing coocs for met in next (train)")
-        coocs_met_in_next_train = dataset_helper.generate_cooccurrences_array(locations_train)
+        coocs_met_in_next_train = np.copy(coocs_train)
         coocs_met_in_next_train = coocs_met_in_next_train[coocs_met_in_next_train[:, 3] <= oct_max_time_bin]
         coocs_met_in_next_train = coocs_met_in_next_train[coocs_met_in_next_train[:, 3] > oct_min_time_bin]
 
@@ -65,7 +66,7 @@ class Run(object):
         file_loader.save_met_in_next_train(met_in_next_train)
 
         print("processing coocs for met in next (test)")
-        coocs_met_in_next_test = dataset_helper.generate_cooccurrences_array(locations_test)
+        coocs_met_in_next_test = np.copy(coocs_test)
         coocs_met_in_next_test = coocs_met_in_next_test[coocs_met_in_next_test[:, 3] <= nov_max_time_bin]
         coocs_met_in_next_test = coocs_met_in_next_test[coocs_met_in_next_test[:, 3] > nov_min_time_bin]
 

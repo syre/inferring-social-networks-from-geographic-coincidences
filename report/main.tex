@@ -24,8 +24,17 @@
 \maketitle
 \thispagestyle{empty}
 \newpage
+\pagenumbering{Roman}
+\setcounter{page}{1}
+\input{summary_preface}
+\addcontentsline{toc}{section}{Summary}
+\addcontentsline{toc}{section}{Preface}
+%Some text...
+\newpage
+%\pagenumbering{arabic}
 \tableofcontents
 \newpage
+\pagenumbering{arabic}
 \setcounter{page}{1}
 
 \input{introduction}

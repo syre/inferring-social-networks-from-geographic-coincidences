@@ -61,9 +61,9 @@ class Run(object):
         coocs_met_in_next_train = coocs_met_in_next_train[coocs_met_in_next_train[:, 3] > oct_min_time_bin]
 
         print("finding met in next people (train)")
-        met_in_next_train = predictor.extract_and_remove_duplicate_coocs(coocs_met_in_next_train)
+        #met_in_next_train = predictor.extract_and_remove_duplicate_coocs(coocs_met_in_next_train)
         print("saving met in next people (train)")
-        file_loader.save_met_in_next_train(met_in_next_train)
+        file_loader.save_met_in_next_train(coocs_met_in_next_train)
 
         print("processing coocs for met in next (test)")
         coocs_met_in_next_test = np.copy(coocs_test)
@@ -71,14 +71,14 @@ class Run(object):
         coocs_met_in_next_test = coocs_met_in_next_test[coocs_met_in_next_test[:, 3] > nov_min_time_bin]
 
         print("finding met in next people (test)")
-        met_in_next_test = predictor.extract_and_remove_duplicate_coocs(coocs_met_in_next_test)
+        #met_in_next_test = predictor.extract_and_remove_duplicate_coocs(coocs_met_in_next_test)
         print("saving met in next people (test)")
-        file_loader.save_met_in_next_test(met_in_next_test)
+        file_loader.save_met_in_next_test(coocs_met_in_next_test)
 
         print("processing dataset for machine learning (train)")
-        X_train, y_train = predictor.generate_dataset(users_train, countries_train, locations_train, coocs_train, met_in_next_train, sept_min_datetime, sept_max_datetime)
+        X_train, y_train = predictor.generate_dataset(users_train, countries_train, locations_train, coocs_train, coocs_met_in_next_train, sept_min_datetime, sept_max_datetime)
         print("processing dataset for machine learning (test)")
-        X_test, y_test = predictor.generate_dataset(users_test, countries_test, locations_test, coocs_test, met_in_next_test, oct_min_datetime, oct_max_datetime)
+        X_test, y_test = predictor.generate_dataset(users_test, countries_test, locations_test, coocs_test, coocs_met_in_next_test, oct_min_datetime, oct_max_datetime)
         print("saving dataset")
         file_loader.save_x_and_y(X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
         predictor.predict(X_train, y_train, X_test, y_test)

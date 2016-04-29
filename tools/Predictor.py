@@ -5,10 +5,11 @@ from DatasetHelper import DatasetHelper
 import numpy as np
 import sklearn
 import sklearn.metrics
+from sklearn.metrics import roc_curve, auc
 import sklearn.ensemble
-import sklearn.svm
-import sklearn.neighbors
 from tqdm import tqdm
+import matplotlib.pyplot as plt
+
 
 class Predictor():
 
@@ -90,41 +91,57 @@ class Predictor():
             X[index:, 5] = datahelper.calculate_coocs_w(pair_coocs, loc_arr)
             X[index:, 6] = datahelper.calculate_countries_in_common(user1, user2, loc_arr)
             X[index:, 7] = datahelper.calculate_number_of_common_travels(pair_coocs)
-            y[index] = np.any(np.all([met_next[:, 0] == user1, met_next[:, 1] == user2], axis=0))
+            y[index] = self.has_met(user1, user2, met_next)
 
         return X, y
 
+    def has_met(self, user1, user2, met_next):
+        return np.any(np.all([met_next[:, 0] == user1, met_next[:, 1] == user2], axis=0))
+
+    def has_two_unique_coocs(self, user1, user2, met_next):
+        pass
+
+    def compute_roc_curve(self, y_test, y_pred):
+        false_positive_rate, true_positive_rate, thresholds = roc_curve(y_test, y_pred)
+        roc_auc = auc(false_positive_rate, true_positive_rate)
+
+        # Compute ROC curve and ROC area for each class
+        plt.title('Receiver Operating Characteristic')
+        plt.plot(false_positive_rate, true_positive_rate, 'b',
+        label='AUC = %0.2f'% roc_auc)
+        plt.legend(loc='lower right')
+        plt.plot([0,1],[0,1],'r--')
+        plt.xlim([-0.1,1.2])
+        plt.ylim([-0.1,1.2])
+        plt.ylabel('True Positive Rate')
+        plt.xlabel('False Positive Rate')
+        plt.show()
+
     def predict(self, X_train, y_train, X_test, y_test):
-        print("Predicting baseline")
+        print("Logistic Regression - with number of cooccurrences")
+
         lg = sklearn.linear_model.LogisticRegression()
         lg.fit(X_train[:, 0].reshape(-1, 1), y_train)
         y_pred = lg.predict(X_test[:, 0].reshape(-1, 1))
-        print(lg.score(X_test[:, 0].reshape(-1, 1), y_test))
-        print("Precision is: {}".format(sklearn.metrics.precision_score(y_test, y_pred)))
-        print("Recall is: {}".format(sklearn.metrics.recall_score(y_test, y_pred)))
-        cm_matrix = sklearn.metrics.confusion_matrix(y_test, y_pred)
-        print(cm_matrix.astype('float') / cm_matrix.sum(axis=1)[:, np.newaxis])
+        print(sklearn.metrics.classification_report(y_pred, y_test))
+        self.compute_roc_curve(y_test, y_pred)
 
-
-        forest = sklearn.ensemble.RandomForestClassifier()
+        print("Random Forest - all features")
+        forest = sklearn.ensemble.RandomForestClassifier(n_estimators=200)
         forest.fit(X_train, y_train)
         y_pred = forest.predict(X_test)
-        print(forest.score(X_test, y_test))
-
-        print("Precision is: {}".format(sklearn.metrics.precision_score(y_test, y_pred)))
-        print("Recall is: {}".format(sklearn.metrics.recall_score(y_test, y_pred)))
-        cm_matrix = sklearn.metrics.confusion_matrix(y_test, y_pred)
-        print(cm_matrix.astype('float') / cm_matrix.sum(axis=1)[:, np.newaxis])
+        print(sklearn.metrics.classification_report(y_pred, y_test))
         importances = forest.feature_importances_
         std = np.std([tree.feature_importances_ for tree in forest.estimators_],axis=0)
         indices = np.argsort(importances)[::-1]
-
 
         # Print the feature ranking
         print("Feature ranking:")
 
         for f in range(X_train.shape[1]):
             print("%d. feature %d (%f)" % (f + 1, indices[f], importances[indices[f]]))
+        # compute ROC curve
+        self.compute_roc_curve(y_test, y_pred)
 
 
     def find_users_in_cooccurrence(self, spatial_bin, time_bin):
@@ -153,8 +170,6 @@ if __name__ == '__main__':
     f = FileLoader()
     d = DatabaseHelper()
     X_train, y_train, X_test, y_test = f.load_x_and_y()
-    print(y_test.shape[0])
-    print(y_train.shape[0])
     print("y_train contains {} that didnt meet, and {} that did meet".format(list(y_train).count(0), list(y_train).count(1)))
     print("y_test contains {} that didnt meet and {} that did meet".format(list(y_test).count(0), list(y_test).count(1)))
     p.predict(X_train, y_train, X_test, y_test)

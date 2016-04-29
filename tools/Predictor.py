@@ -66,7 +66,7 @@ class Predictor():
         A = np.dstack((coocs[:, 0], coocs[:, 1]))[0]
         B = np.ascontiguousarray(A).view(np.dtype((np.void, A.dtype.itemsize *
                                                    A.shape[1])))
-        _, idx = np.unique(B, return_index=True) #Remove dublicate rows
+        _, idx = np.unique(B, return_index=True)  # Remove dublicate rows
         return A[idx]
 
     def calculate_features_for_dataset(self, users, countries, loc_arr, coocs,
@@ -89,9 +89,11 @@ class Predictor():
             X[index, 4] = datahelper.calculate_weighted_frequency(
                 pair_coocs, loc_arr)
             X[index:, 5] = datahelper.calculate_coocs_w(pair_coocs, loc_arr)
-            X[index:, 6] = datahelper.calculate_countries_in_common(user1, user2, loc_arr)
-            X[index:, 7] = datahelper.calculate_number_of_common_travels(pair_coocs)
-            y[index] = self.has_met(user1, user2, met_next)
+            X[index:, 6] = datahelper.calculate_countries_in_common(
+                user1, user2, loc_arr)
+            X[index:, 7] = datahelper.calculate_number_of_common_travels(
+                pair_coocs)
+            y[index] = self.has_two_unique_coocs(user1, user2, met_next)
 
         return X, y
 
@@ -99,20 +101,39 @@ class Predictor():
         return np.any(np.all([met_next[:, 0] == user1, met_next[:, 1] == user2], axis=0))
 
     def has_two_unique_coocs(self, user1, user2, met_next):
-        pass
+        tup = met_next.shape
+        if len(tup) == 1:
+            if tup[0] == 0:
+                return 0
+        else:
+            if tup[0] == 1 and tup[1] == 0:
+                return 0
+        met_next = np.dstack((met_next[:, 0], met_next[:, 1],
+                              met_next[:, 2]))[0]
+        b = np.ascontiguousarray(met_next).view(
+            np.dtype((np.void, met_next.dtype.itemsize * met_next.shape[1])))
+        _, idx = np.unique(b, return_index=True)
+
+        unique_met_next = met_next[idx]
+        unique_pair_rows = unique_met_next[np.all([unique_met_next[:, 0] ==
+                                                   user1,
+                                                   unique_met_next[:, 1] ==
+                                                   user2], axis=0)]
+        return unique_pair_rows.shape[0]
 
     def compute_roc_curve(self, y_test, y_pred):
-        false_positive_rate, true_positive_rate, thresholds = roc_curve(y_test, y_pred)
+        false_positive_rate, true_positive_rate, thresholds = roc_curve(
+            y_test, y_pred)
         roc_auc = auc(false_positive_rate, true_positive_rate)
 
         # Compute ROC curve and ROC area for each class
         plt.title('Receiver Operating Characteristic')
         plt.plot(false_positive_rate, true_positive_rate, 'b',
-        label='AUC = %0.2f'% roc_auc)
+                 label='AUC = %0.2f' % roc_auc)
         plt.legend(loc='lower right')
-        plt.plot([0,1],[0,1],'r--')
-        plt.xlim([-0.1,1.2])
-        plt.ylim([-0.1,1.2])
+        plt.plot([0, 1], [0, 1], 'r--')
+        plt.xlim([-0.1, 1.2])
+        plt.ylim([-0.1, 1.2])
         plt.ylabel('True Positive Rate')
         plt.xlabel('False Positive Rate')
         plt.show()
@@ -132,17 +153,18 @@ class Predictor():
         y_pred = forest.predict(X_test)
         print(sklearn.metrics.classification_report(y_pred, y_test))
         importances = forest.feature_importances_
-        std = np.std([tree.feature_importances_ for tree in forest.estimators_],axis=0)
+        std = np.std(
+            [tree.feature_importances_ for tree in forest.estimators_], axis=0)
         indices = np.argsort(importances)[::-1]
 
         # Print the feature ranking
         print("Feature ranking:")
 
         for f in range(X_train.shape[1]):
-            print("%d. feature %d (%f)" % (f + 1, indices[f], importances[indices[f]]))
+            print("%d. feature %d (%f)" %
+                  (f + 1, indices[f], importances[indices[f]]))
         # compute ROC curve
         self.compute_roc_curve(y_test, y_pred)
-
 
     def find_users_in_cooccurrence(self, spatial_bin, time_bin):
         """
@@ -164,12 +186,14 @@ class Predictor():
 
         return len(set([cooc[1] for cooc in cooccurrences]))
 
- 
+
 if __name__ == '__main__':
     p = Predictor("Japan")
     f = FileLoader()
     d = DatabaseHelper()
     X_train, y_train, X_test, y_test = f.load_x_and_y()
-    print("y_train contains {} that didnt meet, and {} that did meet".format(list(y_train).count(0), list(y_train).count(1)))
-    print("y_test contains {} that didnt meet and {} that did meet".format(list(y_test).count(0), list(y_test).count(1)))
+    print("y_train contains {} that didnt meet, and {} that did meet".format(
+        list(y_train).count(0), list(y_train).count(1)))
+    print("y_test contains {} that didnt meet and {} that did meet".format(
+        list(y_test).count(0), list(y_test).count(1)))
     p.predict(X_train, y_train, X_test, y_test)

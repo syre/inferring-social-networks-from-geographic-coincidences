@@ -84,7 +84,7 @@ class DatasetHelper():
                 loc_arr[:, 2] == row[3]+1) & (loc_arr[:, 1] == row[2])].size
             user2_present_in_next = loc_arr[(loc_arr[:, 0] == row[1]) & (
                 loc_arr[:, 2] == row[3]+1) & (loc_arr[:, 1] == row[2])].size
-            if not user1_present_in_next and not user1_present_in_previous:
+            if not user1_present_in_next and not user2_present_in_next:
                 # synchronous leaving
                 leave_list = loc_arr[
                     (loc_arr[:, 2] == row[3]) & (loc_arr[:, 1] == row[2])][:, 0]

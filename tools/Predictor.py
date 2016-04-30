@@ -93,7 +93,7 @@ class Predictor():
                 user1, user2, loc_arr)
             X[index:, 7] = datahelper.calculate_number_of_common_travels(
                 pair_coocs)
-            y[index] = self.has_two_unique_coocs(user1, user2, met_next)
+            y[index] = self.has_met(user1, user2, met_next)
 
         return X, y
 

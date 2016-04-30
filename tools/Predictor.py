@@ -119,7 +119,7 @@ class Predictor():
                                                    user1,
                                                    unique_met_next[:, 1] ==
                                                    user2], axis=0)]
-        return unique_pair_rows.shape[0]
+        return unique_pair_rows.shape >= 2
 
     def compute_roc_curve(self, y_test, y_pred):
         false_positive_rate, true_positive_rate, thresholds = roc_curve(

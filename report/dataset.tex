@@ -1,4 +1,48 @@
 %!TEX root = main.tex
 \section{Dataset}
-The dataset contains information about X number of Sony employees from 80 countries worldwide.
-The dataset consisted of multiple Apache Avro files which is a data serialization framework for Hadoop.\cite{apacheavro}
+På de følgende sider vil vi gennnemgå vores dataset. Vi vil vise de basale statistikker over dataet og gennemgå afvigelser. Vi vil også gennemgå hvordan vi forholder os til disse afvigelser og hvordan vi lavede datacleaning. \\
+
+Vores data stammer fra Sony's Lifelog\cite{sonyLifeLog} som navnet antyder, er en mobil Lifelog app som logger ens aktiviteter i løbet af dagen. Heri logger den bla. aktivitet i apps og geolokation. Vores dataset stammer fra denne app, indsamlet fra 1586 Sony medarbejdere over 3 måneder\footnote{September 2015 - November 2015} fordelt på 80 lande. 
+
+Vi kan dele datasettet op i 2 dele: En geolokation del og en app del. 
+
+\textbf{Geolokation del}\\
+følgende
+vbb
+
+\begin{table}[htbp]
+        \centering
+        \small
+        \setlength\tabcolsep{2pt}
+        \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|}
+            \hline
+                         & Latitude/  &   start             & end               & Accuracy           & Altitude    & Name   & Country & Region             & Area          \\[-3pt]% compensate for extrarowheight
+                         & longitude  &  time               & time              &  (mm)              & (mm)        & (city) &         & (Europe, Asia...)  & (Area/state)  \\
+            \hline
+                 Unique  &            &                     &                   &                    &             & 19.344 & 74      &                    &               \\
+                 entries &            &                     &                   &                    &             &        &         &                    &               \\
+            \hline
+                 Min     &            &   2015-08-09        &                   &  -2.147.483.500    & -5.086.000  &        &         &                    &               \\
+                         &            &   22:25:33.766+02   &                   &                    &             &        &         &                    &               \\
+            \hline
+                 Max     &            &                     &   2015-12-01      &  500.000           & 17.211.698  &        &         &                    &               \\
+                         &            &                     &  01:00:22.711+01  &                    &             &        &         &                    &               \\
+            \hline
+                 Mean    &            &                     &                   & 35.249             & 105.030     &        &         &                    &               \\
+                         &            &                     &                   &                    &             &        &         &                    &               \\
+            \hline
+                 Std.    &            &                     &                   & 3.672.390          & 403.966     &        &         &                    &               \\
+                 dev.    &            &                     &                   &                    &             &        &         &                    &               \\
+            \hline
+        \end{tabular}
+        \caption{Statistic summary of geolocation dataset}
+        \label{tab:Laser_Specs}
+\end{table}
+
+
+\textbf{App del}\\
+
+
+Over disse 3 måneder blev der indsamlet 2.665.893 geolokation records, som er vores primær data. 
+\textcolor{red}{When we got the dataset it was divided into multiple Apache Avro files which is a data serialization framework for Hadoop.\cite{apacheavro}}
+

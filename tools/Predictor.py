@@ -53,7 +53,7 @@ class Predictor():
 
     def extract_and_remove_duplicate_coocs(self, coocs):
         """
-        Extract column 0 and 1 and removes dublicates row-wise
+        Extract column 0 and 1 and removes duplicates row-wise
 
         Arguments:
             coocs {numpy array} -- Numpy array with at least 2 columns
@@ -75,7 +75,6 @@ class Predictor():
         coocs_users = self.extract_and_remove_duplicate_coocs(coocs)
         X = np.zeros(shape=(len(coocs_users), 8), dtype="float")
         y = np.zeros(shape=len(coocs_users), dtype="int")
-
         for index, pair in tqdm(enumerate(coocs_users), total=coocs_users.shape[0]):
             user1 = pair[0]
             user2 = pair[1]
@@ -119,7 +118,9 @@ class Predictor():
                                                    user1,
                                                    unique_met_next[:, 1] ==
                                                    user2], axis=0)]
-        return unique_pair_rows.shape[0] >= 2
+        if unique_pair_rows.shape[0] >= 2:
+            return 1
+        return 0
 
     def compute_roc_curve(self, y_test, y_pred):
         false_positive_rate, true_positive_rate, thresholds = roc_curve(

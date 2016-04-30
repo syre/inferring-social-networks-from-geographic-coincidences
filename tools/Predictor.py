@@ -53,7 +53,7 @@ class Predictor():
 
     def extract_and_remove_duplicate_coocs(self, coocs):
         """
-        Extract column 0 and 1 and removes dublicates row-wise
+        Extract column 0 and 1 and removes duplicates row-wise
 
         Arguments:
             coocs {numpy array} -- Numpy array with at least 2 columns
@@ -75,7 +75,6 @@ class Predictor():
         coocs_users = self.extract_and_remove_duplicate_coocs(coocs)
         X = np.zeros(shape=(len(coocs_users), 8), dtype="float")
         y = np.zeros(shape=len(coocs_users), dtype="int")
-
         for index, pair in tqdm(enumerate(coocs_users), total=coocs_users.shape[0]):
             user1 = pair[0]
             user2 = pair[1]

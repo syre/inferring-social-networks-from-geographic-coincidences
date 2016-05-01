@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from FileLoader import FileLoader
+from DatabaseHelper import DatabaseHelper
 import numpy as np
 import itertools
 import collections
@@ -10,6 +11,7 @@ class DatasetHelper():
 
     def __init__(self):
         self.file_loader = FileLoader()
+        self.db_helper = DatabaseHelper()
 
     def calculate_countries_in_common(self, user1, user2, loc_arr):
         user1_countries = loc_arr[loc_arr[:, 0] == user1][:, 3]
@@ -18,6 +20,13 @@ class DatasetHelper():
 
     def calculate_unique_cooccurrences(self, cooc_arr):
         return np.unique(cooc_arr[:, 2]).shape[0]
+
+    def calculate_number_of_saturday_night_coocs(self, cooc_arr):
+        count = 0
+        for cooc in cooc_arr:
+            if self.db_helper.is_saturday_night(self.db_helper.calculate_datetime(cooc[3])):
+                count += 1
+        return count
 
     def calculate_number_of_common_travels(self, cooc_arr):
         bins = cooc_arr[:, [2, 3]]
@@ -84,7 +93,7 @@ class DatasetHelper():
                 loc_arr[:, 2] == row[3]+1) & (loc_arr[:, 1] == row[2])].size
             user2_present_in_next = loc_arr[(loc_arr[:, 0] == row[1]) & (
                 loc_arr[:, 2] == row[3]+1) & (loc_arr[:, 1] == row[2])].size
-            if not user1_present_in_next and not user1_present_in_previous:
+            if not user1_present_in_next and not user2_present_in_next:
                 # synchronous leaving
                 leave_list = loc_arr[
                     (loc_arr[:, 2] == row[3]) & (loc_arr[:, 1] == row[2])][:, 0]

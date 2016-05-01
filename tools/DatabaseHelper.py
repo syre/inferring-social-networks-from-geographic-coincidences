@@ -8,6 +8,7 @@ from pytz import timezone
 import random
 import datetime
 from dateutil import parser
+from dateutil.relativedelta import relativedelta
 from tqdm import tqdm
 import numpy as np
 from FileLoader import FileLoader
@@ -19,11 +20,7 @@ class DatabaseHelper():
 
     def __init__(self, path_to_settings="",
                  grid_boundaries_tuple=(-180, 180, -90, 90),
-                 spatial_resolution_decimals=3,
-                 from_date=datetime.datetime.strptime(
-                     "2015-09-01", "%Y-%m-%d").replace(tzinfo=timezone("Asia/Tokyo")),
-                 to_date=datetime.datetime.strptime(
-                     "2015-11-30", "%Y-%m-%d").replace(tzinfo=timezone("Asia/Tokyo"))):
+                 spatial_resolution_decimals=3):
 
         self.settings_dict = self.load_login(file_name="settings.cfg",
                                              key_split="=",
@@ -35,8 +32,6 @@ class DatabaseHelper():
                          self.settings_dict["PASS"]))
         self.file_loader = FileLoader()
 
-        self.min_datetime = from_date
-        self.max_datetime = to_date
         self.spatial_resolution_decimals = spatial_resolution_decimals
         self.GRID_MIN_LNG = (
             grid_boundaries_tuple[0] + 180) * pow(10,
@@ -193,6 +188,23 @@ class DatabaseHelper():
             return [start_bin]
         else:
             return list(range(start_bin, end_bin))
+
+    def calculate_datetime(self, time_bin):
+        min_datetime = parser.parse('2015-08-09 00:00:00+02')
+        datetime = min_datetime+relativedelta(seconds=60*60*int(time_bin))
+        return datetime
+
+    def is_saturday_night(self, datetime, timezonestring="Asia/Tokyo"):
+        converted = datetime.astimezone(timezone(timezonestring))
+        if converted.date().isoweekday() == 6 and converted.hour > 18:
+            return True
+        return False
+
+    def is_weekend(self, datetime, timezonestring="Asia/Tokyo"):
+        converted = datetime.astimezone(timezone(timezonestring))
+        if converted.date().isoweekday in [6,7] or (converted.date().isoweekday == 5 and converted.hour > 18):
+            return True
+        return False
 
     def get_distributions_numbers(self, feature, num_bins=20, max_value=0):
         cursor = self.conn.cursor()
@@ -737,6 +749,15 @@ class DatabaseHelper():
                            (element[0], element[1]))
             self.conn.commit()
 
+    def filter_bad_rows(self):
+        self.delete_test_users()
+        self.filter_inaccurate_rows()
+
+    def filter_inaccurate_rows(self):
+        cursor = self.conn.cursor()
+        cursor.execute(""" DELETE FROM location where accuracy < 0 and accuracy > 100000""")
+        self.conn.commit()
+
     def delete_test_users(self):
         users = ['02cbb276-93e7-4baa-81aa-ea3f5bf6230a',
                  '3eee0fe1-ef56-42a9-9b16-ee0677c079ee',
@@ -754,4 +775,5 @@ class DatabaseHelper():
 if __name__ == '__main__':
     d = DatabaseHelper()
     # d.update_missing_records()
-    d.generate_numpy_matrix_from_database()
+    d.filter_inaccurate_rows()
+    #d.generate_numpy_matrix_from_database()

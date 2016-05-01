@@ -737,6 +737,15 @@ class DatabaseHelper():
                            (element[0], element[1]))
             self.conn.commit()
 
+    def filter_bad_rows(self):
+        self.delete_test_users()
+        self.filter_inaccurate_rows()
+
+    def filter_inaccurate_rows(self):
+        cursor = self.conn.cursor()
+        cursor.execute(""" DELETE FROM location where accuracy < 0 and accuracy > 100000""")
+        self.conn.commit()
+
     def delete_test_users(self):
         users = ['02cbb276-93e7-4baa-81aa-ea3f5bf6230a',
                  '3eee0fe1-ef56-42a9-9b16-ee0677c079ee',
@@ -754,4 +763,5 @@ class DatabaseHelper():
 if __name__ == '__main__':
     d = DatabaseHelper()
     # d.update_missing_records()
-    d.generate_numpy_matrix_from_database()
+    d.filter_inaccurate_rows()
+    #d.generate_numpy_matrix_from_database()

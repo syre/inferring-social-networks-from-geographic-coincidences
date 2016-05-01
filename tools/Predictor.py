@@ -60,13 +60,13 @@ class Predictor():
 
         Returns:
             numpy array -- Numpy array with column 0 and 1 of input array.
-                           Dublicates are removed
+                           Duplicates are removed
         """
         # Extract only column 0 & 1
         A = np.dstack((coocs[:, 0], coocs[:, 1]))[0]
         B = np.ascontiguousarray(A).view(np.dtype((np.void, A.dtype.itemsize *
                                                    A.shape[1])))
-        _, idx = np.unique(B, return_index=True)  # Remove dublicate rows
+        _, idx = np.unique(B, return_index=True)  # Remove duplicate rows
         return A[idx]
 
     def calculate_features_for_dataset(self, users, countries, loc_arr, coocs,
@@ -75,6 +75,7 @@ class Predictor():
         coocs_users = self.extract_and_remove_duplicate_coocs(coocs)
         X = np.zeros(shape=(len(coocs_users), 8), dtype="float")
         y = np.zeros(shape=len(coocs_users), dtype="int")
+
         for index, pair in tqdm(enumerate(coocs_users), total=coocs_users.shape[0]):
             user1 = pair[0]
             user2 = pair[1]
@@ -118,9 +119,7 @@ class Predictor():
                                                    user1,
                                                    unique_met_next[:, 1] ==
                                                    user2], axis=0)]
-        if unique_pair_rows.shape[0] >= 2:
-            return 1
-        return 0
+        return unique_pair_rows.shape[0] >= 2
 
     def compute_roc_curve(self, y_test, y_pred):
         false_positive_rate, true_positive_rate, thresholds = roc_curve(
@@ -145,14 +144,14 @@ class Predictor():
         lg = sklearn.linear_model.LogisticRegression()
         lg.fit(X_train[:, 0].reshape(-1, 1), y_train)
         y_pred = lg.predict(X_test[:, 0].reshape(-1, 1))
-        print(sklearn.metrics.classification_report(y_pred, y_test))
+        print(sklearn.metrics.classification_report(y_pred, y_test, labels=["didnt meet", "did meet"]))
         self.compute_roc_curve(y_test, y_pred)
 
         print("Random Forest - all features")
-        forest = sklearn.ensemble.RandomForestClassifier(n_estimators=200)
+        forest = sklearn.ensemble.RandomForestClassifier(n_estimators=50)
         forest.fit(X_train, y_train)
         y_pred = forest.predict(X_test)
-        print(sklearn.metrics.classification_report(y_pred, y_test))
+        print(sklearn.metrics.classification_report(y_pred, y_test, labels=["didnt meet", "did meet"]))
         importances = forest.feature_importances_
         std = np.std(
             [tree.feature_importances_ for tree in forest.estimators_], axis=0)

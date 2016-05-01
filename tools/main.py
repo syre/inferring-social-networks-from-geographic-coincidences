@@ -83,5 +83,5 @@ class Run(object):
         file_loader.save_x_and_y(X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
         predictor.predict(X_train, y_train, X_test, y_test)
 if __name__ == '__main__':
-    r = Run(country="Sweden")
+    r = Run(country="Japan")
     r.update_all_data()

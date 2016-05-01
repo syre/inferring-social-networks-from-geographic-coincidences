@@ -5,7 +5,7 @@ from DatasetHelper import DatasetHelper
 import numpy as np
 import sklearn
 import sklearn.metrics
-from sklearn.metrics import roc_curve, auc
+from sklearn.metrics import roc_curve, auc, confusion_matrix
 import sklearn.ensemble
 from tqdm import tqdm
 import matplotlib.pyplot as plt
@@ -138,6 +138,19 @@ class Predictor():
         plt.xlabel('False Positive Rate')
         plt.show()
 
+    def plot_confusion_matrix(self, cm, title="Confusion matrix", labels=["did not meet", "did meet"], cmap=plt.cm.Blues):
+        plt.figure()
+        plt.imshow(cm, interpolation='nearest', cmap=cmap)
+        plt.title(title)
+        plt.colorbar()
+        tick_marks = np.arange(len(labels))
+        plt.xticks(tick_marks, labels, rotation=45)
+        plt.yticks(tick_marks, labels)
+        plt.tight_layout()
+        plt.ylabel('True label')
+        plt.xlabel('Predicted label')
+        plt.show()
+
     def predict(self, X_train, y_train, X_test, y_test):
         print("Logistic Regression - with number of cooccurrences")
 
@@ -165,6 +178,8 @@ class Predictor():
                   (f + 1, indices[f], importances[indices[f]]))
         # compute ROC curve
         self.compute_roc_curve(y_test, y_pred)
+        cm = confusion_matrix(y_test, y_pred)
+        self.compute_and_plot_confusion_matrix(cm)
 
     def find_users_in_cooccurrence(self, spatial_bin, time_bin):
         """

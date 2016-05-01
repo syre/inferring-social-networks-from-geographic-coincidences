@@ -138,14 +138,14 @@ class Predictor():
         plt.xlabel('False Positive Rate')
         plt.show()
 
-    def plot_confusion_matrix(self, cm, title="Confusion matrix", labels=["did not meet", "did meet"], cmap=plt.cm.Blues):
+    def plot_confusion_matrix(self, cm, title="Confusion matrix", target_names=["did not meet", "did meet"], cmap=plt.cm.Blues):
         plt.figure()
         plt.imshow(cm, interpolation='nearest', cmap=cmap)
         plt.title(title)
         plt.colorbar()
-        tick_marks = np.arange(len(labels))
-        plt.xticks(tick_marks, labels, rotation=45)
-        plt.yticks(tick_marks, labels)
+        tick_marks = np.arange(len(target_names))
+        plt.xticks(tick_marks, target_names, rotation=45)
+        plt.yticks(tick_marks, target_names)
         plt.tight_layout()
         plt.ylabel('True label')
         plt.xlabel('Predicted label')
@@ -157,14 +157,14 @@ class Predictor():
         lg = sklearn.linear_model.LogisticRegression()
         lg.fit(X_train[:, 0].reshape(-1, 1), y_train)
         y_pred = lg.predict(X_test[:, 0].reshape(-1, 1))
-        print(sklearn.metrics.classification_report(y_pred, y_test, labels=["didnt meet", "did meet"]))
+        print(sklearn.metrics.classification_report(y_pred, y_test, target_names=["didnt meet", "did meet"]))
         self.compute_roc_curve(y_test, y_pred)
 
         print("Random Forest - all features")
         forest = sklearn.ensemble.RandomForestClassifier(n_estimators=50)
         forest.fit(X_train, y_train)
         y_pred = forest.predict(X_test)
-        print(sklearn.metrics.classification_report(y_pred, y_test, labels=["didnt meet", "did meet"]))
+        print(sklearn.metrics.classification_report(y_pred, y_test, target_names=["didnt meet", "did meet"]))
         importances = forest.feature_importances_
         std = np.std(
             [tree.feature_importances_ for tree in forest.estimators_], axis=0)
@@ -179,7 +179,7 @@ class Predictor():
         # compute ROC curve
         self.compute_roc_curve(y_test, y_pred)
         cm = confusion_matrix(y_test, y_pred)
-        self.compute_and_plot_confusion_matrix(cm)
+        self.plot_confusion_matrix(cm)
 
     def find_users_in_cooccurrence(self, spatial_bin, time_bin):
         """

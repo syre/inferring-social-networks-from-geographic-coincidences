@@ -194,22 +194,15 @@ class DatabaseHelper():
         datetime = min_datetime+relativedelta(seconds=60*60*int(time_bin))
         return datetime
 
-    def is_saturday_late(self, datetime, timezonestring="Asia/Tokyo"):
+    def is_saturday_night(self, datetime, timezonestring="Asia/Tokyo"):
         converted = datetime.astimezone(timezone(timezonestring))
-        if converted.date().isoweekday() == 6 and converted.hour > 18 \
-           or converted.date().isoweekday() == 7 and converted.hour < 5:
+        if converted.date().isoweekday() == 6 and converted.hour > 18:
             return True
         return False
 
     def is_weekend(self, datetime, timezonestring="Asia/Tokyo"):
         converted = datetime.astimezone(timezone(timezonestring))
         if converted.date().isoweekday in [6,7] or (converted.date().isoweekday == 5 and converted.hour > 18):
-            return True
-        return False
-
-    def is_evening(self, datetime, timezonestring="Asia/Tokyo"):
-        converted = datetime.astimezone(timezone(timezonestring))
-        if converted.hour > 18:
             return True
         return False
 
@@ -564,14 +557,17 @@ class DatabaseHelper():
             order by count(*) desc;")
         return [element[0] for element in cursor.fetchall()]
 
-    def get_locations_by_country(self, country, start_datetime=None, end_datetime=None):
+    def get_locations_by_country_only(self, country):
         cursor = self.conn.cursor()
-        date_part = ""
-        if start_datetime and end_datetime:
-            date_part = " AND ((start_time, end_time) OVERLAPS ((%s), (%s)));"
+        cursor.execute("select useruuid, start_time, end_time FROM location where location.country = (%s)", (country,))
+        return cursor.fetchall()
+
+    def get_locations_by_country(self, country, start_datetime, end_datetime):
+        cursor = self.conn.cursor()
         cursor.execute(""" SELECT useruuid, ST_AsGeoJSON(location) AS geom,
             start_time, end_time FROM location
-            WHERE country=(%s)""" + date_part,
+            WHERE country=(%s) AND
+            ((start_time, end_time) OVERLAPS ((%s), (%s)));""",
                        (country, start_datetime, end_datetime))
         return cursor.fetchall()
 

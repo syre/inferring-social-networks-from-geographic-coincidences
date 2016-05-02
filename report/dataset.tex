@@ -4,11 +4,13 @@ På de følgende sider vil vi gennnemgå vores dataset. Vi vil vise de basale st
 
 Vores data stammer fra Sony's Lifelog\cite{sonyLifeLog} som navnet antyder, er en mobil Lifelog app som logger ens aktiviteter i løbet af dagen. Heri logger den bla. aktivitet i apps og geolokation. Vores dataset stammer fra denne app, indsamlet fra 1586 Sony medarbejdere over 3 måneder\footnote{September 2015 - November 2015} fordelt på 80 lande. 
 
-Vi kan dele datasettet op i 2 dele: En geolokation del og en app del. 
+Vi kan dele datasettet op i 2 dele for oveblikkets skyld: En \textbf{geolokation del} og en \textbf{app og homophily del}. \\
+
 
 \textbf{Geolokation del}\\
-følgende
-vbb
+I denne del ligger det mest interessante i forhold til vores problemstilling. Dette er geolokationen for brugeren på et pågældende tidspunkt. Lokationen bliver logget når lokationen ændre sig (værdierne for latitude eller longitude ændre sig). Når lokationen bliver logget, bliver et time stamp også logget (\texttt{start\_time}) - og når lokationen ændre sig, bliver et andet time stamp logget (\texttt{end\_time}). Dvs. at \texttt{start\_time} og \texttt{end\_time} er ens, så længe brugeren er i bevægelse.
+
+Accuracy af GPS og altitude bliver også logget, samt meta-data for pågældende lokation - city name, country, region and area. Table \ref{tab:stat_geo} viser disse attributter samt nogle nøgle værdier. 
 
 \begin{table}[htbp]
         \centering
@@ -19,7 +21,7 @@ vbb
                          & Latitude/  &   start             & end               & Accuracy           & Altitude    & Name   & Country & Region             & Area          \\[-3pt]% compensate for extrarowheight
                          & longitude  &  time               & time              &  (mm)              & (mm)        & (city) &         & (Europe, Asia...)  & (Area/state)  \\
             \hline
-                 Unique  &            &                     &                   &                    &             & 19.344 & 74      &                    &               \\
+                 Unique  &            &                     &                   &                    &             & 19.344 & 80      &                    &               \\
                  entries &            &                     &                   &                    &             &        &         &                    &               \\
             \hline
                  Min     &            &   2015-08-09        &                   &  -2.147.483.500    & -5.086.000  &        &         &                    &               \\
@@ -35,12 +37,26 @@ vbb
                  dev.    &            &                     &                   &                    &             &        &         &                    &               \\
             \hline
         \end{tabular}
-        \caption{Statistic summary of geolocation dataset}
-        \label{tab:Laser_Specs}
+        \caption{Overview and statistic summary of geolocation dataset} %add this between 'caption' and '{...' for new text in listing of tables: [New caption text only for listing of tables]
+        \label{tab:stat_geo}
 \end{table}
 
+Distributioner
 
-\textbf{App del}\\
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.18]{country_distribution}
+    \caption{Awesome Image}
+    \label{fig:awesome_image}
+\end{figure}
+Outliers
+
+
+
+Som man kan er der lidt færrer lande end det vi tidligere skyldtes. Dette 
+
+
+\textbf{App og homophily del}\\
 
 
 Over disse 3 måneder blev der indsamlet 2.665.893 geolokation records, som er vores primær data. 

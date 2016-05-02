@@ -73,7 +73,7 @@ class Predictor():
                                        met_next):
         datahelper = self.dataset_helper
         coocs_users = self.extract_and_remove_duplicate_coocs(coocs)
-        X = np.zeros(shape=(len(coocs_users), 9), dtype="float")
+        X = np.zeros(shape=(len(coocs_users), 8), dtype="float")
         y = np.zeros(shape=len(coocs_users), dtype="int")
 
         for index, pair in tqdm(enumerate(coocs_users), total=coocs_users.shape[0]):
@@ -93,7 +93,6 @@ class Predictor():
                 user1, user2, loc_arr)
             X[index:, 7] = datahelper.calculate_number_of_common_travels(
                 pair_coocs)
-            X[index:, 8] = datahelper.calculate_number_of_saturday_night_coocs(pair_coocs)
             y[index] = self.has_met(user1, user2, met_next)
 
         return X, y
@@ -164,10 +163,22 @@ class Predictor():
         plt.ylabel('True label')
         plt.xlabel('Predicted label')
         plt.show()
+    
+    def tweak_features(self, X_train, y_train, X_test, y_test):
+        max_auc = (0,0)
+        for x in range(1,200):
+            forest = sklearn.ensemble.RandomForestClassifier(n_estimators=x)
+            forest.fit(X_train, y_train)
+            y_pred = forest.predict_proba(X_test)
+            fpr, tpr, thresholds = roc_curve(y_test, y_pred[:,1])
+            curr_auc = auc(fpr, tpr)
+            if curr_auc > max_auc[0]:
+                max_auc = (curr_auc, x)
+                print("new max is: {}".format(max_auc))
+        print("max is {} trees with auc of: {}".format(max_auc[0], max_auc[1]))
 
     def predict(self, X_train, y_train, X_test, y_test):
         print("Logistic Regression - with number of cooccurrences")
-
         lg = sklearn.linear_model.LogisticRegression()
         lg.fit(X_train[:, 0].reshape(-1, 1), y_train)
         y_pred = lg.predict(X_test[:, 0].reshape(-1, 1))
@@ -177,15 +188,19 @@ class Predictor():
         self.plot_confusion_matrix(cm)
 
         print("Random Forest - all features")
-        forest = sklearn.ensemble.RandomForestClassifier(n_estimators=50)
+        #self.tweak_features(X_train, y_train, X_test, y_test)
+        forest = sklearn.ensemble.RandomForestClassifier(n_estimators=152)
         forest.fit(X_train, y_train)
         y_pred = forest.predict(X_test)
         print(sklearn.metrics.classification_report(y_pred, y_test, target_names=["didnt meet", "did meet"]))
         self.compute_feature_ranking(forest, X_test)
+        fpr, tpr, thresholds = roc_curve(y_test, forest.predict_proba(X_test)[:,1])
+        curr_auc = auc(fpr, tpr)
+        print(curr_auc)
         # compute ROC curve
-        self.compute_roc_curve(y_test, y_pred)
-        cm = confusion_matrix(y_test, y_pred)
-        self.plot_confusion_matrix(cm)
+        self.compute_roc_curve(y_test, forest.predict_proba(X_test)[:,1])
+        #cm = confusion_matrix(y_test, y_pred)
+        #self.plot_confusion_matrix(cm)
 
     def find_users_in_cooccurrence(self, spatial_bin, time_bin):
         """

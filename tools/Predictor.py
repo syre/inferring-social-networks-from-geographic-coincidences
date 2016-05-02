@@ -5,7 +5,8 @@ from DatasetHelper import DatasetHelper
 import numpy as np
 import sklearn
 import sklearn.metrics
-from sklearn.metrics import roc_curve, auc, confusion_matrix
+from sklearn.metrics import roc_auc_score, roc_curve, auc, confusion_matrix
+from sklearn.preprocessing import StandardScaler
 import sklearn.ensemble
 from tqdm import tqdm
 import matplotlib.pyplot as plt
@@ -134,9 +135,9 @@ class Predictor():
         plt.xlim([-1, X.shape[1]])
         plt.show()
 
-    def compute_roc_curve(self, y_test, y_pred):
+    def compute_roc_curve(self, y_test, y_pred_proba):
         false_positive_rate, true_positive_rate, thresholds = roc_curve(
-            y_test, y_pred)
+            y_test, y_pred_proba, pos_label=1)
         roc_auc = auc(false_positive_rate, true_positive_rate)
 
         # Compute ROC curve and ROC area for each class
@@ -170,26 +171,27 @@ class Predictor():
             forest = sklearn.ensemble.RandomForestClassifier(n_estimators=x)
             forest.fit(X_train, y_train)
             y_pred = forest.predict_proba(X_test)
-            fpr, tpr, thresholds = roc_curve(y_test, y_pred[:,1])
-            curr_auc = auc(fpr, tpr)
+            curr_auc = roc_auc_score(y_test, y_pred[:,1])
             if curr_auc > max_auc[0]:
                 max_auc = (curr_auc, x)
                 print("new max is: {}".format(max_auc))
         print("max is {} trees with auc of: {}".format(max_auc[0], max_auc[1]))
 
     def predict(self, X_train, y_train, X_test, y_test):
+        X_train = StandardScaler().fit_transform(X_train)
+        X_test = StandardScaler().fit_transform(X_test)
         print("Logistic Regression - with number of cooccurrences")
         lg = sklearn.linear_model.LogisticRegression()
         lg.fit(X_train[:, 0].reshape(-1, 1), y_train)
         y_pred = lg.predict(X_test[:, 0].reshape(-1, 1))
         print(sklearn.metrics.classification_report(y_pred, y_test, target_names=["didnt meet", "did meet"]))
-        self.compute_roc_curve(y_test, y_pred)
+        self.compute_roc_curve(y_test, lg.predict_proba(X_test[:, 0].reshape(-1, 1))[:,1])
         cm = confusion_matrix(y_test, y_pred)
         self.plot_confusion_matrix(cm)
 
         print("Random Forest - all features")
         #self.tweak_features(X_train, y_train, X_test, y_test)
-        forest = sklearn.ensemble.RandomForestClassifier(n_estimators=152)
+        forest = sklearn.ensemble.RandomForestClassifier(n_estimators=42)
         forest.fit(X_train, y_train)
         y_pred = forest.predict(X_test)
         print(sklearn.metrics.classification_report(y_pred, y_test, target_names=["didnt meet", "did meet"]))
@@ -199,8 +201,8 @@ class Predictor():
         print(curr_auc)
         # compute ROC curve
         self.compute_roc_curve(y_test, forest.predict_proba(X_test)[:,1])
-        #cm = confusion_matrix(y_test, y_pred)
-        #self.plot_confusion_matrix(cm)
+        cm = confusion_matrix(y_test, y_pred)
+        self.plot_confusion_matrix(cm)
 
     def find_users_in_cooccurrence(self, spatial_bin, time_bin):
         """

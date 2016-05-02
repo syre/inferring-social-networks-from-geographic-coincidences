@@ -194,15 +194,22 @@ class DatabaseHelper():
         datetime = min_datetime+relativedelta(seconds=60*60*int(time_bin))
         return datetime
 
-    def is_saturday_night(self, datetime, timezonestring="Asia/Tokyo"):
+    def is_saturday_late(self, datetime, timezonestring="Asia/Tokyo"):
         converted = datetime.astimezone(timezone(timezonestring))
-        if converted.date().isoweekday() == 6 and converted.hour > 18:
+        if converted.date().isoweekday() == 6 and converted.hour > 18 \
+           or converted.date().isoweekday() == 7 and converted.hour < 5:
             return True
         return False
 
     def is_weekend(self, datetime, timezonestring="Asia/Tokyo"):
         converted = datetime.astimezone(timezone(timezonestring))
         if converted.date().isoweekday in [6,7] or (converted.date().isoweekday == 5 and converted.hour > 18):
+            return True
+        return False
+
+    def is_evening(self, datetime, timezonestring="Asia/Tokyo"):
+        converted = datetime.astimezone(timezone(timezonestring))
+        if converted.hour > 18:
             return True
         return False
 

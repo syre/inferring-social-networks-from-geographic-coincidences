@@ -557,12 +557,14 @@ class DatabaseHelper():
             order by count(*) desc;")
         return [element[0] for element in cursor.fetchall()]
 
-    def get_locations_by_country(self, country, start_datetime, end_datetime):
+    def get_locations_by_country(self, country, start_datetime=None, end_datetime=None):
         cursor = self.conn.cursor()
+        date_part = ""
+        if start_datetime and end_datetime:
+            date_part = " AND ((start_time, end_time) OVERLAPS ((%s), (%s)));"
         cursor.execute(""" SELECT useruuid, ST_AsGeoJSON(location) AS geom,
             start_time, end_time FROM location
-            WHERE country=(%s) AND
-            ((start_time, end_time) OVERLAPS ((%s), (%s)));""",
+            WHERE country=(%s)""" + date_part,
                        (country, start_datetime, end_datetime))
         return cursor.fetchall()
 

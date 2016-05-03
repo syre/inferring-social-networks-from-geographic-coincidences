@@ -23,7 +23,3 @@ for user, times in user_location_dict.items():
 	avg_time /= len(times)
 	avg_times_between.append(avg_time)
 print(sum(avg_times_between)/len(avg_times_between))
-
-
-
-

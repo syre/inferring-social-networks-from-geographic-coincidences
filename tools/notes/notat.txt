@@ -5,3 +5,10 @@ mutual cooccurrences (proxy friends)
 plotte cooccurrences og locations opdateringer for hver person.
 
 location entropies, distinct grids.
+
+
+Datasæt analyse:
+
+Japan locations for September: 340198
+Japan locations for October: 208242
+Japan locations for November: 102442

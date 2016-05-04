@@ -16,28 +16,10 @@ import calendar
 from collections import defaultdict
 from tqdm import tqdm
 
-def get_data_for_heat_map():
+def get_data_for_heat_map(locations):
     d = DatabaseHelper.DatabaseHelper()
-    p = Predictor.Predictor()
-    sept_min_datetime = "2015-09-01 00:00:00+00:00"
     sept_min_datetime2 = "2015-08-30 00:00:00+00:00" #Mandag
-    sept_min_time_bin = d.calculate_time_bins(sept_min_datetime, sept_min_datetime)[0]
-    sept_max_datetime = "2015-09-30 23:59:59+00:00"
-    sept_max_time_bin = d.calculate_time_bins(sept_max_datetime, sept_max_datetime)[0]
-    oct_min_datetime = "2015-10-01 00:00:00+00:00"
-    oct_min_time_bin = d.calculate_time_bins(oct_min_datetime, oct_min_datetime)[0]
-    oct_max_datetime = "2015-10-31 23:59:59+00:00"
-    oct_max_time_bin = d.calculate_time_bins(oct_max_datetime, oct_max_datetime)[0]
-    nov_min_datetime = "2015-11-01 00:00:00+00:00"
-    nov_min_time_bin = d.calculate_time_bins(nov_min_datetime, nov_min_datetime)[0]
-    nov_max_datetime = "2015-11-30 23:59:59+00:00"
     nov_max_datetime2 = "2015-12-13 23:59:59+00:00"
-    nov_max_time_bin = d.calculate_time_bins(nov_max_datetime, nov_max_datetime)[0]
-    
-
-    print("processing users, countries and locations as numpy matrix (train)")
-    users_train, countries_train, locations_train = d.generate_numpy_matrix_from_database()
-    locations = p.filter_by_country(locations_train, countries_train)
     number_of_month = 3
     days_in_week = 7
     number_of_weeks = 6
@@ -137,6 +119,12 @@ if __name__ == '__main__':
     d = DatabaseHelper.DatabaseHelper()
     query = "SELECT useruuid, count(*) FROM location WHERE country='Japan' \
              GROUP BY useruuid ORDER BY useruuid"
+    p = Predictor.Predictor()
+    print("processing users, countries and locations as numpy matrix (train)")
+    users_train, countries_train, locations_train = d.generate_numpy_matrix_from_database()
+    locations = p.filter_by_country(locations_train, countries_train)
+
+
     #result = d.run_specific_query(query)
     #print(result[0])
     
@@ -145,7 +133,7 @@ if __name__ == '__main__':
     #print(counts[0])
     #records_dist_plot(counts, 200)
     #
-    data, mask = get_data_for_heat_map()    
+    data, mask = get_data_for_heat_map(locations)    
     ylabels = [["M", "T", "W", "T", "F", "S", "S"],
                ["M", "T", "W", "T", "F", "S", "S"],
                ["M", "T", "W", "T", "F", "S", "S"]]

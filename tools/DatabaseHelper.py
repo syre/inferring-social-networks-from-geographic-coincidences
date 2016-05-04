@@ -557,6 +557,11 @@ class DatabaseHelper():
             order by count(*) desc;")
         return [element[0] for element in cursor.fetchall()]
 
+    def get_locations_by_country_only(self, country):
+        cursor = self.conn.cursor()
+        cursor.execute("select useruuid, start_time, end_time FROM location where location.country = (%s)", (country,))
+        return cursor.fetchall()
+
     def get_locations_by_country(self, country, start_datetime, end_datetime):
         cursor = self.conn.cursor()
         cursor.execute(""" SELECT useruuid, ST_AsGeoJSON(location) AS geom,

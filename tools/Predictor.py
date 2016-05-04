@@ -9,7 +9,7 @@ from sklearn.metrics import roc_curve, auc, confusion_matrix
 import sklearn.ensemble
 from tqdm import tqdm
 import matplotlib.pyplot as plt
-
+from sklearn.grid_search import GridSearchCV
 
 class Predictor():
 
@@ -175,6 +175,31 @@ class Predictor():
         self.compute_roc_curve(y_test, y_pred)
         cm = confusion_matrix(y_test, y_pred)
         self.plot_confusion_matrix(cm)
+
+        print("Random Forest - all features")
+        forest = sklearn.ensemble.RandomForestClassifier(n_estimators=50)
+        forest.fit(X_train, y_train)
+        y_pred = forest.predict(X_test)
+        print(sklearn.metrics.classification_report(y_pred, y_test, target_names=["didnt meet", "did meet"]))
+        self.compute_feature_ranking(forest, X_test)
+        # compute ROC curve
+        self.compute_roc_curve(y_test, y_pred)
+        cm = confusion_matrix(y_test, y_pred)
+        self.plot_confusion_matrix(cm)
+
+    def predict2(self, X_train, y_train, X_test, y_test):
+        print("Logistic Regression - with number of cooccurrences")
+
+        lg = sklearn.linear_model.LogisticRegression()
+        param_grid = {"class_weight": {1: 2},
+                      "C": np.arange(0, 1, 0.1)} #did_meet weight = 2
+        grid = GridSearchCV(estimator=lg, param_grid=dict(alpha=alphas))
+        lg.fit(X_train[:, 0].reshape(-1, 1), y_train)
+        y_pred = lg.predict(X_test[:, 0].reshape(-1, 1))
+        print(sklearn.metrics.classification_report(y_pred, y_test, target_names=["didnt meet", "did meet"]))
+        #self.compute_roc_curve(y_test, y_pred)
+        #cm = confusion_matrix(y_test, y_pred)
+        #self.plot_confusion_matrix(cm)
 
         print("Random Forest - all features")
         forest = sklearn.ensemble.RandomForestClassifier(n_estimators=50)

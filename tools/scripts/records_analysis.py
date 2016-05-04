@@ -13,7 +13,7 @@ from datetime import timedelta
 from collections import defaultdict
 from tqdm import tqdm
 
-def get_data_for_heat_map(locations):
+def get_data_for_heat_map(user=""):
     d = DatabaseHelper.DatabaseHelper()
     sept_min_datetime2 = "2015-08-30 00:00:00+00:00" #Mandag
     nov_max_datetime2 = "2015-12-13 23:59:59+00:00"
@@ -47,17 +47,26 @@ def get_data_for_heat_map(locations):
                         break
                     else:
                         month_index = month_range.index(current_month)
-                    time_bins = d.calculate_time_bins(day.strftime("%Y-%m-%d %H:%M:%S")+"+00:00", day.strftime("%Y-%m-%d")+" 23:59:59+00:00")
-                    result = locations[locations[:, 2] >= time_bins[0]]
-                    result = result[result[:, 2] <= time_bins[-1]]
-                    data[month_index][day.weekday()][week_of_month(day)-1] = result.shape[0]
+                    start = day.strftime("%Y-%m-%d %H:%M:%S")+"+00:00"
+                    end =  day.strftime("%Y-%m-%d")+" 23:59:59+00:00"
+                    user_query = ""
+                    if user != "":
+                        user_query = " AND useruuid = '"+user+"'"
+                    query = "select count(*) FROM location WHERE start_time >= '"+start+"' AND start_time <= '" + end + "'"+user_query+";"
+                    result = d.run_specific_query(query)[0][0] 
+                    print(result)
+                    data[month_index][day.weekday()][week_of_month(day)-1] = result
                     
                 else: #Hvis vi er i current_month
                     if day.month != 8:
-                        time_bins = d.calculate_time_bins(day.strftime("%Y-%m-%d %H:%M:%S")+"+00:00", day.strftime("%Y-%m-%d")+" 23:59:59+00:00")
-                        result = locations[locations[:, 2] >= time_bins[0]]
-                        result = result[result[:, 2] <= time_bins[-1]]
-                        data[month_index][day.weekday()][week_of_month(day)-1] = result.shape[0]
+                        start = day.strftime("%Y-%m-%d %H:%M:%S")+"+00:00"
+                        end =  day.strftime("%Y-%m-%d")+" 23:59:59+00:00"
+                        user_query = ""
+                        if user != "":
+                            user_query = " AND useruuid = '"+user+"'"
+                        query = "select count(*) FROM location WHERE start_time >= '"+start+"' AND start_time <= '" + end + "'" + user_query+";"
+                        result = d.run_specific_query(query)[0][0] 
+                        data[month_index][day.weekday()][week_of_month(day)-1] = result
         if break_flag:
             break 
 
@@ -97,7 +106,7 @@ def records_dist_plot(data, bins):
     sns.plt.show()
 
 
-def heat_map(data, mask, xlabels, ylabels):
+def heat_map(data, mask, xlabels, ylabels, title="", anno=True):
     sns.set(font_scale=2.5)
     months = ["September", "October", "November"]
     max_val = np.amax(data)
@@ -105,36 +114,33 @@ def heat_map(data, mask, xlabels, ylabels):
 
     cbar_ax = fig.add_axes([.91, .3, .03, .4])
     for index, ax in enumerate(ax.flat):
-        sns.heatmap(data[index], ax=ax, xticklabels=[] if index != 2 else xlabels[index],
+        sns.heatmap(data[index], ax=ax, xticklabels=[" "]*len(xlabels[index]) if index != 2 else xlabels[index],
+                    annot=anno, fmt="d",
                     yticklabels=ylabels[index], mask=mask[index], vmin=0,
                     vmax=max_val, cbar=index == 0, cbar_ax=None if index else cbar_ax)
+        if title != "" and index == 0:
+            ax.set_title(title)
         ax.set_ylabel(months[index])
 
     sns.plt.show()
 
 if __name__ == '__main__':
+    #-------------- DIST PLOT --------------------#
     d = DatabaseHelper.DatabaseHelper()
     query = "SELECT useruuid, count(*) FROM location WHERE country='Japan' \
              GROUP BY useruuid ORDER BY useruuid"
-    p = Predictor.Predictor()
-    print("processing users, countries and locations as numpy matrix (train)")
-    users_train, countries_train, locations_train = d.generate_numpy_matrix_from_database()
-    locations = p.filter_by_country(locations_train, countries_train)
-
-
     #result = d.run_specific_query(query)
-    #print(result[0])
-    
     #counts = [row[1] for row in result]
-    
-    #print(counts[0])
     #records_dist_plot(counts, 200)
-    #
-    data, mask = get_data_for_heat_map(locations)    
+    
+    
+    #............... HEAT-MAP --------------------#
+    data, mask = get_data_for_heat_map()   
+    title = "Number of location updates in Japan for user " #+ str(user)
     ylabels = [["M", "T", "W", "T", "F", "S", "S"],
                ["M", "T", "W", "T", "F", "S", "S"],
                ["M", "T", "W", "T", "F", "S", "S"]]
     xlabels = [["Week 1", "Week 2", "Week 3", "Week 4", "Week 5", "Week 6"],
                ["Week 1", "Week 2", "Week 3", "Week 4", "Week 5", "Week 6"],
                ["Week 1", "Week 2", "Week 3", "Week 4", "Week 5", "Week 6"]]
-    heat_map(data, mask, xlabels, ylabels)
+    heat_map(data, mask, xlabels, ylabels, title, True)

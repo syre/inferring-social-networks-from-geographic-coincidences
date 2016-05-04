@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+import os
+import sys
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
 from DatabaseHelper import DatabaseHelper
 from Predictor import Predictor
 from DatasetHelper import DatasetHelper

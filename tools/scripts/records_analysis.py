@@ -111,37 +111,29 @@ def records_dist_plot(data, bins):
     labels = calc_labels(data, bins)
     print(labels)
     ax = sns.distplot(data, kde=False, norm_hist=True, bins=bins)
-    #print(len(labels))
-    #ax.set_xticks(np.arange(len(labels)))
-    #ax.set_xticklabels(labels)
     sns.plt.tick_params(labelsize=20)
     sns.plt.show()
 
 
 def heat_map(data, mask, xlabels, ylabels):
     sns.set(font_scale=2.5)
-    for index, month_data in enumerate(data):
-        sns.plt.subplot(3, 1, index+1)
-        
-        sns.heatmap(month_data, xticklabels=xlabels[index],
-                    yticklabels=ylabels[index], mask=mask[index]) #mask=mask[index]
+    months = ["September", "October", "November"]
+    max_val = np.amax(data)
+    fig, ax = sns.plt.subplots(3, 1)
+
+    cbar_ax = fig.add_axes([.91, .3, .03, .4])
+    for index, ax in enumerate(ax.flat):
+        sns.heatmap(data[index], ax=ax, xticklabels=[] if index != 2 else xlabels[index],
+                    yticklabels=ylabels[index], mask=mask[index], vmin=0,
+                    vmax=max_val, cbar=index == 0, cbar_ax=None if index else cbar_ax)
+        ax.set_ylabel(months[index])
+
     sns.plt.show()
-
-
-
 
 if __name__ == '__main__':
     d = DatabaseHelper.DatabaseHelper()
     query = "SELECT useruuid, count(*) FROM location WHERE country='Japan' \
              GROUP BY useruuid ORDER BY useruuid"
-    #result = d.run_specific_query(query)
-    #print(result[0])
-    
-    #counts = [row[1] for row in result]
-    
-    #print(counts[0])
-    #records_dist_plot(counts, 200)
-    #
     data, mask = get_data_for_heat_map()    
     ylabels = [["M", "T", "W", "T", "F", "S", "S"],
                ["M", "T", "W", "T", "F", "S", "S"],

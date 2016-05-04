@@ -45,6 +45,13 @@ class Run(object):
         users_test, countries_test, locations_test = self.database_helper.generate_numpy_matrix_from_database(self.filter_places_dict[self.country])
         file_loader.save_numpy_matrix_test(users_test, countries_test, locations_test)
 
+        MIN_UNIQUE_DAYS = 8
+        selected_train_users, selected_test_users = self.database_helper.get_users_with_unique_days(MIN_UNIQUE_DAYS)
+        print("now: {}, before: {}".format(len([users_train[u] for u in selected_train_users if u in users_train]), len(selected_train_users)))
+        print("now: {}, before: {}".format(len([users_test[u] for u in selected_test_users if u in users_test]), len(selected_test_users)))
+        locations_train = locations_train[np.in1d(locations_train[:, 0], [users_train[u] for u in selected_train_users if u in users_train])]
+        locations_test = locations_test[np.in1d(locations_test[:, 0], [users_test[u] for u in selected_test_users if u in users_test])]
+
         print("processing cooccurrences numpy array (train)")
         coocs_train = dataset_helper.generate_cooccurrences_array(locations_train)
         file_loader.save_cooccurrences_train(coocs_train)
@@ -54,6 +61,7 @@ class Run(object):
         coocs_test = dataset_helper.generate_cooccurrences_array(locations_test)
         file_loader.save_cooccurrences_test(coocs_test)
         coocs_test = file_loader.load_cooccurrences_test()
+
 
         print("processing coocs for met in next (train)")
         coocs_met_in_next_train = np.copy(coocs_train)
@@ -74,6 +82,7 @@ class Run(object):
         #met_in_next_test = predictor.extract_and_remove_duplicate_coocs(coocs_met_in_next_test)
         print("saving met in next people (test)")
         file_loader.save_met_in_next_test(coocs_met_in_next_test)
+
 
         print("processing dataset for machine learning (train)")
         X_train, y_train = predictor.generate_dataset(users_train, countries_train, locations_train, coocs_train, coocs_met_in_next_train, sept_min_datetime, sept_max_datetime)

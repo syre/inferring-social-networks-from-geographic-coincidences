@@ -782,6 +782,26 @@ class DatabaseHelper():
         cursor.execute(query)
         return cursor.fetchall()
 
+    def get_users_with_unique_days(self, number, country="Japan"):
+        """
+        Find test and train users with at least 'number' unique days in
+        both test or train months
+        """
+        locations = self.get_locations_by_country_only(country)
+        users = set([l[0] for l in locations])
+        user_locations_dict = {u: [(l[1].date().day, l[1].date().month) for l in locations if l[0] == u] for u in users}
+        train_users = []
+        test_users = []
+        for u, location_dates in user_locations_dict.items():
+            sept_locations = [x for x in location_dates if x[1] == 9]
+            oct_locations = [x for x in location_dates if x[1] == 10]
+            nov_locations = [x for x in location_dates if x[1] == 11]
+            if len(set(sept_locations)) >= number and len(set(oct_locations)) >= number:
+                train_users.append(u)
+            if len(set(oct_locations)) >= number and len(set(nov_locations)) >= number:
+                test_users.append(u)
+        return train_users, test_users
+
 if __name__ == '__main__':
     d = DatabaseHelper()
     # d.update_missing_records()

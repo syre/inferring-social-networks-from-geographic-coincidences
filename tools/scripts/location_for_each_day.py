@@ -6,13 +6,11 @@ import sys
 import os
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 from DatabaseHelper import DatabaseHelper
-from Predictor import Predictor
 
 db = DatabaseHelper()
-pd = Predictor("Sweden")
 
 
-locations = db.get_locations_by_country_only("Sweden")
+locations = db.get_locations_by_country_only("Japan")
 
 users = set([l[0] for l in locations])
 sept_dates = range(1, 31)

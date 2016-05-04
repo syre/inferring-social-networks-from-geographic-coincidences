@@ -10,7 +10,7 @@ from DatabaseHelper import DatabaseHelper
 from Predictor import Predictor
 
 database_helper = DatabaseHelper()
-predictor = Predictor("Sweden")
+predictor = Predictor("Japan")
 
 sept_min_datetime = "2015-09-01 00:00:00+00:00"
 sept_min_time_bin = database_helper.calculate_time_bins(sept_min_datetime, sept_min_datetime)[0]

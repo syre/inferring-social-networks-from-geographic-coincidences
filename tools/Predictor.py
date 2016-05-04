@@ -191,7 +191,7 @@ class Predictor():
 
         print("Random Forest - all features")
         #self.tweak_features(X_train, y_train, X_test, y_test)
-        forest = sklearn.ensemble.RandomForestClassifier(n_estimators=42)
+        forest = sklearn.ensemble.RandomForestClassifier()
         forest.fit(X_train, y_train)
         y_pred = forest.predict(X_test)
         print(sklearn.metrics.classification_report(y_pred, y_test, target_names=["didnt meet", "did meet"]))
@@ -219,7 +219,7 @@ class Predictor():
         #self.plot_confusion_matrix(cm)
 
         print("Random Forest - all features")
-        forest = sklearn.ensemble.RandomForestClassifier(n_estimators=50)
+        forest = sklearn.ensemble.RandomForestClassifier()
         forest.fit(X_train, y_train)
         y_pred = forest.predict(X_test)
         print(sklearn.metrics.classification_report(y_pred, y_test, target_names=["didnt meet", "did meet"]))

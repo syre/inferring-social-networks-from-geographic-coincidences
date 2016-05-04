@@ -99,17 +99,16 @@ def records_dist_plot(data, bins):
 
 def heat_map(data, mask, xlabels, ylabels):
     sns.set(font_scale=2.5)
+    
     months = ["September", "October", "November"]
     max_val = np.amax(data)
     fig, ax = sns.plt.subplots(3, 1)
-
     cbar_ax = fig.add_axes([.91, .3, .03, .4])
     for index, ax in enumerate(ax.flat):
         sns.heatmap(data[index], ax=ax, xticklabels=[] if index != 2 else xlabels[index],
-                    yticklabels=ylabels[index], mask=mask[index], vmin=0,
+                    yticklabels=ylabels[index], mask=mask[index], vmin=0, annot=True, fmt="d",
                     vmax=max_val, cbar=index == 0, cbar_ax=None if index else cbar_ax)
         ax.set_ylabel(months[index])
-
     sns.plt.show()
 
 if __name__ == '__main__':

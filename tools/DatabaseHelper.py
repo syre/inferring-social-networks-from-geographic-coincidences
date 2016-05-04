@@ -772,6 +772,11 @@ class DatabaseHelper():
                            (user, ))
             self.conn.commit()
 
+    def run_specific_query(self, query):
+        cursor = self.conn.cursor()
+        cursor.execute(query)
+        return cursor.fetchall()
+
 if __name__ == '__main__':
     d = DatabaseHelper()
     # d.update_missing_records()

@@ -4,15 +4,12 @@ import sys
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 import DatabaseHelper
 import Predictor
-import pprint
-from matplotlib import rcParams
 import seaborn as sns
 import numpy as np
 import math
 from dateutil.rrule import rrule, WEEKLY, DAILY
 from dateutil import parser
 from datetime import timedelta
-import calendar
 from collections import defaultdict
 from tqdm import tqdm
 

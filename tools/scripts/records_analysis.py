@@ -13,7 +13,7 @@ from datetime import timedelta
 from collections import defaultdict
 from tqdm import tqdm
 
-def get_data_for_heat_map(user=""):
+def get_data_for_heat_map(country="Japan", user=""):
     d = DatabaseHelper.DatabaseHelper()
     sept_min_datetime2 = "2015-08-30 00:00:00+00:00" #Mandag
     nov_max_datetime2 = "2015-12-13 23:59:59+00:00"
@@ -52,7 +52,7 @@ def get_data_for_heat_map(user=""):
                     user_query = ""
                     if user != "":
                         user_query = " AND useruuid = '"+user+"'"
-                    query = "select count(*) FROM location WHERE start_time >= '"+start+"' AND start_time <= '" + end + "'"+user_query+";"
+                    query = "select count(*) FROM location WHERE country='"+country+"' AND start_time >= '"+start+"' AND start_time <= '" + end + "'"+user_query+";"
                     result = d.run_specific_query(query)[0][0] 
                     print(result)
                     data[month_index][day.weekday()][week_of_month(day)-1] = result
@@ -64,7 +64,7 @@ def get_data_for_heat_map(user=""):
                         user_query = ""
                         if user != "":
                             user_query = " AND useruuid = '"+user+"'"
-                        query = "select count(*) FROM location WHERE start_time >= '"+start+"' AND start_time <= '" + end + "'" + user_query+";"
+                        query = "select count(*) FROM location WHERE country='"+country+"' AND start_time >= '"+start+"' AND start_time <= '" + end + "'" + user_query+";"
                         result = d.run_specific_query(query)[0][0] 
                         data[month_index][day.weekday()][week_of_month(day)-1] = result
         if break_flag:
@@ -134,8 +134,12 @@ if __name__ == '__main__':
     
     
     #............... HEAT-MAP --------------------#
-    data, mask = get_data_for_heat_map()   
-    title = "Number of location updates in Japan for user " #+ str(user)
+    user = ""
+    country = "Japan"
+    data, mask = get_data_for_heat_map(country)
+    title = "Number of location updates in "+country
+    if user != "":
+        title += " for user " + str(user)
     ylabels = [["M", "T", "W", "T", "F", "S", "S"],
                ["M", "T", "W", "T", "F", "S", "S"],
                ["M", "T", "W", "T", "F", "S", "S"]]

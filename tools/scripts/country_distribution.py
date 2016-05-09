@@ -33,7 +33,7 @@ def bar_plot(data, labels):
     sns.set(font_scale=2.5)
     ax.set_xticklabels(labels, rotation=90)
     ax.set_xlabel("Countries", fontsize=35)
-    ax.set_ylabel("Recors frequency", fontsize=35)
+    ax.set_ylabel("Number of records", fontsize=35)
     #ax.set(ylabel="Count")
     ax.set(title="Country distribution")
     sns.plt.tick_params(labelsize=28)

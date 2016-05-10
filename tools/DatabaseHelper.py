@@ -177,13 +177,18 @@ class DatabaseHelper():
         return (abs(self.GRID_MAX_LAT - self.GRID_MIN_LAT) *
                 (lat-self.GRID_MIN_LAT)) + (lng-self.GRID_MIN_LNG)
 
-    def calculate_time_bins(self, start_time, end_time):
+    def calculate_time_bins(self, start_time, end_time=None):
         start_time = parser.parse(start_time)
-        end_time = parser.parse(end_time)
         min_datetime = parser.parse('2015-08-09 00:00:00+02')
         start_bin = math.floor(
             ((start_time-min_datetime).total_seconds()/60.0)/60)
-        end_bin = math.ceil(((end_time-min_datetime).total_seconds()/60.0)/60)
+
+        if end_time:
+            end_time = parser.parse(end_time)
+            end_bin = math.ceil(((end_time-min_datetime).total_seconds()/60.0)/60)
+        else:
+            end_bin = start_bin
+
         if start_bin == end_bin:
             return [start_bin]
         else:

@@ -1,3 +1,7 @@
+14-20 november med 0 dage der mangler
+1-18 september med 5 dage eller under der "mangler"
+20-30 oktober med 2 dage eller under der "mangler"
+---------------------------------------------------------------------------------
 Leaflet brugt til at se cooccurrences (vi finder mange er fra Sony HQ)
 Features forklaring
 Filer kom i 09,10,11 mapper, vi fandt senere de ikke kunne bruges som opdeling da 

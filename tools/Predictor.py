@@ -12,6 +12,7 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 from sklearn.grid_search import GridSearchCV
 
+
 class Predictor():
 
     def __init__(self,
@@ -136,8 +137,8 @@ class Predictor():
         plt.show()
 
     def compute_roc_curve(self, y_test, y_pred_proba):
-        false_positive_rate, true_positive_rate, thresholds = roc_curve(
-            y_test, y_pred_proba, pos_label=1)
+        false_positive_rate, true_positive_rate, _ = roc_curve(
+            y_test, y_pred_proba)
         roc_auc = auc(false_positive_rate, true_positive_rate)
 
         # Compute ROC curve and ROC area for each class
@@ -178,8 +179,6 @@ class Predictor():
         print("max is {} trees with auc of: {}".format(max_auc[0], max_auc[1]))
 
     def predict(self, X_train, y_train, X_test, y_test):
-        X_train = StandardScaler().fit_transform(X_train)
-        X_test = StandardScaler().fit_transform(X_test)
         print("Logistic Regression - with number of cooccurrences")
         lg = sklearn.linear_model.LogisticRegression()
         lg.fit(X_train[:, 0].reshape(-1, 1), y_train)
@@ -191,7 +190,7 @@ class Predictor():
 
         print("Random Forest - all features")
         #self.tweak_features(X_train, y_train, X_test, y_test)
-        forest = sklearn.ensemble.RandomForestClassifier()
+        forest = sklearn.ensemble.RandomForestClassifier(n_estimators=50)
         forest.fit(X_train, y_train)
         y_pred = forest.predict(X_test)
         print(sklearn.metrics.classification_report(y_test, y_pred, target_names=["didnt meet", "did meet"]))
@@ -248,7 +247,7 @@ class Predictor():
 
 
 if __name__ == '__main__':
-    p = Predictor("Japan")
+    p = Predictor("Sweden")
     f = FileLoader()
     d = DatabaseHelper()
     X_train, y_train, X_test, y_test = f.load_x_and_y()

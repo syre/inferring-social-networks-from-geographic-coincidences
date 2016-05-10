@@ -9,6 +9,3 @@ location entropies, distinct grids.
 
 Datasæt analyse:
 
-Japan locations for September: 340198
-Japan locations for October: 208242
-Japan locations for November: 102442

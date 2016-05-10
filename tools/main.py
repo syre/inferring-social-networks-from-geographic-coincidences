@@ -45,8 +45,8 @@ class Run(object):
         users_test, countries_test, locations_test = self.database_helper.generate_numpy_matrix_from_database(self.filter_places_dict[self.country])
         file_loader.save_numpy_matrix_test(users_test, countries_test, locations_test)
 
-        MIN_UNIQUE_DAYS = 8
-        selected_train_users, selected_test_users = self.database_helper.get_users_with_unique_days(MIN_UNIQUE_DAYS)
+        MIN_UNIQUE_DAYS = 14
+        selected_train_users, selected_test_users = self.database_helper.get_users_with_unique_days(MIN_UNIQUE_DAYS, "Japan")
         print("now: {}, before: {}".format(len([users_train[u] for u in selected_train_users if u in users_train]), len(selected_train_users)))
         print("now: {}, before: {}".format(len([users_test[u] for u in selected_test_users if u in users_test]), len(selected_test_users)))
         locations_train = locations_train[np.in1d(locations_train[:, 0], [users_train[u] for u in selected_train_users if u in users_train])]

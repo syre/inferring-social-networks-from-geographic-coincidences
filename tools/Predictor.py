@@ -183,6 +183,9 @@ class Predictor():
         print("max is {} trees with auc of: {}".format(max_auc[0], max_auc[1]))
 
     def predict(self, X_train, y_train, X_test, y_test):
+        scaler = StandardScaler().fit(np.vstack((X_train, X_test)))
+        X_train = scaler.transform(X_train)
+        X_test = scaler.transform(X_test)
         print("Logistic Regression - with number of cooccurrences")
         lg = sklearn.linear_model.LogisticRegression()
         lg.fit(X_train[:, 0].reshape(-1, 1), y_train)

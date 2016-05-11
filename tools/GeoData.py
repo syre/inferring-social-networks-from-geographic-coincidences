@@ -6,6 +6,7 @@ import geojson
 from geojson import Feature, FeatureCollection, MultiPoint, MultiLineString, Point
 import DatabaseHelper
 from collections import defaultdict
+from itertools import combinations
 
 
 class GeoData(object):
@@ -139,6 +140,15 @@ class GeoData(object):
             features.append(Feature(geometry=Point(lat_long["coordinates"]), properties={
                             "id1": useruuid1, "name": "null"}, style={'color': user_colors[useruuid1]}))
 
+        return FeatureCollection(features)
+
+    def get_geo_data_from_all_cooccurrences(self):
+        country_users = self.databasehelper.get_users_in_country("Sweden")
+        user_pairs = combinations(country_users, 2)
+        features = []
+        for pair in user_pairs:
+            cooccurrences = self.databasehelper.find_cooccurrences(pair[0], useruuid2=pair[1])
+            features.extend([Feature(geometry=Point(json.loads(cooc[5])["coordinates"])) for cooc in cooccurrences])
         return FeatureCollection(features)
 
     def get_and_generate(self, country, start_date, end_date):

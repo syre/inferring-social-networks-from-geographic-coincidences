@@ -11,7 +11,7 @@ import sklearn.ensemble
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 from sklearn.grid_search import GridSearchCV
-
+from collections import Counter
 
 class Predictor():
 
@@ -197,38 +197,13 @@ class Predictor():
 
         print("Random Forest - all features")
         #self.tweak_features(X_train, y_train, X_test, y_test)
-        forest = sklearn.ensemble.RandomForestClassifier()
+        forest = sklearn.ensemble.RandomForestClassifier(class_weight="balanced", n_estimators=1000, max_depth= 10)
         forest.fit(X_train, y_train)
         y_pred = forest.predict(X_test)
         print(sklearn.metrics.classification_report(y_test, y_pred, target_names=["didnt meet", "did meet"]))
         self.compute_feature_ranking(forest, X_test)
         # compute ROC curve
         self.compute_roc_curve(y_test, forest.predict_proba(X_test)[:,1])
-        cm = confusion_matrix(y_test, y_pred)
-        self.plot_confusion_matrix(cm)
-
-    def predict2(self, X_train, y_train, X_test, y_test):
-        print("Logistic Regression - with number of cooccurrences")
-
-        lg = sklearn.linear_model.LogisticRegression()
-        param_grid = {"class_weight": {1: 2},
-                      "C": np.arange(0, 1, 0.1)} #did_meet weight = 2
-        grid = GridSearchCV(estimator=lg, param_grid=dict(alpha=alphas))
-        lg.fit(X_train[:, 0].reshape(-1, 1), y_train)
-        y_pred = lg.predict(X_test[:, 0].reshape(-1, 1))
-        print(sklearn.metrics.classification_report(y_pred, y_test, target_names=["didnt meet", "did meet"]))
-        #self.compute_roc_curve(y_test, y_pred)
-        #cm = confusion_matrix(y_test, y_pred)
-        #self.plot_confusion_matrix(cm)
-
-        print("Random Forest - all features")
-        forest = sklearn.ensemble.RandomForestClassifier()
-        forest.fit(X_train, y_train)
-        y_pred = forest.predict(X_test)
-        print(sklearn.metrics.classification_report(y_pred, y_test, target_names=["didnt meet", "did meet"]))
-        self.compute_feature_ranking(forest, X_test)
-        # compute ROC curve
-        self.compute_roc_curve(y_test, y_pred)
         cm = confusion_matrix(y_test, y_pred)
         self.plot_confusion_matrix(cm)
 
@@ -258,6 +233,7 @@ if __name__ == '__main__':
     f = FileLoader()
     d = DatabaseHelper()
     X_train, y_train, X_test, y_test = f.load_x_and_y()
+    print(Counter(list(X_test[:,0])).most_common(50))
     print("y_train contains {} that didnt meet, and {} that did meet".format(
         list(y_train).count(0), list(y_train).count(1)))
     print("y_test contains {} that didnt meet and {} that did meet".format(

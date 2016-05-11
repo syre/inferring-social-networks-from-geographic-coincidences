@@ -44,6 +44,13 @@ def get_cooccurrences_async(useruuid1, useruuid2=None, points_w_distances=[]):
         return async_result.get()
 
 
+def get_cooccurrences_async_all(country):
+        print("App: Henter Geo-data data...")
+        # tuple of args for foo, please note a "," at the end of the arguments
+        async_result = pool.apply_async(g.get_geo_data_from_all_cooccurrences)
+        return async_result.get()
+
+
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('error.html', error=404), 404
@@ -59,11 +66,6 @@ def occurrences():
     useruuid1 = request.args.get("useruuid1")
     useruuid2 = request.args.get("useruuid2")
 
-    if not useruuid1:
-        # get default user japan
-        useruuid1 = "e21901af-70ba-402c-9e98-92fd6e0656f6"
-    if not useruuid2:
-        useruuid2 = None
     user_list = database.get_users_with_most_updates()
     return render_template("cooccurrences_map.html", useruuid1=useruuid1, useruuid2=useruuid2, user_list=user_list)
 
@@ -170,13 +172,18 @@ def data_geojson():
 def data_cooccurrences():
     useruuid1 = request.args.get("useruuid1")
     useruuid2 = request.args.get("useruuid2")
+    if useruuid1 == "None":
+        useruuid1 = None
+    if useruuid2 == "None":
+        useruuid2 = None
     all_filters = [item for sublist in run.filter_places_dict.values() for item in sublist]
-    if useruuid2:
-        cooccurrences = get_cooccurrences_async(useruuid1, useruuid2,
-                                                points_w_distances=all_filters)
+    if useruuid1 and useruuid2:
+        cooccurrences = get_cooccurrences_async(useruuid1, useruuid2, points_w_distances=all_filters)
+    elif useruuid1:
+        cooccurrences = get_cooccurrences_async(useruuid1, points_w_distances=all_filters)
     else:
-        cooccurrences = get_cooccurrences_async(useruuid1,
-                                                points_w_distances=all_filters)
+        print("getting from japan")
+        cooccurrences = get_cooccurrences_async_all("Japan")
     return flask.jsonify(cooccurrences)
 
 

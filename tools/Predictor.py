@@ -34,11 +34,11 @@ class Predictor():
         return country_arr
 
     def generate_dataset(self, users, countries, locations_arr, coocs,
-                         met_next, min_timestring, max_timestring):
+                         met_next, min_timestring, max_timestring, selected_users=[]):
         min_timebin = self.database_helper.calculate_time_bins(
-            min_timestring, min_timestring)[0]
+            min_timestring)[0]
         max_timebin = self.database_helper.calculate_time_bins(
-            max_timestring, max_timestring)[0]
+            max_timestring)[0]
         # get only locations from specific country
         country_arr = self.filter_by_country(locations_arr, countries)
 
@@ -51,7 +51,7 @@ class Predictor():
 
         return self.calculate_features_for_dataset(users, countries,
                                                    country_arr, coocs,
-                                                   met_next)
+                                                   met_next, selected_users)
 
     def extract_and_remove_duplicate_coocs(self, coocs):
         """
@@ -72,9 +72,12 @@ class Predictor():
         return A[idx]
 
     def calculate_features_for_dataset(self, users, countries, loc_arr, coocs,
-                                       met_next):
+                                       met_next, selected_users=[]):
         datahelper = self.dataset_helper
         coocs_users = self.extract_and_remove_duplicate_coocs(coocs)
+        if selected_users:
+            coocs_users = coocs_users[np.in1d(coocs_users[:, 0], [users[u] for u in selected_users if u in users])]
+            coocs_users = coocs_users[np.in1d(coocs_users[:, 1], [users[u] for u in selected_users if u in users])]
         X = np.zeros(shape=(len(coocs_users), 8), dtype="float")
         y = np.zeros(shape=len(coocs_users), dtype="int")
 

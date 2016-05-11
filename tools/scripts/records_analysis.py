@@ -15,9 +15,10 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import pandas as pd
+import collections
 
 
-def get_data_for_heat_map(country="Japan", user=""):
+def get_data_for_heat_map_per_month(country="Japan", total_count={}, user=""):
     d = DatabaseHelper.DatabaseHelper()
     sept_min_datetime2 = "2015-08-30 00:00:00+00:00" #Mandag
     nov_max_datetime2 = "2015-12-13 23:59:59+00:00"
@@ -58,7 +59,7 @@ def get_data_for_heat_map(country="Japan", user=""):
                         user_query = " AND useruuid = '"+user+"'"
                     query = "select count(*) FROM location WHERE country='"+country+"' AND start_time >= '"+start+"' AND start_time <= '" + end + "'"+user_query+";"
                     result = d.run_specific_query(query)[0][0] 
-                    data[month_index][day.weekday()][week_of_month(day)-1] = result
+                    data[month_index][day.weekday()][week_of_month(day)-1] = result/total_count[country]
                     
                 else: #Hvis vi er i current_month
                     if day.month != 8:
@@ -69,7 +70,7 @@ def get_data_for_heat_map(country="Japan", user=""):
                             user_query = " AND useruuid = '"+user+"'"
                         query = "select count(*) FROM location WHERE country='"+country+"' AND start_time >= '"+start+"' AND start_time <= '" + end + "'" + user_query+";"
                         result = d.run_specific_query(query)[0][0] 
-                        data[month_index][day.weekday()][week_of_month(day)-1] = result
+                        data[month_index][day.weekday()][week_of_month(day)-1] = result/total_count[country]
         if break_flag:
             break 
 
@@ -77,6 +78,53 @@ def get_data_for_heat_map(country="Japan", user=""):
     mask = data == -1
     print(mask)
     return data, mask
+
+
+def get_all_users_in_country(country):
+    d = DatabaseHelper.DatabaseHelper()
+    result = d.run_specific_query("SELECT DISTINCT(useruuid) FROM location WHERE country='"+country+"' ORDER BY useruuid")
+    users = [row[0] for row in result]
+    alt_useruid = {}
+    i = 0
+    for user in users:
+        if user not in alt_useruid:
+            alt_useruid[user] = i
+            alt_useruid[i] = user
+            i += 1
+
+    return alt_useruid
+
+
+def get_data_for_heat_map_per_user(country, start_date, end_date):
+    d = DatabaseHelper.DatabaseHelper()
+    users = get_all_users_in_country(country)
+    sept_min_datetime2 = start_date + " 00:00:00+00:00" #Mandag
+    nov_max_datetime2 = end_date + " 23:59:59+00:00"
+    sep_start = parser.parse(sept_min_datetime2)
+    nov_end = parser.parse(nov_max_datetime2)
+    days = list(rrule(freq=DAILY, dtstart=sep_start, until=nov_end))
+    print(days[:5])
+    print(days[-5:])
+    print(len(users))
+    data = np.full((len(users), len(days)),
+                   0, dtype=int)
+    print(data)
+
+    for day_index, day in enumerate(tqdm(days)): #Vi starter på en mandag!!!
+        start = day.strftime("%Y-%m-%d %H:%M:%S")+"+00:00"
+        end =  day.strftime("%Y-%m-%d")+" 23:59:59+00:00"
+        result = d.run_specific_query("SELECT useruuid, count(*) FROM " +
+                                      "location WHERE country='" + country +
+                                      "' AND start_time >= '" + start +
+                                      "' AND start_time <= '" + end + "'" +
+                                      "GROUP BY useruuid")
+        for row in result:
+            user = row[0]
+            counts = row[1]
+            data[users[user]][day_index] = 1
+    print(data)
+    return data, users
+
 
 def week_of_month(date):
     flag = False
@@ -110,12 +158,29 @@ def cdf_xy_plot(data, title, xlabel, ylabel, legend_labels):
     plt.plot(data[1][0], data[1][1], label=legend_labels[1], color='r')
     #plt.xlabel(xlabel)
     #plt.ylabel(ylabel)
-    plt.ylim(0, 1)
+    
     xlim_max = max([max(data[0][0]), max(data[1][0])])
     plt.ylim(0, 1)
     plt.xlim(0, xlim_max)
     plt.title(title)
     plt.legend(prop={'size': 28})
+    [item.set_fontsize(35) for item in [ax.yaxis.label, ax.xaxis.label]]
+    ax.title.set_fontsize(40)
+    [item.set_fontsize(28) for item in ax.get_xticklabels() + ax.get_yticklabels()]
+    plt.show()
+
+
+def xy_plot(data, title, xlabel, ylabel):
+    ax = plt.subplot(111, xlabel=xlabel, ylabel=ylabel, title=title)
+    plt.plot(data[0], data[1])
+    #plt.xlabel(xlabel)
+    #plt.ylabel(ylabel)
+    
+    xlim_max = max(data[0])
+    plt.ylim(0, max(data[1]))
+    plt.xlim(0, xlim_max)
+    plt.title(title)
+    #plt.legend(prop={'size': 28})
     [item.set_fontsize(35) for item in [ax.yaxis.label, ax.xaxis.label]]
     ax.title.set_fontsize(40)
     [item.set_fontsize(28) for item in ax.get_xticklabels() + ax.get_yticklabels()]
@@ -149,22 +214,46 @@ def records_dist_plot(data, bins, xlabels, ylabels, titles, labels):
     sns.plt.show()
 
 
-def heat_map(data, mask, xlabels, ylabels, title="", anno=True):
+def heat_map(data, mask, xlabels, ylabels, title="", anno=True, multiple=True):
     sns.set(font_scale=2.5)
-    
-    months = ["September", "October", "November"]
-    max_val = np.amax(data)
-    fig, ax = sns.plt.subplots(3, 1)
-    cbar_ax = fig.add_axes([.91, .3, .03, .4])
-    for index, ax in enumerate(ax.flat):
-        sns.heatmap(data[index], ax=ax, xticklabels=[" "]*len(xlabels[index]) if index != 2 else xlabels[index],
-                    annot=anno, fmt="d",
-                    yticklabels=ylabels[index], mask=mask[index], vmin=0,
-                    vmax=max_val, cbar=index == 0, cbar_ax=None if index else cbar_ax)
-        if title != "" and index == 0:
-            ax.set_title(title)
-        ax.set_ylabel(months[index])
-        #plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1)
+    if multiple:
+        months = ["September", "October", "November"]
+        max_val = np.amax(data)
+        fig, ax = sns.plt.subplots(3, 1)
+        cbar_ax = fig.add_axes([.91, .3, .03, .4])
+        for index, ax in enumerate(ax.flat):
+            sns.heatmap(data[index], ax=ax, xticklabels=[" "]*len(xlabels[index]) if index != 2 else xlabels[index],
+                        annot=anno, fmt="d",
+                        yticklabels=ylabels[index], mask=mask[index], vmin=0,
+                        vmax=max_val, cbar=index == 0, cbar_ax=None if index else cbar_ax)
+            if title != "" and index == 0:
+                ax.set_title(title)
+            ax.set_ylabel(months[index])
+            #plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1)
+    else:
+        print("ELSE!!")
+        max_val = np.amax(data)
+        print(max_val)
+        print(data[0])
+        if mask:
+            print("ELSE - if")
+            ax = sns.heatmap(data, xticklabels=xlabels,
+                             annot=anno, fmt="d",
+                             yticklabels=ylabels, mask=mask, vmin=0,
+                             vmax=max_val)
+        else:
+            print("dobbelt else")
+            ax = sns.heatmap(data, xticklabels=xlabels[0],
+                             annot=anno, fmt="d",
+                             yticklabels=ylabels[0], vmin=0,
+                             vmax=max_val)
+            [label.set_visible(False) for label in ax.yaxis.get_ticklabels()]
+
+            for label in ax.yaxis.get_ticklabels()[::4]:
+                label.set_visible(True)
+        ax.set_title(title)
+        ax.set_ylabel("Users")
+        plt.yticks(rotation=0)
     sns.plt.show()
 
 
@@ -214,7 +303,7 @@ if __name__ == '__main__':
         xlabels.append("Number of location updates\n"+"("+chr(ord('a') + i)+")")
     ylabels = ["Cumulative frequency of users", "Cumulative frequency of users"] #["Frequency (%)", "Frequency (%)"] #["Number of users", "Number of users"]
     df = pd.DataFrame(dd)
-    data_summary_per_user(df, total_count)
+    #data_summary_per_user(df, total_count)
     #boxplot(df, "country", "Location updates", "Location updates for all users in Japan and Sweden")
     #records_dist_plot(data, 100, xlabels, ylabels, titles, labels)
     #
@@ -231,8 +320,8 @@ if __name__ == '__main__':
     #............... HEAT-MAP --------------------#
     for country in countries:
         user = ""
-        #data, mask = get_data_for_heat_map(country)
-        title = "Number of location updates in "+country
+        #data, mask = get_data_for_heat_map_per_month(country, total_count)
+        title = "Number of location updates per user in "+country
         if user != "":
             title += " for user " + str(user)
         ylabels = [["M", "T", "W", "T", "F", "S", "S"],
@@ -242,3 +331,47 @@ if __name__ == '__main__':
                    ["Week 1", "Week 2", "Week 3", "Week 4", "Week 5", "Week 6"],
                    ["Week 1", "Week 2", "Week 3", "Week 4", "Week 5", "Week 6"]]
         #heat_map(data, mask, xlabels, ylabels, title, True)
+    
+    data, users = get_data_for_heat_map_per_user("Sweden", "2015-09-01", "2015-09-30")
+    ylabels = []
+    sorter_non_location_user_fra = True
+    sorter_efter_sum = True
+    if sorter_non_location_user_fra:
+        for i, x in enumerate(np.any(data != 0, axis=1)): #Sorter dem der har rene 0 fra
+            if x:
+                ylabels.append(i)
+        data = data[np.any(data != 0, axis=1)]
+    else:
+        ylabels = list(range(data.shape[0]))
+
+    if sorter_efter_sum:
+        s = np.sum(data, axis=1)
+        data = np.take(data, s.argsort(), axis=0)
+        ylabels = np.take(ylabels, s.argsort(), axis=0)
+    #Find users...
+    start = list(ylabels).index(475) #sverige: sep: 475, - japan: #sep: 243, now:14, okt:226
+    print(data.shape[0])
+    #print(start)
+    found_users = []
+    for i, row in enumerate(data[start:], start=start):
+        res = collections.Counter(row)
+        if 0 in res:
+            if res[0] < 6: #sverige: sep: 6 - japan: #sep: 5, nov: 0, okt: 3
+                found_users.append(users[ylabels[i]])
+        else:
+            found_users.append(users[ylabels[i]])
+    print(found_users)
+    ylabels = [ylabels]
+    #print(data.shape[0])
+    xlabels = [list(range(data.shape[1]))]
+    
+    #print(xlabels)
+    #print(ylabels)
+    heat_map(data, [], xlabels, ylabels, title="Heatmap over users per day in Sweden", anno=False, multiple=False)
+
+    y_data = np.sum(data, axis=0)
+    x_data = xlabels[0]
+    #rint(x_data)
+    #print(y_data)
+
+    #xy_plot([x_data, y_data], "Number of users with location updates per day for Japan", "Days", "Number of users with location updates")

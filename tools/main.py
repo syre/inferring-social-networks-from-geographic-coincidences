@@ -61,8 +61,8 @@ class Run(object):
 
         print("now: {}, before: {}".format(len([users_train[u] for u in selected_users if u in users_train]), len(selected_users)))
         print("now: {}, before: {}".format(len([users_test[u] for u in selected_users if u in users_test]), len(selected_users)))
-        locations_train = locations_train[np.in1d(locations_train[:, 0], [users_train[u] for u in selected_users if u in users_train])]
-        locations_test = locations_test[np.in1d(locations_test[:, 0], [users_test[u] for u in selected_users if u in users_test])]
+        #locations_train = locations_train[np.in1d(locations_train[:, 0], [users_train[u] for u in selected_users if u in users_train])]
+        #locations_test = locations_test[np.in1d(locations_test[:, 0], [users_test[u] for u in selected_users if u in users_test])]
 
         print("processing cooccurrences numpy array (train)")
         coocs_train = dataset_helper.generate_cooccurrences_array(locations_train)
@@ -97,9 +97,9 @@ class Run(object):
 
 
         print("processing dataset for machine learning (train)")
-        X_train, y_train = predictor.generate_dataset(users_train, countries_train, locations_train, coocs_train, coocs_met_in_next_train, first_period_datetime_min, first_period_datetime_max)
+        X_train, y_train = predictor.generate_dataset(users_train, countries_train, locations_train, coocs_train, coocs_met_in_next_train, first_period_datetime_min, first_period_datetime_max, selected_users)
         print("processing dataset for machine learning (test)")
-        X_test, y_test = predictor.generate_dataset(users_test, countries_test, locations_test, coocs_test, coocs_met_in_next_test, second_period_datetime_min, second_period_datetime_max)
+        X_test, y_test = predictor.generate_dataset(users_test, countries_test, locations_test, coocs_test, coocs_met_in_next_test, second_period_datetime_min, second_period_datetime_max, selected_users)
 
         # undersampling did meet
         #train_stacked = np.hstack((X_train, y_train.reshape(-1, 1)))
@@ -111,13 +111,13 @@ class Run(object):
         #X_train = np.delete(train_stacked, -1, 1)
         
         # oversampling didnt meet
-        train_stacked = np.hstack((X_train, y_train.reshape(-1, 1)))
-        didnt_meets = train_stacked[train_stacked[:,-1] == 0]
-        did_meets = train_stacked[train_stacked[:,-1] == 1]
-        train_stacked = np.vstack((didnt_meets[np.random.choice(didnt_meets.shape[0], did_meets.shape[0], replace=True)],
-                                   did_meets[np.random.choice(did_meets.shape[0], did_meets.shape[0], replace=False)]))
-        y_train = train_stacked[:, -1]
-        X_train = np.delete(train_stacked, -1, 1)
+        # train_stacked = np.hstack((X_train, y_train.reshape(-1, 1)))
+        # didnt_meets = train_stacked[train_stacked[:,-1] == 0]
+        # did_meets = train_stacked[train_stacked[:,-1] == 1]
+        # train_stacked = np.vstack((didnt_meets[np.random.choice(didnt_meets.shape[0], did_meets.shape[0], replace=True)],
+        #                            did_meets[np.random.choice(did_meets.shape[0], did_meets.shape[0], replace=False)]))
+        # y_train = train_stacked[:, -1]
+        # X_train = np.delete(train_stacked, -1, 1)
         print("saving dataset")
         file_loader.save_x_and_y(X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
         predictor.predict(X_train, y_train, X_test, y_test)

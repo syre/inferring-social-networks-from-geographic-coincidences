@@ -712,9 +712,11 @@ class DatabaseHelper():
             if useruuid not in useruuid_dict:
                 user_count += 1
                 useruuid_dict[useruuid] = user_count
+                useruuid_dict[user_count] = useruuid
             if country not in country_dict:
                 country_count += 1
                 country_dict[country] = country_count
+                country_dict[country_count] = country
             useruuid = useruuid_dict[useruuid]
             country = country_dict[country]
             for time_bin in time_bins:

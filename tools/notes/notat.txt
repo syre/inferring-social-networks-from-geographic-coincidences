@@ -1,3 +1,16 @@
+14-20 november med 0 dage der mangler
+1-18 september med 5 dage eller under der "mangler"
+20-30 oktober med 2 dage eller under der "mangler"
+---------------------------------------------------------------------------------
+Leaflet brugt til at se cooccurrences (vi finder mange er fra Sony HQ)
+Features forklaring
+Filer kom i 09,10,11 mapper, vi fandt senere de ikke kunne bruges som opdeling da 
+
+"Data er inddelt ind in chunks (måneder) alt afhængigt efter hvornår serveren har modtaget data-pakken fra telefonen ikke hvornår eventen blev registreret på telefonen. Derfor kan der opstå overlap mellem efterfølgende måneder. 
+
+Data bliver desuden lagret på telefonen i en måned - hvis vedkommende ikke uploader data bliver det slettet. Så September kan indeholde data fra August, men ikke fra Juli."
+----------------------------------------------------------------------------------
+
 prøve med om de mødes i 3 distinct spatial bins for coocs istedet for bare 1 coocs
 
 mutual cooccurrences (proxy friends)
@@ -9,6 +22,3 @@ location entropies, distinct grids.
 
 Datasæt analyse:
 
-Japan locations for September: 340198
-Japan locations for October: 208242
-Japan locations for November: 102442

@@ -10,7 +10,7 @@ from urllib.parse import unquote_plus
 sys.path.append(os.path.join("..", "tools"))
 import DatabaseHelper
 import GeoData
-import Run
+import main
 
 app = Flask(__name__)
 app.debug = True
@@ -18,7 +18,7 @@ app.debug = True
 tools_path = "../tools/"
 
 database = DatabaseHelper.DatabaseHelper(tools_path)
-run = Run.Run()
+run = main.Run()
 
 number_features = ["altitude", "accuracy"]
 category_features = ["country", "region", "area", "place"]
@@ -97,7 +97,7 @@ def data_distributions_cooccurrences():
 def data_distributions(feature):
     if feature in number_features:
         data = database.get_distributions_numbers(feature, num_bins=10, max_value=100000)
-    elif feature in category_features:path_to
+    elif feature in category_features:
         data = database.get_distributions_categories(feature, num_bins=10)
     else:
         abort(400)

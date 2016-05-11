@@ -125,6 +125,7 @@ class Predictor():
                                                    unique_met_next[:, 1] ==
                                                    user2], axis=0)]
         return unique_pair_rows.shape[0] >= 2
+
     def compute_feature_ranking(self, forest, X):
         importances = forest.feature_importances_
         std = np.std(
@@ -193,7 +194,7 @@ class Predictor():
 
         print("Random Forest - all features")
         #self.tweak_features(X_train, y_train, X_test, y_test)
-        forest = sklearn.ensemble.RandomForestClassifier(n_estimators=50)
+        forest = sklearn.ensemble.RandomForestClassifier()
         forest.fit(X_train, y_train)
         y_pred = forest.predict(X_test)
         print(sklearn.metrics.classification_report(y_test, y_pred, target_names=["didnt meet", "did meet"]))

@@ -764,6 +764,7 @@ class DatabaseHelper():
     def filter_bad_rows(self):
         self.delete_test_users()
         self.filter_inaccurate_rows()
+        self.delete_duplicate_users()
 
     def filter_inaccurate_rows(self):
         cursor = self.conn.cursor()
@@ -782,6 +783,28 @@ class DatabaseHelper():
         for user in users:
             cursor.execute(""" DELETE FROM location WHERE useruuid=%s""",
                            (user, ))
+            self.conn.commit()
+
+    def delete_duplicate_users(self):
+        users = ['29ec0b2f-dcc9-43e2-9421-ddada03513dd',
+                 '420b91b6-5c78-4fe6-af7c-9795edd10c0e',
+                 '492f0a67-9a2c-40b8-8f0a-730db06abf65',
+                 'b0e1364a-9f2e-4b2b-8125-bd6176c16384',
+                 '2ddb668d-0c98-4258-844e-7e790ea65aba',
+                 '4bd3f3b1-791f-44be-8c52-0fd2195c4e62',
+                 'd81f57bb-0925-4869-b844-8d99bf55337c',
+                 '018b3a42-6ad5-4577-b2d8-341159eff9be',
+                 '0f8dd08e-7eb5-4614-aad5-cd4f9723f79c',
+                 'f509d570-c7c7-4cb3-9b86-b02836cac466',
+                 '6d20e7db-78f8-484c-bbf3-b5ae1f7e6b3b',
+                 '5909445d-e68c-451f-baee-d108ca32c8cd',
+                 '1274307c-cd49-4f69-9cfd-9a598c426cfb',
+                 '163459e1-e9fd-4531-9382-b863a49adbf0',
+                 'd81f57bb-0925-4869-b844-8d99bf55337c',
+                 'a21d8502-c5cb-4eb5-8b19-b38ea74e9294']
+        cursor = self.conn.cursor()
+        for user in users:
+            cursor.execute(""" DELETE FROM location where useruuid=%s""", (user, ))
             self.conn.commit()
 
     def run_specific_query(self, query):
@@ -812,5 +835,6 @@ class DatabaseHelper():
 if __name__ == '__main__':
     d = DatabaseHelper()
     # d.update_missing_records()
-    d.filter_inaccurate_rows()
+    d.filter_bad_rows()
+    #d.filter_inaccurate_rows()
     #d.generate_numpy_matrix_from_database()

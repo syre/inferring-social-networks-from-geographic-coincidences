@@ -197,7 +197,7 @@ class Predictor():
 
         print("Random Forest - all features")
         #self.tweak_features(X_train, y_train, X_test, y_test)
-        forest = sklearn.ensemble.RandomForestClassifier(class_weight="balanced", n_estimators=1000, max_depth= 10)
+        forest = sklearn.ensemble.RandomForestClassifier(n_estimators = 200, class_weight="balanced")
         forest.fit(X_train, y_train)
         y_pred = forest.predict(X_test)
         print(sklearn.metrics.classification_report(y_test, y_pred, target_names=["didnt meet", "did meet"]))

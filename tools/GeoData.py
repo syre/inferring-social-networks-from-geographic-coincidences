@@ -143,12 +143,8 @@ class GeoData(object):
         return FeatureCollection(features)
 
     def get_geo_data_from_all_cooccurrences(self):
-        country_users = self.databasehelper.get_users_in_country("Sweden")
-        user_pairs = combinations(country_users, 2)
-        features = []
-        for pair in user_pairs:
-            cooccurrences = self.databasehelper.find_cooccurrences(pair[0], useruuid2=pair[1])
-            features.extend([Feature(geometry=Point(json.loads(cooc[5])["coordinates"])) for cooc in cooccurrences])
+        locations = self.databasehelper.get_locations_by_country_only("Sweden")
+        features = [Feature(geometry=Point(json.loads(loc[3])["coordinates"])) for loc in locations]
         return FeatureCollection(features)
 
     def get_and_generate(self, country, start_date, end_date):

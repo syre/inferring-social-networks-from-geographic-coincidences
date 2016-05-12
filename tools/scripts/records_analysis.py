@@ -83,9 +83,7 @@ def get_data_for_heat_map_per_month(country="Japan", total_count={}, user=""):
 
 def get_all_users_in_country(country, users=[]):
     d = DatabaseHelper.DatabaseHelper()
-    print("før if")
     if not users:
-        print("Der er ingen users")
         result = d.run_specific_query("SELECT DISTINCT(useruuid) FROM location WHERE country='"+country+"' ORDER BY useruuid")
         users = [row[0] for row in result]
     alt_useruid = {}
@@ -107,8 +105,8 @@ def get_data_for_heat_map_per_user(country, start_date, end_date, input_users=[]
     sep_start = parser.parse(sept_min_datetime2)
     nov_end = parser.parse(nov_max_datetime2)
     days = list(rrule(freq=DAILY, dtstart=sep_start, until=nov_end))
-    print("get_data_for_heat_map_per_user")
-    print(len(users)/2)
+    #print("get_data_for_heat_map_per_user")
+    #print(len(users)/2)
     data = np.full((len(users)/2, len(days)),
                    0, dtype=int)
 
@@ -129,7 +127,7 @@ def get_data_for_heat_map_per_user(country, start_date, end_date, input_users=[]
                     data[users[user]][day_index] = 1
                 #counts = row[1]
                 
-        print(data)
+        #print(data)
     else:
         for day_index, day in enumerate(tqdm(days)): #Vi starter på en mandag!!!
             for user in input_users:
@@ -238,11 +236,12 @@ def records_dist_plot(data, bins, xlabels, ylabels, titles, labels):
     sns.plt.show()
 
 
-def heat_map(data, mask, xlabels, ylabels, title="", anno=True, multiple=True):
+def heat_map(data, mask, xlabels, ylabels, title="", anno=True, multiple=True, max_val=0):
     sns.set(font_scale=2.5)
     if multiple:
         months = ["September", "October", "November"]
-        max_val = np.amax(data)
+        if max_val == 0:
+            max_val = np.amax(data)
         fig, ax = sns.plt.subplots(3, 1)
         cbar_ax = fig.add_axes([.91, .3, .03, .4])
         for index, ax in enumerate(ax.flat):
@@ -255,13 +254,16 @@ def heat_map(data, mask, xlabels, ylabels, title="", anno=True, multiple=True):
             ax.set_ylabel(months[index])
             #plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1)
     else:
-        max_val = np.amax(data)
+        if max_val == 0:
+            max_val = np.amax(data)
         if mask:
             ax = sns.heatmap(data, xticklabels=xlabels,
                              annot=anno, fmt="d",
                              yticklabels=ylabels, mask=mask, vmin=0,
                              vmax=max_val)
         else:
+            if not ylabels:
+                ylabels = [[" "]*data.shape[1]]
             ax = sns.heatmap(data, xticklabels=xlabels[0],
                              annot=anno, fmt="d",
                              yticklabels=ylabels[0], vmin=0,
@@ -272,6 +274,7 @@ def heat_map(data, mask, xlabels, ylabels, title="", anno=True, multiple=True):
                 label.set_visible(True)
         ax.set_title(title)
         ax.set_ylabel("Users")
+        ax.set_xlabel("Days")
         plt.yticks(rotation=0)
     sns.plt.show()
 
@@ -294,6 +297,98 @@ def data_summary_per_user(data, total_counts):
     print("////////")
     print(means['Japan']/total_count['Japan'])
     print(means['Sweden']/total_count['Sweden'])
+
+
+def show_all_month_same_scale(countries, values_loc_updates=True,
+                              specific_users=[],
+                              sorter_non_location_user_fra=True,
+                              sorter_efter_sum=True, find_users=False,
+                              user_start_id=-1,
+                              number_of_days_without_updates=5, anno=False,
+                              base_title="Heatmap of location updates per users per day in "):
+    periods = [("2015-09-01", "2015-09-30"), ("2015-10-01", "2015-10-31"),
+               ("2015-11-01", "2015-11-30")]
+    max_values = defaultdict(dict)
+    for country in countries:
+        for fro, to in periods:
+            data, users = get_data_for_heat_map_per_user(country, fro, to,
+                                                         specific_users,
+                                                         values_loc_updates)
+            max_value = np.amax(data)
+            if country in max_values:
+                if max_value > max_values[country]:
+                    max_values[country] = max_value   
+            else:
+                max_values[country] = max_value
+    for country in countries:
+        for fro, to in periods:
+            show_specific_country_and_period(country, fro, to,
+                                             values_loc_updates, base_title,
+                                             specific_users,
+                                             sorter_non_location_user_fra,
+                                             sorter_efter_sum, find_users,
+                                             user_start_id,
+                                             number_of_days_without_updates,
+                                             max_values[country], anno)
+
+
+def show_specific_country_and_period(country, fro, to, values_loc_updates,
+                                     base_title, specific_users=[],
+                                     sorter_non_location_user_fra=True,
+                                     sorter_efter_sum=True, find_users=False,
+                                     user_start_id=-1,
+                                     number_of_days_without_updates=5,
+                                     max_val=0, anno=False):
+    data, users = get_data_for_heat_map_per_user(country, fro, to,
+                                                 specific_users,
+                                                 values_loc_updates)
+    ylabels = []
+    if sorter_non_location_user_fra:
+        for i, x in enumerate(np.any(data != 0, axis=1)): #Sorter dem der har rene 0 fra
+            if x:
+                ylabels.append(i)
+        data = data[np.any(data != 0, axis=1)]
+    else:
+        ylabels = list(range(data.shape[0]))
+    if sorter_efter_sum:
+        s = np.sum(data, axis=1)
+        data = np.take(data, s.argsort(), axis=0)
+        ylabels = np.take(ylabels, s.argsort(), axis=0)
+    #Find users...
+    if find_users:
+        if user_start_id == -1:
+            start = 0
+        else:
+            start = list(ylabels).index(user_start_id) #sverige: nov: 270, okt: 293, sep: 475, - japan: #sep: 243, now:14, okt:226
+        found_users = []
+        for i, row in enumerate(data[start:], start=start):
+            res = collections.Counter(row)
+            print(res)
+            if 0 in res:
+                if res[0] < number_of_days_without_updates: #sverige: nov: 6, okt: 3, sep: 6 - japan: #sep: 5, nov: 0, okt: 3
+                    found_users.append(users[ylabels[i]])
+                else:
+                    if specific_users:
+                        if users[ylabels[i]] in specific_users:
+                            print("user er i users_input")
+                        else:
+                            print("nej, user er ikke i specific_users")
+            else:
+                found_users.append(users[ylabels[i]])
+        print("find_users\n--------------")
+        print("Antal found_users: {}\n{}".format(len(found_users),
+                                                 found_users))
+    ylabels = [ylabels]
+    idxs = find_duplicate_rows(data)
+    for group in idxs:
+        print("#### Ny gruppe der er ens! ####")
+        for user in set(group):
+            print(users[ylabels[0][user]])
+        print("#######################")
+    xlabels = [list(range(1, data.shape[1]+1))]
+    heat_map(data, [], xlabels, ylabels, title=base_title+country +
+             " from "+fro+" to "+to, anno=anno, multiple=False,
+             max_val=max_val)
 
 
 def find_duplicate_rows(data):
@@ -380,79 +475,33 @@ if __name__ == '__main__':
                    ["Week 1", "Week 2", "Week 3", "Week 4", "Week 5", "Week 6"]]
         #heat_map(data, mask, xlabels, ylabels, title, True)
     
+    
+    
+    #users_input = ['38da5e71-0062-45a7-8021-f90680260b61', '4ed45839-d8a7-40df-9c93-2554201f62ca', '458f17fa-126d-4079-a2d3-058a9ce2f57c', '69935fdf-9b43-417f-93df-a6f707e8b43f', 'd5a6b8e9-8ae5-4e9d-94d5-2c1865ad2e44', '4b19bbd7-0df5-4ae8-929d-ef3eae78fdb8', '4ccc2f16-5a33-4fca-a644-dc5c75a3deaa', 'b992b237-e563-48d7-b958-2b3e16620846', '3084b64d-e773-4daa-aeea-cc3b069594f3', '463b7dbb-ef29-49d0-a240-41baceea128f', '6255db24-5443-40d3-b65a-ae1b11288c8a', 'c6309812-9802-4b93-8e5d-14b5eb738438', '489e1e7c-c208-4601-b56a-287981417efe', '45691b60-e48d-4c08-9547-26223bdd7134', '0c5552ca-09c6-4cbf-ae0c-5969c3ad9983', '01caa88b-fa3c-4b03-b3e9-2b7a14beb278', 'eb34bbe5-fa09-42f6-a411-cdb7d3a29a20', 'ac9ff428-168b-432e-a6ae-f5571c3711bf', '01959ac9-8909-4d95-9557-f5b531a7f331', '2abf30d9-55f6-454e-854d-786f037b619c', '26daf874-26f3-4dfc-8679-9c15aecbc18d', 'e1fa02ad-4d6d-4def-86a2-1ade8c59ee8e', '0a21780a-1869-4cec-8ccf-50f57f5c7797', '8480e4ca-f1b8-449a-b571-5b3f3cd93e4d', 'aba7356f-77e9-4b57-8600-65f0fd479e10', 'ccd610d3-b349-44c2-9837-6b8df74d6fd1', '5a546365-f979-4f2c-a425-bddd93e667ee', '48292fe8-5d65-47f6-8c73-c23aa7030e03', '9b3edd01-b821-40c9-9f75-10cb32aa14b6', '64b6eb39-dd10-4a38-9bca-f0c90919b14c', '4992ac55-6d61-4e70-92f6-46549205f3bf', '8e9e90bc-1817-48d5-a4c8-1e3c4637262a', 'f4f32177-8c2c-418d-834c-0cde35f40cee', 'f23fd74a-f94f-4182-abaa-0ab8fb3e4a4f', '071c08fe-3fe2-49c6-ac1f-21f93cd1a87b', '7a749f71-6ccc-45bd-b4a2-782d3eb995ba', '66d1ac8f-7d29-4d2f-a241-e6bcb2c38489', 'fcc9196f-b23c-4839-b1c0-a853e3b35c8b', '163459e1-e9fd-4531-9382-b863a49adbf0', '6ce6542e-e348-454c-9bcc-f9e172e860ee', '1274307c-cd49-4f69-9cfd-9a598c426cfb', '6d4e2221-8099-4ef6-9e96-740963f74983', '6d20e7db-78f8-484c-bbf3-b5ae1f7e6b3b', '6c71df2e-54cb-489e-b110-8bb3234cfa0e', '0c4d0349-eb16-46df-9f33-4864a6717037', 'f509d570-c7c7-4cb3-9b86-b02836cac466', '0f8dd08e-7eb5-4614-aad5-cd4f9723f79c', '0d8bca9b-a4e6-4668-ba43-9521b6cb4f1e', '018b3a42-6ad5-4577-b2d8-341159eff9be', '105b7c5e-9d8a-4f65-b1d2-82bfa1e126e9', '9a9b1ef8-c48b-4105-b4fe-ab04acd3d0ee', 'e2215ac7-2be2-45f6-ae6e-149f89a8e7f2', '4bd3f3b1-791f-44be-8c52-0fd2195c4e62', '9df83008-ad97-4f83-a373-98fbb5b45ef2', '492f0a67-9a2c-40b8-8f0a-730db06abf65', 'a12f171b-76d9-4b58-a04f-9833bf10d2a3', 'a1eed029-bf59-48d1-919d-5689f6523426', 'a21d8502-c5cb-4eb5-8b19-b38ea74e9294', 'a221e5b4-ce58-49ba-9385-6b544cc8a5ae', 'a6c0e224-508b-4c28-a549-b85bd40ab770', 'aa360897-b5ab-431e-afc2-8bcbc7f484a6', 'ab65c6e5-5ee9-45d0-a352-a52c7ef9d9d6', '420b91b6-5c78-4fe6-af7c-9795edd10c0e', '3ee183a4-919a-4c67-bf84-6f196897a906', '3b48d329-f8c3-4fed-adcf-ef0aa81bbf2f', 'b0e1364a-9f2e-4b2b-8125-bd6176c16384', 'e3a58b79-b39f-46c0-8ba6-9836030ee133', '963d56e9-c390-49ad-ba83-d4c6574f676a', '36866473-4b75-4a52-a5a5-65ca6326aa04', '90522cae-ba2e-4677-a6e8-04ab2ddb64ed', '30fe0f1f-296f-4d4b-a4ef-93eaf8e05169', '8d325d9f-9341-4d00-a890-2adaf412e5ca', '8d03174e-311a-4b9f-9863-7d99f4fccd57', 'cc38817a-eb2c-448d-9194-595e210543f4', '2ddb668d-0c98-4258-844e-7e790ea65aba', '543036c6-93ab-40a6-9668-20a70d021cdf', '994b3bcf-a892-493e-b9f7-8477dec24cd5', 'd6e5fa22-27dd-47cb-acbe-eae33d029ae3', '29ec0b2f-dcc9-43e2-9421-ddada03513dd', 'd81f57bb-0925-4869-b844-8d99bf55337c', '5909445d-e68c-451f-baee-d108ca32c8cd', 'dffcd105-5c2e-41ed-848f-a20495571642', 'b3124440-b2f8-4add-9e67-ad6adf4ec501', '37abb413-d176-423c-8db6-61f253324c28']
+    max_values = defaultdict(dict)
+    #print("antal users: {}".format(len(users_input)))
+
+    print("show_all_month_same_scale")
+    show_all_month_same_scale(countries, find_users=True,
+                              number_of_days_without_updates=5)
+
+    print("show_specific_country_and_period")
     country = "Japan"
     fro = "2015-11-01"
     to = "2015-11-30"
-    users_input = ['38da5e71-0062-45a7-8021-f90680260b61', '4ed45839-d8a7-40df-9c93-2554201f62ca', '458f17fa-126d-4079-a2d3-058a9ce2f57c', '69935fdf-9b43-417f-93df-a6f707e8b43f', 'd5a6b8e9-8ae5-4e9d-94d5-2c1865ad2e44', '4b19bbd7-0df5-4ae8-929d-ef3eae78fdb8', '4ccc2f16-5a33-4fca-a644-dc5c75a3deaa', 'b992b237-e563-48d7-b958-2b3e16620846', '3084b64d-e773-4daa-aeea-cc3b069594f3', '463b7dbb-ef29-49d0-a240-41baceea128f', '6255db24-5443-40d3-b65a-ae1b11288c8a', 'c6309812-9802-4b93-8e5d-14b5eb738438', '489e1e7c-c208-4601-b56a-287981417efe', '45691b60-e48d-4c08-9547-26223bdd7134', '0c5552ca-09c6-4cbf-ae0c-5969c3ad9983', '01caa88b-fa3c-4b03-b3e9-2b7a14beb278', 'eb34bbe5-fa09-42f6-a411-cdb7d3a29a20', 'ac9ff428-168b-432e-a6ae-f5571c3711bf', '01959ac9-8909-4d95-9557-f5b531a7f331', '2abf30d9-55f6-454e-854d-786f037b619c', '26daf874-26f3-4dfc-8679-9c15aecbc18d', 'e1fa02ad-4d6d-4def-86a2-1ade8c59ee8e', '0a21780a-1869-4cec-8ccf-50f57f5c7797', '8480e4ca-f1b8-449a-b571-5b3f3cd93e4d', 'aba7356f-77e9-4b57-8600-65f0fd479e10', 'ccd610d3-b349-44c2-9837-6b8df74d6fd1', '5a546365-f979-4f2c-a425-bddd93e667ee', '48292fe8-5d65-47f6-8c73-c23aa7030e03', '9b3edd01-b821-40c9-9f75-10cb32aa14b6', '64b6eb39-dd10-4a38-9bca-f0c90919b14c', '4992ac55-6d61-4e70-92f6-46549205f3bf', '8e9e90bc-1817-48d5-a4c8-1e3c4637262a', 'f4f32177-8c2c-418d-834c-0cde35f40cee', 'f23fd74a-f94f-4182-abaa-0ab8fb3e4a4f', '071c08fe-3fe2-49c6-ac1f-21f93cd1a87b', '7a749f71-6ccc-45bd-b4a2-782d3eb995ba', '66d1ac8f-7d29-4d2f-a241-e6bcb2c38489', 'fcc9196f-b23c-4839-b1c0-a853e3b35c8b', '163459e1-e9fd-4531-9382-b863a49adbf0', '6ce6542e-e348-454c-9bcc-f9e172e860ee', '1274307c-cd49-4f69-9cfd-9a598c426cfb', '6d4e2221-8099-4ef6-9e96-740963f74983', '6d20e7db-78f8-484c-bbf3-b5ae1f7e6b3b', '6c71df2e-54cb-489e-b110-8bb3234cfa0e', '0c4d0349-eb16-46df-9f33-4864a6717037', 'f509d570-c7c7-4cb3-9b86-b02836cac466', '0f8dd08e-7eb5-4614-aad5-cd4f9723f79c', '0d8bca9b-a4e6-4668-ba43-9521b6cb4f1e', '018b3a42-6ad5-4577-b2d8-341159eff9be', '105b7c5e-9d8a-4f65-b1d2-82bfa1e126e9', '9a9b1ef8-c48b-4105-b4fe-ab04acd3d0ee', 'e2215ac7-2be2-45f6-ae6e-149f89a8e7f2', '4bd3f3b1-791f-44be-8c52-0fd2195c4e62', '9df83008-ad97-4f83-a373-98fbb5b45ef2', '492f0a67-9a2c-40b8-8f0a-730db06abf65', 'a12f171b-76d9-4b58-a04f-9833bf10d2a3', 'a1eed029-bf59-48d1-919d-5689f6523426', 'a21d8502-c5cb-4eb5-8b19-b38ea74e9294', 'a221e5b4-ce58-49ba-9385-6b544cc8a5ae', 'a6c0e224-508b-4c28-a549-b85bd40ab770', 'aa360897-b5ab-431e-afc2-8bcbc7f484a6', 'ab65c6e5-5ee9-45d0-a352-a52c7ef9d9d6', '420b91b6-5c78-4fe6-af7c-9795edd10c0e', '3ee183a4-919a-4c67-bf84-6f196897a906', '3b48d329-f8c3-4fed-adcf-ef0aa81bbf2f', 'b0e1364a-9f2e-4b2b-8125-bd6176c16384', 'e3a58b79-b39f-46c0-8ba6-9836030ee133', '963d56e9-c390-49ad-ba83-d4c6574f676a', '36866473-4b75-4a52-a5a5-65ca6326aa04', '90522cae-ba2e-4677-a6e8-04ab2ddb64ed', '30fe0f1f-296f-4d4b-a4ef-93eaf8e05169', '8d325d9f-9341-4d00-a890-2adaf412e5ca', '8d03174e-311a-4b9f-9863-7d99f4fccd57', 'cc38817a-eb2c-448d-9194-595e210543f4', '2ddb668d-0c98-4258-844e-7e790ea65aba', '543036c6-93ab-40a6-9668-20a70d021cdf', '994b3bcf-a892-493e-b9f7-8477dec24cd5', 'd6e5fa22-27dd-47cb-acbe-eae33d029ae3', '29ec0b2f-dcc9-43e2-9421-ddada03513dd', 'd81f57bb-0925-4869-b844-8d99bf55337c', '5909445d-e68c-451f-baee-d108ca32c8cd', 'dffcd105-5c2e-41ed-848f-a20495571642', 'b3124440-b2f8-4add-9e67-ad6adf4ec501', '37abb413-d176-423c-8db6-61f253324c28']
-    print("antal users: {}".format(len(users_input)))
-    data, users = get_data_for_heat_map_per_user(country, fro, to, [], True)
-    #pprint.pprint(users)
-    ylabels = []
-    sorter_non_location_user_fra = True
-    sorter_efter_sum = True
-    find_users = False
-    if sorter_non_location_user_fra:
-        for i, x in enumerate(np.any(data != 0, axis=1)): #Sorter dem der har rene 0 fra
-            if x:
-                ylabels.append(i)
-        data = data[np.any(data != 0, axis=1)]
-    else:
-        ylabels = list(range(data.shape[0]))
+    #show_specific_country_and_period(country, fro, to, False,
+    #                                 base_title="Heatmap of location updates per users\
+    #                                             per day in ")
 
-    if sorter_efter_sum:
-        s = np.sum(data, axis=1)
-        data = np.take(data, s.argsort(), axis=0)
-        ylabels = np.take(ylabels, s.argsort(), axis=0)
-    #Find users...
-    if find_users:
-        start = list(ylabels).index(83) #sverige: nov: 270, okt: 293, sep: 475, - japan: #sep: 243, now:14, okt:226
-        start = 0
-        print(data.shape[0])
-        #print(start)
-        found_users = []
-        for i, row in enumerate(data[start:], start=start):
-            res = collections.Counter(row)
-            print(res)
-            if 0 in res:
-                print("der er 0!")
-                if res[0] < 6: #sverige: nov: 6, okt: 3, sep: 6 - japan: #sep: 5, nov: 0, okt: 3
-                    print("Det er under 6")
-                    found_users.append(users[ylabels[i]])
-                else:
-                    print(i)
-                    print(ylabels[i])
-                    if users[ylabels[i]] in users_input:
-                        print("user er i users_input")
-                    else:
-                        print("nej, user er ikke i users_input")
-            else:
-                found_users.append(users[ylabels[i]])
-        print(found_users)
-    ylabels = [ylabels]
-    idxs = find_duplicate_rows(data)
-    #print(ylabels[0][idxs[0][0]+1:idxs[0][-1]+1])
-
-    for group in idxs:
-        #print(group)
-        print("#### Ny gruppe der er ens! ####")
-
-        for user in set(group):
-            print(users[ylabels[0][user]])
-        print("#######################")
-    #for x in ylabels[0][idxs[0][0]:idxs[0][-1]]:
-    #    print(users[x])
-    #print(data.shape[0])
-    xlabels = [list(range(data.shape[1]))]
-    print("######")
-    print(data[0])
-    print("######")
-    #print(xlabels)
-    #print(ylabels)
-    #heat_map(data, [], xlabels, ylabels, title="Heatmap over users per day in "+country+" from "+fro+" to "+to, anno=False, multiple=False)
-
-    y_data = np.sum(data, axis=0)
-    x_data = xlabels[0]
+    
+    #y_data = np.sum(data, axis=0)
+    #x_data = xlabels[0]
     #rint(x_data)
     #print(y_data)
 
     #xy_plot([x_data, y_data], "Number of users with location updates per day for Japan", "Days", "Number of users with location updates")
+
+
+
+
+

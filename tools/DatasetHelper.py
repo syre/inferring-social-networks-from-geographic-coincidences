@@ -71,9 +71,9 @@ class DatasetHelper():
             arr_leav_value = 0
 
             user1_present_in_previous = loc_arr[(loc_arr[:, 0] == row[0]) & (
-                loc_arr[:, 2] == row[3]-1) & (loc_arr[:, 1] == row[2])].size
+                loc_arr[:, 2] == row[3]-1) & (loc_arr[:, 1] == row[2])].shape[0]
             user2_present_in_previous = loc_arr[(loc_arr[:, 0] == row[1]) & (
-                loc_arr[:, 2] == row[3]-1) & (loc_arr[:, 1] == row[2])].size
+                loc_arr[:, 2] == row[3]-1) & (loc_arr[:, 1] == row[2])].shape[0]
             if not user1_present_in_previous and not user2_present_in_previous:
                 # synchronous arrival
                 # finds users in previous timebin with spatial bin
@@ -89,10 +89,11 @@ class DatasetHelper():
                 else:
                     arr_leav_value += (1/num_arrivals)
 
+            #user 0, spatial_bin 1, time_bin 2, country 3
             user1_present_in_next = loc_arr[(loc_arr[:, 0] == row[0]) & (
-                loc_arr[:, 2] == row[3]+1) & (loc_arr[:, 1] == row[2])].size
+                loc_arr[:, 2] == row[3]+1) & (loc_arr[:, 1] == row[2])].shape[0]
             user2_present_in_next = loc_arr[(loc_arr[:, 0] == row[1]) & (
-                loc_arr[:, 2] == row[3]+1) & (loc_arr[:, 1] == row[2])].size
+                loc_arr[:, 2] == row[3]+1) & (loc_arr[:, 1] == row[2])].shape[0]
             if not user1_present_in_next and not user2_present_in_next:
                 # synchronous leaving
                 leave_list = loc_arr[

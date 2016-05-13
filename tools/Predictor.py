@@ -11,7 +11,7 @@ import sklearn.ensemble
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 from sklearn.grid_search import GridSearchCV
-from collections import Counter
+from collections import Counter, defaultdict
 
 class Predictor():
 
@@ -78,9 +78,15 @@ class Predictor():
         if selected_users:
             coocs_users = coocs_users[np.in1d(coocs_users[:, 0], [users[u] for u in selected_users if u in users])]
             coocs_users = coocs_users[np.in1d(coocs_users[:, 1], [users[u] for u in selected_users if u in users])]
-        X = np.zeros(shape=(len(coocs_users), 8), dtype="float")
+        X = np.zeros(shape=(len(coocs_users), 9), dtype="float")
         y = np.zeros(shape=len(coocs_users), dtype="int")
+        demo_dict = self.file_loader.filter_demographic_outliers(self.file_loader.generate_demographics_from_csv())
+        app_data_dict = defaultdict(set)
 
+        def app_data_callback(row):
+            app_data_dict[row["useruuid"]].add(row["package_name"])
+
+        self.file_loader.generate_app_data_from_json(app_data_callback)
         for index, pair in tqdm(enumerate(coocs_users), total=coocs_users.shape[0]):
             user1 = pair[0]
             user2 = pair[1]
@@ -98,9 +104,40 @@ class Predictor():
                 user1, user2, loc_arr)
             X[index:, 7] = datahelper.calculate_number_of_common_travels(
                 pair_coocs)
+            X[index:, 8] = self.compute_mutual_cooccurrences(coocs, user1, user2)
+            #X[index:, 8] = self.is_within_6_years(demo_dict, users[user1], users[user2])
+            #X[index:, 9] = self.is_same_sex(demo_dict, users[user1], users[user2])
+            #X[index:, 10] = self.compute_app_jaccard_index(app_data_dict, users[user1], users[user2])
             y[index] = self.has_met(user1, user2, met_next)
 
         return X, y
+
+    def compute_mutual_cooccurrences(self, coocs, user1, user2):
+        user1_coocs = coocs[(coocs[:, 0] == user1) | (coocs[:, 1] == user1)]
+        user2_coocs = coocs[(coocs[:, 0] == user2) | (coocs[:, 1] == user2)]
+        user1_coocs = set(user1_coocs[:, 0]) | set(user1_coocs[:, 1])
+        user2_coocs = set(user2_coocs[:, 0]) | set(user2_coocs[:, 1])
+        return len(user1_coocs & user2_coocs)/len(user1_coocs | user2_coocs)
+
+    def compute_app_jaccard_index(self, app_data_dict, user1, user2):
+        union = len(app_data_dict[user1] | app_data_dict[user2])
+        intersect = len(app_data_dict[user1] & app_data_dict[user2])
+        if union == 0:
+            return 0
+        return intersect/union
+
+    def is_within_6_years(self, demo_dict, user1, user2):
+        if user1 in demo_dict and user2 in demo_dict:
+            diff = abs(demo_dict[user1]["age"]-demo_dict[user2]["age"])
+            if diff <= 6:
+                return 1
+        return 0
+
+    def is_same_sex(self, demo_dict, user1, user2):
+        if user1 in demo_dict and user2 in demo_dict:
+            if demo_dict[user1]["gender"] == demo_dict[user2]["gender"]:
+                return 1
+        return 0
 
     def has_met(self, user1, user2, met_next):
         return np.any(np.all([met_next[:, 0] == user1, met_next[:, 1] == user2], axis=0))
@@ -187,7 +224,7 @@ class Predictor():
         X_train = scaler.transform(X_train)
         X_test = scaler.transform(X_test)
         print("Logistic Regression - with number of cooccurrences")
-        lg = sklearn.linear_model.LogisticRegression()
+        lg = sklearn.linear_model.LogisticRegression(class_weight="balanced")
         lg.fit(X_train[:, 0].reshape(-1, 1), y_train)
         y_pred = lg.predict(X_test[:, 0].reshape(-1, 1))
         print(sklearn.metrics.classification_report(y_test, y_pred, target_names=["didnt meet", "did meet"]))
@@ -197,7 +234,7 @@ class Predictor():
 
         print("Random Forest - all features")
         #self.tweak_features(X_train, y_train, X_test, y_test)
-        forest = sklearn.ensemble.RandomForestClassifier(n_estimators = 200, class_weight="balanced")
+        forest = sklearn.ensemble.RandomForestClassifier(n_estimators = 500, class_weight="balanced")
         forest.fit(X_train, y_train)
         y_pred = forest.predict(X_test)
         print(sklearn.metrics.classification_report(y_test, y_pred, target_names=["didnt meet", "did meet"]))

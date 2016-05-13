@@ -78,7 +78,7 @@ class Predictor():
         if selected_users:
             coocs_users = coocs_users[np.in1d(coocs_users[:, 0], [users[u] for u in selected_users if u in users])]
             coocs_users = coocs_users[np.in1d(coocs_users[:, 1], [users[u] for u in selected_users if u in users])]
-        X = np.zeros(shape=(len(coocs_users), 8), dtype="float")
+        X = np.zeros(shape=(len(coocs_users), 9), dtype="float")
         y = np.zeros(shape=len(coocs_users), dtype="int")
 
         for index, pair in tqdm(enumerate(coocs_users), total=coocs_users.shape[0]):
@@ -98,6 +98,7 @@ class Predictor():
                 user1, user2, loc_arr)
             X[index:, 7] = datahelper.calculate_number_of_common_travels(
                 pair_coocs)
+            X[index:, 8] = self.has_two_unique_coocs(user1, user2, coocs)
             y[index] = self.has_met(user1, user2, met_next)
 
         return X, y
@@ -105,21 +106,21 @@ class Predictor():
     def has_met(self, user1, user2, met_next):
         return np.any(np.all([met_next[:, 0] == user1, met_next[:, 1] == user2], axis=0))
 
-    def has_two_unique_coocs(self, user1, user2, met_next):
-        tup = met_next.shape
+    def has_two_unique_coocs(self, user1, user2, coocs):
+        tup = coocs.shape
         if len(tup) == 1:
             if tup[0] == 0:
                 return 0
         else:
             if tup[0] == 1 and tup[1] == 0:
                 return 0
-        met_next = np.dstack((met_next[:, 0], met_next[:, 1],
-                              met_next[:, 2]))[0]
-        b = np.ascontiguousarray(met_next).view(
-            np.dtype((np.void, met_next.dtype.itemsize * met_next.shape[1])))
+        coocs = np.dstack((coocs[:, 0], coocs[:, 1],
+                          coocs[:, 2]))[0]
+        b = np.ascontiguousarray(coocs).view(
+            np.dtype((np.void, coocs.dtype.itemsize * coocs.shape[1])))
         _, idx = np.unique(b, return_index=True)
 
-        unique_met_next = met_next[idx]
+        unique_met_next = coocs[idx]
         unique_pair_rows = unique_met_next[np.all([unique_met_next[:, 0] ==
                                                    user1,
                                                    unique_met_next[:, 1] ==
@@ -187,17 +188,17 @@ class Predictor():
         X_train = scaler.transform(X_train)
         X_test = scaler.transform(X_test)
         print("Logistic Regression - with number of cooccurrences")
-        lg = sklearn.linear_model.LogisticRegression()
-        lg.fit(X_train[:, 0].reshape(-1, 1), y_train)
-        y_pred = lg.predict(X_test[:, 0].reshape(-1, 1))
+        lg = sklearn.linear_model.LogisticRegression(class_weight="balanced")
+        lg.fit(X_train[:, 8].reshape(-1, 1), y_train)
+        y_pred = lg.predict(X_test[:, 8].reshape(-1, 1))
         print(sklearn.metrics.classification_report(y_test, y_pred, target_names=["didnt meet", "did meet"]))
-        self.compute_roc_curve(y_test, lg.predict_proba(X_test[:, 0].reshape(-1, 1))[:,1])
+        self.compute_roc_curve(y_test, lg.predict_proba(X_test[:, 8].reshape(-1, 1))[:,1])
         cm = confusion_matrix(y_test, y_pred)
         self.plot_confusion_matrix(cm)
 
         print("Random Forest - all features")
         #self.tweak_features(X_train, y_train, X_test, y_test)
-        forest = sklearn.ensemble.RandomForestClassifier(n_estimators = 200, class_weight="balanced")
+        forest = sklearn.ensemble.RandomForestClassifier(class_weight="balanced")
         forest.fit(X_train, y_train)
         y_pred = forest.predict(X_test)
         print(sklearn.metrics.classification_report(y_test, y_pred, target_names=["didnt meet", "did meet"]))

@@ -1,30 +1,47 @@
 %!TEX root = main.tex
 \section{Methods}
 In this section we will outline what methods we have used for conducting the work.
-\subsection{Binning}
+\subsection{Data preperation}
+\subsubsection{Binning}
 We have partitioned or binned the globe into a grid where the cells have a resolution of .001\degree thus to 3 decimal places, and 1-hour time resolution. In the following section the term grid cell or spatial bin will be used synonymously. Each grid cell has a unique ID, this is obtained by considering the grid as a matrix and flattening it to a list by traversing from left to right and top to bottom (row-first ordering) and using the list index as an ID. This makes a total possible spatial bin indexes of: $(190\times dec)\times(360\times dec)=68.400.000.000$ with $dec=3$ We calculated the time bins by counting every hour from the start of the day of the earliest date appearing in the dataset, which has the ISO 8601 timestring: "2015-08-09 22:25:33.766+02". The latest day has the ISO 8601 timestring: "2015-12-01 00:59:15.738+01". This leaves us with $2738$ possible time bin IDs. For generating our dataset we count co-occurrences between pairs only once per spatial and time bin.
 
-\subsection{Features for the dataset}
-In this subsection we will describe the different features of which our dataset was compromised.
+\subsection{Modeling}
+In this subsection we will describe the model and features used for prediction.
+
+We will try to answer the following question: Can we predict if people meet in a period based on their spatiotemporal patterns in a previous period.
+The models and algorithms we use are implemented in \textit{scikit-learn}\cite{scikit-learn} a Python module for machine learning. 
+First we will describe the different features of which our dataset is compromised.
 \paragraph{Number of co-occurrences}
 The total number of co-occurrences between users.
-\paragraph{Diversity}
+\paragraph{Diversity of a co-occurrence}
 We use the diversity measure taken from the papers of Shahabi and Pham\cite{iRWRfSD}\cite{AEBMtISSfSD}.
 Diversity is a measure of how important the spatial locations of the co-occurrences between a pair of persons are, given how many times they appear.
 It exists in two forms, one using Shannon entropy another using Rényi entropy, we will use Shannon.
-The Shannon entropy is defined by:
-$$ H^S_{ij}=-\sum\limits_{l}P^l_{ij}logP^l_{ij}= -\sum\limits_{l,c_ij,l\neq 0}\frac{c_{ij,l}}{f_{ij}}log\frac{c_{ij,l}}{f_{ij}}$$
+The Shannon entropy is defined by Equation \ref{eq:shannon_entropy}
+\begin{equation}
+\label{eq:shannon_entropy}
+H^S_{ij}=-\sum\limits_{l}P^l_{ij} \log P^l_{ij}= -\sum\limits_{l,c_ij,l\neq 0}\frac{c_{ij,l}}{f_{ij}}\log \frac{c_{ij,l}}{f_{ij}}
+\end{equation}
 where $f_{ij}$ is the \textit{frequency}, the total number of co-occurrences between user $i$ and user $j$, and $c_{ij,l}$, the \textit{local frequency} is the total number of co-occurrences between user $i$ and $j$ at location $l$.
-From this the diversity is defined by taking the exponential function of the entropy:
-$$ D^s_{ij} = exp(H^S_{ij})$$
+From this the diversity is defined by taking the exponential function of the entropy defined in Equation \ref{eq:diversity}:
+\begin{equation}
+\label{eq:diversity}
+D^s_{ij} = exp(H^S_{ij})
+\end{equation}
 
 \paragraph{Weighted frequency}
 We use the weighted frequency measure taken from the papers of Shababi and Pham\cite{iRWRfSD}\cite{AEBMtISSfSD}.
 Weighted frequency is a measure of how important the co-occurrences at non-popular places are.
-$$
-F_{ij}=\sum\limits_{l}c_{ij,l} \times exp(-H_l)
-$$
-
+The weighed frequency is defined by Equation \ref{eq:weighted_frequency}
+\begin{equation}
+\label{eq:weighted_frequency}
+F_{ij}=\sum\limits_{l}c_{ij,l} \times \exp(-H_l)
+\end{equation}
+where $H_l$ is the Location Entropy defined in Equation \ref{eq:location_entropy}
+\begin{equation}
+\label{eq:location_entropy}
+H_l = \sum\limits_{u, P_{u,l}\neq0} P_{u,l}\log P_{u,l}
+\end{equation}
 \paragraph{Co-occurrences weighted with respect to each location}
 We use the weighted co-occurrences measure taken from the master's thesis of P. Sapieżyński\cite{IMM2013-06556}.
 
@@ -36,3 +53,5 @@ The number of unique spatial bins between two users.
 
 \paragraph{Countries in common}
 The number of common countries which two users have visited.
+
+\subsection{}

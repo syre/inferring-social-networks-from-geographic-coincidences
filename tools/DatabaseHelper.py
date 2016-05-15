@@ -765,11 +765,19 @@ class DatabaseHelper():
         self.delete_test_users()
         self.filter_inaccurate_rows()
         self.delete_duplicate_users()
+        self.filter_rows_outside_periode()
 
     def filter_inaccurate_rows(self):
         cursor = self.conn.cursor()
-        cursor.execute(""" DELETE FROM location where accuracy < 0 and accuracy > 100000""")
+        cursor.execute(""" DELETE FROM location where accuracy < 0 OR accuracy > 100000""")
         self.conn.commit()
+
+    def filter_rows_outside_periode(self):
+        cursor = self.conn.cursor()
+        cursor.execute(""" DELETE FROM location where start_time < '2015-09-01' AND end_time < '2015-09-01'""")
+        self.conn.commit()
+
+    
 
     def delete_test_users(self):
         users = ['02cbb276-93e7-4baa-81aa-ea3f5bf6230a',

@@ -19,7 +19,7 @@ Denne del af datasættet beskriver geolokationerne for hvor en bruger har været
 \item \texttt{\textbf{area}}\\Navnet på området hvor brugeren befinder sig, når lokations opdateringen bliver logget. F.eks. Skåne i Sverige
 \item \texttt{\textbf{country}}\\Navnet på landet hvor brugeren befinder sig, når lokations opdateringen bliver logget
 \item \texttt{\textbf{region}}\\Navnet på regionen hvor brugeren befinder sig, når lokations opdateringen bliver logget. F.eks. EU
-\item \texttt{\textbf{latitude}}\\Latitude for lokationen. Latitude har en præcition på ca 15 cifre, hvilket svarer til 0.1 nanometer [KILDE!!!]. Denne præcition er skal man dog ikke tage så højtidligt, da de fleste mobil GPS'er har en fejl margen på maks 30 meter \cite{NAV:8292634}.  
+\item \texttt{\textbf{latitude}}\\Latitude for lokationen. Latitude har en præcition på ca 15 cifre, hvilket svarer til 0.1 nanometer \textcolor{red}{[KILDE!!!]}. Denne præcition er skal man dog ikke tage så højtidligt, da de fleste mobil GPS'er har en fejl margen på maks 30 meter \cite{NAV:8292634}.  
 \item \texttt{\textbf{longitude}}\\Longitude for lokationen. Latitude har en præcition på ca 15 cifre, hvilket svarer til 0.1 nanometer. Vedr. præcition, gælder det samme som ved latitude
 \item \texttt{\textbf{altitude}}\\Altitude repræsenteret i mm. Dette bliver beregnet af telefonens gyroskop samt GPS
 \item \texttt{\textbf{accuracy}}\\Accuracy repræsenteret i mm. Accuracy er hvor nøjagtigt man kan regne med GPS'en er i den pågældene lokations opdatering. Værdien fortæller at brugeren med sikkerhed er i pågældende sted, indenfor denne distance som accuracy er. Jo lavere værdi, jo bedre. Dette styres af telefonens styresystem og GPS
@@ -48,14 +48,15 @@ Vi har kigget på data fra flere perioder. Vi vil nu beskrive hvordan hver perio
 \begin{itemize}
 \item Periode 1: September 2015 - November 2015
 \item Periode 2: ??????????
+\item Production data: ....
 \end{itemize}
 
 \subsubsection{Periode 1}
 Denne periode er over 3 måneder: fra september - november 2015. Vi vil gennemgå hvordan datasættet så ud i denne periode. 
-Henover denne periode blev der indsamlet 2.665.893 lokations opdateringer fordelt på 1586 brugere
+Henover denne periode blev der indsamlet 2,665,893 lokations opdateringer fordelt på 1,586 brugere
 
 I Table \ref{tab:stat_geo_p1} ses statistic summary af \texttt{accuracy}, \texttt{altitude}, \texttt{name} og \texttt{country}.
-Vi kan se i tabellen at der er nogle ugyldige værdier både accuracy og altitude. De ugyldige værdier viser sig i form af negative værdier. Ud af de mange lokations opdaterings er der kun 20 hvor accuracy er negativ hvilket svarer til knapt en 1000 del procent. Altitude har også nogle negative værdier. Her er negative værdier sådan set ikke ugyldige, men dog sjældne og unormale. Hvis vi kigger på antal lokations opdaterings der har en negativ altitude på mindre end -50.000 (-50m), er der 9. Ved mindre end -10.000 (-10m) er der 14.
+Vi kan se i tabellen at der er nogle ugyldige værdier både accuracy og altitude. De ugyldige værdier viser sig i form af negative værdier. Ud af de mange lokations opdaterings er der kun 20 hvor accuracy er negativ hvilket svarer til knapt en 1,000 del procent. Altitude har også nogle negative værdier. Her er negative værdier sådan set ikke ugyldige, men dog sjældne og unormale. Hvis vi kigger på antal lokations opdaterings der har en negativ altitude på mindre end -50,000 (-50m), er der 9. Ved mindre end -10,000 (-10m) er der 14.
 
 \begin{table}[H]
         \centering
@@ -66,19 +67,19 @@ Vi kan se i tabellen at der er nogle ugyldige værdier både accuracy og altitud
                          & Accuracy           & Altitude    & Name   & Country  \\[-3pt]% compensate for extrarowheight
                          &  (mm)              & (mm)        & (city) &          \\
             \hline
-                 Unique  &                    &             & 19.344 & 80        \\
+                 Unique  &                    &             & 19,344 & 80        \\
                  entries &                    &             &        &           \\
             \hline
-                 Min     &  -2.147.483.500    & -5.086.000  &        &           \\
+                 Min     &  -2.147.483.500    & -5,086,000  &        &           \\
                          &                    &             &        &           \\
             \hline
-                 Max     &  500.000           & 17.211.698  &        &           \\
+                 Max     &  500,000           & 17,211,698  &        &           \\
                          &                    &             &        &           \\
             \hline
-                 Mean    & 35.249             & 105.030     &        &           \\
+                 Mean    & 35,249             & 105,030     &        &           \\
                          &                    &             &        &           \\
             \hline
-                 Std.    & 3.672.390          & 403.966     &        &           \\
+                 Std.    & 3,672,390          & 403,966     &        &           \\
                  dev.    &                    &             &        &           \\
             \hline
         \end{tabular}
@@ -161,7 +162,7 @@ Vi kigger herefter på, hvordan lokations opdateringerne er distribueret over hv
 \begin{figure}[H]
     \centering
     \includegraphics[scale=0.18]{country_distribution}
-    \caption{Distribution for number of lokations opdaterings between countries}
+    \caption{Distribution for number of location updates between countries}
     \label{fig:country_dist}
 \end{figure}
 
@@ -215,8 +216,12 @@ For at bedre kunne sammenligne Japan og Sverige udfra Figure \ref{fig:country_cd
         \label{tab:stat_loc_updates}
 \end{table}
 
+\textcolor{red}{Vi skal have en introduktion hvor vi skriver at vi prøvede at træne data, hvor vi fik dårlige resultater. Herefter kiggede vi på nedenstående}
 
-En ting er at kigge på antal lokations opdateringer og se hvordan de er distribueret blandt brugerne i det pågældende land, men det er også interessant at se hvordan opdateringerne er distribueret henover de 3 måneder vi har med at gøre. Er det ligeligt fordelt? Står en enekelt måned for det hele? Er der forskelt på de to lande? Til dette har vi valgt at visualisere dette ved brug af Heatmaps (Figure \ref{fig:heatmap_jap} p.  \pageref{fig:heatmap_jap} and Figure \ref{fig:heatmap_swe} p. \pageref{fig:heatmap_swe}). 
+En ting er at kigge på antal lokations opdateringer og se hvordan de er distribueret blandt brugerne i det pågældende land, men det er også interessant at se hvordan opdateringerne er distribueret henover den periode vi har med at gøre (September 2015 - november 2015). Her kan vi kigge på om lokations opdateringerne er ligeligt fordelt, eller om en enkelt måned står for størstedele. Det er også interessant og se om der forskel på de landene. 
+
+Vi vil gerne kigge på dette, for at se om der er uregelmæssigheder, som vi skal tage højde for når vi træner modellen
+ Til dette har vi valgt at visualisere dette ved brug af Heatmaps (Figure \ref{fig:heatmap_jap} p.  \pageref{fig:heatmap_jap} and Figure \ref{fig:heatmap_swe} p. \pageref{fig:heatmap_swe}). 
 \begin{figure}[H]
     \centering
     \includegraphics[scale=0.18]{heatmap_location_updates_japan}
@@ -234,7 +239,7 @@ En ting er at kigge på antal lokations opdateringer og se hvordan de er distrib
 
 
 
-Som man kan er der lidt færrer lande end det vi tidligere skyldtes. Dette 
+
 
 Our work will focus on the location updates from Japan. There is 332 users in Japan for which we have location updates.
 When training our classifier we divided the dataset into three parts where each corresponded to a month.
@@ -252,3 +257,6 @@ When we got the dataset it was stored in three folders, one for each month (9, 1
 
 
 \subsubsection{Periode 2}
+
+\subsubsection{Production data}
+\subsection{Summary}

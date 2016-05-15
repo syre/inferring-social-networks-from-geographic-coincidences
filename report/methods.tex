@@ -2,7 +2,7 @@
 \section{Methods}
 In this section we will outline what methods we have used for conducting the work.
 \subsection{Data preperation}
-\subsubsection{Binning}
+\subsubsection{Binning} \label{ssec:binning}
 We have partitioned or binned the globe into a grid where the cells have a resolution of .001\degree thus to 3 decimal places, and 1-hour time resolution. In the following section the term grid cell or spatial bin will be used synonymously. Each grid cell has a unique ID, this is obtained by considering the grid as a matrix and flattening it to a list by traversing from left to right and top to bottom (row-first ordering) and using the list index as an ID. This makes a total possible spatial bin indexes of: $(190\times dec)\times(360\times dec)=68.400.000.000$ with $dec=3$ We calculated the time bins by counting every hour from the start of the day of the earliest date appearing in the dataset, which has the ISO 8601 timestring: "2015-08-09 22:25:33.766+02". The latest day has the ISO 8601 timestring: "2015-12-01 00:59:15.738+01". This leaves us with $2738$ possible time bin IDs. For generating our dataset we count co-occurrences between pairs only once per spatial and time bin.
 
 \subsection{Modeling}

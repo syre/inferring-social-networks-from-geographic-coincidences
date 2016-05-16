@@ -3,8 +3,30 @@
 In this section we will outline what methods we have used for conducting the work.
 \subsection{Data preparation}
 \subsubsection{Data import to database}
-We imported the many JSON files to a Postgresql database which allowed us to easily manipulate the data using SQL. We created a single table with the schema shown in Table X. We decided to compute the time and spatial bins on insertion, thus we only had to compute them once. We created indexes on the following features: X.
+We imported the many JSON files to a Postgresql database which allowed us to easily manipulate the data using SQL. We created a single table with the schema shown in Table \ref{table:schema_denormalized}. We decided to compute the time and spatial bins on insertion, thus we only had to compute them once. We created indexes on the following features: X.
 Initially we created a normalized database with several relations, this we found severely slowed down the performance of our queries. This was due to all our interaction with the data only consisting of READs, after the initial insertion of the data. After removing all relations (denormalizing) our performance significantly improved. {\color{red} evt referer til paper 'Denormalization effects on performance of RDBMS'}.
+\begin{table}[ht]
+\centering
+\caption{Denormalized database schema}
+\label{my-label}
+\begin{tabular}{ll}
+\textbf{Field name} & \textbf{Field type}    \\
+id                  & SERIAL PRIMARY KEY     \\
+useruuid            & TEXT NOT NULL          \\
+start\_time         & timestamptz NOT NULL   \\
+end\_time           & timestamptz NOT NULL   \\
+location            & GEOGRAPHY(POINT, 4326) \\
+altitude            & INTEGER NOT NULL       \\
+accuracy            & INTEGER NOT NULL       \\
+region              & TEXT                   \\
+country             & TEXT                   \\
+area                & TEXT                   \\
+place               & TEXT                   \\
+time\_bins          & INTEGER{[}{]} NOT NULL \\
+spatial\_bin        & BIGINT NOT NULL       
+\end{tabular}
+\label{table:schema_denormalized}
+\end{table}
 \subsubsection{Data export to Numpy arrays}
 We created scripts for exportation to numpy arrays for use in the sklearn module. The users were encoded with K values where K = number of users. The countries were encoded with K values where K = number of countries.
 \subsubsection{Binning} \label{ssec:binning}

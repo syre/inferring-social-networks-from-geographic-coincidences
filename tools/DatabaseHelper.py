@@ -842,7 +842,10 @@ class DatabaseHelper():
 
 if __name__ == '__main__':
     d = DatabaseHelper()
+    fl = FileLoader()
+    file_names = ["all_201512.json", "all_201601.json"]
+    fl.generate_data_from_json(file_names, d.insert_location)
     # d.update_missing_records()
-    d.filter_bad_rows()
+    #d.filter_bad_rows()
     #d.filter_inaccurate_rows()
     #d.generate_numpy_matrix_from_database()

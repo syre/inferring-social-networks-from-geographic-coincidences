@@ -195,4 +195,3 @@ if __name__ == '__main__':
     rows = []
     callback = lambda r: rows.append(r)
     fl.generate_data_from_json(["all_201511.json"], callback)
-    print(min(rows, key=lambda r:parser.parse(r["start_time"]))["start_time"], max(rows,key=lambda r:parser.parse(r["end_time"]))["end_time"])

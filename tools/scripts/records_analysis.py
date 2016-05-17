@@ -228,7 +228,6 @@ def records_dist_plot(data, bins, xlabels, ylabels, titles, labels):
         print(list(np.arange(0, 1.1, 0.1)))
         sns.plt.yticks(list(np.arange(0, 1.1, 0.1)))
         #sns.plt.ylim((0.1))
-        
         sns.plt.tick_params(labelsize=20)
         ax.set_xlabel(xlabels[index])
         ax.set_ylabel(ylabels[index])
@@ -290,13 +289,13 @@ def data_summary_per_user(data, total_counts):
     q = data.groupby('country')['Location updates'].quantile([0.0, 0.25, 0.5, 0.75, 1.0])
     means = data.groupby('country')['Location updates'].mean()
     print("///////// Japan ////////")
-    print(q['Japan']/total_counts['Japan'])
+    print(q['Japan'])
     print("////////")
     print("///////// Sweden //////////")
-    print(q['Sweden']/total_counts['Sweden'])
+    print(q['Sweden'])
     print("////////")
-    print(means['Japan']/total_count['Japan'])
-    print(means['Sweden']/total_count['Sweden'])
+    print(means['Japan'])
+    print(means['Sweden'])
 
 
 def show_all_month_same_scale(countries, values_loc_updates=True,
@@ -419,8 +418,42 @@ def find_duplicate_rows(data):
                     temp_lst = []
     return lst
 
-if __name__ == '__main__':
 
+def compare_loc_updates_per_month():
+    d = DatabaseHelper.DatabaseHelper()
+    countries = ["Japan", "Sweden"]
+    no_users = {"Japan": 316, "Sweden": 542}
+    periods = [("2015-09-01", "2015-10-01"), ("2015-10-01", "2015-11-01"),
+               ("2015-11-01", "2015-12-01")]
+    months = ["September", "October", "November"]
+    dd = {'Countries': [], 'Month': []}
+    for i, period in enumerate(periods):
+        for country in countries:
+            query = "SELECT count(*)/"+str(no_users[country])+" FROM location WHERE country='"+country+"'" +\
+                    " AND start_time >= '"+period[0] + "' " +\
+                    "AND start_time < '"+period[1] + "'"
+            result = d.run_specific_query(query)
+            #print(result[0])
+            for row in result:
+                [dd["Countries"].append(country) for x in range(row[0])]
+                [dd["Month"].append(months[i]) for x in range(row[0])]
+
+    df = pd.DataFrame(dd)
+    #print(df)
+    sns.set(font_scale=2.5)
+    ax = sns.countplot(x="Month", hue="Countries", data=df)
+    ax.set_ylabel("Number of location updates")
+    ax.set_title("Mean of location updates in Japan and Sweden over three month period")
+    #ax.set_xlabel("Days")
+    sns.plt.tick_params(labelsize=20)
+    [item.set_fontsize(35) for item in [ax.yaxis.label, ax.xaxis.label]]
+    ax.title.set_fontsize(40)
+    [item.set_fontsize(28) for item in ax.get_xticklabels() + ax.get_yticklabels()]
+    sns.plt.show()
+
+if __name__ == '__main__':
+    compare_loc_updates_per_month()
+    sys.exit(0)
     countries = ["Japan", "Sweden"]
     d = DatabaseHelper.DatabaseHelper()
 

@@ -294,8 +294,8 @@ def data_summary_per_user(data, total_counts):
     print("///////// Sweden //////////")
     print(q['Sweden'])
     print("////////")
-    print(means['Japan'])
-    print(means['Sweden'])
+    print("Japan - mean: {}".format(means['Japan']))
+    print("Sweden - mean: {}".format(means['Sweden']))
 
 
 def show_all_month_same_scale(countries, values_loc_updates=True,
@@ -452,8 +452,8 @@ def compare_loc_updates_per_month():
     sns.plt.show()
 
 if __name__ == '__main__':
-    compare_loc_updates_per_month()
-    sys.exit(0)
+    #compare_loc_updates_per_month()
+    #sys.exit(0)
     countries = ["Japan", "Sweden"]
     d = DatabaseHelper.DatabaseHelper()
 
@@ -479,7 +479,7 @@ if __name__ == '__main__':
         xlabels.append("Number of location updates\n"+"("+chr(ord('a') + i)+")")
     ylabels = ["Cumulative frequency of users", "Cumulative frequency of users"] #["Frequency (%)", "Frequency (%)"] #["Number of users", "Number of users"]
     df = pd.DataFrame(dd)
-    #data_summary_per_user(df, total_count)
+    data_summary_per_user(df, total_count)
     #boxplot(df, "country", "Location updates", "Location updates for all users in Japan and Sweden")
     #records_dist_plot(data, 100, xlabels, ylabels, titles, labels)
     #
@@ -514,11 +514,11 @@ if __name__ == '__main__':
     max_values = defaultdict(dict)
     #print("antal users: {}".format(len(users_input)))
 
-    print("show_all_month_same_scale")
-    show_all_month_same_scale(countries, find_users=True,
-                              number_of_days_without_updates=5)
+    #print("show_all_month_same_scale")
+    #show_all_month_same_scale(countries, find_users=True,
+    #                          number_of_days_without_updates=5)
 
-    print("show_specific_country_and_period")
+    #print("show_specific_country_and_period")
     country = "Japan"
     fro = "2015-11-01"
     to = "2015-11-30"

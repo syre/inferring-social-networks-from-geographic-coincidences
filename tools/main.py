@@ -4,7 +4,7 @@ from Predictor import Predictor
 from DatasetHelper import DatasetHelper
 from FileLoader import FileLoader
 import numpy as np
-
+import collections
 file_loader = FileLoader()
 database_helper = DatabaseHelper()
 predictor = Predictor()
@@ -66,6 +66,7 @@ class Run(object):
 
         print("processing cooccurrences numpy array (train)")
         coocs_train = dataset_helper.generate_cooccurrences_array(locations_train)
+        print([users_train[u] for u,v in collections.Counter(coocs_train[:,0]).most_common(100)])
         file_loader.save_cooccurrences_train(coocs_train)
         coocs_train = file_loader.load_cooccurrences_train()
 

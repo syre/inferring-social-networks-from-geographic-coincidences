@@ -1,9 +1,39 @@
 %!TEX root = main.tex
 \section{Methods}
 In this section we will outline what methods we have used for conducting the work.
-\subsection{Data preperation}
+\subsection{Data preparation}
+\subsubsection{Data import to database}
+We imported the many JSON files to a Postgresql database which allowed us to easily manipulate the data using SQL. We created a single table with the schema shown in Table \ref{table:schema_denormalized}. We decided to compute the time and spatial bins on insertion, thus we only had to compute them once. We created indexes on the following features: X.
+Initially we created a normalized database with several relations, this we found severely slowed down the performance of our queries. This was due to all our interaction with the data only consisting of READs, after the initial insertion of the data. After removing all relations (denormalizing) our performance significantly improved. {\color{red} evt referer til paper 'Denormalization effects on performance of RDBMS'}.
+\begin{table}[ht]
+\centering
+\caption{Denormalized database schema}
+\label{my-label}
+\begin{tabular}{ll}
+\textbf{Field name} & \textbf{Field type}    \\
+id                  & SERIAL PRIMARY KEY     \\
+useruuid            & TEXT NOT NULL          \\
+start\_time         & timestamptz NOT NULL   \\
+end\_time           & timestamptz NOT NULL   \\
+location            & GEOGRAPHY(POINT, 4326) \\
+altitude            & INTEGER NOT NULL       \\
+accuracy            & INTEGER NOT NULL       \\
+region              & TEXT                   \\
+country             & TEXT                   \\
+area                & TEXT                   \\
+place               & TEXT                   \\
+time\_bins          & INTEGER{[}{]} NOT NULL \\
+spatial\_bin        & BIGINT NOT NULL       
+\end{tabular}
+\label{table:schema_denormalized}
+\end{table}
+\subsubsection{Data export to Numpy arrays}
+We created scripts for exportation to numpy arrays for use in the sklearn module. The users were encoded with K values where K = number of users. The countries were encoded with K values where K = number of countries.
 \subsubsection{Binning} \label{ssec:binning}
 We have partitioned or binned the globe into a grid where the cells have a resolution of .001\degree thus to 3 decimal places, and 1-hour time resolution. In the following section the term grid cell or spatial bin will be used synonymously. Each grid cell has a unique ID, this is obtained by considering the grid as a matrix and flattening it to a list by traversing from left to right and top to bottom (row-first ordering) and using the list index as an ID. This makes a total possible spatial bin indexes of: $(190\times dec)\times(360\times dec)=68.400.000.000$ with $dec=3$ We calculated the time bins by counting every hour from the start of the day of the earliest date appearing in the dataset, which has the ISO 8601 timestring: "2015-08-09 22:25:33.766+02". The latest day has the ISO 8601 timestring: "2015-12-01 00:59:15.738+01". This leaves us with $2738$ possible time bin IDs. For generating our dataset we count co-occurrences between pairs only once per spatial and time bin.
+
+\subsubsection{Visualization}
+We used Leaflet\cite{leaflet}, a JavaScript library for producing interactive maps to visualize the data, we created a map for visualizing the users location traces over time and we created one that allowed us to see all the co-occurrences that happened between a pair of users. We found co-occurrences happened very often near Sony properties in Lund\cite{sony_headquarters_sweden_lund}, Kista\cite{sony_headquarters_sweden_kista} in Sweden and in Tokyo\cite{sony_headquarters_japan}, Japan. Figure X shows an example of the co-occurrences visualized for a pair of users ('8d325d9f-9341-4d00-a890-2adaf412e5ca', 'a21d8502-c5cb-4eb5-8b19-b38ea74e9294'). This enabled us to exclude co-occurrences from these locations for the test dataset {\color{red} WHY?}.
 
 \subsection{Modeling}
 In this subsection we will describe the model and features used for prediction.

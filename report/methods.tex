@@ -5,26 +5,41 @@ In this section we will outline what methods we have used for conducting the wor
 \subsubsection{Data import to database}
 We imported the many JSON files to a Postgresql database which allowed us to easily manipulate the data using SQL. We created a single table with the schema shown in Table \ref{table:schema_denormalized}. We decided to compute the time and spatial bins on insertion, thus we only had to compute them once. We created indexes on the following features: X.
 Initially we created a normalized database with several relations, this we found severely slowed down the performance of our queries. This was due to all our interaction with the data only consisting of READs, after the initial insertion of the data. After removing all relations (denormalizing) our performance significantly improved. {\color{red} evt referer til paper 'Denormalization effects on performance of RDBMS'}.
-\begin{table}[ht]
+\begin{table}[htbp]
 \centering
-\caption{Denormalized database schema}
-\label{my-label}
-\begin{tabular}{ll}
+
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|}
+\hline
 \textbf{Field name} & \textbf{Field type}    \\
+\hline
 id                  & SERIAL PRIMARY KEY     \\
+\hline
 useruuid            & TEXT NOT NULL          \\
+\hline
 start\_time         & timestamptz NOT NULL   \\
+\hline
 end\_time           & timestamptz NOT NULL   \\
+\hline
 location            & GEOGRAPHY(POINT, 4326) \\
+\hline
 altitude            & INTEGER NOT NULL       \\
+\hline
 accuracy            & INTEGER NOT NULL       \\
+\hline
 region              & TEXT                   \\
+\hline
 country             & TEXT                   \\
+\hline
 area                & TEXT                   \\
+\hline
 place               & TEXT                   \\
+\hline
 time\_bins          & INTEGER{[}{]} NOT NULL \\
-spatial\_bin        & BIGINT NOT NULL       
+\hline
+spatial\_bin        & BIGINT NOT NULL        \\
+\hline
 \end{tabular}
+\caption{Denormalized database schema}
 \label{table:schema_denormalized}
 \end{table}
 \subsubsection{Data export to Numpy arrays}

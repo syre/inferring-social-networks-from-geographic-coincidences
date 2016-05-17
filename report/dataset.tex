@@ -64,26 +64,23 @@ Vi kan se i tabellen at der er nogle ugyldige værdier både accuracy og altitud
         \setlength\tabcolsep{2pt}
         \begin{tabular}{|c|c|c|c|c|}
             \hline
-                         & Accuracy           & Altitude    & Name   & Country  \\[-3pt]% compensate for extrarowheight
-                         &  (mm)              & (mm)        & (city) &          \\
+                         & Accuracy           & Altitude     \\[-3pt]% compensate for extrarowheight
+                         &  (mm)              & (mm)              \\
             \hline
-                 Unique  &                    &             & 19,344 & 80        \\
-                 entries &                    &             &        &           \\
+                 Min     &  -2.147.483.500    & -5,086,000            \\
+                         &                    &                    \\
             \hline
-                 Min     &  -2.147.483.500    & -5,086,000  &        &           \\
-                         &                    &             &        &           \\
+                 Max     &  500,000           & 17,211,698        \\
+                         &                    &                      \\
             \hline
-                 Max     &  500,000           & 17,211,698  &        &           \\
-                         &                    &             &        &           \\
+                 Mean    & 35,249             & 105,030               \\
+                         &                    &                   \\
             \hline
-                 Mean    & 35,249             & 105,030     &        &           \\
-                         &                    &             &        &           \\
-            \hline
-                 Std.    & 3,672,390          & 403,966     &        &           \\
-                 dev.    &                    &             &        &           \\
+                 Std.    & 3,672,390          & 403,966            \\
+                 dev.    &                    &                   \\
             \hline
         \end{tabular}
-        \caption{Statistic summary of datset in periode 1} %add this between 'caption' and '{...' for new text in listing of tables: [New caption text only for listing of tables]
+        \caption{Statistic summary of dataset in periode 1} %add this between 'caption' and '{...' for new text in listing of tables: [New caption text only for listing of tables]
         \label{tab:stat_geo_p1}
 \end{table}
 
@@ -99,9 +96,9 @@ Efter dette, så quantilerne af accuracy ud som man kan se på Tabel \ref{tab:ac
         \setlength\tabcolsep{2pt}
         \begin{tabular}{|c|c|c|}
             \hline
-                         & Accuracy      \\[-3pt]
+                         & Accuracy      \\[-1pt]
             \hline
-                 Minimum &  3,000       \\
+                 Min &  3,000       \\
             \hline
                  Q1      &  10,000   \\
             \hline
@@ -111,12 +108,12 @@ Efter dette, så quantilerne af accuracy ud som man kan se på Tabel \ref{tab:ac
             \hline
                  Q3      &  39,000      \\
             \hline
-                 Maximum &  100,000   \\
+                 Max &  100,000   \\
             \hline
                  IQR     &   29,000     \\
             \hline
-                Std. deviation  &  20,290.826   \\
-            
+                Std. dev.  &  20,290.826   \\
+            \hline
         \end{tabular}
         \caption{Quantiles of accuracy after cleaning} %add this between 'caption' and '{...' for new text in listing of tables: [New caption text only for listing of tables]
         \label{tab:acc_quantiles}
@@ -124,6 +121,7 @@ Efter dette, så quantilerne af accuracy ud som man kan se på Tabel \ref{tab:ac
 
 Vi kan se på medianen og mean, at de fleste brugere har lav værdi i accuracy - hvilket er godt! Hvis vi antager at det følger en normalfordeling, kan vi ud fra standard deviation udlede, at 95\% af brugerne har en accuracy mellem 6,603.53 og 47,185.182. Dette viser at der er nogle få brugere med meget høje værdier i accuracy, hvor max er 100,000. Medianen og mean svarer til henholdsvis 23m og 26.89m og 95\% standard deviation er på mellem 6.6m og 47.19m hvilken er en fin accuracy. 
 
+ 19,344,  80 
 Som Tabel \ref{tab:stat_geo_p1} viser, har vi at gøre med 80 unikke lande. Til at starte med lå dette tal på 74. Det viste sig, at der var en masse lokations opdaterings hvor landet ikke var blevet logget. Her var landet blot repræsenteret med en tom streng. Dette var tilfældet i så stor en del af dataet, at landet med en tom streng, var det andet mest representerede land i dataet med lidt over 500.000 lokations opdaterings. 
 Dette var et problem som vi løste, ved at udfører omvendt geolokation. For næsten alle de 500.000 lokations opdaterings, var latitude og longitude til stede, så vi kunne ved hjælp af et API\cite{reversegeocode} slå landet op på bagrund af latitude og longitude, og herefter indsætte det i dataet. 
 Dette gjorde at vi gik fra over 500,000 lokations opdaterings hvor landet ikke var til stede, til blot 130 lokations opdaterings. I samme omgang gik vi fra 74 lande til 80 (inkl. land med tom streng)
@@ -167,7 +165,10 @@ Vi kigger herefter på, hvordan lokations opdateringerne er distribueret over hv
 \end{figure}
 
 På baggrund af Figure \ref{fig:country_dist}, har vi valgt at gå videre med endten Sverige eller Japan. Derfor vil vi nu sammeligne data for de to lande. 
-På Figure \ref{fig:country_cd} ser vi at der er en stor del af brugerne både i Japan og Sverige, som har meget få lokations opdateringer henover hele perioden. Over en tredje del af brugerne i begge lande, har maximalt 109 og 161 opdateringer over 3 måneder for henholdsvis Japan og Sverige. Da opdateringerne kommer hver gang brugeren skifter lokation, betyder dette at mange af brugerene er meget stillestående eller også har de slukket mobilen. Begge disse scenarier tegner ikke godt for vores mål, da det giver sig selv at der skal være nogle data for at finde co-occurences. 
+I Japan er der 316 unikke brugere, mens der i Sverige er 542. De to lande kan have brugere til fælles, da brugerne principielt kan rejse mellem flere lande og derved have lokations opdateringer i flere lande.  
+Antallet af totale lokations opdateringer varierer også. Japan har 299,157 opdatering, hvor Sverige har 1,018,781 opdateringer. Begge er over alle tre måneder. 
+På Figure \ref{fig:country_cd} ser vi at der er en stor del af brugerne både i Japan og Sverige, som har meget få lokations opdateringer set henover hele perioden. Over en tredje del af brugerne i begge lande, har maximalt 109 og 161 opdateringer over 3 måneder for henholdsvis Japan og Sverige (tallene varierer pga. binsize).\\
+Da opdateringerne kommer hver gang brugeren skifter lokation, betyder dette, at mange af brugerene er meget stillestående eller også har de slukket mobilen. Begge disse scenarier tegner ikke godt for vores mål, da det giver sig selv at der skal være nogle data for at finde co-occurences. 
 
 
 \begin{figure}[H]
@@ -186,7 +187,7 @@ På Figure \ref{fig:country_cd} ser vi at der er en stor del af brugerne både i
     \label{fig:country_cdf}
 \end{figure}
 
-For at bedre kunne sammenligne Japan og Sverige udfra Figure \ref{fig:country_cd}, har vi plottet den Cumulative Distribution Function (CDF) for de to lande (Figure \ref{fig:country_cdf}). Plottet viser at Japan har flere brugere med få lokations opdateringer end Sverige, mens Sverige har flere opdateringer generelt. Dette kunne tyde på at data fra  Sverige vil være mere brugbart end Japan. Dog er binsize forskellig for de to plot og hvis vi sammenligner nøgleværdierne for de to lande (Table \ref{tab:stat_loc_updates}) kan vi se, at Sverige har større Q1 end Japan.
+For at bedre kunne sammenligne Japan og Sverige udfra Figure \ref{fig:country_cd}, har vi plottet den Cumulative Distribution Function (CDF) for de to lande - se Figure \ref{fig:country_cdf}. Plottet viser at Japan har flere brugere med få lokations opdateringer end Sverige, mens Sverige har flere opdateringer generelt. Dette kunne tyde på at data fra  Sverige vil være mere brugbart end Japan. Dog er binsize forskellig for de to plot og hvis vi sammenligner nøgleværdierne for de to lande (Table \ref{tab:stat_loc_updates}) kan vi se, at Sverige har større Q1 end Japan.
 
 \begin{table}[htbp]
         \centering
@@ -220,8 +221,8 @@ For at bedre kunne sammenligne Japan og Sverige udfra Figure \ref{fig:country_cd
 
 En ting er at kigge på antal lokations opdateringer og se hvordan de er distribueret blandt brugerne i det pågældende land, men det er også interessant at se hvordan opdateringerne er distribueret henover den periode vi har med at gøre (September 2015 - november 2015). Her kan vi kigge på om lokations opdateringerne er ligeligt fordelt, eller om en enkelt måned står for størstedele. Det er også interessant og se om der forskel på de landene. 
 
-Vi vil gerne kigge på dette, for at se om der er uregelmæssigheder, som vi skal tage højde for når vi træner modellen
- Til dette har vi valgt at visualisere dette ved brug af Heatmaps (Figure \ref{fig:heatmap_jap} p.  \pageref{fig:heatmap_jap} and Figure \ref{fig:heatmap_swe} p. \pageref{fig:heatmap_swe}). 
+Vi vil gerne kigge på dette, for at se om der er uregelmæssigheder, som vi skal tage højde for når vi træner modellen. 
+ Til dette har vi valgt at visualisere det ved brug af Heatmaps. 
 \begin{figure}[H]
     \centering
     \includegraphics[scale=0.18]{heatmap_location_updates_japan}
@@ -238,7 +239,7 @@ Vi vil gerne kigge på dette, for at se om der er uregelmæssigheder, som vi ska
 \end{figure}
 
 
-
+ Figure \ref{fig:heatmap_jap} viser hvordan lokations opdateringer per bruger i Japan er fordelt over hver dag i hver af de tre måneder. p.  \pageref{fig:heatmap_jap} and Figure \ref{fig:heatmap_swe} p. \pageref{fig:heatmap_swe})
 
 
 Our work will focus on the location updates from Japan. There is 332 users in Japan for which we have location updates.

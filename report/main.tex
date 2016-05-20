@@ -70,9 +70,10 @@
 %==================================================================================================
 % SECTION NUMBERING SETUP
 %==================================================================================================
-\setcounter{tocdepth}{3}                            %2 adds sections up to subsections
-\setcounter{secnumdepth}{2}                         %Subsubsections get a number when this is 3
-\setcounter{section}{1}
+%\setcounter{section}{1}
+\setcounter{tocdepth}{2}                            %2 adds sections up to subsections
+\setcounter{secnumdepth}{4}                         %Subsubsections get a number when this is 3
+
 %==================================================================================================
 % THESIS STRUCTURE  (Modifiy to include more chapters etc)
 %==================================================================================================
@@ -105,7 +106,7 @@
 \addtolength{\parskip}{-\baselineskip}
 \tableofcontents
 \addtolength{\parskip}{\baselineskip}
-\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
+%\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
 %-------------
 % Main content
 %-------------

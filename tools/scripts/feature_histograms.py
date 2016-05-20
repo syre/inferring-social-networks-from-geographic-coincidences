@@ -12,15 +12,16 @@ X_train, y_train, X_test, y_test = fl.load_x_and_y()
 
 features = ["num_coocs", "arr_leav", "diversity", "unique_coocs", "weighted_frequency", "coocs_w", "countries_in_common", "num_common_travels"]
 
-f, ax = plt.subplots(len(features))
-f.tight_layout()
-print(X_train[:,0])
+f = plt.figure()
+
+
 meets = X_train[np.where(y_train == 0)]
 nonmeets = X_train[np.where(y_train == 1)]
-print(meets.shape)
-print(nonmeets.shape)
-for index, feature in enumerate(features):
-	sns.distplot(meets[:,index], ax=ax[index], hist=True, norm_hist=True, axlabel=feature, color="blue", kde=False, hist_kws={"alpha":0.5})
-	sns.distplot(nonmeets[:,index], ax=ax[index], hist=True, norm_hist=True, axlabel=feature, color="red", kde=False, hist_kws={"alpha":0.5})
 
+for index, feature in enumerate(features):
+	ax = f.add_subplot(4,2,index+1)
+	sns.distplot(meets[:,index], ax=ax, hist=True, norm_hist=True, axlabel=feature, color="blue", kde=False, hist_kws={"alpha":0.5})
+	sns.distplot(nonmeets[:,index], ax=ax, hist=True, norm_hist=True, axlabel=feature, color="red", kde=False, hist_kws={"alpha":0.5})
+
+f.tight_layout()
 plt.show()

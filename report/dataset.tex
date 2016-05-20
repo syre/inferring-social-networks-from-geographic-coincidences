@@ -1,5 +1,5 @@
 %!TEX root = main.tex
-\section{Dataset}
+\chapter{Dataset}
 På de følgende sider vil vi gennnemgå vores dataset. Vi vil vise de basale statistikker over dataet for hver af de perioder vi har arbejdet med og gennemgå afvigelser. Vi vil også gennemgå hvordan vi forholder os til disse afvigelser og hvordan vi lavede datacleaning. \\
 Til sidst vil vi runde afsnittet af med en del-konlusion. 
 
@@ -7,7 +7,7 @@ Vores data stammer fra Sony's Lifelog\cite{sonyLifeLog} som, navnet antyder, er 
 
 Vi har valgt at dele datasættet op i to dele, for overblikkets skylde: En \textbf{geolokation del} og en \textbf{app og homophily del}.
 
-\subsection{Geolokation del}
+\section{Geolokation del}
 Denne del af datasættet beskriver geolokationerne for hvor en bruger har været. Det beskriver præcis hvor, hvornår og hvor længe brugeren har været det pågældende sted. Hver gang brugeren skifter lokation (defineret ud fra latitude og longitude), bliver der logget en lokations opdatering med følgende oplysninger:
 \begin{enumerate}
 \item \texttt{\textbf{timestamp\_seen}}\\Millisekunder siden brugerens systems epoch, da den pågældende lokations opdatering bliver logget. 
@@ -51,7 +51,7 @@ Vi har kigget på data fra flere perioder. Vi vil nu beskrive hvordan hver perio
 \item Production data: ....
 \end{itemize}
 
-\subsubsection{Periode 1}
+\subsection{Periode 1}
 Denne periode er over 3 måneder: fra september - november 2015. Vi vil gennemgå hvordan datasættet så ud i denne periode. 
 Henover denne periode blev der indsamlet 2,665,893 lokations opdateringer fordelt på 1,586 brugere
 
@@ -245,7 +245,7 @@ Over disse 3 måneder blev der indsamlet 2.665.893 geolokation lokations opdater
 When we got the dataset it was stored in three folders, one for each month (9, 10, 11) and within each folder were multiple chunks of data in Apache Avro format\cite{apacheavro}, which we learned is a data serialization framework for Hadoop similar to the JSON format. The chunks were contained in folders bearing the number for each month, however we learned they were sorted by when the server had received the data packet containing the location from the phone and not when the phone had registered the location. The app is storing the collected data on the users phone for a maximum of one month, if the data is not uploaded within a month it is discarded. This approach to data collection means the month folders can contain location updates from the previous month as well.
 
 
-\subsubsection{Periode 2}
+\subsection{Periode 2}
 
-\subsubsection{Production data}
-\subsection{Summary}
+\subsection{Production data}
+\section{Summary}

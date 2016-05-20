@@ -18,10 +18,15 @@ f = plt.figure()
 meets = X_train[np.where(y_train == 0)]
 nonmeets = X_train[np.where(y_train == 1)]
 
+sns.set(font_scale=2.5)
 for index, feature in enumerate(features):
-	ax = f.add_subplot(4,2,index+1)
-	sns.distplot(meets[:,index], ax=ax, hist=True, norm_hist=True, axlabel=feature, color="blue", kde=False, hist_kws={"alpha":0.5})
-	sns.distplot(nonmeets[:,index], ax=ax, hist=True, norm_hist=True, axlabel=feature, color="red", kde=False, hist_kws={"alpha":0.5})
+    ax = f.add_subplot(4,2,index+1)
+    sns.distplot(meets[:,index], ax=ax, hist=True, norm_hist=True, axlabel=feature, color="blue", kde=False, hist_kws={"alpha":0.5})
+    sns.distplot(nonmeets[:,index], ax=ax, hist=True, norm_hist=True, axlabel=feature, color="red", kde=False, hist_kws={"alpha":0.5})
+    #ax.set_ylabel(ylabels[index])
+    [item.set_fontsize(35) for item in [ax.yaxis.label, ax.xaxis.label]]
+    ax.title.set_fontsize(40)
+    [item.set_fontsize(28) for item in ax.get_xticklabels() + ax.get_yticklabels()]
 
 f.tight_layout()
 plt.show()

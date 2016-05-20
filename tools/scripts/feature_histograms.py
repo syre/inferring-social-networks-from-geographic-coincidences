@@ -6,6 +6,7 @@ from FileLoader import FileLoader
 import seaborn as sns
 import matplotlib.pyplot as plt
 from collections import Counter
+import numpy as np
 fl = FileLoader()
 X_train, y_train, X_test, y_test = fl.load_x_and_y()
 
@@ -13,10 +14,9 @@ features = ["num_coocs", "arr_leav", "diversity", "unique_coocs", "weighted_freq
 
 f, ax = plt.subplots(len(features))
 f.tight_layout()
-meets = X_train[y_train[y_train == 0]]
-nonmeets = X_train[y_train[y_train == 1]]
-print(Counter(meets[:,0]).most_common(50))
-print(Counter(nonmeets[:,0]).most_common(50))
+print(X_train[:,0])
+meets = X_train[np.where(y_train == 0)]
+nonmeets = X_train[np.where(y_train == 1)]
 print(meets.shape)
 print(nonmeets.shape)
 for index, feature in enumerate(features):

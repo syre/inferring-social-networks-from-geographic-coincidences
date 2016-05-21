@@ -75,7 +75,7 @@ The Shannon entropy is defined by Equation \ref{eq:shannon_entropy}
 \label{eq:shannon_entropy}
 H^S_{ij}=-\sum\limits_{l}P^l_{ij} \log P^l_{ij}= -\sum\limits_{l,c_ij,l\neq 0}\frac{c_{ij,l}}{f_{ij}}\log \frac{c_{ij,l}}{f_{ij}}
 \end{equation}
-where $f_{ij}$ is the \textit{frequency}, the total number of co-occurrences between user $i$ and user $j$, and $c_{ij,l}$, the \textit{local frequency} is the total number of co-occurrences between user $i$ and $j$ at location $l$.
+where $f_{ij}$, the \textit{frequency}, is the total number of co-occurrences between user $i$ and user $j$, and $c_{ij,l}$, the \textit{local frequency}, is the total number of co-occurrences between user $i$ and $j$ at location $l$.
 From this the diversity is defined by taking the exponential function of the entropy defined in Equation \ref{eq:diversity}:
 \begin{equation}
 \label{eq:diversity}
@@ -90,11 +90,12 @@ The weighed frequency is defined by Equation \ref{eq:weighted_frequency}
 \label{eq:weighted_frequency}
 F_{ij}=\sum\limits_{l}c_{ij,l} \times \exp(-H_l)
 \end{equation}
-where $H_l$ is the Location Entropy defined in Equation \ref{eq:location_entropy}
+where $H_l$ is the Location Entropy for location \textit{l} defined in Equation \ref{eq:location_entropy}
 \begin{equation}
 \label{eq:location_entropy}
 H_l = \sum\limits_{u, P_{u,l}\neq0} P_{u,l}\log P_{u,l}
 \end{equation}
+where $P_{u,l}$ is the probability that a location update from location \textit{l} belongs to user \textit{u}.
 \subsubsection{Co-occurrences weighted with respect to each location}
 We use the weighted co-occurrences measure taken from the master's thesis of P. Sapieżyński\cite{IMM2013-06556}.
 
@@ -104,12 +105,16 @@ We use the timely arrival and leaving measure taken from the master's thesis of 
 \subsubsection{Unique spatial bins}
 The number of unique spatial bins between two users.
 
-\subsubsection{Countries in common}
-The number of common countries which two users have visited.
+\subsubsection{Jaccard index similarity of used apps}
+The Jaccard index is a measure used in comparing the similarity of sample sets. We extract what apps two users have used in the period and compute the similarity between them using the Jaccard index.
+The Jaccard index is defined in Equation \ref{eq:jaccard_index}
+\begin{equation}
+\label{eq:jaccard_index}
+J(A,B) = \frac{ |A \cap B| }{ |A \cup B | }
+\end{equation}
 
 \subsection{Class Imbalance Problem}
 The Class Imbalance Problem is when the total number of data for one class greatly exceeds the number of data for a different class.
-Due to our dataset having imbalanced classes
 
 \subsection{Performance metrics}
 We utilized the precision and recall metrics for evaluating the performance of our models as well as AUC of the ROC Curve.

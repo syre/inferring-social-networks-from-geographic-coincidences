@@ -16,7 +16,7 @@ from collections import Counter, defaultdict
 class Predictor():
 
     def __init__(self,
-                 country="Japan"):
+                 country):
         """
             Constructor
 
@@ -29,8 +29,7 @@ class Predictor():
         self.country = country
 
     def filter_by_country(self, loc_arr, countries):
-        country_arr = loc_arr[
-            np.in1d([loc_arr[:, 3]], [countries[self.country]])]
+        country_arr = loc_arr[loc_arr[:, 3] == countries[self.country]]
         return country_arr
 
     def generate_dataset(self, users, countries, locations_arr, coocs,
@@ -44,6 +43,7 @@ class Predictor():
 
         # filter location array  and cooc array so its between max and min
         # timebin
+        country_arr = locations_arr
         country_arr = country_arr[country_arr[:, 2] <= max_timebin]
         country_arr = country_arr[country_arr[:, 2] > min_timebin]
         coocs = coocs[coocs[:, 3] <= max_timebin]
@@ -51,7 +51,8 @@ class Predictor():
 
         return self.calculate_features_for_dataset(users, countries,
                                                    country_arr, coocs,
-                                                   met_next, selected_users)
+                                                   met_next, min_timebin,
+                                                   max_timebin, selected_users)
 
     def extract_and_remove_duplicate_coocs(self, coocs):
         """
@@ -72,19 +73,23 @@ class Predictor():
         return A[idx]
 
     def calculate_features_for_dataset(self, users, countries, loc_arr, coocs,
-                                       met_next, selected_users=[]):
+                                       met_next, min_timebin, max_timebin, selected_users=[]):
         datahelper = self.dataset_helper
         coocs_users = self.extract_and_remove_duplicate_coocs(coocs)
         if selected_users:
             coocs_users = coocs_users[np.in1d(coocs_users[:, 0], [users[u] for u in selected_users if u in users])]
             coocs_users = coocs_users[np.in1d(coocs_users[:, 1], [users[u] for u in selected_users if u in users])]
-        X = np.zeros(shape=(len(coocs_users), 9), dtype="float")
+        X = np.zeros(shape=(len(coocs_users), 12), dtype="float")
         y = np.zeros(shape=len(coocs_users), dtype="int")
         demo_dict = self.file_loader.filter_demographic_outliers(self.file_loader.generate_demographics_from_csv())
         app_data_dict = defaultdict(set)
 
         def app_data_callback(row):
-            app_data_dict[row["useruuid"]].add(row["package_name"])
+            # filter on min and max timebin
+            start_bin = self.database_helper.calculate_time_bins(row["start_time"])[0]
+            end_bin = self.database_helper.calculate_time_bins(row["end_time"])[0]
+            if min_timebin <= start_bin and end_bin < max_timebin:
+                app_data_dict[row["useruuid"]].add(row["package_name"])
 
         self.file_loader.generate_app_data_from_json(app_data_callback)
         for index, pair in tqdm(enumerate(coocs_users), total=coocs_users.shape[0]):
@@ -100,15 +105,15 @@ class Predictor():
             X[index, 4] = datahelper.calculate_weighted_frequency(
                 pair_coocs, loc_arr)
             X[index:, 5] = datahelper.calculate_coocs_w(pair_coocs, loc_arr)
-            X[index:, 6] = datahelper.calculate_countries_in_common(
-                user1, user2, loc_arr)
-            X[index:, 7] = datahelper.calculate_number_of_common_travels(
+            X[index:, 6] = datahelper.calculate_number_of_common_travels(
                 pair_coocs)
-            X[index:, 8] = self.has_two_unique_coocs(user1, user2, coocs)
-            #X[index:, 8] = self.compute_mutual_cooccurrences(coocs, user1, user2)
-            #X[index:, 8] = self.is_within_6_years(demo_dict, users[user1], users[user2])
-            #X[index:, 9] = self.is_same_sex(demo_dict, users[user1], users[user2])
-            #X[index:, 10] = self.compute_app_jaccard_index(app_data_dict, users[user1], users[user2])
+            X[index:, 7] = self.has_two_unique_coocs(user1, user2, coocs)
+            #X[index:, 8] = datahelper.calculate_countries_in_common(
+            #    user1, user2, loc_arr)
+            X[index:, 8] = self.compute_mutual_cooccurrences(coocs, user1, user2)
+            X[index:, 9] = self.is_within_6_years(demo_dict, users[user1], users[user2])
+            X[index:, 10] = self.is_same_sex(demo_dict, users[user1], users[user2])
+            X[index:, 11] = self.compute_app_jaccard_index(app_data_dict, users[user1], users[user2])
             y[index] = self.has_met(user1, user2, met_next)
 
         return X, y
@@ -226,16 +231,16 @@ class Predictor():
         X_test = scaler.transform(X_test)
         print("Logistic Regression - with number of cooccurrences")
         lg = sklearn.linear_model.LogisticRegression(class_weight="balanced")
-        lg.fit(X_train[:, 8].reshape(-1, 1), y_train)
-        y_pred = lg.predict(X_test[:, 8].reshape(-1, 1))
+        lg.fit(X_train[:, 0].reshape(-1, 1), y_train)
+        y_pred = lg.predict(X_test[:, 0].reshape(-1, 1))
         print(sklearn.metrics.classification_report(y_test, y_pred, target_names=["didnt meet", "did meet"]))
-        self.compute_roc_curve(y_test, lg.predict_proba(X_test[:, 8].reshape(-1, 1))[:,1])
+        self.compute_roc_curve(y_test, lg.predict_proba(X_test[:, 0].reshape(-1, 1))[:,1])
         cm = confusion_matrix(y_test, y_pred)
         self.plot_confusion_matrix(cm)
 
         print("Random Forest - all features")
         #self.tweak_features(X_train, y_train, X_test, y_test)
-        forest = sklearn.ensemble.RandomForestClassifier(n_estimators = 500, class_weight="balanced")
+        forest = sklearn.ensemble.RandomForestClassifier(n_estimators = 200, class_weight="balanced")
         forest.fit(X_train, y_train)
         y_pred = forest.predict(X_test)
         print(sklearn.metrics.classification_report(y_test, y_pred, target_names=["didnt meet", "did meet"]))
@@ -271,7 +276,6 @@ if __name__ == '__main__':
     f = FileLoader()
     d = DatabaseHelper()
     X_train, y_train, X_test, y_test = f.load_x_and_y()
-    print(Counter(list(X_test[:,0])).most_common(50))
     print("y_train contains {} that didnt meet, and {} that did meet".format(
         list(y_train).count(0), list(y_train).count(1)))
     print("y_test contains {} that didnt meet and {} that did meet".format(

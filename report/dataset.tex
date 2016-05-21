@@ -121,11 +121,9 @@ Vi kan se på medianen og mean, at de fleste brugere har lav værdi i accuracy -
 Medianen og mean svarer til henholdsvis 23m og 26.89m og 95\% standard deviation er på mellem 6.6m og 47.19m hvilken er en fin accuracy. 
 
 
-
- 19,344,  80 
-Når vi kigger på hvilke lande der er repræsenteret og i hvilken grad, har vi at gøre med 80 unikke lande. Til at starte med lå dette tal på 74. Det viste sig, at der var en masse lokations opdaterings hvor landet ikke var blevet logget, hvor landet blot var repræsenteret med en tom streng. Dette var tilfældet i så stor en del af dataet, at landet med en tom streng, var det andet mest repræsenterede land i dataet med lidt over 500.000 lokations opdateringer. 
-Da vi gerne vil kunne sorterer data på baggrund af land, var dette et problem. Dette var et problem som vi løste, ved at udføre omvendt geolokation. For næsten alle de 500.000 lokations opdaterings, var latitude og longitude til stede, så vi kunne ved hjælp af et API\cite{reversegeocode} slå landet op på bagrund af latitude og longitude, og herefter indsætte det i dataet. Dette gjorde vi kun skulle gøre dette én gang, stedet for at slå landet op hver gang vi kørte vores scripts. Dette ville have været ineffektivt og spilde tid.\\ 
-Vores omvendt geolokation gjorde, at vi gik fra over 500,000 lokations opdaterings hvor landet ikke var til stede, til blot 130 lokations opdaterings. I samme omgang gik vi fra 74 lande til 80 (inkl. land med tom streng)
+Når vi kigger på hvilke lande der er repræsenteret og i hvilken grad, har vi at gøre med 80 unikke lande. Til at starte med lå dette tal på 74. Det viste sig, at der var en masse lokations opdateringer hvor landet ikke var blevet logget. I disse tilfælde var landet blot repræsenteret med en tom streng. Dette var tilfældet i så stor en del af dataet, at landet med en tom streng, var det andet mest repræsenterede land i dataet med lidt over 500.000 lokations opdateringer. 
+Da vi gerne vil kunne sorterer data på baggrund af land, var dette et problem. Dette var et problem som vi løste, ved at udføre omvendt geolokation. For næsten alle de 500.000 lokations opdateringer, var latitude og longitude til stede, så vi kunne ved hjælp af et API\cite{reversegeocode} slå landet op på bagrund af latitude og longitude, og herefter indsætte det i dataet. Dette gjorde vi kun skulle gøre dette én gang, i stedet for at slå landet op hver gang vi kørte vores scripts. Dette ville have været ineffektivt og spild af tid. Derudover havde API'et en grænse hvor hvor mange man kunne slå op i minuttet, hvilket gjorde at det tog en uges tid at slå alle op. Her kørte scriptet 24/7. \\ 
+Vores omvendt geolokation gjorde, at vi gik fra over 500,000 lokations opdateringer hvor landet ikke var til stede, til blot 130 lokations opdateringer. I samme omgang fik vi nye lande repræsenteret i dataet, så vi gik fra 74 lande til 80 (inkl. land med tom streng)
 
 Vi kan herefter kigge på, hvordan lokations opdateringerne er distribueret over hvert land. På figur \ref{fig:country_dist} kan vi se at landet med en tom streng, røg godt ned på listen, mens Sverige og Japan topper listen. 
 
@@ -137,6 +135,8 @@ Vi kan herefter kigge på, hvordan lokations opdateringerne er distribueret over
     \caption{Distribution for number of location updates between countries}
     \label{fig:country_dist}
 \end{figure}
+
+At Sverige og Japan er de to størst repræsenterede lande er ikke så mærkeligt, da Sony er et Japansk firma og Sony overtog helt Sony-Ericsson, hvor Ericsson var Svensk. Sony-Ericsson var den gang Sony's mobil mærke. 
 
 På baggrund af Figure \ref{fig:country_dist}, har vi valgt at gå videre med endten Sverige eller Japan. Derfor vil vi nu sammeligne data for de to lande. 
 I Japan er der 316 unikke brugere, mens der i Sverige er 542. De to lande kan have brugere tilfælles, da brugerne principielt kan rejse mellem flere lande og derved have lokations opdateringer i flere lande.  
@@ -152,31 +152,11 @@ Figure \ref{fig:mean_loc_updates_sep-nov} sammenligner gennemsnittet for lokatio
 \end{figure}
 
 Vi kan se at Sverige har betydeligt flere opdateringer end Japan i alle tre måneder, hvor landet i September og Oktober endda har dobbelt så mange end Japan. Vi kan også se en nedadgående tendens i begge lande. September har højest antal opdateringer, hvor det herefter går nedad i de to resterende måneder, hvor November for Sverige ligger over 300 opdateringer under September. Selvom tendensen ses tydeligst for Sverige, er den også synlig for Japan. \\
-Dette kigger vi nermere på senere. \textcolor{red}{heatmaps???}
-
-Vi vil gerne se hvordan lokations opdateringerne for de to lande, er fordelt på brugerne. Til dette har vi plottet den Cumulative Distribution Function (CDF) for de to lande - se Figure \ref{fig:country_cdf}. 
-Plottet viser, at både i Japan og Sverige er der en stor del af brugerne, som har meget få lokations opdateringer set henover hele perioden. Over en tredje del af brugerne i begge lande, har kun 1 opdatering over tre måneder. Det kan også ses, at Japan har flere brugere med kun én opdatering end hvad Sverige har. 
-Da opdateringerne kommer hver gang brugeren skifter lokation, betyder dette, at mange af brugerene er meget stillestående eller også har de slukket mobilen. Begge disse scenarier tegner ikke godt for vores mål, da det giver sig selv at der skal være nogle data for at finde co-occurences. 
-Dette kunne tyde på at data fra Sverige vil være mere brugbart end Japan. 
-
-%Dog er binsize forskellig for de to plot og hvis vi sammenligner nøgleværdierne for de to lande (Table \ref{tab:stat_loc_updates}) kan vi se, at Sverige har større Q1 end Japan.
-
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[scale=0.18]{cumulative_dist_loc_updates_swe_jap}
-%     \caption[Cumulative distribution for location update]{Cumulative distribution for location update. (a) show the cumulative distribution for all users in Japan; (b) show it for Sweden}
-%     \label{fig:country_cd}
-% \end{figure}
+Dette kigger vi nærmere på senere. \textcolor{red}{heatmaps???}
 
 
 
-\begin{figure}[H]
-    \hspace*{-1.0cm}
-    \centering
-    \includegraphics[scale=0.14]{cdf_location_updates_swe_jap}
-    \caption{Cumulative Distribution Function (CDF) over location updates for Japan and Sweden}
-    \label{fig:country_cdf}
-\end{figure}
+Vi vil gerne se hvordan lokations opdateringerne for de to lande, er fordelt på brugerne. Til dette har vi quantilerne for de to lande, som se i Tabel \ref{tab:stat_loc_updates} 
 
 \begin{table}[htbp]
         \centering
@@ -202,9 +182,37 @@ Dette kunne tyde på at data fra Sverige vil være mere brugbart end Japan.
             \hline
             
         \end{tabular}
-        \caption{Quantiles and mean over location updates for Japan and Sweden per user} %add this between 'caption' and '{...' for new text in listing of tables: [New caption text only for listing of tables]
+        \caption{Quantiles and mean over location updates for Japan and Sweden} %add this between 'caption' and '{...' for new text in listing of tables: [New caption text only for listing of tables]
         \label{tab:stat_loc_updates}
 \end{table}
+
+
+Hvis vi kigger på landenes quantiler, kan vi se at 25\% quantilen (Q1) er meget lav hos begge lande. Q1 vise med andre ord, at 25\% af brugerne i Japan og Sverige har henholdsvis maksimalt 22 og 71 opdateringer, henover alle tre måneder. Dette er ikke et godt tegn at så mange brugere har så få opdateringer. 75\% quantilen (Q3) er en del højere i Sverige end i Japan, hvilket viser der er 75\% af brugerne der har maksimal 1,063.25 og 2,848.25 lokations opdateringer i henholdsvis Japan og Sverige. Dette ser igen bedre ud i Sverige, hvis brugere har flere opdateringer end Japan. \\ 
+
+Begge lande har en lille procent brugere, som står får utroligt mange opdateringer. I Sverige er der 25\% brugere som har mellem 2,848.25 og 15,447 opdateringer og i Japan har de mellem 1,063.25 og 10,316 opdateringer. Dette er ligesom med Q1 et dårligt tegn. 
+Median og mean er meget større i Sverige end Japan. Dette tyder på at der er flere brugere med flere lokations opdateringer i Sverige end i Japan. \\
+
+
+Ovenstående tendens, vil vi gerne vise mere tydeligt, hvorfor vi har plottet den Cumulative Distribution Function (CDF) for de to lande. 
+\begin{figure}[H]
+    \hspace*{-1.0cm}
+    \centering
+    \includegraphics[scale=0.14]{cdf_location_updates_swe_jap}
+    \caption{Cumulative Distribution Function (CDF) over location updates for Japan and Sweden}
+    \label{fig:country_cdf}
+\end{figure}
+
+Plottet viser, at både i Japan og Sverige er der en stor del af brugerne, som har meget få lokations opdateringer set henover hele perioden. Over en tredje del af brugerne i begge lande, har kun 1 opdatering over tre måneder. Det kan også ses, at Japan har flere brugere med kun én opdatering, end hvad Sverige har. 
+Da opdateringerne kommer hver gang brugeren skifter lokation, betyder dette, at mange af brugerene er meget stillestående eller også har de slukket mobilen. Her kan stillestående også menes, at brugeren har glemt sin telefon derhjemme.
+Begge disse scenarier tegner ikke godt for vores mål, da det giver sig selv at der skal være nogle data for at finde co-occurences. 
+På baggrund af dette, kunne det tyde på at data fra Sverige vil være mere brugbart end Japan. 
+
+
+
+
+
+
+
 
 \textcolor{red}{Vi skal have en introduktion hvor vi skriver at vi prøvede at træne data, hvor vi fik dårlige resultater. Herefter kiggede vi på nedenstående}
 

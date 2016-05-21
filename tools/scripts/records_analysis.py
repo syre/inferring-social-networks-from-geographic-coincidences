@@ -639,15 +639,62 @@ def fetch_data(countries=["Japan", "Sweden"]):
     return data, df, total_count, countries
 
 
-if __name__ == '__main__':
-    #compare_loc_updates_per_month()
+def location_updates_at_hq_or_not():
+    d = DatabaseHelper.DatabaseHelper()
+    filter_places_dict = {"Sweden": [[(13.2262862, 55.718211), 1000],
+                                    [(17.9529121, 59.4050982), 1000]],
+                          "Japan": [[(139.743862, 35.630338), 1000]]}
     data, df, total_count, countries = fetch_data()
 
-    show_all_month_for_contries()
-    cdf_xy_plot()
-    print("show_all_month_same_scale")
-    show_all_month_same_scale(countries, find_users=False,
-                              number_of_days_without_updates=5)
+    test = {'Country': [], 'hq': []}
+    #test = pd.DataFrame([], columns=['country', 'hq'])
+    temp_i = 0
+    for country in countries:
+        print(country)
+        for row in df.loc[(df['country'] == country), 'Location updates']:
+            test['Country'].extend([country]*row)
+            test['hq'].extend(['At HQ']*row)
+    test2 = pd.DataFrame(test)
+    
+    #print(df)299157
+    #df.ix[(df.country == 'Japan'), 'hq'] = "Nej" 
+    for country in countries:
+        res = d.get_locations_for_numpy(filter_places_dict[country])
+        res = [row for row in res if row[3] == country]
+        if country == 'Sweden':
+            print(len(res))
+            test2.loc[(test2['Country'] == country) & (test2.index < (299157+len(res))), 'hq'] = 'Not at HQ'
+        else:
+            test2.loc[(test2['Country'] == country) & (test2.index < len(res)), 'hq'] = 'Not at HQ'
+        #print("Country: {} - {}".format(country, len(res)))
+    #print(test2)
+    #print(test2.loc[(test2['country'] == 'Sweden'), 'hq'])
+    sns.set(font_scale=2.5)
+    ax = sns.countplot(x="Country", hue="hq", data=test2)
+    ax.set_ylabel("Number of location updates")
+    ax.set_title("Distribution of location updates (at Sony HQ or not)")
+    #ax.set_xlabel("Days")
+    sns.plt.legend(prop={'size': 40})
+    sns.plt.tick_params(labelsize=20)
+    [item.set_fontsize(45) for item in [ax.yaxis.label, ax.xaxis.label]]
+    ax.title.set_fontsize(48)
+    [item.set_fontsize(33) for item in ax.get_xticklabels() + ax.get_yticklabels()]
+    sns.plt.show()
+
+
+
+
+
+if __name__ == '__main__':
+    location_updates_at_hq_or_not()
+    #compare_loc_updates_per_month()
+    #data, df, total_count, countries = fetch_data()
+
+    #show_all_month_for_contries()
+    #cdf_xy_plot()
+    #print("show_all_month_same_scale")
+    #show_all_month_same_scale(countries, find_users=False,
+    #                          number_of_days_without_updates=5)
     #print("show_specific_country_and_period")
     country = "Japan"
     fro = "2015-11-01"

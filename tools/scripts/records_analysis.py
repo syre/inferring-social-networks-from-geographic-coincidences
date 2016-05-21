@@ -448,15 +448,16 @@ def compare_loc_updates_per_month():
     ax.set_ylabel("Number of location updates")
     ax.set_title("Mean of location updates in Japan and Sweden over three month period")
     #ax.set_xlabel("Days")
+    sns.plt.legend(prop={'size': 40})
     sns.plt.tick_params(labelsize=20)
-    [item.set_fontsize(35) for item in [ax.yaxis.label, ax.xaxis.label]]
-    ax.title.set_fontsize(40)
-    [item.set_fontsize(28) for item in ax.get_xticklabels() + ax.get_yticklabels()]
+    [item.set_fontsize(45) for item in [ax.yaxis.label, ax.xaxis.label]]
+    ax.title.set_fontsize(48)
+    [item.set_fontsize(33) for item in ax.get_xticklabels() + ax.get_yticklabels()]
     sns.plt.show()
 
 if __name__ == '__main__':
-    #compare_loc_updates_per_month()
-    #sys.exit(0)
+    compare_loc_updates_per_month()
+    sys.exit(0)
     countries = ["Japan", "Sweden"]
     d = DatabaseHelper.DatabaseHelper()
 

@@ -238,8 +238,9 @@ class Predictor():
         print(sklearn.metrics.classification_report(y_test, y_pred, target_names=["didnt meet", "did meet"]))
         self.compute_roc_curve(y_test, lg.predict_proba(X_test[:, 0].reshape(-1, 1))[:,1])
         cm = confusion_matrix(y_test, y_pred)
+        #cm_normalized = cm.astype("float")/ cm.sum(axis=1)[:, np.newaxis]
         self.plot_confusion_matrix(cm)
-
+        print(cm)
         print("Random Forest - all features")
         #self.tweak_features(X_train, y_train, X_test, y_test)
         forest = sklearn.ensemble.RandomForestClassifier(n_estimators = 200, class_weight="balanced")
@@ -249,9 +250,11 @@ class Predictor():
         self.compute_feature_ranking(forest, X_test)
         # compute ROC curve
         self.compute_roc_curve(y_test, forest.predict_proba(X_test)[:,1])
-        cm = confusion_matrix(y_test, y_pred)
-        self.plot_confusion_matrix(cm)
 
+        cm = confusion_matrix(y_test, y_pred)
+        #cm_normalized = cm.astype("float")/ cm.sum(axis=1)[:, np.newaxis]
+        self.plot_confusion_matrix(cm)
+        print(cm)
     def find_users_in_cooccurrence(self, spatial_bin, time_bin):
         """
         Find all users who's been in a given cooccurrence

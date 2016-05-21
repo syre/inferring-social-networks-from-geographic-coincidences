@@ -128,6 +128,8 @@ class Predictor():
     def compute_app_jaccard_index(self, app_data_dict, user1, user2):
         union = len(app_data_dict[user1] | app_data_dict[user2])
         intersect = len(app_data_dict[user1] & app_data_dict[user2])
+        if intersect == 0 and union == 0:
+            return 1
         if union == 0:
             return 0
         return intersect/union

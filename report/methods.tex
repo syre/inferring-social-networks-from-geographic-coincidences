@@ -110,9 +110,9 @@ The Jaccard index is a measure used in comparing the similarity of sample sets. 
 The Jaccard index is defined in Equation \ref{eq:jaccard_index}
 \begin{equation}
 \label{eq:jaccard_index}
-J(A,B) = \frac{ |A \cap B| }{ |A \cup B | }
+J(A_i,A_j) = \frac{ |A_i \cap A_j| }{ |A_i \cup A_j | }
 \end{equation}
-
+where $A_i$ is the set of apps used by user $i$ and $A_j$ is the set of apps used by user $j$. If $A_i$ and $A_j$ are empty sets we define $J(A_i, A_j) = 1$
 \subsection{Class Imbalance Problem}
 The Class Imbalance Problem is when the total number of data for one class greatly exceeds the number of data for a different class.
 

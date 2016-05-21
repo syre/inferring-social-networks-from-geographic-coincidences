@@ -178,10 +178,13 @@ def cdf_xy_plot(data, title, xlabel, ylabel, legend_labels):
     ax = plt.subplot(111, xlabel=xlabel, ylabel=ylabel, title=title)
     plt.plot(data[0][0], data[0][1], label=legend_labels[0])
     plt.plot(data[1][0], data[1][1], label=legend_labels[1], color='r')
+    
     #plt.xlabel(xlabel)
     #plt.ylabel(ylabel)
     
     xlim_max = max([max(data[0][0]), max(data[1][0])])
+    #plt.xticks(np.arange(1, xlim_max, 499), rotation=90)
+
     plt.ylim(0, 1)
     plt.xlim(0, xlim_max)
     plt.title(title)
@@ -445,15 +448,16 @@ def compare_loc_updates_per_month():
     ax.set_ylabel("Number of location updates")
     ax.set_title("Mean of location updates in Japan and Sweden over three month period")
     #ax.set_xlabel("Days")
+    sns.plt.legend(prop={'size': 40})
     sns.plt.tick_params(labelsize=20)
-    [item.set_fontsize(35) for item in [ax.yaxis.label, ax.xaxis.label]]
-    ax.title.set_fontsize(40)
-    [item.set_fontsize(28) for item in ax.get_xticklabels() + ax.get_yticklabels()]
+    [item.set_fontsize(45) for item in [ax.yaxis.label, ax.xaxis.label]]
+    ax.title.set_fontsize(48)
+    [item.set_fontsize(33) for item in ax.get_xticklabels() + ax.get_yticklabels()]
     sns.plt.show()
 
 if __name__ == '__main__':
-    #compare_loc_updates_per_month()
-    #sys.exit(0)
+    compare_loc_updates_per_month()
+    sys.exit(0)
     countries = ["Japan", "Sweden"]
     d = DatabaseHelper.DatabaseHelper()
 
@@ -465,8 +469,8 @@ if __name__ == '__main__':
     dd = {'Location updates': [], 'country': []}
     total_count = {}
     for i, country in enumerate(countries):
-        query = "SELECT useruuid, count(*) FROM location WHERE country='"+country+"' \
-                 GROUP BY useruuid ORDER BY useruuid"
+        query = "SELECT useruuid, count(*) FROM location WHERE country='"+country+"'"+ \
+                "GROUP BY useruuid ORDER BY useruuid"
         result = d.run_specific_query(query)
         total_count[country] = len(result)
         print("country = {}, sum = {}, len = {}".format(country, sum([row[1] for row in result]), len(result)))
@@ -482,16 +486,25 @@ if __name__ == '__main__':
     data_summary_per_user(df, total_count)
     #boxplot(df, "country", "Location updates", "Location updates for all users in Japan and Sweden")
     #records_dist_plot(data, 100, xlabels, ylabels, titles, labels)
-    #
+    #print(data)
+    print("-------------")
+    print(df)
+    print("&&&&&&&&&&&&&&&&")
+    #print(list(df["Location updates"][df['country'] == 'Sweden']))
+    no_users = {"Japan": 316, "Sweden": 542}
     data_cdf = []
     for i, country in enumerate(countries):
-        hist, bin_edges = np.histogram(data[i], bins=100, normed=True)
-        cdf = np.around(np.cumsum(hist)*np.ceil(bin_edges[1]-bin_edges[0]), decimals=3)
-        bin_edges = bin_edges[1:]
-        data_cdf.append((bin_edges, cdf))
-
-    #cdf_xy_plot(data_cdf, "CDF for location updates", "Location updates",
-    #            "Frequency", countries)
+        updates = list(df["Location updates"][df['country'] == country])
+        c = dict(collections.OrderedDict(sorted(collections.Counter(updates).items())))
+        x = []
+        y = []
+        for updates, users in sorted(c.items()):
+            x.append(updates)
+            y.append(users/no_users[country])
+        data_cdf.append((x, np.cumsum(y)))
+        
+    cdf_xy_plot(data_cdf, "CDF for location updates", "Location updates",
+                "Frequency", countries)
 
     #............... HEAT-MAP --------------------#
     for country in countries:
@@ -526,10 +539,9 @@ if __name__ == '__main__':
     #                                 base_title="Heatmap of location updates per users\
     #                                             per day in ")
 
-    
-    #y_data = np.sum(data, axis=0)
-    #x_data = xlabels[0]
-    #rint(x_data)
+    y_data = np.sum(data, axis=0)
+    x_data = xlabels[0]
+    #print(x_data)
     #print(y_data)
 
     #xy_plot([x_data, y_data], "Number of users with location updates per day for Japan", "Days", "Number of users with location updates")

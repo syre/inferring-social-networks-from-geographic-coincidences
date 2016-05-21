@@ -20,6 +20,18 @@ import pprint
 
 
 def get_data_for_heat_map_per_month(country="Japan", total_count={}, user=""):
+    """
+        Generate numpy matrix represent heatmap with the following dimension: 3x7x6 (3 month, 7 days in a week, up to 6 weeks in a month)
+        Hardcoded datetimes
+
+        Arguments:
+            country {string} -- Which country to get data from
+            total_count {dict} -- Dict with total users in country (key = country, values = total users)
+            user {string} -- find it for specific user
+
+        Returns:
+            numpy array -- Numpy array with number of location in that day, in that week, in that month
+    """
     d = DatabaseHelper.DatabaseHelper()
     sept_min_datetime2 = "2015-08-30 00:00:00+00:00" #Mandag
     nov_max_datetime2 = "2015-12-13 23:59:59+00:00"
@@ -82,6 +94,16 @@ def get_data_for_heat_map_per_month(country="Japan", total_count={}, user=""):
 
 
 def get_all_users_in_country(country, users=[]):
+    """
+        Generate dict with incremental values as key, and original useruuid as values AND vice versa
+
+        Arguments:
+            country {string} -- Which country to get users from
+            users {list} -- List of users. If not empty list, the db call is omitted
+
+        Returns:
+            dict -- dict with incremental values as key, and original useruuid as values AND vice versa
+    """
     d = DatabaseHelper.DatabaseHelper()
     if not users:
         result = d.run_specific_query("SELECT DISTINCT(useruuid) FROM location WHERE country='"+country+"' ORDER BY useruuid")
@@ -98,6 +120,19 @@ def get_all_users_in_country(country, users=[]):
 
 
 def get_data_for_heat_map_per_user(country, start_date, end_date, input_users=[], counts=False):
+    """
+        Generate numpy matrix represent heatmap with the following dimension: usersxdays
+
+        Arguments:
+            country {string} -- Which country to get data from
+            start_date {string} -- start datetime
+            end_time {string} -- end datetime
+            input_users {list} -- list of specific users
+            counts {boolean} -- Indicates if it should find number of locations (True) or just if the user has an update (False)
+
+        Returns:
+            numpy array -- Numpy array
+    """
     d = DatabaseHelper.DatabaseHelper()
     users = get_all_users_in_country(country, input_users)
     sept_min_datetime2 = start_date + " 00:00:00+00:00" #Mandag
@@ -149,6 +184,16 @@ def get_data_for_heat_map_per_user(country, start_date, end_date, input_users=[]
 
 
 def week_of_month(date):
+    """
+    Calculate which week number of a month a date are in 
+    That is between 1 and 6
+
+    Arguments:
+        date  {datetime} -- Datetime for which week number should be calculated for
+
+    Returns:
+        int
+    """
     flag = False
     if date.weekday() == 6:
         flag = True
@@ -174,17 +219,31 @@ def calc_labels(data, bins):
     return xlabels, step
 
 
-def cdf_xy_plot(data, title, xlabel, ylabel, legend_labels):
+def cdf_xy_plot():
+    """
+    Plotting the CDF for countries from fetch_data
+    """
+    _, df, _, countries = fetch_data()
+    no_users = {"Japan": 316, "Sweden": 542}
+    data = []
+    for i, country in enumerate(countries):
+        updates = list(df["Location updates"][df['country'] == country])
+        c = dict(collections.OrderedDict(sorted(collections.Counter(updates).items())))
+        x = []
+        y = []
+        for updates, users in sorted(c.items()):
+            x.append(updates)
+            y.append(users/no_users[country])
+        data.append((x, np.cumsum(y)))
+    
+    title = "CDF for location updates"
+    xlabel = "Location updates"
+    ylabel = "Frequency"
+    legend_labels = countries
     ax = plt.subplot(111, xlabel=xlabel, ylabel=ylabel, title=title)
     plt.plot(data[0][0], data[0][1], label=legend_labels[0])
     plt.plot(data[1][0], data[1][1], label=legend_labels[1], color='r')
-    
-    #plt.xlabel(xlabel)
-    #plt.ylabel(ylabel)
-    
     xlim_max = max([max(data[0][0]), max(data[1][0])])
-    #plt.xticks(np.arange(1, xlim_max, 499), rotation=90)
-
     plt.ylim(0, 1)
     plt.xlim(0, xlim_max)
     plt.title(title)
@@ -198,9 +257,6 @@ def cdf_xy_plot(data, title, xlabel, ylabel, legend_labels):
 def xy_plot(data, title, xlabel, ylabel):
     ax = plt.subplot(111, xlabel=xlabel, ylabel=ylabel, title=title)
     plt.plot(data[0], data[1])
-    #plt.xlabel(xlabel)
-    #plt.ylabel(ylabel)
-    
     xlim_max = max(data[0])
     plt.ylim(0, max(data[1]))
     plt.xlim(0, xlim_max)
@@ -239,6 +295,19 @@ def records_dist_plot(data, bins, xlabels, ylabels, titles, labels):
 
 
 def heat_map(data, mask, xlabels, ylabels, title="", anno=True, multiple=True, max_val=0):
+    """
+    Plotting a heatmap
+
+    Arguments:
+        data  {numpy array} -- Data to be plottet
+        mask  {numpy array} -- Shows which cells to "remove" in the heatmap
+        xlabels {list} -- One or more labels for X-axis
+        ylabels {list} -- One or more labels for Y-axis
+        titles  {string} -- title of heatmap
+        anno    {boolean} -- Indicates whether the heatmap should show the values on map (True) or not (False)
+        multiple {boolean} -- Indicates whether there are data for multiple heatmap (True) or not (False)
+        max_val {int}     --  max value of the indicator. If it's 0 (default) max_val will be calculated from the data
+    """
     sns.set(font_scale=2.5)
     if multiple:
         months = ["September", "October", "November"]
@@ -288,9 +357,13 @@ def boxplot(data, xx, yy, title):
     sns.plt.show()
 
 
-def data_summary_per_user(data, total_counts):
-    q = data.groupby('country')['Location updates'].quantile([0.0, 0.25, 0.5, 0.75, 1.0])
-    means = data.groupby('country')['Location updates'].mean()
+def data_summary_per_user():
+    """
+    Calculates the quantiles for the data
+    """
+    _, df, total_counts, _, = fetch_data()
+    q = df.groupby('country')['Location updates'].quantile([0.0, 0.25, 0.5, 0.75, 1.0])
+    means = df.groupby('country')['Location updates'].mean()
     print("///////// Japan ////////")
     print(q['Japan'])
     print("////////")
@@ -308,6 +381,24 @@ def show_all_month_same_scale(countries, values_loc_updates=True,
                               user_start_id=-1,
                               number_of_days_without_updates=5, anno=False,
                               base_title="Heatmap of location updates per users per day in "):
+
+    """
+    Plotting heatmaps of location updates per users per day in each month (sep, okt, nov) for each country. 
+    The month are hardcoded
+
+    Arguments:
+        countries                      {list}    -- List of countries
+        values_loc_updates             {boolean} -- Whether to get number of updates (True) or just whether there are or aren't an update (False)
+        specific_users                 {list}    -- Only shows for certain users
+        sorter_non_location_user_fra   {boolean} -- Whether to remove user who haven't any updates (True) or not (False)
+        sorter_efter_sum               {boolean} -- Whether to sort the list of users after the sum of updates (True) or not (False)
+        find_users                     {boolean} -- Whether to find users (True) or not (False)
+        user_start_id                  {int}     -- User ID of the user to find users from (if find_users are True)
+        number_of_days_without_updates {int}     -- A threshold for finding users (if find_users are True). 
+                                                    It is max number of days of with the users can have no updates
+        base_title                     {string}  -- (Base) title for the heatmaps
+
+    """
     periods = [("2015-09-01", "2015-09-30"), ("2015-10-01", "2015-10-31"),
                ("2015-11-01", "2015-11-30")]
     max_values = defaultdict(dict)
@@ -341,6 +432,27 @@ def show_specific_country_and_period(country, fro, to, values_loc_updates,
                                      user_start_id=-1,
                                      number_of_days_without_updates=5,
                                      max_val=0, anno=False):
+    """
+    Plotting a single heatmap of location updates per users per day in a month 
+    The month are hardcoded
+
+    Arguments:
+        country                        {string}  -- Country
+        fro                            {string}  -- From datetime string
+        to                             {string}  -- To datetime string
+        values_loc_updates             {boolean} -- Whether to get number of updates (True) or just whether there are or aren't an update (False)
+        base_title                     {string}  -- (Base) title for the heatmap
+        specific_users                 {list}    -- Only shows for certain users
+        sorter_non_location_user_fra   {boolean} -- Whether to remove user who haven't any updates (True) or not (False)
+        sorter_efter_sum               {boolean} -- Whether to sort the list of users after the sum of updates (True) or not (False)
+        find_users                     {boolean} -- Whether to find users (True) or not (False)
+        user_start_id                  {int}     -- User ID of the user to find users from (if find_users are True)
+        number_of_days_without_updates {int}     -- A threshold for finding users (if find_users are True). 
+                                                    It is max number of days of with the users can have no updates
+        max_val                        {int}     -- Max values for the scale in heatmap
+        anno                           {boolean} -- Whether to show values in the cells of the heatmap (True) or not (False)
+
+    """
     data, users = get_data_for_heat_map_per_user(country, fro, to,
                                                  specific_users,
                                                  values_loc_updates)
@@ -393,7 +505,39 @@ def show_specific_country_and_period(country, fro, to, values_loc_updates,
              max_val=max_val)
 
 
+def show_all_month_for_contries():
+    """
+    Show a heatmap of the 3 months (sep, okt, nov) for each country
+    """
+    data, df, total_count, countries = fetch_data()
+
+    #............... HEAT-MAP --------------------#
+    for country in countries:
+        user = ""
+        data, mask = get_data_for_heat_map_per_month(country, total_count)
+        title = "Number of location updates per user in "+country
+        if user != "":
+            title += " for user " + str(user)
+        ylabels = [["M", "T", "W", "T", "F", "S", "S"],
+                   ["M", "T", "W", "T", "F", "S", "S"],
+                   ["M", "T", "W", "T", "F", "S", "S"]]
+        xlabels = [["Week 1", "Week 2", "Week 3", "Week 4", "Week 5", "Week 6"],
+                   ["Week 1", "Week 2", "Week 3", "Week 4", "Week 5", "Week 6"],
+                   ["Week 1", "Week 2", "Week 3", "Week 4", "Week 5", "Week 6"]]
+        heat_map(data, mask, xlabels, ylabels, title, True)
+
+
 def find_duplicate_rows(data):
+    """
+    find rows in a sorted numpy array of 0 and 1,
+    where columns are equal in 90% or more of the cases
+
+    Arguments:
+        data    {numpy}  -- Numpy array with 0 or 1's
+
+    Return:
+        list of list with indices of the rows which are flagged as duplicates
+    """
     length = data.shape[0]
     threshold = math.ceil(data.shape[1]*0.9)
     zero_threshold = math.ceil(data.shape[1]*0.5)
@@ -423,6 +567,9 @@ def find_duplicate_rows(data):
 
 
 def compare_loc_updates_per_month():
+    """
+    Plots a plot  of mean of location updates of Japan and Sweden
+    """
     d = DatabaseHelper.DatabaseHelper()
     countries = ["Japan", "Sweden"]
     no_users = {"Japan": 316, "Sweden": 542}
@@ -455,17 +602,24 @@ def compare_loc_updates_per_month():
     [item.set_fontsize(33) for item in ax.get_xticklabels() + ax.get_yticklabels()]
     sns.plt.show()
 
-if __name__ == '__main__':
-    compare_loc_updates_per_month()
-    sys.exit(0)
-    countries = ["Japan", "Sweden"]
-    d = DatabaseHelper.DatabaseHelper()
 
-    #-------------- DIST PLOT --------------------#
+def fetch_data(countries=["Japan", "Sweden"]):
+    """
+    Arguments:
+        countries    {countries}  -- Which countries to fetch data for
+
+    Return:
+        data         {list}       -- List raw data
+        df           {dataframe}  -- Pandas dataframe of data
+        total_count  {dict}       -- dicts with country as keys and number of distinct users as values
+        countries    {list}       -- List of countries
+    """
     data = []
     titles = []
     labels = []
     xlabels = []
+    d = DatabaseHelper.DatabaseHelper()
+
     dd = {'Location updates': [], 'country': []}
     total_count = {}
     for i, country in enumerate(countries):
@@ -481,56 +635,19 @@ if __name__ == '__main__':
         titles.append("Cumulative distribution of location updates for users in " + country)
         labels.append(country)
         xlabels.append("Number of location updates\n"+"("+chr(ord('a') + i)+")")
-    ylabels = ["Cumulative frequency of users", "Cumulative frequency of users"] #["Frequency (%)", "Frequency (%)"] #["Number of users", "Number of users"]
     df = pd.DataFrame(dd)
-    data_summary_per_user(df, total_count)
-    #boxplot(df, "country", "Location updates", "Location updates for all users in Japan and Sweden")
-    #records_dist_plot(data, 100, xlabels, ylabels, titles, labels)
-    #print(data)
-    print("-------------")
-    print(df)
-    print("&&&&&&&&&&&&&&&&")
-    #print(list(df["Location updates"][df['country'] == 'Sweden']))
-    no_users = {"Japan": 316, "Sweden": 542}
-    data_cdf = []
-    for i, country in enumerate(countries):
-        updates = list(df["Location updates"][df['country'] == country])
-        c = dict(collections.OrderedDict(sorted(collections.Counter(updates).items())))
-        x = []
-        y = []
-        for updates, users in sorted(c.items()):
-            x.append(updates)
-            y.append(users/no_users[country])
-        data_cdf.append((x, np.cumsum(y)))
-        
-    cdf_xy_plot(data_cdf, "CDF for location updates", "Location updates",
-                "Frequency", countries)
+    return data, df, total_count, countries
 
-    #............... HEAT-MAP --------------------#
-    for country in countries:
-        user = ""
-        #data, mask = get_data_for_heat_map_per_month(country, total_count)
-        title = "Number of location updates per user in "+country
-        if user != "":
-            title += " for user " + str(user)
-        ylabels = [["M", "T", "W", "T", "F", "S", "S"],
-                   ["M", "T", "W", "T", "F", "S", "S"],
-                   ["M", "T", "W", "T", "F", "S", "S"]]
-        xlabels = [["Week 1", "Week 2", "Week 3", "Week 4", "Week 5", "Week 6"],
-                   ["Week 1", "Week 2", "Week 3", "Week 4", "Week 5", "Week 6"],
-                   ["Week 1", "Week 2", "Week 3", "Week 4", "Week 5", "Week 6"]]
-        #heat_map(data, mask, xlabels, ylabels, title, True)
-    
-    
-    
-    #users_input = ['38da5e71-0062-45a7-8021-f90680260b61', '4ed45839-d8a7-40df-9c93-2554201f62ca', '458f17fa-126d-4079-a2d3-058a9ce2f57c', '69935fdf-9b43-417f-93df-a6f707e8b43f', 'd5a6b8e9-8ae5-4e9d-94d5-2c1865ad2e44', '4b19bbd7-0df5-4ae8-929d-ef3eae78fdb8', '4ccc2f16-5a33-4fca-a644-dc5c75a3deaa', 'b992b237-e563-48d7-b958-2b3e16620846', '3084b64d-e773-4daa-aeea-cc3b069594f3', '463b7dbb-ef29-49d0-a240-41baceea128f', '6255db24-5443-40d3-b65a-ae1b11288c8a', 'c6309812-9802-4b93-8e5d-14b5eb738438', '489e1e7c-c208-4601-b56a-287981417efe', '45691b60-e48d-4c08-9547-26223bdd7134', '0c5552ca-09c6-4cbf-ae0c-5969c3ad9983', '01caa88b-fa3c-4b03-b3e9-2b7a14beb278', 'eb34bbe5-fa09-42f6-a411-cdb7d3a29a20', 'ac9ff428-168b-432e-a6ae-f5571c3711bf', '01959ac9-8909-4d95-9557-f5b531a7f331', '2abf30d9-55f6-454e-854d-786f037b619c', '26daf874-26f3-4dfc-8679-9c15aecbc18d', 'e1fa02ad-4d6d-4def-86a2-1ade8c59ee8e', '0a21780a-1869-4cec-8ccf-50f57f5c7797', '8480e4ca-f1b8-449a-b571-5b3f3cd93e4d', 'aba7356f-77e9-4b57-8600-65f0fd479e10', 'ccd610d3-b349-44c2-9837-6b8df74d6fd1', '5a546365-f979-4f2c-a425-bddd93e667ee', '48292fe8-5d65-47f6-8c73-c23aa7030e03', '9b3edd01-b821-40c9-9f75-10cb32aa14b6', '64b6eb39-dd10-4a38-9bca-f0c90919b14c', '4992ac55-6d61-4e70-92f6-46549205f3bf', '8e9e90bc-1817-48d5-a4c8-1e3c4637262a', 'f4f32177-8c2c-418d-834c-0cde35f40cee', 'f23fd74a-f94f-4182-abaa-0ab8fb3e4a4f', '071c08fe-3fe2-49c6-ac1f-21f93cd1a87b', '7a749f71-6ccc-45bd-b4a2-782d3eb995ba', '66d1ac8f-7d29-4d2f-a241-e6bcb2c38489', 'fcc9196f-b23c-4839-b1c0-a853e3b35c8b', '163459e1-e9fd-4531-9382-b863a49adbf0', '6ce6542e-e348-454c-9bcc-f9e172e860ee', '1274307c-cd49-4f69-9cfd-9a598c426cfb', '6d4e2221-8099-4ef6-9e96-740963f74983', '6d20e7db-78f8-484c-bbf3-b5ae1f7e6b3b', '6c71df2e-54cb-489e-b110-8bb3234cfa0e', '0c4d0349-eb16-46df-9f33-4864a6717037', 'f509d570-c7c7-4cb3-9b86-b02836cac466', '0f8dd08e-7eb5-4614-aad5-cd4f9723f79c', '0d8bca9b-a4e6-4668-ba43-9521b6cb4f1e', '018b3a42-6ad5-4577-b2d8-341159eff9be', '105b7c5e-9d8a-4f65-b1d2-82bfa1e126e9', '9a9b1ef8-c48b-4105-b4fe-ab04acd3d0ee', 'e2215ac7-2be2-45f6-ae6e-149f89a8e7f2', '4bd3f3b1-791f-44be-8c52-0fd2195c4e62', '9df83008-ad97-4f83-a373-98fbb5b45ef2', '492f0a67-9a2c-40b8-8f0a-730db06abf65', 'a12f171b-76d9-4b58-a04f-9833bf10d2a3', 'a1eed029-bf59-48d1-919d-5689f6523426', 'a21d8502-c5cb-4eb5-8b19-b38ea74e9294', 'a221e5b4-ce58-49ba-9385-6b544cc8a5ae', 'a6c0e224-508b-4c28-a549-b85bd40ab770', 'aa360897-b5ab-431e-afc2-8bcbc7f484a6', 'ab65c6e5-5ee9-45d0-a352-a52c7ef9d9d6', '420b91b6-5c78-4fe6-af7c-9795edd10c0e', '3ee183a4-919a-4c67-bf84-6f196897a906', '3b48d329-f8c3-4fed-adcf-ef0aa81bbf2f', 'b0e1364a-9f2e-4b2b-8125-bd6176c16384', 'e3a58b79-b39f-46c0-8ba6-9836030ee133', '963d56e9-c390-49ad-ba83-d4c6574f676a', '36866473-4b75-4a52-a5a5-65ca6326aa04', '90522cae-ba2e-4677-a6e8-04ab2ddb64ed', '30fe0f1f-296f-4d4b-a4ef-93eaf8e05169', '8d325d9f-9341-4d00-a890-2adaf412e5ca', '8d03174e-311a-4b9f-9863-7d99f4fccd57', 'cc38817a-eb2c-448d-9194-595e210543f4', '2ddb668d-0c98-4258-844e-7e790ea65aba', '543036c6-93ab-40a6-9668-20a70d021cdf', '994b3bcf-a892-493e-b9f7-8477dec24cd5', 'd6e5fa22-27dd-47cb-acbe-eae33d029ae3', '29ec0b2f-dcc9-43e2-9421-ddada03513dd', 'd81f57bb-0925-4869-b844-8d99bf55337c', '5909445d-e68c-451f-baee-d108ca32c8cd', 'dffcd105-5c2e-41ed-848f-a20495571642', 'b3124440-b2f8-4add-9e67-ad6adf4ec501', '37abb413-d176-423c-8db6-61f253324c28']
-    max_values = defaultdict(dict)
-    #print("antal users: {}".format(len(users_input)))
 
-    #print("show_all_month_same_scale")
-    #show_all_month_same_scale(countries, find_users=True,
-    #                          number_of_days_without_updates=5)
+if __name__ == '__main__':
+    #compare_loc_updates_per_month()
+    data, df, total_count, countries = fetch_data()
 
+    show_all_month_for_contries()
+    cdf_xy_plot()
+    print("show_all_month_same_scale")
+    show_all_month_same_scale(countries, find_users=False,
+                              number_of_days_without_updates=5)
     #print("show_specific_country_and_period")
     country = "Japan"
     fro = "2015-11-01"
@@ -538,14 +655,6 @@ if __name__ == '__main__':
     #show_specific_country_and_period(country, fro, to, False,
     #                                 base_title="Heatmap of location updates per users\
     #                                             per day in ")
-
-    y_data = np.sum(data, axis=0)
-    x_data = xlabels[0]
-    #print(x_data)
-    #print(y_data)
-
-    #xy_plot([x_data, y_data], "Number of users with location updates per day for Japan", "Days", "Number of users with location updates")
-
 
 
 

@@ -44,18 +44,16 @@ Nogle af overstående oplysninger er ikke relevante for vores problemstilling. D
 
 Disse oplysinger har vi valgt, da de mere eller mindre er vigtige eller interssante i forhold til vores problemstilling. \texttt{useruuid} er vigtig for at kunne skelne brugerene fra hinanden, \texttt{start\_time} og \texttt{end\_time} er vigtige, da de fortæller hvornår/hvor længe brugeren har været i den pågældende lokation. \texttt{country} er til nemt at kunne filtrere brugerene, hvor \texttt{name}, \texttt{area} og \texttt{region}, ikke er særlige vigtige men kunne være interessant at kigge på. \texttt{latitude} og \texttt{longitude} er meget væsentlige, da de fortæller nok det mest vigtigste, nemlig hvilken lokation brugeren befinder sig. \texttt{accuracy} kan fortælle os i for høj grad vi kan bruge den pågældene lokations opdatering, mens \texttt{altitude} kunne være interessant at at kigge på mht. fin-filtrering. 
 
-Vi har kigget på data fra flere perioder. Vi vil nu beskrive hvordan hver periode ser ud mht. distributioner mm. Disse perioder er: 
-\begin{itemize}
-\item Test data: September 2015 - November 2015
-\item Production data
-\end{itemize}
+Vi har kigget på data fra en test periode og herefter alt data som Sony havde på daværende tidspunkt (production data). Vi vil beskrive hvordan henholdsvis test perioden og production data ser ud mht. distributioner mm. 
 
-\subsection{Periode 1}
-Denne periode er over 3 måneder: fra september - november 2015. Vi vil gennemgå hvordan datasættet så ud i denne periode. 
+\subsection{Test periode}
+Denne periode strakte sig over 3 måneder: fra september - november 2015. Vi vil gennemgå hvordan datasættet så ud i denne periode. 
 Henover denne periode blev der indsamlet 2,665,893 lokations opdateringer fordelt på 1,586 brugere
 
 I Table \ref{tab:stat_geo_p1} ses statistic summary af \texttt{accuracy}, \texttt{altitude}, \texttt{name} og \texttt{country}.
-Vi kan se i tabellen at der er nogle ugyldige værdier både accuracy og altitude. De ugyldige værdier viser sig i form af negative værdier. Ud af de mange lokations opdaterings er der kun 20 hvor accuracy er negativ hvilket svarer til knapt en 1,000 del procent. Altitude har også nogle negative værdier. Her er negative værdier sådan set ikke ugyldige, men dog sjældne og unormale. Hvis vi kigger på antal lokations opdaterings der har en negativ altitude på mindre end -50,000 (-50m), er der 9. Ved mindre end -10,000 (-10m) er der 14.
+Vi kan se i tabellen, at der er nogle ugyldige værdier i både accuracy og altitude. De ugyldige værdier viser sig i form af negative værdier. Disse opstår sansynligvis, hvis softwaren ikke kan få værdierne fra GPS'en. I disse tilælde bliver værdierne sat til en standard værdi som er ugyldig, for at indikere fejlen. 
+
+Ud af de mange lokations opdateringer er der kun 20 hvor accuracy er negativ hvilket svarer til knapt en 1,000 del procent. Altitude har også nogle negative værdier. Her er negative værdier sådan set ikke ugyldige, men dog sjældne og unormale. Hvis vi kigger på antal lokations opdateringer der har en negativ altitude på mindre end -50,000 (-50m), er der 9. Ved mindre end -10,000 (-10m) er der 14.
 
 \begin{table}[H]
         \centering
@@ -66,7 +64,7 @@ Vi kan se i tabellen at der er nogle ugyldige værdier både accuracy og altitud
                          & Accuracy           & Altitude     \\[-3pt]% compensate for extrarowheight
                          &  (mm)              & (mm)              \\
             \hline
-                 Min     &  -2.147.483.500    & -5,086,000            \\
+                 Min     &  -2,147,483,500    & -5,086,000            \\
                          &                    &                    \\
             \hline
                  Max     &  500,000           & 17,211,698        \\
@@ -79,13 +77,13 @@ Vi kan se i tabellen at der er nogle ugyldige værdier både accuracy og altitud
                  dev.    &                    &                   \\
             \hline
         \end{tabular}
-        \caption{Statistic summary of dataset in periode 1} %add this between 'caption' and '{...' for new text in listing of tables: [New caption text only for listing of tables]
+        \caption{Statistic summary of dataset in test periode} %add this between 'caption' and '{...' for new text in listing of tables: [New caption text only for listing of tables]
         \label{tab:stat_geo_p1}
 \end{table}
 
 
 
-Da vi endnu ikke bruger altitude, vælger vi at se bort fra disse sjældne værdier og beholder de berørte opdateringer. Dog påvirker accuracy latitude og longitude, som er vores vigtigste attribut, så disse fjerner vi. Herudover fjerner vi også de lokations opdateringer hvor accuracy er over 100.000 (100m) pga. vores binning (se mere i section \ref{ssec:binning}, s. \pageref{ssec:binning}), da disse alligevel har en sandsynlighed for at være udenfor vores binning. 
+Da vi ikke bruger altitude, vælger vi at se bort fra disse sjældne værdier og beholder de berørte opdateringer. Dog påvirker accuracy latitude og longitude, som er vores vigtigste attribut, så vi fjerner de opdateringer hvor acuracy er negativ. Herudover fjerner vi også de lokations opdateringer hvor accuracy er over 100.000 (100m) pga. vores binning (se mere i section \ref{ssec:binning}, s. \pageref{ssec:binning}), da disse alligevel har en sandsynlighed for at være udenfor vores binning. 
 %Dette gjorde vi kom ned på at have 2.274.333 lokations opdateringer i vores datasæt. 
 
 Efter dette, så quantilerne af accuracy ud som man kan se på Tabel \ref{tab:acc_quantiles}. 
@@ -97,7 +95,7 @@ Efter dette, så quantilerne af accuracy ud som man kan se på Tabel \ref{tab:ac
             \hline
                          & Accuracy      \\[-1pt]
             \hline
-                 Min &  3,000       \\
+                 Min     &  3,000       \\
             \hline
                  Q1      &  10,000   \\
             \hline
@@ -118,12 +116,14 @@ Efter dette, så quantilerne af accuracy ud som man kan se på Tabel \ref{tab:ac
         \label{tab:acc_quantiles}
 \end{table}
 
-Vi kan se på medianen og mean, at de fleste brugere har lav værdi i accuracy - hvilket er godt! Hvis vi antager at det følger en normalfordeling, kan vi ud fra standard deviation udlede, at 95\% af brugerne har en accuracy mellem 6,603.53 og 47,185.182. Dette viser at der er nogle få brugere med meget høje værdier i accuracy, hvor max er 100,000. Medianen og mean svarer til henholdsvis 23m og 26.89m og 95\% standard deviation er på mellem 6.6m og 47.19m hvilken er en fin accuracy. 
+Vi kan se på medianen og mean, at de fleste brugere har lav værdi i accuracy - hvilket er godt! Hvis vi antager at det følger en normalfordeling, kan vi ud fra standard deviation udlede, at 95\% af brugerne har en accuracy mellem 6,603.53 og 47,185.182. Dette viser at der sandsynligvis er nogle få brugere med meget høje værdier i accuracy, hvor max er 100,000. At det kun er nogle få brugere med høje værdier er godt, da det omvendt betyder at der er mange bruger med lav (og derved god) accuracy. Da vi har gjort at max for accuracy er 100,000, kan vi sagtens bruge disse brugere med høj værdi i accuracy, men hvis man senere skulle bruge en mere fin binning, ville man sagtens kunne gøre dette.  
+
+Medianen og mean svarer til henholdsvis 23m og 26.89m og 95\% standard deviation er på mellem 6.6m og 47.19m hvilken er en fin accuracy. 
 
 
 
  19,344,  80 
-Når vi kigger på hvilke lande der er repræsenteret ogg i hvilken grad, har vi at gøre med 80 unikke lande. Til at starte med lå dette tal på 74. Det viste sig, at der var en masse lokations opdaterings hvor landet ikke var blevet logget, hvor landet blot var repræsenteret med en tom streng. Dette var tilfældet i så stor en del af dataet, at landet med en tom streng, var det andet mest repræsenterede land i dataet med lidt over 500.000 lokations opdateringer. 
+Når vi kigger på hvilke lande der er repræsenteret og i hvilken grad, har vi at gøre med 80 unikke lande. Til at starte med lå dette tal på 74. Det viste sig, at der var en masse lokations opdaterings hvor landet ikke var blevet logget, hvor landet blot var repræsenteret med en tom streng. Dette var tilfældet i så stor en del af dataet, at landet med en tom streng, var det andet mest repræsenterede land i dataet med lidt over 500.000 lokations opdateringer. 
 Da vi gerne vil kunne sorterer data på baggrund af land, var dette et problem. Dette var et problem som vi løste, ved at udføre omvendt geolokation. For næsten alle de 500.000 lokations opdaterings, var latitude og longitude til stede, så vi kunne ved hjælp af et API\cite{reversegeocode} slå landet op på bagrund af latitude og longitude, og herefter indsætte det i dataet. Dette gjorde vi kun skulle gøre dette én gang, stedet for at slå landet op hver gang vi kørte vores scripts. Dette ville have været ineffektivt og spilde tid.\\ 
 Vores omvendt geolokation gjorde, at vi gik fra over 500,000 lokations opdaterings hvor landet ikke var til stede, til blot 130 lokations opdaterings. I samme omgang gik vi fra 74 lande til 80 (inkl. land med tom streng)
 
@@ -131,21 +131,22 @@ Vi kan herefter kigge på, hvordan lokations opdateringerne er distribueret over
 
 
 \begin{figure}[H]
+    \hspace*{-1.0cm}
     \centering
-    \includegraphics[scale=0.18]{country_distribution}
+    \includegraphics[scale=0.14]{country_distribution}
     \caption{Distribution for number of location updates between countries}
     \label{fig:country_dist}
 \end{figure}
 
-På baggrund af Figure \ref{fig:country_dist}, har vi valgt at gå videre med endten Sverige eller Japan. Derfor vil vi nu sammeligne data for de to lande. \\
-
+På baggrund af Figure \ref{fig:country_dist}, har vi valgt at gå videre med endten Sverige eller Japan. Derfor vil vi nu sammeligne data for de to lande. 
 I Japan er der 316 unikke brugere, mens der i Sverige er 542. De to lande kan have brugere tilfælles, da brugerne principielt kan rejse mellem flere lande og derved have lokations opdateringer i flere lande.  
 Antallet af totale lokations opdateringer varierer også. Over alle tre måneder har Japan 299,157 opdateringer, hvor Sverige har 1,018,781 opdateringer.
 
 Figure \ref{fig:mean_loc_updates_sep-nov} sammenligner gennemsnittet for lokations opdateringer i Japan og Sverige.
 \begin{figure}[H]
+    \hspace*{-2.2cm}
     \centering
-    \includegraphics[scale=0.18]{mean_loc_updates_sep-nov}
+    \includegraphics[scale=0.16]{mean_loc_updates_sep-nov}
     \caption{Distribution for mean of location updates for Japan and Sweden}
     \label{fig:mean_loc_updates_sep-nov}
 \end{figure}
@@ -170,8 +171,9 @@ Dette kunne tyde på at data fra Sverige vil være mere brugbart end Japan.
 
 
 \begin{figure}[H]
+    \hspace*{-1.0cm}
     \centering
-    \includegraphics[scale=0.18]{cdf_location_updates_swe_jap}
+    \includegraphics[scale=0.14]{cdf_location_updates_swe_jap}
     \caption{Cumulative Distribution Function (CDF) over location updates for Japan and Sweden}
     \label{fig:country_cdf}
 \end{figure}

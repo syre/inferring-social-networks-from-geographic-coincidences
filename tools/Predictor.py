@@ -16,7 +16,7 @@ from collections import Counter, defaultdict
 class Predictor():
 
     def __init__(self,
-                 country="Japan"):
+                 country):
         """
             Constructor
 
@@ -29,8 +29,7 @@ class Predictor():
         self.country = country
 
     def filter_by_country(self, loc_arr, countries):
-        country_arr = loc_arr[
-            np.in1d([loc_arr[:, 3]], [countries[self.country]])]
+        country_arr = loc_arr[loc_arr[:, 3] == countries[self.country]]
         return country_arr
 
     def generate_dataset(self, users, countries, locations_arr, coocs,
@@ -44,6 +43,7 @@ class Predictor():
 
         # filter location array  and cooc array so its between max and min
         # timebin
+        country_arr = locations_arr
         country_arr = country_arr[country_arr[:, 2] <= max_timebin]
         country_arr = country_arr[country_arr[:, 2] > min_timebin]
         coocs = coocs[coocs[:, 3] <= max_timebin]
@@ -78,7 +78,7 @@ class Predictor():
         if selected_users:
             coocs_users = coocs_users[np.in1d(coocs_users[:, 0], [users[u] for u in selected_users if u in users])]
             coocs_users = coocs_users[np.in1d(coocs_users[:, 1], [users[u] for u in selected_users if u in users])]
-        X = np.zeros(shape=(len(coocs_users), 9), dtype="float")
+        X = np.zeros(shape=(len(coocs_users), 8), dtype="float")
         y = np.zeros(shape=len(coocs_users), dtype="int")
         demo_dict = self.file_loader.filter_demographic_outliers(self.file_loader.generate_demographics_from_csv())
         app_data_dict = defaultdict(set)
@@ -100,11 +100,11 @@ class Predictor():
             X[index, 4] = datahelper.calculate_weighted_frequency(
                 pair_coocs, loc_arr)
             X[index:, 5] = datahelper.calculate_coocs_w(pair_coocs, loc_arr)
-            X[index:, 6] = datahelper.calculate_countries_in_common(
-                user1, user2, loc_arr)
-            X[index:, 7] = datahelper.calculate_number_of_common_travels(
+            X[index:, 6] = datahelper.calculate_number_of_common_travels(
                 pair_coocs)
-            X[index:, 8] = self.has_two_unique_coocs(user1, user2, coocs)
+            X[index:, 7] = self.has_two_unique_coocs(user1, user2, coocs)
+            #X[index:, 6] = datahelper.calculate_countries_in_common(
+            #    user1, user2, loc_arr)
             #X[index:, 8] = self.compute_mutual_cooccurrences(coocs, user1, user2)
             #X[index:, 8] = self.is_within_6_years(demo_dict, users[user1], users[user2])
             #X[index:, 9] = self.is_same_sex(demo_dict, users[user1], users[user2])

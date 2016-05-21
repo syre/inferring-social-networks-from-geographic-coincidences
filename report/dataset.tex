@@ -193,44 +193,38 @@ Begge lande har en lille procent brugere, som står får utroligt mange opdateri
 Median og mean er meget større i Sverige end Japan. Dette tyder på at der er flere brugere med flere lokations opdateringer i Sverige end i Japan. \\
 
 
-Ovenstående tendens, vil vi gerne vise mere tydeligt, hvorfor vi har plottet den Cumulative Distribution Function (CDF) for de to lande. 
+Den ovenstående tendens, vil vi gerne vise mere tydeligt, hvorfor vi har plottet den Cumulative Distribution Function (CDF) for de to lande. 
 \begin{figure}[H]
     \hspace*{-1.0cm}
     \centering
     \includegraphics[scale=0.14]{cdf_location_updates_swe_jap}
-    \caption{Cumulative Distribution Function (CDF) over location updates for Japan and Sweden}
+    \caption{Cumulative Distribution Function (CDF) over location updates for Japan and Sweden henover periodens tre måneder}
     \label{fig:country_cdf}
 \end{figure}
 
-Plottet viser, at både i Japan og Sverige er der en stor del af brugerne, som har meget få lokations opdateringer set henover hele perioden. Over en tredje del af brugerne i begge lande, har kun 1 opdatering over tre måneder. Det kan også ses, at Japan har flere brugere med kun én opdatering, end hvad Sverige har. 
+Plottet viser, at der både i Japan og Sverige er en stor del af brugerne, som har meget få lokations opdateringer set henover hele perioden. Det kan ses, at Japan får hurtigt flere brugere med få opdateringer, end Sverige. 
 Da opdateringerne kommer hver gang brugeren skifter lokation, betyder dette, at mange af brugerene er meget stillestående eller også har de slukket mobilen. Her kan stillestående også menes, at brugeren har glemt sin telefon derhjemme.
 Begge disse scenarier tegner ikke godt for vores mål, da det giver sig selv at der skal være nogle data for at finde co-occurences. 
-På baggrund af dette, kunne det tyde på at data fra Sverige vil være mere brugbart end Japan. 
+På baggrund af quantiles og CDF, kunne det tyde på at data fra Sverige vil være mere brugbart end Japan. 
+
+Når vi nu ved, at største delen af brugerne i begge lande har få opdateringer, vil vi gerne vide hvodan disse opdateringer er fordelt henover perioden. Det er interssant for os at vide, om opdateringerne er ligeligt fordelt på dagene eller om de klumber sig sammen. Det er interessant, da det kan gøre en forskel med hvad vi bruger til vores modeller. 
+
+Vi har valgt at visualisere dette, ved brug af Heatmaps. 
+
+\newpage
 
 
-
-
-
-
-
-
-\textcolor{red}{Vi skal have en introduktion hvor vi skriver at vi prøvede at træne data, hvor vi fik dårlige resultater. Herefter kiggede vi på nedenstående}
-
-En ting er at kigge på antal lokations opdateringer og se hvordan de er distribueret blandt brugerne i det pågældende land, men det er også interessant at se hvordan opdateringerne er distribueret henover den periode vi har med at gøre (September 2015 - november 2015). Her kan vi kigge på om lokations opdateringerne er ligeligt fordelt, eller om en enkelt måned står for størstedele. Det er også interessant og se om der forskel på de landene. 
-
-Vi vil gerne kigge på dette, for at se om der er uregelmæssigheder, som vi skal tage højde for når vi træner modellen. 
- Til dette har vi valgt at visualisere det ved brug af Heatmaps. 
 \begin{figure}[H]
+    \hspace*{-1.5cm}
     \centering
-    \includegraphics[scale=0.18]{heatmap_location_updates_japan}
+    \includegraphics[scale=0.15]{heatmap_location_updates_japan}
     \caption{Heatmap for location updates over the 3 month period in Japan}
     \label{fig:heatmap_jap}
 \end{figure}
-
-
 \begin{figure}[H]
+    \hspace*{-1.5cm}
     \centering
-    \includegraphics[scale=0.18]{heatmap_location_updates_sweden}
+    \includegraphics[scale=0.15]{heatmap_location_updates_sweden}
     \caption{Heatmap for location updates over the 3 month period in Sweden}
     \label{fig:heatmap_swe}
 \end{figure}

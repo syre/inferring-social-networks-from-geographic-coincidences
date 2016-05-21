@@ -10,17 +10,18 @@ import numpy as np
 fl = FileLoader()
 X_train, y_train, X_test, y_test = fl.load_x_and_y()
 
-features = ["num_coocs", "arr_leav", "diversity", "unique_coocs", "weighted_frequency", "coocs_w", "countries_in_common", "num_common_travels"]
+features = ["num_coocs", "arr_leav", "diversity", "unique_coocs", "weighted_frequency", "coocs_w",
+            "common_travels", "two_unique_coocs", "mutual_cooccurrences"]
 
 f = plt.figure()
 
 
-meets = X_train[np.where(y_train == 0)]
-nonmeets = X_train[np.where(y_train == 1)]
+meets = X_train[np.where(y_train == 1)]
+nonmeets = X_train[np.where(y_train == 0)]
 #sns.set(font_scale=2.5)
 #sns.distplot(meets[:,5], hist=True, norm_hist=True, axlabel=features[5], color="blue", kde=False, hist_kws={"alpha":0.5})
 for index, feature in enumerate(features):
-    ax = f.add_subplot(4,2,index+1)
+    ax = f.add_subplot(6,2,index+1)
     sns.distplot(meets[:,index], ax=ax, hist=True, norm_hist=True, axlabel=feature, color="blue", kde=False, hist_kws={"alpha":0.5})
     sns.distplot(nonmeets[:,index], ax=ax, hist=True, norm_hist=True, axlabel=feature, color="red", kde=False, hist_kws={"alpha":0.5})
     #[item.set_fontsize(35) for item in [ax.yaxis.label, ax.xaxis.label]]

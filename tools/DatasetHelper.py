@@ -132,7 +132,6 @@ class DatasetHelper():
         for row in cooc_arr:
             coocs_w_value = loc_arr[(loc_arr[:, 1] == row[2]) &
                                     (loc_arr[:, 2] == row[3])].shape[0]
-            print(coocs_w_value)
             coocs_w_values.append(1/(coocs_w_value-1))
         return sum(coocs_w_values)/cooc_arr.shape[0]
 

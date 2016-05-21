@@ -6,7 +6,7 @@ from FileLoader import FileLoader
 import numpy as np
 
 
-class Run(object):
+class Run():
     """docstring for ClassName"""
     def __init__(self, country):
         self.filter_places_dict = {"Sweden": [[(13.2262862, 55.718211), 1000],

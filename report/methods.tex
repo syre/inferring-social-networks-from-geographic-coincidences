@@ -64,7 +64,7 @@ The models and algorithms we use are implemented in \textit{scikit-learn}\cite{s
 
 First we will describe the different features of which our dataset is composed.
 \subsection{Features}
-\subsubsection{Number of co-occurrences}
+\subsubsection{Number of co-occurrences (num\_coocs)}
 The total number of co-occurrences between users.
 \subsubsection{Diversity of a co-occurrence}
 We use the diversity measure taken from the papers of Shahabi and Pham\cite{iRWRfSD}\cite{AEBMtISSfSD}.
@@ -113,8 +113,10 @@ The Jaccard index is defined in Equation \ref{eq:jaccard_index}
 J(A_i,A_j) = \frac{ |A_i \cap A_j| }{ |A_i \cup A_j | }
 \end{equation}
 where $A_i$ is the set of apps used by user $i$ and $A_j$ is the set of apps used by user $j$. If $A_i$ and $A_j$ are empty sets we define $J(A_i, A_j) = 1$
-\subsection{Class Imbalance Problem}
-The Class Imbalance Problem is when the total number of data for one class greatly exceeds the number of data for a different class.
+
+\subsection{Results}
+For our training set we found 124 negative samples (did not meet) and 2331 positive samples (did meet), the high number of positive samples is due to the inclusion of Sony HQ location updates in our training set. In our test set we found a more moderate 289 negative samples (did not meet) and 191 positive samples (did meet).
+First we trained a Logistic Regression classifier which serves as our baseline classifier to compare our other model with. We trained it only with the feature num\_coocs. Next we trained a Random Forest classifier with all of our features.
 
 \subsection{Performance metrics}
 We utilized the precision and recall metrics for evaluating the performance of our models as well as AUC of the ROC Curve.
@@ -124,4 +126,30 @@ We utilized the precision and recall metrics for evaluating the performance of o
 
 \subsubsection{ROC AUC}
 
-For our train and test dataset we found 124 negative  and 2331
+In Table \ref{table:models_performance_report} we can see the performance metrics for the positive class (did meet).
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|}
+\hline
+\textbf{Model} & \textbf{Precision - positive} & \textbf{Recall - positive} & \textbf{Precision - negative} & \textbf{Recall - negative}   \\
+\hline
+Logistic Regression (num\_coccs)          & 0.86 & 0.03 & 0.00 & 0.00       \\
+\hline
+Random Forest (T = 10)    & 0.49 & 0.57 & 0.68 & 0.62\\
+\hline
+Logistic Regression (num\_coocs, balanced class weight)          & 0.86 & 0.03 & 0.61 & 1.00      \\
+\hline
+Random Forest (balanced class weight, T = 200)    & 0.44 & 0.79 & 0.71 & 0.34\\
+\hline
+\end{tabular}
+\caption{Models performance metrics for the positive class (did meet)}
+\label{table:models_performance_report}
+\end{table}
+
+
+
+\subsection{Class Imbalance Problem}
+The Class Imbalance Problem is when the total number of data for one class greatly exceeds the number of data for a different class.
+
+

@@ -558,8 +558,7 @@ class DatabaseHelper():
     def get_users_with_most_updates(self):
         cursor = self.conn.cursor()
         cursor.execute(
-            "select useruuid from location group by useruuid \
-            order by count(*) desc;")
+            "select useruuid from location group by useruuid order by count(*) desc;")
         return [element[0] for element in cursor.fetchall()]
 
     def get_locations_by_country_only(self, country):

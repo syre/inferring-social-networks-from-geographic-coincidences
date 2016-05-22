@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 from sklearn.grid_search import GridSearchCV
 from collections import Counter, defaultdict
 
+
 class Predictor():
 
     def __init__(self,
@@ -216,15 +217,16 @@ class Predictor():
         plt.show()
     
     def tweak_features(self, X_train, y_train, X_test, y_test):
-        max_auc = (0,0)
-        for x in range(1,200):
-            forest = sklearn.ensemble.RandomForestClassifier(n_estimators=x)
-            forest.fit(X_train, y_train)
-            y_pred = forest.predict_proba(X_test)
-            curr_auc = roc_auc_score(y_test, y_pred[:,1])
-            if curr_auc > max_auc[0]:
-                max_auc = (curr_auc, x)
-                print("new max is: {}".format(max_auc))
+        max_auc = (0,0,0)
+        for x in range(1,500):
+            for y in range(1,8):
+                forest = sklearn.ensemble.RandomForestClassifier(n_estimators=x, class_weight="balanced", max_features=y)
+                forest.fit(X_train, y_train)
+                y_pred = forest.predict_proba(X_test)
+                curr_auc = roc_auc_score(y_test, y_pred[:,1])
+                if curr_auc > max_auc[0]:
+                    max_auc = (curr_auc, x, y)
+                    print("new max is: {}".format(max_auc))
         print("max is {} trees with auc of: {}".format(max_auc[0], max_auc[1]))
 
     def predict(self, X_train, y_train, X_test, y_test):
@@ -237,8 +239,8 @@ class Predictor():
         y_pred = lg.predict(X_test[:, 0].reshape(-1, 1))
         print(sklearn.metrics.classification_report(y_test, y_pred, target_names=["didnt meet", "did meet"]))
         self.compute_roc_curve(y_test, lg.predict_proba(X_test[:, 0].reshape(-1, 1))[:,1])
-        cm = confusion_matrix(y_test, y_pred)
-        #cm_normalized = cm.astype("float")/ cm.sum(axis=1)[:, np.newaxis]
+        cm = confusion_matrix(y_test, y_pred, labels=["did not meet", "did meet"])
+        cm = cm.astype("float")/ cm.sum(axis=1)[:, np.newaxis]
         self.plot_confusion_matrix(cm)
         print(cm)
         print("Random Forest - all features")
@@ -250,9 +252,8 @@ class Predictor():
         self.compute_feature_ranking(forest, X_test)
         # compute ROC curve
         self.compute_roc_curve(y_test, forest.predict_proba(X_test)[:,1])
-
-        cm = confusion_matrix(y_test, y_pred)
-        #cm_normalized = cm.astype("float")/ cm.sum(axis=1)[:, np.newaxis]
+        cm = confusion_matrix(y_test, y_pred, labels=["did not meet", "did meet"])
+        cm = cm.astype("float")/ cm.sum(axis=1)[:, np.newaxis]
         self.plot_confusion_matrix(cm)
         print(cm)
     def find_users_in_cooccurrence(self, spatial_bin, time_bin):
@@ -281,8 +282,9 @@ if __name__ == '__main__':
     f = FileLoader()
     d = DatabaseHelper()
     X_train, y_train, X_test, y_test = f.load_x_and_y()
-    print("y_train contains {} that didnt meet, and {} that did meet".format(
-        list(y_train).count(0), list(y_train).count(1)))
-    print("y_test contains {} that didnt meet and {} that did meet".format(
-        list(y_test).count(0), list(y_test).count(1)))
+    #p.tweak_features(X_train, y_train, X_test, y_test)
+    #print("y_train contains {} that didnt meet, and {} that did meet".format(
+    #    list(y_train).count(0), list(y_train).count(1)))
+    #print("y_test contains {} that didnt meet and {} that did meet".format(
+    #    list(y_test).count(0), list(y_test).count(1)))
     p.predict(X_train, y_train, X_test, y_test)

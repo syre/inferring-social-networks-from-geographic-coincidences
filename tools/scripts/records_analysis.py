@@ -3,6 +3,7 @@ import os
 import sys
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 import DatabaseHelper
+import DatasetHelper
 import Predictor
 import seaborn as sns
 import numpy as np
@@ -13,10 +14,12 @@ from datetime import timedelta
 from collections import defaultdict
 from tqdm import tqdm
 import matplotlib.pyplot as plt
-import matplotlib as mpl
+import matplotlib.ticker as tck
 import pandas as pd
 import collections
 import pprint
+import itertools
+from tqdm import tqdm
 
 
 def get_data_for_heat_map_per_month(country="Japan", total_count={}, user=""):
@@ -655,9 +658,6 @@ def location_updates_at_hq_or_not():
             test['Country'].extend([country]*row)
             test['hq'].extend(['At HQ']*row)
     test2 = pd.DataFrame(test)
-    
-    #print(df)299157
-    #df.ix[(df.country == 'Japan'), 'hq'] = "Nej" 
     for country in countries:
         res = d.get_locations_for_numpy(filter_places_dict[country])
         res = [row for row in res if row[3] == country]
@@ -666,15 +666,30 @@ def location_updates_at_hq_or_not():
             test2.loc[(test2['Country'] == country) & (test2.index < (299157+len(res))), 'hq'] = 'Not at HQ'
         else:
             test2.loc[(test2['Country'] == country) & (test2.index < len(res)), 'hq'] = 'Not at HQ'
-        #print("Country: {} - {}".format(country, len(res)))
-    #print(test2)
-    #print(test2.loc[(test2['country'] == 'Sweden'), 'hq'])
+    test3 = {'total': [], 'Not at hq': [], 'Country': []}
+    for i, country in enumerate(countries):
+        test3['Country'].append(country)
+        test3['total'].append(test2.loc[(test2['Country'] == country)].shape[0])
+        test3['Not at hq'].append(test2.loc[(test2['Country'] == country) &
+                                            (test2['hq'] != 'At HQ')].shape[0])
+    test4 = pd.DataFrame(test3)
     sns.set(font_scale=2.5)
-    ax = sns.countplot(x="Country", hue="hq", data=test2)
-    ax.set_ylabel("Number of location updates")
-    ax.set_title("Distribution of location updates (at Sony HQ or not)")
+
+    #
+    ax = sns.barplot(x="Country", y='total', data=test4, color='#e74c3c')#, color="red"
+    bottom_plot = sns.barplot(x="Country", y="Not at hq", data=test4, color='#3498db') #color="#0000A3"  #'#3498db'
+
+    bottombar = plt.Rectangle((0, 0), 1, 1, fc='#3498db',  edgecolor='none')
+    topbar = plt.Rectangle((0, 0), 1, 1, fc="#e74c3c", edgecolor='none')
+    
+    l = plt.legend([bottombar, topbar], ['Outside perimeters', 'Inside perimeters'], loc=1, ncol=2, prop={'size': 40})
+    l.draw_frame(False)
+
+    bottom_plot.set_ylabel("Number of location updates")
+    bottom_plot.set_title("Distribution of location updates (inside/outside Sony perimeters)")
     #ax.set_xlabel("Days")
-    sns.plt.legend(prop={'size': 40})
+    #plt.legend(prop={'size': 40})
+    ax.yaxis.set_major_formatter(tck.FormatStrFormatter('%.2e'))
     sns.plt.tick_params(labelsize=20)
     [item.set_fontsize(45) for item in [ax.yaxis.label, ax.xaxis.label]]
     ax.title.set_fontsize(48)
@@ -682,10 +697,56 @@ def location_updates_at_hq_or_not():
     sns.plt.show()
 
 
+def coocs_at_hq_or_not():
+    d = DatabaseHelper.DatabaseHelper()
+    ds = DatasetHelper.DatasetHelper()
+    filter_places_dict = {"Sweden": [[(13.2262862, 55.718211), 1000],
+                                    [(17.9529121, 59.4050982), 1000]],
+                          "Japan": [[(139.743862, 35.630338), 1000]]}
 
+    countries = ["Japan", "Sweden"]
+    result = {'total': [], 'Not at hq': [], 'Country': []}
+    _, countries_dict, locations = d.generate_numpy_matrix_from_database()
+    for country in countries:
+        result['Country'].append(country)
+        coocs = ds.generate_cooccurrences_array(locations[locations[:, 3] ==
+                                                countries_dict[country]])
+        result['total'].append(coocs.shape[0])
+        _, countries_dict2, locations2 = \
+            d.generate_numpy_matrix_from_database(filter_places_dict[country])
+        coocs2 = ds.generate_cooccurrences_array(locations2[locations2[:, 3] ==
+                                                 countries_dict2[country]])
+        result['Not at hq'].append(coocs2.shape[0])
 
+    test4 = pd.DataFrame(result)
+    print(test4)
+    sns.set(font_scale=2.5)
 
+    #
+    ax = sns.barplot(x="Country", y='total', data=test4, color='#e74c3c')#, color="red"
+    bottom_plot = sns.barplot(x="Country", y="Not at hq", data=test4, color='#3498db') #color="#0000A3"  #'#3498db'
+
+    bottombar = plt.Rectangle((0, 0), 1, 1, fc='#3498db',  edgecolor='none')
+    topbar = plt.Rectangle((0, 0), 1, 1, fc="#e74c3c", edgecolor='none')
+    
+    l = plt.legend([bottombar, topbar], ['Outside perimeters', 'Inside perimeters'], loc=1, ncol=2, prop={'size': 40})
+    l.draw_frame(False)
+
+    bottom_plot.set_ylabel("Number of co-occurrences")
+    bottom_plot.set_title("Distribution of co-occurrences (inside/outside Sony perimeters)")
+    #ax.set_xlabel("Days")
+    #plt.legend(prop={'size': 40})
+    sns.plt.ylim(0, 1300000)
+    sns.plt.tick_params(labelsize=20)
+    ax.yaxis.set_major_formatter(tck.FormatStrFormatter('%.2e'))
+    [item.set_fontsize(45) for item in [ax.yaxis.label, ax.xaxis.label]]
+    ax.title.set_fontsize(48)
+    [item.set_fontsize(33) for item in ax.get_xticklabels() + ax.get_yticklabels()]
+    sns.plt.show()
+
+    #
 if __name__ == '__main__':
+    #coocs_at_hq_or_not()
     location_updates_at_hq_or_not()
     #compare_loc_updates_per_month()
     #data, df, total_count, countries = fetch_data()

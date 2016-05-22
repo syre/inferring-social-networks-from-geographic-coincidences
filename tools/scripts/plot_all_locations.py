@@ -9,8 +9,8 @@ from mpl_toolkits.basemap import Basemap
 import matplotlib.pyplot as plt
 import numpy as np
 
-boundaries = {"Sweden":[5, 30, 55, 70], "Japan":[125, 150, 30, 45]}
-gridsizes = {"Sweden":125, "Japan":1000}
+boundaries = {"Sweden":[5, 30, 50, 65], "Japan":[125, 150, 30, 45]}
+gridsizes = {"Sweden":250, "Japan":1000}
 country = "Sweden"
 
 db = DatabaseHelper()
@@ -28,11 +28,11 @@ m = Basemap(projection="merc", llcrnrlon=llcnrlon, urcrnrlon=urcrnrlon,
             llcrnrlat=llcrnrlat, urcrnrlat=urcrnrlat, resolution='h')
 m.drawcoastlines(zorder=0)
 m.drawcountries(zorder=0)
-m.fillcontinents(color='lightgray', zorder=0)
+m.fillcontinents(color='#555555', zorder=0)
 m.drawmapboundary(zorder=0)
 x, y = m([l[0] for l in locations], [l[1] for l in locations])
 #m.plot(x, y, "bo", markersize=5, alpha=0.1, zorder=1)
 m.hexbin(np.array(x), np.array(y), gridsize=gridsizes[country], bins="log", lw=0.2, alpha=1., mincnt=1, edgecolor="none", cmap=plt.get_cmap("Blues"))
-m.readshapefile("shapefiles/Distrikt_v1", "Distrikt_v1")
+#m.readshapefile("shapefiles/Distrikt_v1", "Distrikt_v1")
 plt.tight_layout()
 plt.show()

@@ -25,11 +25,10 @@ class DatabaseHelper():
         self.settings_dict = self.load_login(file_name="settings.cfg",
                                              key_split="=",
                                              path=path_to_settings)
-        self.conn = psycopg2.connect("host='{}' dbname='{}' user='{}' password= \
-            '{}'".format(self.settings_dict["HOSTNAME"],
-                         self.settings_dict["DBNAME"],
-                         self.settings_dict["USER"],
-                         self.settings_dict["PASS"]))
+        self.conn = psycopg2.connect("host='{}' dbname='{}' user='{}' password='{}'".format(self.settings_dict["HOSTNAME"],
+                                     self.settings_dict["DBNAME"],
+                                     self.settings_dict["USER"],
+                                     self.settings_dict["PASS"]))
         self.file_loader = FileLoader()
 
         self.spatial_resolution_decimals = spatial_resolution_decimals
@@ -123,8 +122,7 @@ class DatabaseHelper():
     def db_setup_test(self):
         cursor = self.conn.cursor()
         cursor.execute(
-            "select exists(select * from information_schema.tables where \
-             table_name=%s)", ('location',))
+            "select exists(select * from information_schema.tables where table_name=%s)", ('location',))
         return cursor.fetchone()[0]
 
     def db_setup(self):
@@ -220,8 +218,7 @@ class DatabaseHelper():
         step_size = int(max_value/num_bins)
         end_value = max_value-int(max_value/num_bins)
 
-        query = "SELECT "+", ".join(["count(CASE WHEN {2} >= {0} AND {2} < {1} \
-            THEN 1 END)".format(element, element+step_size, feature)
+        query = "SELECT "+", ".join(["count(CASE WHEN {2} >= {0} AND {2} < {1} THEN 1 END)".format(element, element+step_size, feature)
             for element in range(0, end_value, step_size)]) + \
             ", count(CASE WHEN {0} > {1} THEN 1 END)".format(
                 feature, max_value-step_size)+" from location"
@@ -493,8 +490,7 @@ class DatabaseHelper():
 
     def dump_missing_geographical_rows(self):
         cursor = self.conn.cursor()
-        query = "select id, ST_X(location::geometry), ST_Y(location::geometry)\
-                from location where coalesce(location.country, '') = '';"
+        query = "select id, ST_X(location::geometry), ST_Y(location::geometry) from location where coalesce(location.country, '') = '';"
         cursor.execute(query)
         records = cursor.fetchall()
         list_of_records = []
@@ -558,8 +554,7 @@ class DatabaseHelper():
     def get_users_with_most_updates(self):
         cursor = self.conn.cursor()
         cursor.execute(
-            "select useruuid from location group by useruuid \
-            order by count(*) desc;")
+            "select useruuid from location group by useruuid order by count(*) desc;")
         return [element[0] for element in cursor.fetchall()]
 
     def get_locations_by_country_only(self, country):

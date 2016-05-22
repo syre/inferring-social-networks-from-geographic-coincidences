@@ -244,13 +244,13 @@ def cdf_xy_plot():
     ylabel = "Frequency"
     legend_labels = countries
     ax = plt.subplot(111, xlabel=xlabel, ylabel=ylabel, title=title)
-    plt.plot(data[0][0], data[0][1], label=legend_labels[0])
-    plt.plot(data[1][0], data[1][1], label=legend_labels[1], color='r')
+    plt.plot(data[0][0], data[0][1], label=legend_labels[0], linewidth=6.0)
+    plt.plot(data[1][0], data[1][1], label=legend_labels[1], color='r', linewidth=6.0)
     xlim_max = max([max(data[0][0]), max(data[1][0])])
     plt.ylim(0, 1)
     plt.xlim(0, xlim_max)
     plt.title(title)
-    plt.legend(prop={'size': 28})
+    plt.legend(prop={'size': 40})
     [item.set_fontsize(35) for item in [ax.yaxis.label, ax.xaxis.label]]
     ax.title.set_fontsize(40)
     [item.set_fontsize(28) for item in ax.get_xticklabels() + ax.get_yticklabels()]
@@ -747,7 +747,8 @@ def coocs_at_hq_or_not():
     #
 if __name__ == '__main__':
     #coocs_at_hq_or_not()
-    location_updates_at_hq_or_not()
+    #location_updates_at_hq_or_not()
+    cdf_xy_plot()
     #compare_loc_updates_per_month()
     #data, df, total_count, countries = fetch_data()
 

@@ -11,7 +11,7 @@ import numpy as np
 
 boundaries = {"Sweden":[7, 20, 55, 65], "Japan":[125, 150, 30, 45]}
 gridsizes = {"Sweden":250, "Japan":1000}
-country = "Japan"
+country = "Sweden"
 
 db = DatabaseHelper()
 locations = db.get_locations_by_country_only(country)

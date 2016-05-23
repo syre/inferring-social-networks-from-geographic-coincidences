@@ -237,10 +237,9 @@ class Predictor():
         lg = sklearn.linear_model.LogisticRegression(class_weight="balanced")
         lg.fit(X_train[:, 0].reshape(-1, 1), y_train)
         y_pred = lg.predict(X_test[:, 0].reshape(-1, 1))
-        print(sklearn.metrics.classification_report(y_test, y_pred, target_names=["didnt meet", "did meet"]))
+        print(sklearn.metrics.classification_report(y_test, y_pred, target_names=["did not meet", "did meet"]))
         self.compute_roc_curve(y_test, lg.predict_proba(X_test[:, 0].reshape(-1, 1))[:,1])
-        cm = confusion_matrix(y_test, y_pred, labels=["did not meet", "did meet"])
-        cm = cm.astype("float")/ cm.sum(axis=1)[:, np.newaxis]
+        cm = confusion_matrix(y_test, y_pred)
         self.plot_confusion_matrix(cm)
         print(cm)
         print("Random Forest - all features")
@@ -248,14 +247,14 @@ class Predictor():
         forest = sklearn.ensemble.RandomForestClassifier(n_estimators = 200, class_weight="balanced")
         forest.fit(X_train, y_train)
         y_pred = forest.predict(X_test)
-        print(sklearn.metrics.classification_report(y_test, y_pred, target_names=["didnt meet", "did meet"]))
+        print(sklearn.metrics.classification_report(y_test, y_pred, target_names=["did not meet", "did meet"]))
         self.compute_feature_ranking(forest, X_test)
         # compute ROC curve
         self.compute_roc_curve(y_test, forest.predict_proba(X_test)[:,1])
-        cm = confusion_matrix(y_test, y_pred, labels=["did not meet", "did meet"])
-        cm = cm.astype("float")/ cm.sum(axis=1)[:, np.newaxis]
+        cm = confusion_matrix(y_test, y_pred)
         self.plot_confusion_matrix(cm)
         print(cm)
+
     def find_users_in_cooccurrence(self, spatial_bin, time_bin):
         """
         Find all users who's been in a given cooccurrence
@@ -283,8 +282,8 @@ if __name__ == '__main__':
     d = DatabaseHelper()
     X_train, y_train, X_test, y_test = f.load_x_and_y()
     #p.tweak_features(X_train, y_train, X_test, y_test)
-    #print("y_train contains {} that didnt meet, and {} that did meet".format(
-    #    list(y_train).count(0), list(y_train).count(1)))
-    #print("y_test contains {} that didnt meet and {} that did meet".format(
-    #    list(y_test).count(0), list(y_test).count(1)))
+    print("y_train contains {} that didnt meet, and {} that did meet".format(
+        list(y_train).count(0), list(y_train).count(1)))
+    print("y_test contains {} that didnt meet and {} that did meet".format(
+        list(y_test).count(0), list(y_test).count(1)))
     p.predict(X_train, y_train, X_test, y_test)

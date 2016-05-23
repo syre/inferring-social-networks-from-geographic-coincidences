@@ -760,7 +760,7 @@ class DatabaseHelper():
         self.delete_test_users()
         self.filter_inaccurate_rows()
         self.delete_duplicate_users()
-        #self.filter_rows_outside_period()
+        self.filter_rows_outside_period()
 
     def filter_inaccurate_rows(self):
         cursor = self.conn.cursor()
@@ -835,9 +835,10 @@ class DatabaseHelper():
 
 if __name__ == '__main__':
     d = DatabaseHelper()
-    #fl = FileLoader()
-    #file_names = ["all_201512.json", "all_201601.json"]
-    #fl.generate_data_from_json(file_names, d.insert_location)
-    # d.update_missing_records()
+    fl = FileLoader()
+    d.db_teardown()
+    file_names = ["all_201509.json", "all_201610.json", "all_201611.json"]
+    fl.generate_data_from_json(file_names, d.insert_location)
+    d.update_missing_records()
     d.filter_bad_rows()
     #d.generate_numpy_matrix_from_database()

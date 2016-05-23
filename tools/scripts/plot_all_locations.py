@@ -9,9 +9,9 @@ from mpl_toolkits.basemap import Basemap
 import matplotlib.pyplot as plt
 import numpy as np
 
-boundaries = {"Sweden":[5, 30, 50, 65], "Japan":[125, 150, 30, 45]}
+boundaries = {"Sweden":[7, 20, 55, 65], "Japan":[125, 150, 30, 45]}
 gridsizes = {"Sweden":250, "Japan":1000}
-country = "Sweden"
+country = "Japan"
 
 db = DatabaseHelper()
 locations = db.get_locations_by_country_only(country)

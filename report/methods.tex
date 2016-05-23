@@ -54,19 +54,19 @@ Thus we say a co-occurrence happens between users A and B if they share the same
 
 
 \subsection{Visualization}
-We used Basemap\cite{basemap}, for plotting all the locations at once and and Leaflet\cite{leaflet} for producing interactive maps to visualize the data, we created a map for visualizing the users location traces over time and we created one that allowed us to see all the co-occurrences that happened between a pair of users. We found both location updates and co-occurrences happened very often near Sony properties in Lund\cite{sony_headquarters_sweden_lund}, Kista\cite{sony_headquarters_sweden_kista}, and an Ericsson building in Göteborg\cite{ericsson}, Sweden, and in Tokyo\cite{sony_headquarters_japan}, Japan. Figure \ref{fig:sweden_locations_hexbin} and \ref{fig:japan_locations_hexbin} shows location updates from Sweden and Japan respectively plotted on a map. Figure X shows an example of the co-occurrences visualized for a pair of users ('8d325d9f-9341-4d00-a890-2adaf412e5ca', 'a21d8502-c5cb-4eb5-8b19-b38ea74e9294'). This enabled us to exclude co-occurrences from these locations for the test dataset {\color{red} WHY?}.
+We used Basemap\cite{basemap}, for plotting all the locations at once and and Leaflet\cite{leaflet} for producing interactive maps to visualize the data, we created a map for visualizing the users location traces over time and we created one that allowed us to see all the co-occurrences that happened between a pair of users. Figure \ref{fig:sweden_locations_hexbin} and \ref{fig:japan_locations_hexbin} shows location updates from Sweden and Japan respectively plotted on a map. We can see location updates happened very often near Sony properties in Lund\cite{sony_headquarters_sweden_lund}, Kista\cite{sony_headquarters_sweden_kista}, and at Ericsson AB in Göteborg\cite{ericsson}, Sweden, and in Tokyo\cite{sony_headquarters_japan}, Japan.  Figure X shows an example of the co-occurrences visualized for a pair of users ('8d325d9f-9341-4d00-a890-2adaf412e5ca', 'a21d8502-c5cb-4eb5-8b19-b38ea74e9294'). This enabled us to exclude co-occurrences from these locations for the test dataset {\color{red} WHY?}.
 \begin{figure}[H]
     \hspace*{-1.0cm}
     \centering
     \includegraphics[scale=0.30]{all_locations_sweden}
-    \caption{Location updates in Sweden, hexbinned}
+    \caption{Location updates in Sweden, hexbinned in log scale}
     \label{fig:sweden_locations_hexbin}
 \end{figure}
 \begin{figure}[H]
     \hspace*{-1.0cm}
     \centering
     \includegraphics[scale=0.30]{all_locations_japan}
-    \caption{Location updates in Japan, hexbinned}
+    \caption{Location updates in Japan, hexbinned in log scale}
     \label{fig:japan_locations_hexbin}
 \end{figure}
 
@@ -129,6 +129,9 @@ J(A_i,A_j) = \frac{ |A_i \cap A_j| }{ |A_i \cup A_j | }
 where $A_i$ is the set of apps used by user $i$ and $A_j$ is the set of apps used by user $j$. If $A_i$ and $A_j$ are empty sets we define $J(A_i, A_j) = 1$
 
 \subsection{Results}
+Initially we tried to infer friendship based on app usage. We did not have directed call-logs available so we could not reliably say if for example two people were calling each other. However the idea was that if we could find users with a similar timestamp and duration in an app, they could perhaps be communicating with each other either through phone calls or messaging apps. We identified the Android activity application name and package name for when a user is in a phone call called "Phone" and "package.com.android.incallui" respectively. Furthermore we identified a large number of messaging apps. We tried finding user pairs having activity in the phone app with a start_time and end_time difference of 10 seconds from each other. We looked at co-occurrences between user-pairs found this way and found that they either had a low number of co-occurrences around Sony properties or none at all.
+
+
 For our training set we found 124 negative samples (did not meet) and 2331 positive samples (did meet), the high number of positive samples is due to the inclusion of Sony HQ location updates in our training set. In our test set we found a more moderate 289 negative samples (did not meet) and 191 positive samples (did meet).
 First we trained a Logistic Regression classifier which serves as our baseline classifier to compare our other model with. We trained it only with the feature num\_coocs. Next we trained a Random Forest classifier with all of our features.
 
@@ -161,6 +164,22 @@ Random Forest (balanced class weight, T = 200)    & 0.44 & 0.79 & 0.71 & 0.34\\
 \label{table:models_performance_report}
 \end{table}
 
+Figure \ref{fig:conf_matrix_log_reg} and \ref{fig:conf_matrix_random_forest} shows the confusion matrices for our two models.
+
+\begin{figure}[H]
+    \hspace*{-1.0cm}
+    \centering
+    \includegraphics[scale=0.50]{confusion_matrix_log_reg}
+    \caption{Confusion matrix for Logistic Regression (num\_coocs feature)}
+    \label{fig:conf_matrix_log_reg}
+\end{figure}
+\begin{figure}[H]
+    \hspace*{-1.0cm}
+    \centering
+    \includegraphics[scale=0.50]{confusion_matrix_random_forest}
+    \caption{Confusion matrix for Random Forest (all features, 200 trees)}
+    \label{fig:conf_matrix_random_forest}
+\end{figure}
 
 
 \subsection{Class Imbalance Problem}

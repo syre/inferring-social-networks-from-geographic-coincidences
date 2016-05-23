@@ -240,7 +240,7 @@ class Predictor():
         print(sklearn.metrics.classification_report(y_test, y_pred, target_names=["did not meet", "did meet"]))
         self.compute_roc_curve(y_test, lg.predict_proba(X_test[:, 0].reshape(-1, 1))[:,1])
         cm = confusion_matrix(y_test, y_pred)
-        self.plot_confusion_matrix(cm)
+        self.plot_confusion_matrix(cm, title="Confusion matrix (Logistic Regression)")
         print(cm)
         print("Random Forest - all features")
         #self.tweak_features(X_train, y_train, X_test, y_test)
@@ -252,7 +252,7 @@ class Predictor():
         # compute ROC curve
         self.compute_roc_curve(y_test, forest.predict_proba(X_test)[:,1])
         cm = confusion_matrix(y_test, y_pred)
-        self.plot_confusion_matrix(cm)
+        self.plot_confusion_matrix(cm, title="Confusion matrix (Random Forest)")
         print(cm)
 
     def find_users_in_cooccurrence(self, spatial_bin, time_bin):

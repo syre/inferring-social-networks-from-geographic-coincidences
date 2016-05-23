@@ -54,7 +54,7 @@ Thus we say a co-occurrence happens between users A and B if they share the same
 
 
 \subsection{Visualization}
-We used Basemap\cite{basemap}, for plotting all the locations at once and and Leaflet\cite{leaflet} for producing interactive maps to visualize the data, we created a map for visualizing the users location traces over time and we created one that allowed us to see all the co-occurrences that happened between a pair of users. Figure \ref{fig:sweden_locations_hexbin} and \ref{fig:japan_locations_hexbin} shows location updates from Sweden and Japan respectively plotted on a map. We can see location updates happened very often near Sony properties in Lund\cite{sony_headquarters_sweden_lund}, Kista\cite{sony_headquarters_sweden_kista}, and at Ericsson AB in Göteborg\cite{ericsson}, Sweden, and in Tokyo\cite{sony_headquarters_japan}, Japan.  Figure X shows an example of the co-occurrences visualized for a pair of users ('8d325d9f-9341-4d00-a890-2adaf412e5ca', 'a21d8502-c5cb-4eb5-8b19-b38ea74e9294'). This enabled us to exclude co-occurrences from these locations for the test dataset {\color{red} WHY?}.
+We used Basemap\cite{basemap}, for plotting all the locations at once and and Leaflet\cite{leaflet} for producing interactive maps to visualize the data, we created a map for visualizing the users location traces over time and we created one that allowed us to see all the co-occurrences that happened between a pair of users. Figure \ref{fig:sweden_locations_hexbin} and \ref{fig:japan_locations_hexbin} shows location updates from Sweden and Japan respectively plotted on a map. We can see location updates happened very often near Sony properties in Lund\cite{sony_headquarters_sweden_lund}, Kista\cite{sony_headquarters_sweden_kista}, and at Ericsson AB in Göteborg\cite{ericsson}, Sweden, and in Tokyo\cite{sony_headquarters_japan}, Japan.  Figure \ref{fig:user_pair_at_sony} shows an example of the co-occurrences visualized for a typical pair of users in Sweden having lots of co-occurrences within the Sony perimeter. This enabled us to exclude co-occurrences from these locations for the test dataset {\color{red} WHY?}.
 \begin{figure}[H]
     \hspace*{-1.0cm}
     \centering
@@ -69,6 +69,15 @@ We used Basemap\cite{basemap}, for plotting all the locations at once and and Le
     \caption{Location updates in Japan, hexbinned in log scale}
     \label{fig:japan_locations_hexbin}
 \end{figure}
+\begin{figure}[H]
+    \hspace*{-1.0cm}
+    \centering
+    \includegraphics[scale=0.50]{user_pair_at_sony}
+    \caption{User pair with high number of co-occurrences for whole period at Sony perimeters}
+    \label{fig:user_pair_at_sony}
+\end{figure}
+
+We decided to look at just how many location updates and co-occurrences happened inside the Sony perimeter.
 
 \section{Modeling}
 In this subsection we will describe the model and features used for prediction.
@@ -129,42 +138,47 @@ J(A_i,A_j) = \frac{ |A_i \cap A_j| }{ |A_i \cup A_j | }
 where $A_i$ is the set of apps used by user $i$ and $A_j$ is the set of apps used by user $j$. If $A_i$ and $A_j$ are empty sets we define $J(A_i, A_j) = 1$
 
 \subsection{Results}
-Initially we tried to infer friendship based on app usage. We did not have directed call-logs available so we could not reliably say if for example two people were calling each other. However the idea was that if we could find users with a similar timestamp and duration in an app, they could perhaps be communicating with each other either through phone calls or messaging apps. We identified the Android activity application name and package name for when a user is in a phone call called "Phone" and "package.com.android.incallui" respectively. Furthermore we identified a large number of messaging apps. We tried finding user pairs having activity in the phone app with a start_time and end_time difference of 10 seconds from each other. We looked at co-occurrences between user-pairs found this way and found that they either had a low number of co-occurrences around Sony properties or none at all.
+Initially we tried to infer friendship based on app usage. We did not have directed call-logs available so we could not reliably say if for example two people were calling each other. However the idea was that if we could find users with a similar timestamp and duration in an app, they could perhaps be communicating with each other either through phone calls or messaging apps. After finding user-pairs that met that criteria we try to validate them looking at their co-occurrences, were they many or few, were they off Sony properties or on, a lot of co-occurrences off sony properties could perhaps indicate a friendship. We identified the Android activity application name and package name for when a user is in a phone call called "Phone" and "package.com.android.incallui" respectively. Furthermore we identified a large number of messaging apps. We tried finding user pairs having activity in the phone app with a start time difference and end time difference of 10 seconds from each other. We looked at co-occurrences between user-pairs found this way and found that they either had a low number of co-occurrences around Sony properties or none at all.
 
+We decided to use a meeting in a next period as a proxy for friendship.
 
-For our training set we found 124 negative samples (did not meet) and 2331 positive samples (did meet), the high number of positive samples is due to the inclusion of Sony HQ location updates in our training set. In our test set we found a more moderate 289 negative samples (did not meet) and 191 positive samples (did meet).
+For our training set we found 124 negative samples (did not meet) and 2331 positive samples (did meet), the high number of positive samples is due to the inclusion of location updates in the Sony properties perimeter in our training set. In our test set we found a more moderate 289 negative samples (did not meet) and 191 positive samples (did meet).
 First we trained a Logistic Regression classifier which serves as our baseline classifier to compare our other model with. We trained it only with the feature num\_coocs. Next we trained a Random Forest classifier with all of our features.
 
+Due to our imbalanced dataset, the Logistic Regression classifier we trained initially always wanted to just predict the largest prevalent class, positive, in our training dataset.
+
+\subsection{Class Imbalance Problem}
+The Class Imbalance Problem is when the total number of samples for one class greatly exceeds the number of samples for a different class. A number of techniques can be used to handle the class imbalance problem, we will use two techniques called oversampling and undersampling\cite{tan2006introduction}. In oversampling you sample the minor sample with replacement until there is an equal number of positive and negative samples. In undersampling you randomly sample from the major class N times where N is the number of minor classes.
+
 \subsection{Performance metrics}
-We utilized the precision and recall metrics for evaluating the performance of our models as well as AUC of the ROC Curve.
+We utilize the precision and recall metrics for evaluating the performance of our models as well as AUC of the ROC Curve.
 \subsubsection{Precision}
-
+Precision or the positive predictive value (PPV) is a metric that measures the number of a given class that are correctly identified in proportion to the number of classes that are predicted to be that class.
 \subsubsection{Recall}
+Recall or the true positive rate (TPR) is a metric that measures the number of a given class that are correctly identified as that class.
 
-\subsubsection{ROC AUC}
+In Table \ref{table:models_performance_report} we can see the performance metrics of the different classifiers.
 
-In Table \ref{table:models_performance_report} we can see the performance metrics for the positive class (did meet).
-
-\begin{table}[htbp]
+\begin{table}[H]
 \centering
 \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|}
 \hline
-\textbf{Model} & \textbf{Precision - positive} & \textbf{Recall - positive} & \textbf{Precision - negative} & \textbf{Recall - negative}   \\
+\textbf{Model} & \textbf{PPV +} & \textbf{TPR +} & \textbf{PPV -} & \textbf{PPV -}   \\
 \hline
-Logistic Regression (num\_coccs)          & 0.86 & 0.03 & 0.00 & 0.00       \\
+Logistic Regression (num\_coocs)          & 0.86 & 0.03 & 0.00 & 0.00       \\
 \hline
 Random Forest (T = 10)    & 0.49 & 0.57 & 0.68 & 0.62\\
 \hline
-Logistic Regression (num\_coocs, balanced class weight)          & 0.86 & 0.03 & 0.61 & 1.00      \\
+Logistic Regression (num\_coocs, balanced)          & 0.86 & 0.03 & 0.61 & 1.00      \\
 \hline
-Random Forest (balanced class weight, T = 200)    & 0.44 & 0.79 & 0.71 & 0.34\\
+Random Forest (balanced, T = 200)    & 0.44 & 0.79 & 0.71 & 0.34\\
 \hline
 \end{tabular}
-\caption{Models performance metrics for the positive class (did meet)}
+\caption{Models performance metrics}
 \label{table:models_performance_report}
 \end{table}
 
-Figure \ref{fig:conf_matrix_log_reg} and \ref{fig:conf_matrix_random_forest} shows the confusion matrices for our two models.
+We can further look at the number of classes correctly and incorrectly predicted using a Confusion Matrix. Figure \ref{fig:conf_matrix_log_reg} and \ref{fig:conf_matrix_random_forest} shows the confusion matrices for our two models.
 
 \begin{figure}[H]
     \hspace*{-1.0cm}
@@ -181,8 +195,4 @@ Figure \ref{fig:conf_matrix_log_reg} and \ref{fig:conf_matrix_random_forest} sho
     \label{fig:conf_matrix_random_forest}
 \end{figure}
 
-
-\subsection{Class Imbalance Problem}
-The Class Imbalance Problem is when the total number of data for one class greatly exceeds the number of data for a different class.
-
-
+Looking at Figure \ref{fig:conf_matrix_log_reg} we see our baseline classifier has a very high 

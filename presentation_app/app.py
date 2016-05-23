@@ -18,7 +18,7 @@ app.debug = True
 tools_path = "../tools/"
 
 database = DatabaseHelper.DatabaseHelper(tools_path)
-run = main.Run()
+run = main.Run("Sweden")
 
 number_features = ["altitude", "accuracy"]
 category_features = ["country", "region", "area", "place"]
@@ -178,9 +178,9 @@ def data_cooccurrences():
         useruuid2 = None
     all_filters = [item for sublist in run.filter_places_dict.values() for item in sublist]
     if useruuid1 and useruuid2:
-        cooccurrences = get_cooccurrences_async(useruuid1, useruuid2, points_w_distances=all_filters)
+        cooccurrences = get_cooccurrences_async(useruuid1, useruuid2)
     elif useruuid1:
-        cooccurrences = get_cooccurrences_async(useruuid1, points_w_distances=all_filters)
+        cooccurrences = get_cooccurrences_async(useruuid1)
     else:
         print("getting from japan")
         cooccurrences = get_cooccurrences_async_all("Japan")

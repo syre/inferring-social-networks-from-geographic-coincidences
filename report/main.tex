@@ -37,6 +37,7 @@
 %\usepackage{booktabs}
 \usepackage{pbox}
 \usepackage{tabulary}
+\usepackage{minted}
 %\usepackage{blindtext}
 %\usepackage[scaled=0.85]{beramono}
 
@@ -126,6 +127,21 @@
 \addcontentsline{toc}{chapter}{Bibliography}        %Force addition of Bibliography to TOC
 \bibliographystyle{alpha}                           %Use alpha codes for references
 \bibliography{references}                           %Bibliography file called
+
+\begin{minted}[mathescape,
+               linenos,
+               numbersep=5pt,
+               gobble=2,
+               frame=lines,
+               framesep=2mm]{csharp}
+  string title = "This is a Unicode π in the sky"
+  /*
+  Defined as $\pi=\lim_{n\to\infty}\frac{P_n}{d}$ where $P$ is the perimeter
+  of an $n$-sided regular polygon circumscribing a
+  circle of diameter $d$.
+  */
+  const double pi = 3.1415926535
+\end{minted}
 \end{document}
 % % % EOF % % %\grid
 

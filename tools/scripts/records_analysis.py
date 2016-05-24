@@ -36,8 +36,10 @@ def get_data_for_heat_map_per_month(country="Japan", total_count={}, user=""):
             numpy array -- Numpy array with number of location in that day, in that week, in that month
     """
     d = DatabaseHelper.DatabaseHelper()
-    sept_min_datetime2 = "2015-08-30 00:00:00+00:00" #Mandag
-    nov_max_datetime2 = "2015-12-13 23:59:59+00:00"
+    timezones = {"Sweden": "+02:00",
+                 "Japan": "+09:00"}
+    sept_min_datetime2 = "2015-08-30 00:00:00" + timezones[country] #Mandag
+    nov_max_datetime2 = "2015-12-13 23:59:59" + timezones[country]
     number_of_month = 3
     days_in_week = 7
     number_of_weeks = 6
@@ -68,23 +70,36 @@ def get_data_for_heat_map_per_month(country="Japan", total_count={}, user=""):
                         break
                     else:
                         month_index = month_range.index(current_month)
-                    start = day.strftime("%Y-%m-%d %H:%M:%S")+"+00:00"
-                    end =  day.strftime("%Y-%m-%d")+" 23:59:59+00:00"
+                    start = day.strftime("%Y-%m-%d %H:%M:%S") + timezones[country]
+                    end =  day.strftime("%Y-%m-%d")+" 23:59:59" + timezones[country]
                     user_query = ""
                     if user != "":
                         user_query = " AND useruuid = '"+user+"'"
-                    query = "select count(*) FROM location WHERE country='"+country+"' AND start_time >= '"+start+"' AND start_time <= '" + end + "'"+user_query+";"
+                    query = "select count(*) FROM location WHERE country='" + country + \
+                            "' AND ((start_time >= '" + start + \
+                            "' AND start_time < '" + end + "')" + \
+                            " OR (end_time >= '" + start + \
+                            "' AND end_time < '" + start + "')" + \
+                            " OR (start_time < '"+start + \
+                            "' AND end_time > '"+end+"'))" + user_query+";"
                     result = d.run_specific_query(query)[0][0] 
                     data[month_index][day.weekday()][week_of_month(day)-1] = result/total_count[country]
                     
                 else: #Hvis vi er i current_month
                     if day.month != 8:
-                        start = day.strftime("%Y-%m-%d %H:%M:%S")+"+00:00"
-                        end =  day.strftime("%Y-%m-%d")+" 23:59:59+00:00"
+                        start = day.strftime("%Y-%m-%d %H:%M:%S") + timezones[country]
+                        end =  day.strftime("%Y-%m-%d")+" 23:59:59" + timezones[country]
                         user_query = ""
                         if user != "":
                             user_query = " AND useruuid = '"+user+"'"
-                        query = "select count(*) FROM location WHERE country='"+country+"' AND start_time >= '"+start+"' AND start_time <= '" + end + "'" + user_query+";"
+                        query = "select count(*) FROM "+ \
+                            "location WHERE country='" + country + \
+                            "' AND ((start_time >= '" + start + \
+                            "' AND start_time < '" + end + "')" + \
+                            " OR (end_time >= '" + start + \
+                            "' AND end_time < '" + start + "')" + \
+                            " OR (start_time < '"+start + \
+                            "' AND end_time > '"+end+"'))" + user_query+";"
                         result = d.run_specific_query(query)[0][0] 
                         data[month_index][day.weekday()][week_of_month(day)-1] = result/total_count[country]
         if break_flag:
@@ -147,15 +162,20 @@ def get_data_for_heat_map_per_user(country, start_date, end_date, input_users=[]
     #print(len(users)/2)
     data = np.full((len(users)/2, len(days)),
                    0, dtype=int)
-
+    timezones = {"Sweden": "+02:00",
+                 "Japan": "+09:00"}
     if not input_users:
         for day_index, day in enumerate(tqdm(days)): #Vi starter på en mandag!!!
-            start = day.strftime("%Y-%m-%d %H:%M:%S")+"+00:00"
-            end =  day.strftime("%Y-%m-%d")+" 23:59:59+00:00"
+            start = day.strftime("%Y-%m-%d %H:%M:%S") + timezone[country]
+            end =  day.strftime("%Y-%m-%d")+" 23:59:59" + timezones[country]
             result = d.run_specific_query("SELECT useruuid, count(*) FROM " +
                                           "location WHERE country='" + country +
-                                          "' AND start_time >= '" + start +
-                                          "' AND start_time <= '" + end + "'" +
+                                          "' AND ((start_time >= '" + start +
+                                          "' AND start_time < '" + end + "')" +
+                                          " OR (end_time >= '" + start +
+                                          "' AND end_time < '" + start + "')" +
+                                          " OR (start_time < '"+start +
+                                          "' AND end_time > '"+end+"'))" +
                                           "GROUP BY useruuid")
             for row in result:
                 user = row[0]
@@ -163,9 +183,6 @@ def get_data_for_heat_map_per_user(country, start_date, end_date, input_users=[]
                     data[users[user]][day_index] = row[1]
                 else:
                     data[users[user]][day_index] = 1
-                #counts = row[1]
-                
-        #print(data)
     else:
         for day_index, day in enumerate(tqdm(days)): #Vi starter på en mandag!!!
             for user in input_users:
@@ -173,8 +190,12 @@ def get_data_for_heat_map_per_user(country, start_date, end_date, input_users=[]
                 end = day.strftime("%Y-%m-%d")+" 23:59:59+00:00"
                 result = d.run_specific_query("SELECT count(*) FROM " +
                                               "location WHERE country='" + country +
-                                              "' AND start_time >= '" + start +
-                                              "' AND start_time <= '" + end + "'" +
+                                              "' AND ((start_time >= '" + start +
+                                              "' AND start_time < '" + end + "')" +
+                                              " OR (end_time >= '" + start +
+                                              "' AND end_time < '" + start + "')" +
+                                              " OR (start_time < '"+start +
+                                              "' AND end_time > '"+end+"'))" +
                                               " AND useruuid='"+user+"'")
                 for row in result:
                     if row[0] > 0:
@@ -184,6 +205,112 @@ def get_data_for_heat_map_per_user(country, start_date, end_date, input_users=[]
                             data[users[user]][day_index] = 1
                         
     return data, users
+
+
+def get_data_for_heat_map_per_user_aggregated(country, start_date, end_date, bins=60, input_users=[], counts=False):
+    """
+        Generate numpy matrix represent heatmap, with user and number of bins over 24 hours.
+        Bins is number of minutes each bin is. So dimension for arrays is usersx((24*60)/bins)
+
+        Arguments:
+            country {string} -- Which country to get data from
+            start_date {string} -- start datetime
+            end_time {string} -- end datetime
+            input_users {list} -- list of specific users
+            counts {boolean} -- Indicates if it should find number of locations (True) or just if the user has an update (False)
+
+        Returns:
+            numpy array -- Numpy array
+    """
+    d = DatabaseHelper.DatabaseHelper()
+    users = get_all_users_in_country(country, input_users)
+    start_time = parser.parse(start_date + " 00:00:00+00:00")
+    end_time = parser.parse(end_date + " 23:59:59+00:00")
+    days = list(rrule(freq=DAILY, dtstart=start_time, until=end_time))
+    data = np.full((len(users)/2, (24*60)/bins),
+                   0, dtype=int)
+    timezones = {"Sweden": "+02:00",
+                 "Japan": "+09:00"}
+    if not input_users:
+        for day_index, day in enumerate(tqdm(days)):
+            times_in_that_day = generate_time_list(day, day+timedelta(days=1), bins, True)
+            #print(times_in_that_day)
+            for bin_index, times in enumerate(times_in_that_day):
+
+                start = times[0].strftime("%Y-%m-%d %H:%M:%S")+timezones[country]
+                end = times[1].strftime("%Y-%m-%d %H:%M:%S")+timezones[country]
+                #print("start = {}, end = {}\nbin_index = {}\n-----------"
+                #      .format(start, end, bin_index))
+                result = d.run_specific_query("SELECT useruuid, count(*) FROM " +
+                                              "location WHERE country='" + country +
+                                              "' AND ((start_time >= '" + start +
+                                              "' AND start_time < '" + end + "')" +
+                                              " OR (end_time >= '" + start +
+                                              "' AND end_time < '" + start + "')" +
+                                              " OR (start_time < '"+start +
+                                              "' AND end_time > '"+end+"'))" +
+                                              "GROUP BY useruuid")
+                for row in result:
+                    user = row[0]
+                    if counts:
+                        data[users[user]][bin_index] += row[1]
+                    else:
+                        data[users[user]][bin_index] += 1
+    else:
+        for day_index, day in enumerate(tqdm(days)): #Vi starter på en mandag!!!
+            times_in_that_day = generate_time_list(day, day+timedelta(days=1), bins, True)
+            for bin_index, times in enumerate(times_in_that_day):
+                for user in input_users:
+                    start = times[0].strftime("%Y-%m-%d %H:%M:%S")+"+00:00"
+                    end = times[1].strftime("%Y-%m-%d %H:%M:%S")+"+00:00"
+                    result = d.run_specific_query("SELECT count(*) FROM " +
+                                                  "location WHERE country='" + country +
+                                                  "' AND (start_time >= '" + start +
+                                                  "' AND start_time < '" + end + "')" +
+                                                  "' OR (end_time >= '" + start +
+                                                  "' AND end_time < '" + start + "')" +
+                                                  " OR (start_time < '"+start +
+                                                  "' AND end_time > '"+end+"')" +
+                                                  " AND useruuid='"+user+"'")
+                    for row in result:
+                        if row[0] > 0:
+                            if counts:
+                                data[users[user]][bin_index] += row[0]
+                            else:
+                                data[users[user]][bin_index] += 1
+                        
+    return data, users
+
+
+def generate_time_list(start_time, end_time, step_size, zips=False):
+    """
+    Generate a list of datetimes with an rrule of specific number of minutes
+
+    Arguments:
+        start_time {datetime} -- Datetime for when the list starts
+        end_time   {datetime} -- Datetime for when the list ends
+        step_size  {int}      -- How many minutes between element in the list (minutes - 60 = 1 hour)
+
+    Return:
+        list of datetimes
+    """
+    lst = []
+    if not zips:
+        lst.append(start_time)
+        temp_time = start_time
+        while temp_time < end_time:
+            temp_time = temp_time+timedelta(minutes=step_size)
+            lst.append(temp_time)
+        lst = lst[:-1]
+    else:
+        temp_time = start_time
+        before = temp_time
+        while temp_time < end_time:
+            temp_time = temp_time+timedelta(minutes=step_size)
+            lst.append((before, temp_time))
+            before = temp_time
+    return lst
+
 
 
 def week_of_month(date):
@@ -251,9 +378,10 @@ def cdf_xy_plot():
     plt.xlim(0, xlim_max)
     plt.title(title)
     plt.legend(prop={'size': 40})
-    [item.set_fontsize(35) for item in [ax.yaxis.label, ax.xaxis.label]]
-    ax.title.set_fontsize(40)
-    [item.set_fontsize(28) for item in ax.get_xticklabels() + ax.get_yticklabels()]
+    sns.plt.tick_params(labelsize=20)
+    [item.set_fontsize(45) for item in [ax.yaxis.label, ax.xaxis.label]]
+    ax.title.set_fontsize(48)
+    [item.set_fontsize(33) for item in ax.get_xticklabels() + ax.get_yticklabels()]
     plt.show()
 
 
@@ -297,7 +425,7 @@ def records_dist_plot(data, bins, xlabels, ylabels, titles, labels):
     sns.plt.show()
 
 
-def heat_map(data, mask, xlabels, ylabels, title="", anno=True, multiple=True, max_val=0):
+def heat_map(data, mask, xticks, yticks, title="", xlabels=[], ylabels=[], anno=True, multiple=True, max_val=0):
     """
     Plotting a heatmap
 
@@ -319,9 +447,9 @@ def heat_map(data, mask, xlabels, ylabels, title="", anno=True, multiple=True, m
         fig, ax = sns.plt.subplots(3, 1)
         cbar_ax = fig.add_axes([.91, .3, .03, .4])
         for index, ax in enumerate(ax.flat):
-            sns.heatmap(data[index], ax=ax, xticklabels=[" "]*len(xlabels[index]) if index != 2 else xlabels[index],
+            sns.heatmap(data[index], ax=ax, xticklabels=[" "]*len(xticks[index]) if index != 2 else xticks[index],
                         annot=anno, fmt="d",
-                        yticklabels=ylabels[index], mask=mask[index], vmin=0,
+                        yticklabels=yticks[index], mask=mask[index], vmin=0,
                         vmax=max_val, cbar=index == 0, cbar_ax=None if index else cbar_ax)
             if title != "" and index == 0:
                 ax.set_title(title)
@@ -331,24 +459,30 @@ def heat_map(data, mask, xlabels, ylabels, title="", anno=True, multiple=True, m
         if max_val == 0:
             max_val = np.amax(data)
         if mask:
-            ax = sns.heatmap(data, xticklabels=xlabels,
+            ax = sns.heatmap(data, xticklabels=xticks,
                              annot=anno, fmt="d",
-                             yticklabels=ylabels, mask=mask, vmin=0,
+                             yticklabels=yticks, mask=mask, vmin=0,
                              vmax=max_val)
         else:
-            if not ylabels:
-                ylabels = [[" "]*data.shape[1]]
-            ax = sns.heatmap(data, xticklabels=xlabels[0],
+            if not yticks:
+                yticks = [[" "]*data.shape[1]]
+            ax = sns.heatmap(data, xticklabels=xticks[0],
                              annot=anno, fmt="d",
-                             yticklabels=ylabels[0], vmin=0,
+                             yticklabels=yticks[0], vmin=0,
                              vmax=max_val)
             [label.set_visible(False) for label in ax.yaxis.get_ticklabels()]
 
             for label in ax.yaxis.get_ticklabels()[::4]:
                 label.set_visible(True)
         ax.set_title(title)
-        ax.set_ylabel("Users")
-        ax.set_xlabel("Days")
+        if ylabels:
+            ax.set_ylabel(ylabels)
+        else:
+            ax.set_ylabel("Users")
+        if xlabels:
+            ax.set_xlabel(xlabels)
+        else:
+            ax.set_xlabel("Days")
         plt.yticks(rotation=0)
     sns.plt.show()
 
@@ -744,11 +878,75 @@ def coocs_at_hq_or_not():
     [item.set_fontsize(33) for item in ax.get_xticklabels() + ax.get_yticklabels()]
     sns.plt.show()
 
-    #
+
+def time_plot():
+    d = DatabaseHelper.DatabaseHelper()
+    data = []
+    _, _, total_count, countries = fetch_data()
+    for country in countries:
+        x = []
+        y = []
+        res = d.run_specific_query("select extract(hour FROM start_time), count(*) from location WHERE country='"+country+"' GROUP BY extract(hour FROM start_time)")
+        for row in res:
+            x.append(adjust_hour(row[0], country))
+            y.append(row[1]/total_count[country])
+        temp = zip(x, y)
+        temp2 = list(zip(*sorted(temp)))
+        data.append((list(temp2[0]), list(temp2[1])))
+    title = "Cummulative location updates by time of day"
+    xlabel = "Time of day in hours"
+    ylabel = "Cummulative location updates frequency"
+    legend_labels = countries
+    ax = plt.subplot(111, xlabel=xlabel, ylabel=ylabel, title=title)
+    plt.plot(data[0][0], data[0][1], label=legend_labels[0], linewidth=6.0)
+    plt.plot(data[1][0], data[1][1], label=legend_labels[1], color='r', linewidth=6.0)
+    #xlim_max = max([max(data[0][0]), max(data[1][0])])
+    #plt.ylim(0, 1)
+    plt.xticks(data[0][0])
+    ax.yaxis.set_major_formatter(tck.FormatStrFormatter('%.1e'))
+    plt.xlim(0, 24)
+    plt.title(title)
+    plt.legend(prop={'size': 40})
+    sns.plt.tick_params(labelsize=20)
+    [item.set_fontsize(45) for item in [ax.yaxis.label, ax.xaxis.label]]
+    ax.title.set_fontsize(48)
+    [item.set_fontsize(33) for item in ax.get_xticklabels() + ax.get_yticklabels()]
+    plt.show()
+
+
+def adjust_hour(hour, country):
+    countries = {'Japan': 7, 'Sweden': 0}
+    return (hour+countries[country]) % 24
+    
+
+def aggregated_heatmap():
+    country = "Sweden"
+    start = '2015-09-01'
+    end = '2015-11-30'
+    bin_size = 60 #minutes
+    data, users = get_data_for_heat_map_per_user_aggregated(country, start, end, bin_size)
+    lst = generate_time_list(parser.parse(start+' 00:00:00+00:00'),
+                             parser.parse(start+' 00:00:00+00:00') +
+                             timedelta(days=1), bin_size)
+    xticks = [row.strftime("%H:%M") for row in lst]
+    print(xticks)
+    yticks = list(range(data.shape[0]))
+    heat_map(data, [], [xticks], [],
+             title=country + " - '" + start + "' to '" + end + "'",
+             xlabels="Time of day", ylabels=[], anno=False, multiple=False, max_val=0)
+
+
 if __name__ == '__main__':
+    aggregated_heatmap()
+    #res = generate_time_list(parser.parse('2015-08-30 00:00:00+00:00'),
+    #                         parser.parse('2015-08-31 00:00:00+00:00'), 60, True)
+    #print(len(res))
+    #print(res)
+    
     #coocs_at_hq_or_not()
     #location_updates_at_hq_or_not()
-    cdf_xy_plot()
+    #cdf_xy_plot()
+    #time_plot()
     #compare_loc_updates_per_month()
     #data, df, total_count, countries = fetch_data()
 

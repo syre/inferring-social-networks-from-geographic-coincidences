@@ -49,13 +49,13 @@ We created scripts for exportation to numpy arrays for use in the sklearn module
 In the following section the term grid cell or spatial bin will be used synonymously and time interval and time bin aswell.
 A spatiotemporal co-occurrence between two users is defined as an instance in which they co-occurred in approximately the same time and approximately the same place.
 We have partitioned or binned the globe into a discrete grid where the cells span .001\degree of latitude and longitude on each side, and in a discrete time interval of 1-hour.
-Thus we say a co-occurrence happens between users A and B if they share the same .001\degree spatial cell C within the same discrete time interval.
+Thus we say a co-occurrence happens between users $i$ and $j$ if they share the same .001\degree spatial cell C within the same discrete time interval.
  Each grid cell has a unique ID, this is obtained by considering the grid as a matrix and flattening it to a list by traversing from left to right and top to bottom (row-first ordering) and using the list index as an ID. This makes a total possible spatial bin indexes of: $(190\times dec)\times(360\times dec)=68.400.000.000$ with $dec=3$ We calculated the time bins by counting every hour from the start of the day of the earliest date appearing in the dataset, which has the ISO 8601 timestring: "2015-08-09 22:25:33.766+02". The latest day has the ISO 8601 timestring: "2015-12-01 00:59:15.738+01". This leaves us with $2738$ possible time bin IDs. For generating our dataset we count co-occurrences between pairs only once per spatial and time bin.
 \begin{figure}[H]
     \hspace*{-1.0cm}
     \centering
     \includegraphics[scale=0.30]{grid}
-    \caption{Spatial and temporal binning}
+    \caption{Illustration of spatiotemporal co-occurrences, users $i$ and $j$ have 2 co-occurrences in spatial bin 1 and 3, spatial bin 6 have different time bins.}
     \label{fig:binning}
 \end{figure}
 

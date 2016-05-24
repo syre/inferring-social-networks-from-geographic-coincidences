@@ -441,6 +441,7 @@ def heat_map(data, mask, xticks, yticks, title="", xlabels=[], ylabels=[], anno=
     """
     sns.set(font_scale=2.5)
     if multiple:
+        sns.set(font_scale=2.5)
         months = ["September", "October", "November"]
         if max_val == 0:
             max_val = np.amax(data)
@@ -458,6 +459,7 @@ def heat_map(data, mask, xticks, yticks, title="", xlabels=[], ylabels=[], anno=
     else:
         if max_val == 0:
             max_val = np.amax(data)
+        sns.set(font_scale=3.5)
         if mask:
             ax = sns.heatmap(data, xticklabels=xticks,
                              annot=anno, fmt="d",
@@ -475,6 +477,7 @@ def heat_map(data, mask, xticks, yticks, title="", xlabels=[], ylabels=[], anno=
             for label in ax.yaxis.get_ticklabels()[::4]:
                 label.set_visible(True)
         ax.set_title(title)
+        [item.set_fontsize(33) for item in ax.get_xticklabels() + ax.get_yticklabels()]
         if ylabels:
             ax.set_ylabel(ylabels)
         else:
@@ -919,8 +922,8 @@ def adjust_hour(hour, country):
     return (hour+countries[country]) % 24
     
 
-def aggregated_heatmap():
-    country = "Sweden"
+def aggregated_heatmap(sorter_efter_sum=False):
+    country = "Japan"
     start = '2015-09-01'
     end = '2015-11-30'
     bin_size = 60 #minutes
@@ -931,13 +934,16 @@ def aggregated_heatmap():
     xticks = [row.strftime("%H:%M") for row in lst]
     print(xticks)
     yticks = list(range(data.shape[0]))
+    if sorter_efter_sum:
+        s = np.sum(data, axis=1)
+        data = np.take(data, s.argsort(), axis=0)
     heat_map(data, [], [xticks], [],
              title=country + " - '" + start + "' to '" + end + "'",
              xlabels="Time of day", ylabels=[], anno=False, multiple=False, max_val=0)
 
 
 if __name__ == '__main__':
-    aggregated_heatmap()
+    aggregated_heatmap(True)
     #res = generate_time_list(parser.parse('2015-08-30 00:00:00+00:00'),
     #                         parser.parse('2015-08-31 00:00:00+00:00'), 60, True)
     #print(len(res))

@@ -240,7 +240,6 @@ class Predictor():
         print(sklearn.metrics.classification_report(y_test, y_pred, target_names=["did not meet", "did meet"]))
         self.compute_roc_curve(y_test, lg.predict_proba(X_test[:, 0].reshape(-1, 1))[:,1])
         cm = confusion_matrix(y_test, y_pred, labels=[0, 1])
-        print(sklearn.metrics.classification_report(y_test, y_pred, target_names=["did not meet", "did meet"]))
         self.plot_confusion_matrix(cm, title="Confusion matrix (Logistic Regression)")
         print(cm)
         print("Random Forest - all features")

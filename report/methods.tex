@@ -94,12 +94,17 @@ The models and algorithms we use are implemented in \textit{scikit-learn}\cite{s
 
 First we will describe the different features of which our dataset is composed.
 \subsection{Features}
-\subsubsection{Number of co-occurrences (num\_coocs)}
-The total number of co-occurrences between users.
+
+\subsubsection{Number of co-occurrences}
+The total number of co-occurrences between users. Feature ID:\it{0}.
+
+\subsubsection{Timely arrival and leaving}
+We use the timely arrival and leaving measure taken from the master's thesis of P. Sapieżyński\cite{IMM2013-06556}. Feature ID:\it{1}.
+
 \subsubsection{Diversity of a co-occurrence}
 We use the diversity measure taken from the papers of Shahabi and Pham\cite{iRWRfSD}\cite{AEBMtISSfSD}.
 Diversity is a measure of how important the spatial locations of the co-occurrences between a pair of persons are, given how many times they appear.
-It exists in two forms, one using Shannon entropy another using Rényi entropy, we will use Shannon.
+It exists in two forms, one using Shannon entropy another using Rényi entropy, we will use Shannon. Feature ID:\it{2}.
 The Shannon entropy is defined by Equation \ref{eq:shannon_entropy}
 \begin{equation}
 \label{eq:shannon_entropy}
@@ -112,9 +117,12 @@ From this the diversity is defined by taking the exponential function of the ent
 D^s_{ij} = exp(H^S_{ij})
 \end{equation}
 
+\subsubsection{Unique co-occurrences}
+The number of unique co-occurrences in terms of spatial bins between two users. Feature ID:\it{3}.
+
 \subsubsection{Weighted frequency}
 We use the weighted frequency measure taken from the papers of Shababi and Pham\cite{iRWRfSD}\cite{AEBMtISSfSD}.
-Weighted frequency is a measure of how important the co-occurrences at non-popular places are.
+Weighted frequency is a measure of how important the co-occurrences at non-popular places are. Feature ID:\it{4}.
 The weighed frequency is defined by Equation \ref{eq:weighted_frequency}
 \begin{equation}
 \label{eq:weighted_frequency}
@@ -127,16 +135,25 @@ H_l = \sum\limits_{u, P_{u,l}\neq0} P_{u,l}\log P_{u,l}
 \end{equation}
 where $P_{u,l}$ is the probability that a location update from location \textit{l} belongs to user \textit{u}.
 \subsubsection{Co-occurrences weighted with respect to each location}
-We use the weighted co-occurrences measure taken from the master's thesis of P. Sapieżyński\cite{IMM2013-06556}.
+We use the weighted co-occurrences measure taken from the master's thesis of P. Sapieżyński\cite{IMM2013-06556}. Feature ID:\it{5}.
 
-\subsubsection{Timely arrival and leaving}
-We use the timely arrival and leaving measure taken from the master's thesis of P. Sapieżyński\cite{IMM2013-06556}.
+\subsubsection{Common travels}
+Common travels. Feature ID:\it{6}.
 
-\subsubsection{Unique spatial bins}
-The number of unique spatial bins between two users.
+\subsubsection{2 unique co-occurrences}
+2 unique co-occurrences. Feature ID:\it{7}.
+
+\subsubsection{mutual co-occurrences}
+Number of mutual co-occurrences. Feature ID:\it{8}.
+
+\subsubsection{within 6 years of age}
+Whether they are within 6 years of age of each other. Feature ID:\it{9}
+
+\subsubsection{same gender}
+Whether they are the same gender. Feature ID:\it{10}
 
 \subsubsection{Jaccard index similarity of used apps}
-The Jaccard index is a measure used in comparing the similarity of sample sets. We extract what apps two users have used in the period and compute the similarity between them using the Jaccard index.
+The Jaccard index is a measure used in comparing the similarity of sample sets. We extract what apps two users have used in the period and compute the similarity between them using the Jaccard index. Feature ID:\it{11}.
 The Jaccard index is defined in Equation \ref{eq:jaccard_index}
 \begin{equation}
 \label{eq:jaccard_index}

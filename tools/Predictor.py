@@ -183,6 +183,8 @@ class Predictor():
         plt.bar(range(X.shape[1]), importances[indices],
                 color="r", yerr=std[indices], align="center")
         plt.xticks(range(X.shape[1]), indices)
+        plt.xlabel("feature number")
+        plt.ylabel("feature importance")
         plt.xlim([-1, X.shape[1]])
         plt.show()
 
@@ -247,7 +249,9 @@ class Predictor():
         forest.fit(X_train, y_train)
         y_pred = forest.predict(X_test)
         print(sklearn.metrics.classification_report(y_test, y_pred, target_names=["did not meet", "did meet"]))
+        plt.style.use("ggplot")
         self.compute_feature_ranking(forest, X_test)
+        plt.style.use("default")
         # compute ROC curve
         self.compute_roc_curve(y_test, forest.predict_proba(X_test)[:,1])
         cm = confusion_matrix(y_test, y_pred, labels=[0, 1])

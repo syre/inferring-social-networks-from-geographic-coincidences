@@ -10,7 +10,8 @@ class Run():
     """docstring for ClassName"""
     def __init__(self, country):
         self.filter_places_dict = {"Sweden": [[(13.2262862, 55.718211), 1000],
-                                              [(17.9529121, 59.4050982), 1000]],
+                                              [(17.9529121, 59.4050982), 1000],
+                                              [(11.9387722, 57.7058472), 1000]],
                                    "Japan": [[(139.743862, 35.630338), 1000]]}
         self.country = country
         self.file_loader = FileLoader()

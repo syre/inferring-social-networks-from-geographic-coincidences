@@ -96,15 +96,15 @@ First we will describe the different features of which our dataset is composed.
 \subsection{Features}
 
 \subsubsection{Number of co-occurrences}
-The total number of co-occurrences between users. Feature ID:\it{0}.
+The total number of co-occurrences between users. Feature ID:\textit{0}.
 
 \subsubsection{Timely arrival and leaving}
-We use the timely arrival and leaving measure taken from the master's thesis of P. Sapieżyński\cite{IMM2013-06556}. Feature ID:\it{1}.
+We use the timely arrival and leaving measure taken from the master's thesis of P. Sapieżyński\cite{IMM2013-06556}. Feature ID:\textit{1}.
 
 \subsubsection{Diversity of a co-occurrence}
 We use the diversity measure taken from the papers of Shahabi and Pham\cite{iRWRfSD}\cite{AEBMtISSfSD}.
 Diversity is a measure of how important the spatial locations of the co-occurrences between a pair of persons are, given how many times they appear.
-It exists in two forms, one using Shannon entropy another using Rényi entropy, we will use Shannon. Feature ID:\it{2}.
+It exists in two forms, one using Shannon entropy another using Rényi entropy, we will use Shannon. Feature ID:\textit{2}.
 The Shannon entropy is defined by Equation \ref{eq:shannon_entropy}
 \begin{equation}
 \label{eq:shannon_entropy}
@@ -118,11 +118,11 @@ D^s_{ij} = exp(H^S_{ij})
 \end{equation}
 
 \subsubsection{Unique co-occurrences}
-The number of unique co-occurrences in terms of spatial bins between two users. Feature ID:\it{3}.
+The number of unique co-occurrences in terms of spatial bins between two users. Feature ID:\textit{3}.
 
 \subsubsection{Weighted frequency}
 We use the weighted frequency measure taken from the papers of Shababi and Pham\cite{iRWRfSD}\cite{AEBMtISSfSD}.
-Weighted frequency is a measure of how important the co-occurrences at non-popular places are. Feature ID:\it{4}.
+Weighted frequency is a measure of how important the co-occurrences at non-popular places are. Feature ID:\textit{4}.
 The weighed frequency is defined by Equation \ref{eq:weighted_frequency}
 \begin{equation}
 \label{eq:weighted_frequency}
@@ -135,25 +135,25 @@ H_l = \sum\limits_{u, P_{u,l}\neq0} P_{u,l}\log P_{u,l}
 \end{equation}
 where $P_{u,l}$ is the probability that a location update from location \textit{l} belongs to user \textit{u}.
 \subsubsection{Co-occurrences weighted with respect to each location}
-We use the weighted co-occurrences measure taken from the master's thesis of P. Sapieżyński\cite{IMM2013-06556}. Feature ID:\it{5}.
+We use the weighted co-occurrences measure taken from the master's thesis of P. Sapieżyński\cite{IMM2013-06556}. Feature ID:\textit{5}.
 
 \subsubsection{Common travels}
-Common travels. Feature ID:\it{6}.
+Common travels. Feature ID:\textit{6}.
 
 \subsubsection{2 unique co-occurrences}
-2 unique co-occurrences. Feature ID:\it{7}.
+2 unique co-occurrences. Feature ID:\textit{7}.
 
 \subsubsection{mutual co-occurrences}
-Number of mutual co-occurrences. Feature ID:\it{8}.
+Number of mutual co-occurrences. Feature ID:\textit{8}.
 
 \subsubsection{within 6 years of age}
-Whether they are within 6 years of age of each other. Feature ID:\it{9}
+Whether they are within 6 years of age of each other. Feature ID:\textit{9}
 
 \subsubsection{same gender}
-Whether they are the same gender. Feature ID:\it{10}
+Whether they are the same gender. Feature ID:\textit{10}
 
 \subsubsection{Jaccard index similarity of used apps}
-The Jaccard index is a measure used in comparing the similarity of sample sets. We extract what apps two users have used in the period and compute the similarity between them using the Jaccard index. Feature ID:\it{11}.
+The Jaccard index is a measure used in comparing the similarity of sample sets. We extract what apps two users have used in the period and compute the similarity between them using the Jaccard index. Feature ID:\textit{11}.
 The Jaccard index is defined in Equation \ref{eq:jaccard_index}
 \begin{equation}
 \label{eq:jaccard_index}

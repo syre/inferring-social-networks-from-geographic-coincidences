@@ -94,7 +94,7 @@ We decided to look at just how many location updates and co-occurrences happened
 \end{figure}
 
  Figure \ref{fig:dist_coocs_sony} shows the number of co-occurrences inside and outside Sony perimeters, here we see a massive amount of co-occurrences happening inside the Sony perimeters. This can pose a problem as we will only be looking at co-occurrences between users that is outside Sony perimeters.
- 
+
 \begin{figure}[H]
     \hspace*{-1.0cm}
     \centering
@@ -118,7 +118,9 @@ First we will describe the different features of which our dataset is composed.
 The total number of co-occurrences between users. Feature ID:\textit{0}.
 
 \subsubsection{Timely arrival and leaving}
-We use the timely arrival and leaving measure taken from the master's thesis of P. Sapieżyński\cite{IMM2013-06556}. Feature ID:\textit{1}.
+We use the timely arrival and leaving measure proposed in the master's thesis of Sapieżyński\cite{IMM2013-06556}.
+Sapieżyński argued that two persons arriving or leaving a location synchronously could be more indicative of friendship than them arriving or leaving non-synchronously.
+Feature ID:\textit{1}.
 
 \subsubsection{Diversity of a co-occurrence}
 We use the diversity measure taken from the papers of Shahabi and Pham\cite{iRWRfSD}\cite{AEBMtISSfSD}.
@@ -137,7 +139,7 @@ D^s_{ij} = exp(H^S_{ij})
 \end{equation}
 
 \subsubsection{Unique co-occurrences}
-The number of unique co-occurrences in terms of spatial bins between two users. Feature ID:\textit{3}.
+The number of unique co-occurrences in terms of spatial bins between two users \textit{i} and \texit{j}. Feature ID:\textit{3}.
 
 \subsubsection{Weighted frequency}
 We use the weighted frequency measure taken from the papers of Shababi and Pham\cite{iRWRfSD}\cite{AEBMtISSfSD}.
@@ -153,17 +155,21 @@ where $H_l$ is the Location Entropy for location \textit{l} defined in Equation 
 H_l = \sum\limits_{u, P_{u,l}\neq0} P_{u,l}\log P_{u,l}
 \end{equation}
 where $P_{u,l}$ is the probability that a location update from location \textit{l} belongs to user \textit{u}.
+
 \subsubsection{Co-occurrences weighted with respect to each location}
-We use the weighted co-occurrences measure taken from the master's thesis of P. Sapieżyński\cite{IMM2013-06556}. Feature ID:\textit{5}.
+We use the weighted co-occurrences measure proposed in the master's thesis of Sapieżyński\cite{IMM2013-06556}.
+The co-occurrences between users \textit{i} and \textit{j} are weighted by how many other people are present in the same spatial bin and time bin.
+Feature ID:\textit{5}.
 
 \subsubsection{Common travels}
-Common travels. Feature ID:\textit{6}.
+We use the common travels measure proposed in the master's thesis of Sapieżyński\cite{IMM2013-06556}.
+The number of common travels between two users. Common travels are defined when user \textit{i} and user \textit{j} co-occur in consecutive time-bins with a different spatial bin than the previous co-occurrence. Feature ID:\textit{6}.
 
 \subsubsection{2 unique co-occurrences}
 2 unique co-occurrences. Feature ID:\textit{7}.
 
 \subsubsection{mutual co-occurrences}
-Number of mutual co-occurrences. Feature ID:\textit{8}.
+Number of mutual co-occurrences, the mutual co-occurrences for user \textit{i} and \textit{j} will be the number of users whom they share co-occurrences with. Feature ID:\textit{8}.
 
 \subsubsection{within 6 years of age}
 Whether they are within 6 years of age of each other. Feature ID:\textit{9}

@@ -26,7 +26,7 @@ class DatasetHelper():
         for cooc in cooc_arr:
             if self.db_helper.is_saturday_night(self.db_helper.calculate_datetime(cooc[3])):
                 count += 1
-        return count
+        return count/cooc_arr.shape[0]
 
     def calculate_number_of_common_travels(self, cooc_arr):
         bins = cooc_arr[:, [2, 3]]

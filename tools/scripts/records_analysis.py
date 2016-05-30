@@ -20,6 +20,7 @@ import collections
 import pprint
 import itertools
 from tqdm import tqdm
+from matplotlib.colors import LogNorm
 
 
 def get_data_for_heat_map_per_month(country="Japan", total_count={}, user=""):
@@ -425,7 +426,7 @@ def records_dist_plot(data, bins, xlabels, ylabels, titles, labels):
     sns.plt.show()
 
 
-def heat_map(data, mask, xticks, yticks, title="", xlabels=[], ylabels=[], anno=True, multiple=True, max_val=0):
+def heat_map(data, mask, xticks, yticks, title="", xlabels=[], ylabels=[], anno=True, multiple=True, max_val=0, log=False):
     """
     Plotting a heatmap
 
@@ -439,7 +440,12 @@ def heat_map(data, mask, xticks, yticks, title="", xlabels=[], ylabels=[], anno=
         multiple {boolean} -- Indicates whether there are data for multiple heatmap (True) or not (False)
         max_val {int}     --  max value of the indicator. If it's 0 (default) max_val will be calculated from the data
     """
+<<<<<<< Updated upstream
     sns.set(font_scale=4.5)
+=======
+    min_val = 0
+    sns.set(font_scale=2.5)
+>>>>>>> Stashed changes
     if multiple:
         #sns.set(font_scale=2.5)
         months = ["September", "October", "November"]
@@ -450,7 +456,7 @@ def heat_map(data, mask, xticks, yticks, title="", xlabels=[], ylabels=[], anno=
         for index, ax in enumerate(ax.flat):
             sns.heatmap(data[index], ax=ax, xticklabels=[" "]*len(xticks[index]) if index != 2 else xticks[index],
                         annot=anno, fmt="d",
-                        yticklabels=yticks[index], mask=mask[index], vmin=0,
+                        yticklabels=yticks[index], mask=mask[index], vmin=min_val,
                         vmax=max_val, cbar=index == 0, cbar_ax=None if index else cbar_ax)
             if title != "" and index == 0:
                 ax.set_title(title)
@@ -461,17 +467,34 @@ def heat_map(data, mask, xticks, yticks, title="", xlabels=[], ylabels=[], anno=
             max_val = np.amax(data)
         #sns.set(font_scale=5.5)
         if mask:
-            ax = sns.heatmap(data, xticklabels=xticks,
-                             annot=anno, fmt="d",
-                             yticklabels=yticks, mask=mask, vmin=0,
-                             vmax=max_val)
+            if log:
+                min_val += 1
+                ax = sns.heatmap(data, xticklabels=xticks,
+                                 annot=anno, fmt="d",
+                                 yticklabels=yticks, mask=mask,
+                                 norm=LogNorm(vmin=min_val, vmax=max_val))
+
+            else:
+                ax = sns.heatmap(data, xticklabels=xticks,
+                                 annot=anno, fmt="d",
+                                 yticklabels=yticks, mask=mask, vmin=min_val,
+                                 vmax=max_val)
         else:
             if not yticks:
                 yticks = [[" "]*data.shape[1]]
-            ax = sns.heatmap(data, xticklabels=xticks[0],
-                             annot=anno, fmt="d",
-                             yticklabels=yticks[0], vmin=0,
-                             vmax=max_val)
+
+            if log:
+                min_val += 1
+                print("max_val = {}, min_val = {}".format(max_val, min_val))
+                ax = sns.heatmap(data, xticklabels=xticks[0],
+                                 annot=anno, fmt="d",
+                                 yticklabels=yticks[0],
+                                 norm=LogNorm(vmin=min_val, vmax=max_val))
+            else:
+                ax = sns.heatmap(data, xticklabels=xticks[0],
+                                 annot=anno, fmt="d",
+                                 yticklabels=yticks[0], vmin=min_val,
+                                 vmax=max_val)
             [label.set_visible(False) for label in ax.yaxis.get_ticklabels()]
 
             for label in ax.yaxis.get_ticklabels()[::4]:
@@ -938,15 +961,28 @@ def aggregated_heatmap(sorter_efter_sum=False):
         data = np.take(data, s.argsort(), axis=0)
     heat_map(data, [], [xticks], [],
              title=country + " - '" + start + "' to '" + end + "'",
-             xlabels="Time of day", ylabels=[], anno=False, multiple=False, max_val=0)
+             xlabels="Time of day", ylabels=[], anno=False, multiple=False, max_val=0, log=True)
 
 
 if __name__ == '__main__':
     #aggregated_heatmap(True)
+<<<<<<< Updated upstream
     #show_all_month_for_contries()
     #location_updates_at_hq_or_not()
     countries = ["Japan", "Sweden"]
     show_all_month_same_scale(countries)
+=======
+    #
+    print(LogNorm(vmin=1, vmax=74))
+    data = [[0.1,2.0,3.0], [4.0,5.0,6.0], [7.0,8.0,9.0]]
+    ax = sns.heatmap(data,
+                     annot=True, fmt="0:.0f",
+                     norm=LogNorm(vmin=1, vmax=9)
+                     )
+
+    sns.plt.show()
+
+>>>>>>> Stashed changes
     #res = generate_time_list(parser.parse('2015-08-30 00:00:00+00:00'),
     #                         parser.parse('2015-08-31 00:00:00+00:00'), 60, True)
     #print(len(res))

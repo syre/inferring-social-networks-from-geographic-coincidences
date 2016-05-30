@@ -23,7 +23,7 @@ Datasættet beskriver geolokationerne for hvor en bruger har været. Det beskriv
 \item \texttt{\textbf{latitude}}\\Latitude for lokationen. Latitude har en præcition på ca 15 cifre, hvilket svarer til 0.1 nanometer \textcolor{red}{[KILDE!!!]}. Denne præcition er skal man dog ikke tage så højtidligt, da de fleste mobil GPS'er har en fejl margen på maks 30 meter \cite{NAV:8292634}.  
 \item \texttt{\textbf{longitude}}\\Longitude for lokationen. Latitude har en præcition på ca 15 cifre, hvilket svarer til 0.1 nanometer. Vedr. præcition, gælder det samme som ved latitude
 \item \texttt{\textbf{altitude}}\\Altitude repræsenteret i mm. Dette bliver beregnet af telefonens gyroskop samt GPS
-\item \texttt{\textbf{accuracy}}\\Accuracy repræsenteret i mm. Accuracy er hvor nøjagtigt man kan regne med GPS'en er i den pågældene lokations opdatering. Værdien fortæller at brugeren med 68\% sikkerhed er i pågældende sted, indenfor denne distance som accuracy er. Jo lavere værdi, jo bedre. Dette styres af telefonens styresystem og GPS
+\item \texttt{\textbf{accuracy}}\\Accuracy repræsenteret i mm. Accuracy er hvor nøjagtigt man kan regne med GPS'en er i den pågældene lokations opdatering. Værdien fortæller at brugeren med 68\% sikkerhed er i pågældende sted, indenfor denne distance som accuracy er \cite{android_accuracy}. Jo lavere værdi, jo bedre. Dette styres af telefonens styresystem og GPS
 \item \texttt{\textbf{devices}}\\Devices er repræsentet som et array med name, type og id. Type er hvilken type device (f.eks. Phone), name er navnet på det device og id er devices unikke id. 
 \end{enumerate}
 
@@ -43,7 +43,7 @@ Disse oplysinger har vi valgt, da de mere eller mindre er vigtige eller interssa
 
 Vi har kigget på test data som er et sub-sæt af production data. Dette test data, er fra en specifik periode og med specifikke brugere. Efter dette sub-sæt, har vi kigget på hele production data. Vi vil beskrive hvordan henholdsvis test data og production data ser ud mht. distributioner mm. 
 
-\subsection{Test data}
+\section{Test data}
 Dette data's periode strakte sig over 3 måneder: september - november 2015. 
 Henover denne periode blev der indsamlet 2,665,893 lokations opdateringer fordelt på 1,586 brugere. Disse brugere er alle Sony medarbejdere rundt om i verdenen. Dette betyder at de har nogle naturlige samlingssteder som er Sony relaterede, såsom Sonys kontorer rundt i diverse lande. \textcolor{red}{figur af kort eller henvisning?}
 Dette har i højgrad en indvirkning på vores hvordan dataet ser ud, hvilket vi vender tilbage til. 
@@ -77,7 +77,8 @@ Ud af de mange lokations opdateringer er der kun 20 hvor accuracy er negativ hvi
         \label{tab:stat_geo_p1}
 \end{table}
 
-Da accuracy påvirker latitude og longitude, som er vores vigtigste attribut, så fjerner vi de opdateringer hvor acuracy er negativ. Herudover fjerner vi også de lokations opdateringer hvor accuracy er over 50.000 (50m) pga. vores binning (se mere i section \ref{ssec:binning}, s. \pageref{ssec:binning}), da disse alligevel har en sandsynlighed for at være udenfor vores binning. 
+Da accuracy påvirker latitude og longitude, som er vores vigtigste attribut, så fjerner vi de opdateringer hvor acuracy er negativ. Herudover fjerner vi også de lokations opdateringer hvor accuracy er over 55.000 (55m). Vores binning svare maksimalt til 111m. Da accuracy fortæller at brugeren med 68\% sikkerhed er i pågældende sted, indenfor denne distance som accuracy er, vælger vi derfor 55m som er halvdelen af den maksimale længde, vores cell kan være. Det gør, at vi med 68\% sikkerhed ved, at brugeren er i den pågældende binning, med den forudsætning, at brugeren er står præcis i midten af cellen. Dette er dog en forudsætning, som vi ikke kan gå ud fra er gældene. Dog synes vi, dette er den bedste måde at sætte grænsen for accuracy på. 
+Se mere i section \ref{ssec:binning}, s. \pageref{ssec:binning}, ang. hvordan binning er defineret og i dicussion for vores udfordringer mht. binning og cell size. 
 
 Efter dette, så quantilerne af accuracy ud som man kan se på Tabel \ref{tab:acc_quantiles}. 
  \begin{table}[htbp]
@@ -156,7 +157,7 @@ Det er derfor interessant at se, hvor mange af opdateringer for hvert land der l
     \hspace*{-2.2cm}
     \centering
     \includegraphics[scale=0.16]{stack_bar_loc_updates}
-    \caption{Shows how many of the updates thats outside/inside Sony perimeters}
+    \caption{Shows how many of the updates that is outside/inside Sony perimeters}
     \label{fig:hq_stack_bar}
 \end{figure}
 
@@ -267,14 +268,14 @@ Vi har valgt at visualisere dette, ved brug af Heatmaps.
     \hspace*{-1.5cm}
     \centering
     \includegraphics[scale=0.15]{heatmap_location_updates_japan}
-    \caption{Heatmap for location updates over the 3 month period in Japan}
+    \caption{Heatmap for mean location updates over the 3 month period in Japan}
     \label{fig:heatmap_jap}
 \end{figure}
 \begin{figure}[H]
     \hspace*{-1.5cm}
     \centering
     \includegraphics[scale=0.15]{heatmap_location_updates_sweden}
-    \caption{Heatmap for location updates over the 3 month period in Sweden}
+    \caption{Heatmap for mean location updates over the 3 month period in Sweden}
     \label{fig:heatmap_swe}
 \end{figure}
 
@@ -282,7 +283,7 @@ Vi har valgt at visualisere dette, ved brug af Heatmaps.
  Figure \ref{fig:heatmap_jap} viser hvordan lokations opdateringerne per bruger (afrundet til heltal) i Japan er fordelt over hver dag i hver af de tre måneder. Figure \ref{fig:heatmap_swe} viser det samme, bare for Sverige. 
  Vi kan f.eks. se, at der i Japan er gennemsnitligt 18 opdateringer per bruger om fredagen i uge 2 i september, hvor der samme dag i Sverige er 29 opdateringer. 
 
- Da alle måneder har samme skala i det enkelte heatmap, er det nemt at sammenligne dagene på tværs af månederne. Vi kan derfor se, at for både Japan og Sverige gælder, at der generelt er mere aktivitet i september, end i de andre måneder. Dette underbygger tendensen fra Figure \ref{fig:mean_loc_updates_sep-nov}, hvor vi kunne se en nedadgående tendens fra september til november. I Japan er october og november på nogenlunde samme niveau, hvor man i Sverige tyderligere kan se en ydeligere reducering af antal opdateringer. 
+ Vi kan se at for både Japan og Sverige gælder, at der generelt er mere aktivitet i september, end i de andre måneder. Dette underbygger tendensen fra Figure \ref{fig:mean_loc_updates_sep-nov}, hvor vi kunne se en nedadgående tendens fra september til november. I Japan er october og november på nogenlunde samme niveau, hvor man i Sverige tyderligere kan se en ydeligere reducering af antal opdateringer. 
 
  
 \newpage

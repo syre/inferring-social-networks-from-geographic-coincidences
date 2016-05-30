@@ -835,12 +835,12 @@ class DatabaseHelper():
 
 if __name__ == '__main__':
     d = DatabaseHelper()
-    fl = FileLoader()
-    d.db_teardown()
-    d.db_setup()
-    file_names = ["all_201509.json", "all_201510.json", "all_201511.json"]
-    fl.generate_data_from_json(file_names, d.insert_location)
-    d.db_create_indexes()
-    d.update_missing_records()
+    #fl = FileLoader()
+    #d.db_teardown()
+    #d.db_setup()
+    #file_names = ["all_201509.json", "all_201510.json", "all_201511.json"]
+    #fl.generate_data_from_json(file_names, d.insert_location)
+    #d.db_create_indexes()
+    #d.update_missing_records()
     d.filter_bad_rows()
     #d.generate_numpy_matrix_from_database()

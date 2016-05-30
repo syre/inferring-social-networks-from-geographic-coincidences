@@ -42,13 +42,16 @@ def bar_plot(data, labels):
     ax.set_ylabel("Number of location updates") #, fontsize=35
     #ax.set(ylabel="Count")
     ax.set(title="Country distribution")
-    ax.yaxis.set_major_formatter(tck.FormatStrFormatter('%.2e'))
+    #ax.yaxis.set_major_formatter(tck.FuncFormatter(func)) #FormatStrFormatter(func)) #'%.2e'
     #sns.plt.tick_params(labelsize=28)
     #sns.plt.rcParams['axes.labelsize'] = 25
     #sns.plt.rcParams['legend.fontsize'] = 18
     #sns.plt.tight_layout()
     sns.plt.show()
     
+
+def func(x, pos):
+    return str(int(x/1000))+"K"
 
 
 if __name__ == '__main__':

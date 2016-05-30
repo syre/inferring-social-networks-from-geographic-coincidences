@@ -166,7 +166,7 @@ def get_data_for_heat_map_per_user(country, start_date, end_date, input_users=[]
                  "Japan": "+09:00"}
     if not input_users:
         for day_index, day in enumerate(tqdm(days)): #Vi starter på en mandag!!!
-            start = day.strftime("%Y-%m-%d %H:%M:%S") + timezone[country]
+            start = day.strftime("%Y-%m-%d %H:%M:%S") + timezones[country]
             end =  day.strftime("%Y-%m-%d")+" 23:59:59" + timezones[country]
             result = d.run_specific_query("SELECT useruuid, count(*) FROM " +
                                           "location WHERE country='" + country +
@@ -514,8 +514,10 @@ def data_summary_per_user():
     print("Sweden - mean: {}".format(means['Sweden']))
 
 
-def show_all_month_same_scale(countries, values_loc_updates=True,
-                              specific_users=[],
+def show_all_month_same_scale(countries, periods=[("2015-09-01", "2015-09-30"),
+                              ("2015-10-01", "2015-10-31"),
+                              ("2015-11-01", "2015-11-30")],
+                              values_loc_updates=True, specific_users=[],
                               sorter_non_location_user_fra=True,
                               sorter_efter_sum=True, find_users=False,
                               user_start_id=-1,
@@ -539,8 +541,6 @@ def show_all_month_same_scale(countries, values_loc_updates=True,
         base_title                     {string}  -- (Base) title for the heatmaps
 
     """
-    periods = [("2015-09-01", "2015-09-30"), ("2015-10-01", "2015-10-31"),
-               ("2015-11-01", "2015-11-30")]
     max_values = defaultdict(dict)
     for country in countries:
         for fro, to in periods:
@@ -655,7 +655,7 @@ def show_all_month_for_contries():
     for country in countries:
         user = ""
         data, mask = get_data_for_heat_map_per_month(country, total_count)
-        title = "Number of location updates per user in "+country
+        title = "Number of mean location updates in "+country
         if user != "":
             title += " for user " + str(user)
         ylabels = [["M", "T", "W", "T", "F", "S", "S"],
@@ -733,7 +733,7 @@ def compare_loc_updates_per_month():
     sns.set(font_scale=2.5)
     ax = sns.countplot(x="Month", hue="Countries", data=df)
     ax.set_ylabel("Number of location updates")
-    ax.set_title("Mean of location updates in Japan and Sweden over three month period")
+    ax.set_title("Location updates per user in Japan and Sweden over three month period")
     #ax.set_xlabel("Days")
     sns.plt.legend(prop={'size': 40})
     sns.plt.tick_params(labelsize=20)
@@ -944,7 +944,9 @@ def aggregated_heatmap(sorter_efter_sum=False):
 if __name__ == '__main__':
     #aggregated_heatmap(True)
     #show_all_month_for_contries()
-    location_updates_at_hq_or_not()
+    #location_updates_at_hq_or_not()
+    countries = ["Japan", "Sweden"]
+    show_all_month_same_scale(countries)
     #res = generate_time_list(parser.parse('2015-08-30 00:00:00+00:00'),
     #                         parser.parse('2015-08-31 00:00:00+00:00'), 60, True)
     #print(len(res))

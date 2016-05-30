@@ -18,8 +18,8 @@ Datasættet beskriver geolokationerne for hvor en bruger har været. Det beskriv
 \item \texttt{\textbf{end\_time}}\\Tid for hvornår brugeren går ud af en lokation. Repræsenteret som ISO8601 time stamp med timezone
 \item \texttt{\textbf{name}}\\Navnet på byen hvor brugeren befinder sig, når lokations opdateringen bliver logget
 \item \texttt{\textbf{area}}\\Navnet på området hvor brugeren befinder sig, når lokations opdateringen bliver logget. F.eks. Skåne i Sverige
-\item \texttt{\textbf{country}}\\Navnet på landet hvor brugeren befinder sig, når lokations opdateringen bliver logget
-\item \texttt{\textbf{region}}\\Navnet på regionen hvor brugeren befinder sig, når lokations opdateringen bliver logget. F.eks. EU
+\item \texttt{\textbf{country}}\\Navnet på landet hvor brugeren befinder sig, når lokations opdateringen bliver logget.
+\item \texttt{\textbf{region}}\\Navnet på regionen hvor brugeren befinder sig, når lokations opdateringen bliver logget. F.eks. Europa
 \item \texttt{\textbf{latitude}}\\Latitude for lokationen. Latitude har en præcition på ca 15 cifre, hvilket svarer til 0.1 nanometer \textcolor{red}{[KILDE!!!]}. Denne præcition er skal man dog ikke tage så højtidligt, da de fleste mobil GPS'er har en fejl margen på maks 30 meter \cite{NAV:8292634}.  
 \item \texttt{\textbf{longitude}}\\Longitude for lokationen. Latitude har en præcition på ca 15 cifre, hvilket svarer til 0.1 nanometer. Vedr. præcition, gælder det samme som ved latitude
 \item \texttt{\textbf{altitude}}\\Altitude repræsenteret i mm. Dette bliver beregnet af telefonens gyroskop samt GPS
@@ -36,7 +36,6 @@ Nogle af overstående oplysninger er ikke relevante for vores problemstilling. D
 \item \texttt{country}
 \item \texttt{latitude}
 \item \texttt{longitude}
-\item \texttt{altitude}
 \end{itemize}
 
 Disse oplysinger har vi valgt, da de mere eller mindre er vigtige eller interssante i forhold til vores problemstilling. \texttt{useruuid} er vigtig for at kunne skelne brugerene fra hinanden, \texttt{start\_time} og \texttt{end\_time} er vigtige, da de fortæller hvornår og hvor længe brugeren har været i den pågældende lokation. \texttt{country} er til nemt at kunne filtrere brugerene. \texttt{latitude} og \texttt{longitude} er meget væsentlige, da de fortæller det mest vigtigste, nemlig hvilken lokation brugeren befinder sig i. \texttt{accuracy} kan fortælle os i for høj grad vi kan bruge den pågældene lokationsopdatering.  

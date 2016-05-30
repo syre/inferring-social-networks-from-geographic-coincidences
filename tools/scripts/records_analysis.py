@@ -440,12 +440,8 @@ def heat_map(data, mask, xticks, yticks, title="", xlabels=[], ylabels=[], anno=
         multiple {boolean} -- Indicates whether there are data for multiple heatmap (True) or not (False)
         max_val {int}     --  max value of the indicator. If it's 0 (default) max_val will be calculated from the data
     """
-<<<<<<< Updated upstream
-    sns.set(font_scale=4.5)
-=======
     min_val = 0
     sns.set(font_scale=2.5)
->>>>>>> Stashed changes
     if multiple:
         #sns.set(font_scale=2.5)
         months = ["September", "October", "November"]
@@ -466,12 +462,14 @@ def heat_map(data, mask, xticks, yticks, title="", xlabels=[], ylabels=[], anno=
         if max_val == 0:
             max_val = np.amax(data)
         #sns.set(font_scale=5.5)
-        if mask:
+        if mask.shape[0] > 0:
             if log:
+                data = np.array(data, dtype=np.float)
+                np.place(data, data == 0, [0.1])
                 min_val += 1
-                ax = sns.heatmap(data, xticklabels=xticks,
+                ax = sns.heatmap(data, xticklabels=xticks[0],
                                  annot=anno, fmt="d",
-                                 yticklabels=yticks, mask=mask,
+                                 yticklabels=yticks[0], mask=mask,
                                  norm=LogNorm(vmin=min_val, vmax=max_val))
 
             else:
@@ -484,6 +482,8 @@ def heat_map(data, mask, xticks, yticks, title="", xlabels=[], ylabels=[], anno=
                 yticks = [[" "]*data.shape[1]]
 
             if log:
+                data = np.array(data, dtype=np.float)
+                np.place(data, data == 0, [0.1])
                 min_val += 1
                 print("max_val = {}, min_val = {}".format(max_val, min_val))
                 ax = sns.heatmap(data, xticklabels=xticks[0],
@@ -544,7 +544,8 @@ def show_all_month_same_scale(countries, periods=[("2015-09-01", "2015-09-30"),
                               sorter_non_location_user_fra=True,
                               sorter_efter_sum=True, find_users=False,
                               user_start_id=-1,
-                              number_of_days_without_updates=5, anno=False,
+                              number_of_days_without_updates=5, anno=False, log=False,
+                              mask=False, mask_value=0,
                               base_title="Heatmap of location updates per users per day in "):
 
     """
@@ -585,7 +586,8 @@ def show_all_month_same_scale(countries, periods=[("2015-09-01", "2015-09-30"),
                                              sorter_efter_sum, find_users,
                                              user_start_id,
                                              number_of_days_without_updates,
-                                             max_values[country], anno)
+                                             mask, mask_value,
+                                             max_values[country], anno, log)
 
 
 def show_specific_country_and_period(country, fro, to, values_loc_updates,
@@ -594,7 +596,8 @@ def show_specific_country_and_period(country, fro, to, values_loc_updates,
                                      sorter_efter_sum=True, find_users=False,
                                      user_start_id=-1,
                                      number_of_days_without_updates=5,
-                                     max_val=0, anno=False):
+                                     mask=False, mask_value=0,
+                                     max_val=0, anno=False, log=False):
     """
     Plotting a single heatmap of location updates per users per day in a month 
     The month are hardcoded
@@ -663,9 +666,12 @@ def show_specific_country_and_period(country, fro, to, values_loc_updates,
             print(users[ylabels[0][user]])
         print("#######################")
     xlabels = [list(range(1, data.shape[1]+1))]
-    heat_map(data, [], xlabels, ylabels, title=base_title+country +
+    mask_list = []
+    if mask:
+        mask_list = data == mask_value
+    heat_map(data, mask_list, xlabels, ylabels, title=base_title+country +
              " from "+fro+" to "+to, anno=anno, multiple=False,
-             max_val=max_val)
+             max_val=max_val, log=log)
 
 
 def show_all_month_for_contries():
@@ -966,23 +972,23 @@ def aggregated_heatmap(sorter_efter_sum=False):
 
 if __name__ == '__main__':
     #aggregated_heatmap(True)
-<<<<<<< Updated upstream
+
     #show_all_month_for_contries()
     #location_updates_at_hq_or_not()
     countries = ["Japan", "Sweden"]
-    show_all_month_same_scale(countries)
-=======
-    #
-    print(LogNorm(vmin=1, vmax=74))
-    data = [[0.1,2.0,3.0], [4.0,5.0,6.0], [7.0,8.0,9.0]]
-    ax = sns.heatmap(data,
-                     annot=True, fmt="0:.0f",
-                     norm=LogNorm(vmin=1, vmax=9)
-                     )
+    show_all_month_same_scale(countries, values_loc_updates=False, log=True, mask=True, mask_value=0)
 
-    sns.plt.show()
 
->>>>>>> Stashed changes
+    #---------------------------
+    # print(LogNorm(vmin=1, vmax=74))
+    # data = [[0.1,2.0,3.0], [4.0,5.0,6.0], [7.0,8.0,9.0]]
+    # ax = sns.heatmap(data,
+    #                  annot=True, fmt="0:.0f",
+    #                  norm=LogNorm(vmin=1, vmax=9)
+    #                  )
+
+    # sns.plt.show()
+    #------------------------------------
     #res = generate_time_list(parser.parse('2015-08-30 00:00:00+00:00'),
     #                         parser.parse('2015-08-31 00:00:00+00:00'), 60, True)
     #print(len(res))

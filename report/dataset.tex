@@ -23,7 +23,7 @@ Datasættet beskriver geolokationerne for hvor en bruger har været. Det beskriv
 \item \texttt{\textbf{latitude}}\\Latitude for lokationen. Latitude har en præcition på ca 15 cifre, hvilket svarer til 0.1 nanometer \textcolor{red}{[KILDE!!!]}. Denne præcition er skal man dog ikke tage så højtidligt, da de fleste mobil GPS'er har en fejl margen på maks 30 meter \cite{NAV:8292634}.  
 \item \texttt{\textbf{longitude}}\\Longitude for lokationen. Latitude har en præcition på ca 15 cifre, hvilket svarer til 0.1 nanometer. Vedr. præcition, gælder det samme som ved latitude
 \item \texttt{\textbf{altitude}}\\Altitude repræsenteret i mm. Dette bliver beregnet af telefonens gyroskop samt GPS
-\item \texttt{\textbf{accuracy}}\\Accuracy repræsenteret i mm. Accuracy er hvor nøjagtigt man kan regne med GPS'en er i den pågældene lokations opdatering. Værdien fortæller at brugeren med sikkerhed er i pågældende sted, indenfor denne distance som accuracy er. Jo lavere værdi, jo bedre. Dette styres af telefonens styresystem og GPS
+\item \texttt{\textbf{accuracy}}\\Accuracy repræsenteret i mm. Accuracy er hvor nøjagtigt man kan regne med GPS'en er i den pågældene lokations opdatering. Værdien fortæller at brugeren med 68\% sikkerhed er i pågældende sted, indenfor denne distance som accuracy er. Jo lavere værdi, jo bedre. Dette styres af telefonens styresystem og GPS
 \item \texttt{\textbf{devices}}\\Devices er repræsentet som et array med name, type og id. Type er hvilken type device (f.eks. Phone), name er navnet på det device og id er devices unikke id. 
 \end{enumerate}
 
@@ -50,10 +50,8 @@ Henover denne periode blev der indsamlet 2,665,893 lokations opdateringer fordel
 Dette har i højgrad en indvirkning på vores hvordan dataet ser ud, hvilket vi vender tilbage til. 
 
 I Table \ref{tab:stat_geo_p1} ses statistic summary af \texttt{accuracy}.
-Vi kan se i tabellen, at der er nogle ugyldige værdier i både accuracy og altitude. De ugyldige værdier viser sig i form af negative værdier. Disse opstår sansynligvis, hvis softwaren ikke kan få værdierne fra GPS'en. I disse tilælde bliver værdierne sat til en standard værdi som er ugyldig, for at indikere fejlen. 
-
-Ud af de mange lokations opdateringer er der kun 20 hvor accuracy er negativ hvilket svarer til knapt en 1,000 del procent. Altitude har også nogle negative værdier. Her er negative værdier sådan set ikke ugyldige, men dog sjældne og unormale. Hvis vi kigger på antal lokations opdateringer der har en negativ altitude på mindre end -50,000 (-50m), er der 9. Ved mindre end -10,000 (-10m) er der 14.
-
+Vi kan se i tabellen, at der er nogle ugyldige værdier i både accuracy og altitude. De ugyldige værdier viser sig i form af negative værdier. 
+Ud af de mange lokations opdateringer er der kun 20 hvor accuracy er negativ hvilket svarer til knapt en 1,000 del procent. 
 \begin{table}[H]
         \centering
         \small
@@ -80,7 +78,7 @@ Ud af de mange lokations opdateringer er der kun 20 hvor accuracy er negativ hvi
         \label{tab:stat_geo_p1}
 \end{table}
 
-Da accuracy påvirker latitude og longitude, som er vores vigtigste attribut, så fjerner vi de opdateringer hvor acuracy er negativ. Herudover fjerner vi også de lokations opdateringer hvor accuracy er over 100.000 (100m) pga. vores binning (se mere i section \ref{ssec:binning}, s. \pageref{ssec:binning}), da disse alligevel har en sandsynlighed for at være udenfor vores binning. 
+Da accuracy påvirker latitude og longitude, som er vores vigtigste attribut, så fjerner vi de opdateringer hvor acuracy er negativ. Herudover fjerner vi også de lokations opdateringer hvor accuracy er over 50.000 (50m) pga. vores binning (se mere i section \ref{ssec:binning}, s. \pageref{ssec:binning}), da disse alligevel har en sandsynlighed for at være udenfor vores binning. 
 
 Efter dette, så quantilerne af accuracy ud som man kan se på Tabel \ref{tab:acc_quantiles}. 
  \begin{table}[htbp]

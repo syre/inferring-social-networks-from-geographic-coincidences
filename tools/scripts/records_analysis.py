@@ -631,9 +631,16 @@ def show_specific_country_and_period(country, fro, to, values_loc_updates,
     else:
         ylabels = list(range(data.shape[0]))
     if sorter_efter_sum:
-        s = np.sum(data, axis=1)
-        data = np.take(data, s.argsort(), axis=0)
-        ylabels = np.take(ylabels, s.argsort(), axis=0)
+        if values_loc_updates:
+            arr_bool = data == 0
+            s = np.sum(arr_bool, axis=1)
+            data = np.take(data, np.argsort(s)[::-1], axis=0)
+            ylabels = np.take(data, np.argsort(s)[::-1], axis=0)
+
+        else:
+            s = np.sum(data, axis=1)
+            data = np.take(data, s.argsort(), axis=0)
+            ylabels = np.take(ylabels, s.argsort(), axis=0)
     #Find users...
     if find_users:
         if user_start_id == -1:

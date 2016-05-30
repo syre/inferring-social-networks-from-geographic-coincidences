@@ -439,9 +439,9 @@ def heat_map(data, mask, xticks, yticks, title="", xlabels=[], ylabels=[], anno=
         multiple {boolean} -- Indicates whether there are data for multiple heatmap (True) or not (False)
         max_val {int}     --  max value of the indicator. If it's 0 (default) max_val will be calculated from the data
     """
-    sns.set(font_scale=2.5)
+    sns.set(font_scale=4.5)
     if multiple:
-        sns.set(font_scale=2.5)
+        #sns.set(font_scale=2.5)
         months = ["September", "October", "November"]
         if max_val == 0:
             max_val = np.amax(data)
@@ -459,7 +459,7 @@ def heat_map(data, mask, xticks, yticks, title="", xlabels=[], ylabels=[], anno=
     else:
         if max_val == 0:
             max_val = np.amax(data)
-        sns.set(font_scale=3.5)
+        #sns.set(font_scale=5.5)
         if mask:
             ax = sns.heatmap(data, xticklabels=xticks,
                              annot=anno, fmt="d",
@@ -477,7 +477,7 @@ def heat_map(data, mask, xticks, yticks, title="", xlabels=[], ylabels=[], anno=
             for label in ax.yaxis.get_ticklabels()[::4]:
                 label.set_visible(True)
         ax.set_title(title)
-        [item.set_fontsize(33) for item in ax.get_xticklabels() + ax.get_yticklabels()]
+        #[item.set_fontsize(33) for item in ax.get_xticklabels() + ax.get_yticklabels()]
         if ylabels:
             ax.set_ylabel(ylabels)
         else:
@@ -787,8 +787,6 @@ def location_updates_at_hq_or_not():
     data, df, total_count, countries = fetch_data()
 
     test = {'Country': [], 'hq': []}
-    #test = pd.DataFrame([], columns=['country', 'hq'])
-    temp_i = 0
     for country in countries:
         print(country)
         for row in df.loc[(df['country'] == country), 'Location updates']:
@@ -810,6 +808,7 @@ def location_updates_at_hq_or_not():
         test3['Not at hq'].append(test2.loc[(test2['Country'] == country) &
                                             (test2['hq'] != 'At HQ')].shape[0])
     test4 = pd.DataFrame(test3)
+    print(test4)
     sns.set(font_scale=2.5)
 
     #
@@ -943,7 +942,9 @@ def aggregated_heatmap(sorter_efter_sum=False):
 
 
 if __name__ == '__main__':
-    aggregated_heatmap(True)
+    #aggregated_heatmap(True)
+    #show_all_month_for_contries()
+    location_updates_at_hq_or_not()
     #res = generate_time_list(parser.parse('2015-08-30 00:00:00+00:00'),
     #                         parser.parse('2015-08-31 00:00:00+00:00'), 60, True)
     #print(len(res))

@@ -5,15 +5,15 @@ ang 68% i accuracy --> reference til android                                    
 update alle figure/tabeller                                                         -
 slet altitude                                                                       - 
 y-akse i alle figure til heltal                                                     - 
-Ang. at de slukker på natten, er det overraskende (en anden formulering)            -
+Ang. at de slukker på natten, er det overraskende (en anden formulering)            - Done
 
 genopfrisk stackbar med loc updates i methods ved en reference til datasettet       -
-Ang. Japans manglene "top" i figur 2.7, ska der muligvis en bedre formulering
+Ang. Japans manglene "top" i figur 2.7, ska der muligvis en bedre formulering       - Done
 
 
 plot med antal users kontra antal unikke timebins for alle sub-perioder (CDF)       -
-heatmap - fix sortering så den sortere pr dag og ikke med værdi. 
-heatmap - indsæt et heatmap for hver måned for hvert land. Med loc værdier, 
+heatmap - fix sortering så den sortere pr dag og ikke med værdi.                    -
+heatmap - indsæt et heatmap for hver måned for hvert land. Med loc værdier,         -
           sorteret, uden users og med logaritmisk
 
 
@@ -23,4 +23,4 @@ heatmap - indsæt et heatmap for hver måned for hvert land. Med loc værdier,
 I dataset:
 --------------
 - Der bliver nævnt at altitude kunne være interessant mht. at kunne fin-filtrerer. Dette skal vi komme ind på i "future work"
-  Evt. en fodnote som henviser til "future work"-sectionen så læseren ikke undre sig. 
+  Evt. en fodnote som henviser til "future work"-sectionen så læseren ikke undre sig.

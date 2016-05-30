@@ -61,19 +61,19 @@ Thus we say a co-occurrence happens between users $i$ and $j$ if they share the 
 \end{figure}
 
 \subsection{Visualization}
-We used Basemap\cite{basemap}, for plotting all the locations at once and and Leaflet\cite{leaflet} for producing interactive maps to visualize the data, we created a map for visualizing the users location traces over time and we created one that allowed us to see all the co-occurrences that happened between a pair of users. Figure \ref{fig:sweden_locations_hexbin} and \ref{fig:japan_locations_hexbin} shows location updates from Sweden and Japan respectively plotted on a map. We can see location updates happened very often near Sony properties in Lund\cite{sony_headquarters_sweden_lund}, Kista\cite{sony_headquarters_sweden_kista}, and at Ericsson AB in Göteborg\cite{ericsson} for the swedish data, and in Tokyo\cite{sony_headquarters_japan} for the japanese data. Figure \ref{fig:user_pair_at_sony} shows an example of the co-occurrences visualized for a typical pair of users in Sweden having lots of co-occurrences within the Sony perimeter. This enabled us to exclude co-occurrences from these locations from our dataset as we are looking for co-occurrences outside of the users work.
+We used Basemap\cite{basemap}, for plotting all the locations at once and and Leaflet\cite{leaflet} for producing interactive maps to visualize the data, we created a map for visualizing the users location traces over time and we created one that allowed us to see all the co-occurrences that happened between a pair of users. Figure \ref{fig:sweden_locations_hexbin} and \ref{fig:japan_locations_hexbin} shows location updates from Sweden and Japan respectively plotted on a map. We can see location updates happened very often near Sony properties in Lund\cite{sony_headquarters_sweden_lund}, Kista\cite{sony_headquarters_sweden_kista}, and at Ericsson AB in Göteborg\cite{ericsson} for the Swedish data, and in Tokyo\cite{sony_headquarters_japan} for the Japanese data. Figure \ref{fig:user_pair_at_sony} shows an example of the co-occurrences visualized for a typical pair of users in Sweden having lots of co-occurrences within the Sony perimeter. This enabled us to exclude co-occurrences from these locations from our dataset as we are looking for co-occurrences outside of the users work.
 \begin{figure}[H]
     \hspace*{-1.0cm}
     \centering
     \includegraphics[scale=0.30]{all_locations_sweden}
-    \caption{Location updates in Sweden, hexbinned in log scale}
+    \caption{Location updates in Sweden, hex-binned in log scale}
     \label{fig:sweden_locations_hexbin}
 \end{figure}
 \begin{figure}[H]
     \hspace*{-1.0cm}
     \centering
     \includegraphics[scale=0.30]{all_locations_japan}
-    \caption{Location updates in Japan, hexbinned in log scale}
+    \caption{Location updates in Japan, hex-binned in log scale}
     \label{fig:japan_locations_hexbin}
 \end{figure}
 \begin{figure}[H]
@@ -152,7 +152,7 @@ Feature ID:\textit{5}.
 
 \subsubsection{Common travels}
 We use the common travels measure proposed in the master's thesis of Sapieżyński\cite{IMM2013-06556}.
-The number of common travels between two users. Common travels are defined when user \textit{i} and user \textit{j} co-occur in consecutive time-bins with a different spatial bin than the previous co-occurrence. Feature ID:\textit{6}.
+The number of common travels between two users. Common travels are defined when user \textit{i} and user \textit{j} co-occur in consecutive time-bins with each spatial bin being different than the previous one. Feature ID:\textit{6}.
 
 \subsubsection{2 unique co-occurrences}
 2 unique co-occurrences. Feature ID:\textit{7}.

@@ -764,7 +764,7 @@ class DatabaseHelper():
 
     def filter_inaccurate_rows(self):
         cursor = self.conn.cursor()
-        cursor.execute(""" DELETE FROM location where accuracy < 0 OR accuracy > 50000""")
+        cursor.execute(""" DELETE FROM location where accuracy < 0 OR accuracy > 55000""")
         self.conn.commit()
 
     def filter_rows_outside_period(self):
@@ -836,11 +836,11 @@ class DatabaseHelper():
 if __name__ == '__main__':
     d = DatabaseHelper()
     fl = FileLoader()
-    #d.db_teardown()
-    #d.db_setup()
-    #file_names = ["all_201509.json", "all_201510.json", "all_201511.json"]
-    #fl.generate_data_from_json(file_names, d.insert_location)
-    #d.db_create_indexes()
-    #d.update_missing_records()
+    d.db_teardown()
+    d.db_setup()
+    file_names = ["all_201509.json", "all_201510.json", "all_201511.json"]
+    fl.generate_data_from_json(file_names, d.insert_location)
+    d.db_create_indexes()
+    d.update_missing_records()
     d.filter_bad_rows()
     #d.generate_numpy_matrix_from_database()

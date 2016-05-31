@@ -3,7 +3,7 @@ To-do:
 ret margen på tabel 2.1                                                             - Done
 ang 68% i accuracy --> reference til android                                        - Done
 update alle figure/tabeller                                                         -
-slet altitude                                                                       - 
+slet altitude                                                                       - Done
 y-akse i alle figure til heltal                                                     - 
 Ang. at de slukker på natten, er det overraskende (en anden formulering)            - Done
 
@@ -12,8 +12,8 @@ Ang. Japans manglene "top" i figur 2.7, ska der muligvis en bedre formulering   
 
 
 plot med antal users kontra antal unikke timebins for alle sub-perioder (CDF)       -
-heatmap - fix sortering så den sortere pr dag og ikke med værdi.                    -
-heatmap - indsæt et heatmap for hver måned for hvert land. Med loc værdier,         -
+heatmap - fix sortering så den sortere pr dag og ikke med værdi.                    - Done
+heatmap - indsæt et heatmap for hver måned for hvert land. Med loc værdier,         - Done
           sorteret, uden users og med logaritmisk
 
 

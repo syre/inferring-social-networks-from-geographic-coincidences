@@ -208,12 +208,12 @@ Den ovenstående tendens, vil vi gerne vise mere tydeligt, hvorfor vi har plotte
 Plottet viser, at der både i Japan og Sverige er en stor del af brugerne, som har meget få lokations opdateringer set henover hele perioden. Det kan ses, at Japan får hurtigt flere brugere med få opdateringer, end Sverige. 
 Da opdateringerne kommer hver gang brugeren skifter lokation, betyder dette, at mange af brugerene er meget stillestående eller også har de slukket mobilen. Her kan stillestående også menes, at brugeren har glemt sin telefon derhjemme. Vi kan se forskel i dataen på, om de har slukket mobilen eller er stillestående, men ikke om de er stillestående eller har glemt mobilen. Vi kan se den førstnævnte forskel ved, at der simpelthen mangler data i et tidsrum, hvor hvis brugeren er stillstående er intervallet mellem \texttt{start\_time} og \texttt{end\_time} markant. 
 
-Vi vil gerne se om der er et mønster i hvornår opdateringerne kommer, da vi derfra muligvis kan udpege bedre eller dårligere sub-perioder som vi kan tage stilling til. Derfor har vi lavet nogle heatmaps. 
-De første heatmaps viser hvordan opdateringerne er fordelt over et døgn. Dette er lavet, ved at aggregerer over tidsrummet i det pågældende døgn. Det der bliver aggregeret er, om en brugere har haft mindst én opdatering, i det tidsrum på døgnet (repræsenteret med 0 eller 1), uanset hvilken dag det er.
+Vi vil gerne se om der er et mønster i hvornår opdateringerne kommer, da vi derfra muligvis kan udpege bedre eller dårligere sub-perioder som vi kan tage stilling til. Derfor har vi lavet nogle heat maps. 
+De første heat maps viser hvordan opdateringerne er fordelt over et døgn. Dette er lavet, ved at aggregerer over tidsrummet i det pågældende døgn. Det der bliver aggregeret er, om en brugere har haft mindst én opdatering, i det tidsrum på døgnet (repræsenteret med 0 eller 1), uanset hvilken dag det er.
 
 Figure \ref{fig:agg_heatmap_jap} viser hvordan opdateringerne for hver user (y-aksen), fordeler sig over tidsrummet på en dag, målt over alle tre måneder. Det ses at skalaen går til ca. 70, hvilket betyder at brugeren med flest aggregerede opdateringer i et time-slot (på en time), har ca. 70 opdateringer henover alle tre måneder. Brugerne er sorteret på baggrund af deres samlede aggregerede værdier, men den største nederst på y-aksen. 
 
-Man ser tydeligt, at der er en periode mellem kl. 02:00 og kl. 06:00 hvor de fleste brugere ikke har nogle updates, dette kunne tyde på at de enten slukker eller på anden måde lukker for kommunikationen med omverdenen i det givne tidsrum. Herefter fra kl. 06:00 til 00:00 er der regelmæssig opdateringer, hvorefter det stilner af til kl. 02:00. Hvis vi sammenligner dette med Figure \ref{fig:cumu_loc_time_jap_swe} kan vi se det stemmer meget godt overens. Figure \ref{fig:cumu_loc_time_jap_swe} viser den cumulative location updates henover et døgn i både Japan og Sverige. Her ser vi samme udvikling for Japan som heatmappet indikerer, som beskrevet ovenfor. 
+Man ser tydeligt, at der er en periode mellem kl. 02:00 og kl. 06:00 hvor de fleste brugere ikke har nogle updates, dette kunne tyde på at de enten slukker eller på anden måde lukker for kommunikationen med omverdenen i det givne tidsrum. Herefter fra kl. 06:00 til 00:00 er der regelmæssig opdateringer, hvorefter det stilner af til kl. 02:00. Hvis vi sammenligner dette med Figure \ref{fig:cumu_loc_time_jap_swe} kan vi se det stemmer meget godt overens. Figure \ref{fig:cumu_loc_time_jap_swe} viser den cumulative location updates henover et døgn i både Japan og Sverige. Her ser vi samme udvikling for Japan som heat mappet indikerer, som beskrevet ovenfor. 
 
 Det ovenstående gælder også for Sverige (Figure \ref{fig:agg_heatmap_swe}), som viser det samme som Japan. Her slukker næsten alle brugere også deres mobiler mellem 02:00 og 06:00
 Der er ikke andre time-slots som skilder sig ud, hverken i Japan eller Sverige. 
@@ -224,14 +224,14 @@ Da vi har sorteret brugerne kan vi nemt se, at der er en del brugere som ikke ha
     \hspace*{-0.8cm}
     \centering
     \includegraphics[scale=0.15]{aggregated_updates_over_time_japan}
-    \caption{Heatmap for location updates over the 3 month period in Japan, aggregated over a day with 60 minutes of binsize. Users are sorted by total number of location. Largest is at the bottom}
+    \caption{Heat map for location updates over the 3 month period in Japan, aggregated over a day with 60 minutes of binsize. Users are sorted by total number of location. Largest is at the bottom}
     \label{fig:agg_heatmap_jap}
 \end{figure}
 \begin{figure}[H]
     \hspace*{-0.8cm}
     \centering
     \includegraphics[scale=0.15]{aggregated_updates_over_time_sweden}
-    \caption{Heatmap for location updates over the 3 month period in Sweden, aggregated over a day with 60 minutes of binsize. Users are sorted by total number of location. Largest is at the bottom}
+    \caption{Heat map for location updates over the 3 month period in Sweden, aggregated over a day with 60 minutes of binsize. Users are sorted by total number of location. Largest is at the bottom}
     \label{fig:agg_heatmap_swe}
 \end{figure}
 
@@ -260,14 +260,14 @@ Vi har valgt at visualisere dette, ved brug af Heatmaps.
     \hspace*{-1.5cm}
     \centering
     \includegraphics[scale=0.15]{heatmap_location_updates_japan}
-    \caption{Heatmap for mean location updates over the 3 month period in Japan}
+    \caption{Heat map for mean location updates over the 3 month period in Japan}
     \label{fig:heatmap_jap}
 \end{figure}
 \begin{figure}[H]
     \hspace*{-1.5cm}
     \centering
     \includegraphics[scale=0.15]{heatmap_location_updates_sweden}
-    \caption{Heatmap for mean location updates over the 3 month period in Sweden}
+    \caption{Heat map for mean location updates over the 3 month period in Sweden}
     \label{fig:heatmap_swe}
 \end{figure}
 
@@ -279,23 +279,21 @@ Vi har valgt at visualisere dette, ved brug af Heatmaps.
 
  
 \newpage
-\begin{landscape}
 
 \begin{figure}[H]
     \hspace*{-1.5cm}
     \centering
-    \includegraphics[scale=0.08]{location_updates_japan_combined_log.png}
-    \caption{Heatmap for mean location updates over the 3 month period in Sweden}
+    \includegraphics[scale=0.16]{location_updates_japan_combined_log.png}
+    \caption{Heat map for mean location updates over the 3 month period in Japan}
     \label{fig:heatmap_japan_combined}
 \end{figure}
 \begin{figure}[H]
     \hspace*{-1.5cm}
     \centering
-    \includegraphics[scale=0.15]{location_updates_sweden_combined_log.png}
-    \caption{Heatmap for mean location updates over the 3 month period in Sweden}
+    \includegraphics[scale=0.16]{location_updates_sweden_combined_log.png}
+    \caption{Heat map for mean location updates over the 3 month period in Sweden}
     \label{fig:heatmap_sweden_combined}
 \end{figure}
-\end{landscape}
 
 \newpage
 Our work will focus on the location updates from Japan. There is 332 users in Japan for which we have location updates.

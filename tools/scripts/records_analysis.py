@@ -426,7 +426,7 @@ def records_dist_plot(data, bins, xlabels, ylabels, titles, labels):
     sns.plt.show()
 
 
-def heat_map(data, mask, xticks, yticks, title="", xlabels=[], ylabels=[], anno=True, multiple=True, max_val=0, log=False, cbar=True):
+def heat_map(data, mask, xticks, yticks, title="", xlabels=[], ylabels=[], anno=True, multiple=True, max_val=0, log=False, cbar=True, cbar_kws={}):
     """
     Plotting a heatmap
 
@@ -472,13 +472,13 @@ def heat_map(data, mask, xticks, yticks, title="", xlabels=[], ylabels=[], anno=
                 ax = sns.heatmap(data, xticklabels=xticks[0],
                                  annot=anno, fmt="d",
                                  yticklabels=yticks[0], mask=mask,
-                                 norm=LogNorm(vmin=min_val, vmax=max_val), cbar=cbar)
+                                 norm=LogNorm(vmin=min_val, vmax=max_val), cbar=cbar, cbar_kws=cbar_kws)
 
             else:
                 ax = sns.heatmap(data, xticklabels=xticks,
                                  annot=anno, fmt="d",
                                  yticklabels=yticks, mask=mask, vmin=min_val,
-                                 vmax=max_val, cbar=cbar)
+                                 vmax=max_val, cbar=cbar, cbar_kws=cbar_kws)
         else:
             if log:
                 data = np.array(data, dtype=np.float)
@@ -488,12 +488,12 @@ def heat_map(data, mask, xticks, yticks, title="", xlabels=[], ylabels=[], anno=
                 ax = sns.heatmap(data, xticklabels=xticks[0],
                                  annot=anno, fmt="d",
                                  yticklabels=yticks[0],
-                                 norm=LogNorm(vmin=min_val, vmax=max_val), cbar=cbar)
+                                 norm=LogNorm(vmin=min_val, vmax=max_val), cbar=cbar, cbar_kws=cbar_kws)
             else:
                 ax = sns.heatmap(data, xticklabels=xticks[0],
                                  annot=anno, fmt="d",
                                  yticklabels=yticks[0], vmin=min_val,
-                                 vmax=max_val, cbar=cbar)
+                                 vmax=max_val, cbar=cbar, cbar_kws=cbar_kws)
             [label.set_visible(False) for label in ax.yaxis.get_ticklabels()]
 
             for label in ax.yaxis.get_ticklabels()[::4]:
@@ -579,8 +579,10 @@ def show_all_month_same_scale(countries, periods=[("2015-09-01", "2015-09-30"),
     for country in countries:
         for fro, to in periods:
             cbar = False
-            if (fro,to) == periods[-1]:
+            cbar_kws = {}
+            if (fro, to) == periods[-1]:
                 cbar = True
+                cbar_kws = {"orientation": "horizontal"}
             show_specific_country_and_period(country, fro, to,
                                              values_loc_updates, base_title,
                                              specific_users,
@@ -590,7 +592,7 @@ def show_all_month_same_scale(countries, periods=[("2015-09-01", "2015-09-30"),
                                              number_of_days_without_updates,
                                              mask, mask_value,
                                              max_values[country], anno, log,
-                                             show_user_ticks, show_cbar=cbar)
+                                             show_user_ticks, show_cbar=cbar, cbar_kws=cbar_kws)
 
 
 def show_specific_country_and_period(country, fro, to, values_loc_updates,
@@ -601,7 +603,7 @@ def show_specific_country_and_period(country, fro, to, values_loc_updates,
                                      number_of_days_without_updates=5,
                                      mask=False, mask_value=0,
                                      max_val=0, anno=False, log=False,
-                                     show_user_ticks=True, show_cbar=True):
+                                     show_user_ticks=True, show_cbar=True, cbar_kws={}):
     """
     Plotting a single heatmap of location updates per users per day in a month 
     The month are hardcoded
@@ -684,7 +686,7 @@ def show_specific_country_and_period(country, fro, to, values_loc_updates,
         mask_list = data == mask_value
     heat_map(data, mask_list, xlabels, ylabels, title=base_title+country +
              " from "+fro+" to "+to, anno=anno, multiple=False,
-             max_val=max_val, log=log, cbar=show_cbar)
+             max_val=max_val, log=log, cbar=show_cbar, cbar_kws=cbar_kws)
 
 
 def show_all_month_for_contries():

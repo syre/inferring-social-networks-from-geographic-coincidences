@@ -426,7 +426,7 @@ def records_dist_plot(data, bins, xlabels, ylabels, titles, labels):
     sns.plt.show()
 
 
-def heat_map(data, mask, xticks, yticks, title="", xlabels=[], ylabels=[], anno=True, multiple=True, max_val=0, log=False, cbar=True):
+def heat_map(data, mask, xticks, yticks, title="", xlabels=[], ylabels=[], anno=True, multiple=True, max_val=0, log=False, cbar=True, cbar_kws={}):
     """
     Plotting a heatmap
 
@@ -483,13 +483,13 @@ def heat_map(data, mask, xticks, yticks, title="", xlabels=[], ylabels=[], anno=
                 ax = sns.heatmap(data, xticklabels=xticks[0],
                                  annot=anno, fmt="d",
                                  yticklabels=yticks[0], mask=mask,
-                                 norm=LogNorm(vmin=min_val, vmax=max_val), cbar=cbar)
+                                 norm=LogNorm(vmin=min_val, vmax=max_val), cbar=cbar, cbar_kws=cbar_kws)
 
             else:
                 ax = sns.heatmap(data, xticklabels=xticks,
                                  annot=anno, fmt="d",
                                  yticklabels=yticks, mask=mask, vmin=min_val,
-                                 vmax=max_val, cbar=cbar)
+                                 vmax=max_val, cbar=cbar, cbar_kws=cbar_kws)
         else:
             if log:
                 data = np.array(data, dtype=np.float)
@@ -499,12 +499,12 @@ def heat_map(data, mask, xticks, yticks, title="", xlabels=[], ylabels=[], anno=
                 ax = sns.heatmap(data, xticklabels=xticks[0],
                                  annot=anno, fmt="d",
                                  yticklabels=yticks[0],
-                                 norm=LogNorm(vmin=min_val, vmax=max_val), cbar=cbar)
+                                 norm=LogNorm(vmin=min_val, vmax=max_val), cbar=cbar, cbar_kws=cbar_kws)
             else:
                 ax = sns.heatmap(data, xticklabels=xticks[0],
                                  annot=anno, fmt="d",
                                  yticklabels=yticks[0], vmin=min_val,
-                                 vmax=max_val, cbar=cbar)
+                                 vmax=max_val, cbar=cbar, cbar_kws=cbar_kws)
             [label.set_visible(False) for label in ax.yaxis.get_ticklabels()]
 
             for label in ax.yaxis.get_ticklabels()[::4]:

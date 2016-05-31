@@ -49,7 +49,7 @@ Henover denne periode blev der indsamlet 2,665,893 lokations opdateringer fordel
 Dette har i højgrad en indvirkning på vores hvordan dataet ser ud, hvilket vi vender tilbage til. 
 
 I Table \ref{tab:stat_geo_p1} ses statistic summary af \texttt{accuracy}.
-Vi kan se i tabellen, at der er nogle ugyldige værdier i både accuracy og altitude. De ugyldige værdier viser sig i form af negative værdier. 
+Vi kan se i tabellen, at der er nogle ugyldige værdier for accuracy. Disse ugyldige værdier viser sig i form af negative værdier. 
 Ud af de mange lokations opdateringer er der kun 20 hvor accuracy er negativ hvilket svarer til knapt en 1,000 del procent. 
 \begin{table}[H]
         \centering
@@ -57,20 +57,15 @@ Ud af de mange lokations opdateringer er der kun 20 hvor accuracy er negativ hvi
         \setlength\tabcolsep{2pt}
         \begin{tabular}{|c|c|c|}
             \hline
-                         & Accuracy           \\[-3pt]% compensate for extrarowheight
-                         &  (mm)                   \\
+                         & Accuracy (mm)          \\[0pt]% compensate for extrarowheight
             \hline
                  Min     &  -2,147,483,500             \\
-                         &                          \\
             \hline
                  Max     &  500,000                \\
-                         &                            \\
             \hline
                  Mean    & 35,249                      \\
-                         &                         \\
             \hline
-                 Std.    & 3,672,390                \\
-                 dev.    &                         \\
+                Std. dev.   & 3,672,390                \\
             \hline
         \end{tabular}
         \caption{Statistic summary of dataset in test periode} %add this between 'caption' and '{...' for new text in listing of tables: [New caption text only for listing of tables]
@@ -87,7 +82,7 @@ Efter dette, så quantilerne af accuracy ud som man kan se på Tabel \ref{tab:ac
         \setlength\tabcolsep{2pt}
         \begin{tabular}{|c|c|c|}
             \hline
-                         & Accuracy      \\[-1pt]
+                         & Accuracy      \\[0pt]
             \hline
                  Min     &  3,000       \\
             \hline

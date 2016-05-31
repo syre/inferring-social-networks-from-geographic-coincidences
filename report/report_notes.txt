@@ -1,6 +1,6 @@
 To-do:
 --------------
-ret margen på tabel 2.1                                                             -
+ret margen på tabel 2.1                                                             - Done
 ang 68% i accuracy --> reference til android                                        - Done
 update alle figure/tabeller                                                         -
 slet altitude                                                                       - 

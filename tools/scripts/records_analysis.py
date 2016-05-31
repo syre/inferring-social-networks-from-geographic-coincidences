@@ -441,7 +441,7 @@ def heat_map(data, mask, xticks, yticks, title="", xlabels=[], ylabels=[], anno=
         max_val {int}     --  max value of the indicator. If it's 0 (default) max_val will be calculated from the data
     """
     min_val = 0
-    sns.set(font_scale=2.5)
+    sns.set(font_scale=3.5)
     if multiple:
         #sns.set(font_scale=2.5)
         months = ["September", "October", "November"]
@@ -462,6 +462,8 @@ def heat_map(data, mask, xticks, yticks, title="", xlabels=[], ylabels=[], anno=
         if max_val == 0:
             max_val = np.amax(data)
         #sns.set(font_scale=5.5)
+        if not yticks:
+            yticks = [[" "]*data.shape[1]]
         if mask.shape[0] > 0:
             if log:
                 data = np.array(data, dtype=np.float)
@@ -478,9 +480,6 @@ def heat_map(data, mask, xticks, yticks, title="", xlabels=[], ylabels=[], anno=
                                  yticklabels=yticks, mask=mask, vmin=min_val,
                                  vmax=max_val)
         else:
-            if not yticks:
-                yticks = [[" "]*data.shape[1]]
-
             if log:
                 data = np.array(data, dtype=np.float)
                 np.place(data, data == 0, [0.1])
@@ -545,7 +544,7 @@ def show_all_month_same_scale(countries, periods=[("2015-09-01", "2015-09-30"),
                               sorter_efter_sum=True, find_users=False,
                               user_start_id=-1,
                               number_of_days_without_updates=5, anno=False, log=False,
-                              mask=False, mask_value=0,
+                              mask=False, mask_value=0, show_user_ticks=True,
                               base_title="Heatmap of location updates per users per day in "):
 
     """
@@ -587,7 +586,8 @@ def show_all_month_same_scale(countries, periods=[("2015-09-01", "2015-09-30"),
                                              user_start_id,
                                              number_of_days_without_updates,
                                              mask, mask_value,
-                                             max_values[country], anno, log)
+                                             max_values[country], anno, log,
+                                             show_user_ticks)
 
 
 def show_specific_country_and_period(country, fro, to, values_loc_updates,
@@ -597,7 +597,8 @@ def show_specific_country_and_period(country, fro, to, values_loc_updates,
                                      user_start_id=-1,
                                      number_of_days_without_updates=5,
                                      mask=False, mask_value=0,
-                                     max_val=0, anno=False, log=False):
+                                     max_val=0, anno=False, log=False,
+                                     show_user_ticks=True):
     """
     Plotting a single heatmap of location updates per users per day in a month 
     The month are hardcoded
@@ -631,9 +632,16 @@ def show_specific_country_and_period(country, fro, to, values_loc_updates,
     else:
         ylabels = list(range(data.shape[0]))
     if sorter_efter_sum:
-        s = np.sum(data, axis=1)
-        data = np.take(data, s.argsort(), axis=0)
-        ylabels = np.take(ylabels, s.argsort(), axis=0)
+        if values_loc_updates:
+            arr_bool = data == 0
+            s = np.sum(arr_bool, axis=1)
+            data = np.take(data, np.argsort(s)[::-1], axis=0)
+            ylabels = np.take(data, np.argsort(s)[::-1], axis=0)
+
+        else:
+            s = np.sum(data, axis=1)
+            data = np.take(data, s.argsort(), axis=0)
+            ylabels = np.take(ylabels, s.argsort(), axis=0)
     #Find users...
     if find_users:
         if user_start_id == -1:
@@ -666,6 +674,8 @@ def show_specific_country_and_period(country, fro, to, values_loc_updates,
             print(users[ylabels[0][user]])
         print("#######################")
     xlabels = [list(range(1, data.shape[1]+1))]
+    if not show_user_ticks:
+        ylabels = []
     mask_list = []
     if mask:
         mask_list = data == mask_value
@@ -976,7 +986,9 @@ if __name__ == '__main__':
     #show_all_month_for_contries()
     #location_updates_at_hq_or_not()
     countries = ["Japan", "Sweden"]
-    show_all_month_same_scale(countries, values_loc_updates=False, log=True, mask=True, mask_value=0)
+    show_all_month_same_scale(countries, values_loc_updates=True,
+                              sorter_efter_sum=True, log=True,
+                              mask=True, mask_value=0, show_user_ticks=False)
 
 
     #---------------------------

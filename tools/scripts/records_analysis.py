@@ -450,10 +450,21 @@ def heat_map(data, mask, xticks, yticks, title="", xlabels=[], ylabels=[], anno=
         fig, ax = sns.plt.subplots(3, 1)
         cbar_ax = fig.add_axes([.91, .3, .03, .4])
         for index, ax in enumerate(ax.flat):
-            sns.heatmap(data[index], ax=ax, xticklabels=[" "]*len(xticks[index]) if index != 2 else xticks[index],
-                        annot=anno, fmt="d",
-                        yticklabels=yticks[index], mask=mask[index], vmin=min_val,
-                        vmax=max_val, cbar=index == 0, cbar_ax=None if index else cbar_ax)
+            if log:
+                d = np.array(data[index], dtype=np.float)
+                np.place(d, d == 0, [0.1])
+                min_val += 1
+                sns.heatmap(d, ax=ax, xticklabels=[" "]*len(xticks[index]) if index != 2 else xticks[index],
+                            annot=anno, fmt="d",
+                            yticklabels=[" "]*d.shape[0] if yticks == [] else yticks[index], mask=mask[index],
+                            norm=LogNorm(vmin=min_val, vmax=max_val),
+                            cbar=index == 0, cbar_ax=None if index else cbar_ax)
+
+            else:
+                sns.heatmap(data[index], ax=ax, xticklabels=[" "]*len(xticks[index]) if index != 2 else xticks[index],
+                            annot=anno, fmt="d",
+                            yticklabels=yticks[index], mask=mask[index], vmin=min_val,
+                            vmax=max_val, cbar=index == 0, cbar_ax=None if index else cbar_ax)
             if title != "" and index == 0:
                 ax.set_title(title)
             ax.set_ylabel(months[index])
@@ -539,12 +550,13 @@ def data_summary_per_user():
 def show_all_month_same_scale(countries, periods=[("2015-09-01", "2015-09-30"),
                               ("2015-10-01", "2015-10-31"),
                               ("2015-11-01", "2015-11-30")],
+                              same_scale_over_countries=False,
                               values_loc_updates=True, specific_users=[],
                               sorter_non_location_user_fra=True,
                               sorter_efter_sum=True, find_users=False,
                               user_start_id=-1,
                               number_of_days_without_updates=5, anno=False, log=False,
-                              mask=False, mask_value=0, show_user_ticks=True,
+                              mask=False, mask_value=0, show_user_ticks=True, multiple=False,
                               base_title="Heatmap of location updates per users per day in "):
 
     """
@@ -576,11 +588,28 @@ def show_all_month_same_scale(countries, periods=[("2015-09-01", "2015-09-30"),
                     max_values[country] = max_value   
             else:
                 max_values[country] = max_value
+    total_max_value = max(max_values.values())
     for country in countries:
-        for fro, to in periods:
-            cbar = False
-            if (fro,to) == periods[-1]:
-                cbar = True
+        if not multiple:
+            for fro, to in periods:
+                cbar = False
+                if (fro,to) == periods[-1]:
+                    cbar = True
+                show_specific_country_and_period(country, fro, to,
+                                                 values_loc_updates, base_title,
+                                                 specific_users,
+                                                 sorter_non_location_user_fra,
+                                                 sorter_efter_sum, find_users,
+                                                 user_start_id,
+                                                 number_of_days_without_updates,
+                                                 mask, mask_value,
+                                                 max_values[country] if not
+                                                 same_scale_over_countries else
+                                                 total_max_value, anno, log,
+                                                 show_user_ticks, show_cbar=cbar)
+        else:
+            fro = [p[0] for p in periods]
+            to = [p[1] for p in periods]
             show_specific_country_and_period(country, fro, to,
                                              values_loc_updates, base_title,
                                              specific_users,
@@ -589,8 +618,10 @@ def show_all_month_same_scale(countries, periods=[("2015-09-01", "2015-09-30"),
                                              user_start_id,
                                              number_of_days_without_updates,
                                              mask, mask_value,
-                                             max_values[country], anno, log,
-                                             show_user_ticks, show_cbar=cbar)
+                                             max_values[country] if not
+                                             same_scale_over_countries else
+                                             total_max_value, anno, log,
+                                             show_user_ticks, multiple=multiple)
 
 
 def show_specific_country_and_period(country, fro, to, values_loc_updates,
@@ -601,7 +632,7 @@ def show_specific_country_and_period(country, fro, to, values_loc_updates,
                                      number_of_days_without_updates=5,
                                      mask=False, mask_value=0,
                                      max_val=0, anno=False, log=False,
-                                     show_user_ticks=True, show_cbar=True):
+                                     show_user_ticks=True, show_cbar=True, multiple=False):
     """
     Plotting a single heatmap of location updates per users per day in a month 
     The month are hardcoded
@@ -623,30 +654,65 @@ def show_specific_country_and_period(country, fro, to, values_loc_updates,
         anno                           {boolean} -- Whether to show values in the cells of the heatmap (True) or not (False)
 
     """
-    data, users = get_data_for_heat_map_per_user(country, fro, to,
-                                                 specific_users,
-                                                 values_loc_updates)
+    if multiple:
+        data = []
+        users = []
+        for i, f in enumerate(fro):
+            dat, user = get_data_for_heat_map_per_user(country, f, to[i],
+                                                       specific_users,
+                                                       values_loc_updates)
+            data.append(dat)
+            users.append(user)
+    else:
+        data, users = get_data_for_heat_map_per_user(country, fro, to,
+                                                     specific_users,
+                                                     values_loc_updates)
     ylabels = []
     if sorter_non_location_user_fra:
-        for i, x in enumerate(np.any(data != 0, axis=1)): #Sorter dem der har rene 0 fra
-            if x:
-                ylabels.append(i)
-        data = data[np.any(data != 0, axis=1)]
+        if not multiple:
+            for i, x in enumerate(np.any(data != 0, axis=1)): #Sorter dem der har rene 0 fra
+                if x:
+                    ylabels.append(i)
+            data = data[np.any(data != 0, axis=1)]
+        else:
+            for j, d in enumerate(data):
+                temp_ylabels = []
+                for i, x in enumerate(np.any(d != 0, axis=1)): #Sorter dem der har rene 0 fra
+                    if x:
+                        temp_ylabels.append(i)
+                data[j] = d[np.any(d != 0, axis=1)]
+                ylabels.append(temp_ylabels)
     else:
-        ylabels = list(range(data.shape[0]))
+        if not multiple:
+            ylabels = list(range(data.shape[0]))
+        else:
+            ylabels = list(range(data[0].shape[0]))
     if sorter_efter_sum:
         if values_loc_updates:
-            arr_bool = data == 0
-            s = np.sum(arr_bool, axis=1)
-            data = np.take(data, np.argsort(s)[::-1], axis=0)
-            ylabels = np.take(data, np.argsort(s)[::-1], axis=0)
+            if multiple:
+                for i, d in enumerate(data):
+                    arr_bool = d == 0
+                    s = np.sum(arr_bool, axis=1)
+                    data[i] = np.take(d, np.argsort(s)[::-1], axis=0)
+                    ylabels[i] = np.take(d, np.argsort(s)[::-1], axis=0)
+            else:
+                arr_bool = data == 0
+                s = np.sum(arr_bool, axis=1)
+                data = np.take(data, np.argsort(s)[::-1], axis=0)
+                ylabels = np.take(data, np.argsort(s)[::-1], axis=0)
 
         else:
-            s = np.sum(data, axis=1)
-            data = np.take(data, s.argsort(), axis=0)
-            ylabels = np.take(ylabels, s.argsort(), axis=0)
+            if multiple:
+                for i, d in enumerate(data):
+                    s = np.sum(arr_bool, axis=1)
+                    data[i] = np.take(d, s.argsort(), axis=0)
+                    ylabels[i] = np.take(d, s.argsort(), axis=0)
+            else:
+                s = np.sum(data, axis=1)
+                data = np.take(data, s.argsort(), axis=0)
+                ylabels = np.take(ylabels, s.argsort(), axis=0)
     #Find users...
-    if find_users:
+    if find_users and not multiple:
         if user_start_id == -1:
             start = 0
         else:
@@ -670,20 +736,43 @@ def show_specific_country_and_period(country, fro, to, values_loc_updates,
         print("Antal found_users: {}\n{}".format(len(found_users),
                                                  found_users))
     ylabels = [ylabels]
-    idxs = find_duplicate_rows(data)
-    for group in idxs:
-        print("#### Ny gruppe der er ens! ####")
-        for user in set(group):
-            print(users[ylabels[0][user]])
-        print("#######################")
-    xlabels = [list(range(1, data.shape[1]+1))]
+    if not multiple:
+        idxs = find_duplicate_rows(data)
+        for group in idxs:
+            print("#### Ny gruppe der er ens! ####")
+            for user in set(group):
+                print(users[ylabels[0][user]])
+            print("#######################")
+    
+    #Gør at dag nummer 31 kommer med:
+    max_cols = -1
+    if multiple:
+        for d in data:
+            if d.shape[1] > max_cols:
+                max_cols = d.shape[1]
+        for i, d in enumerate(data):
+            if d.shape[1] < max_cols:
+                missing_cols = max_cols-d.shape[1]
+                new_cols = np.full((d.shape[0], missing_cols), mask_value, dtype=int)
+                data[i] = np.hstack((d, new_cols))
+    if multiple:
+        xlabels = []
+        for d in data:
+            xlabels.append(list(range(1, d.shape[1]+1)))
+    else:
+        xlabels = [list(range(1, data.shape[1]+1))]
     if not show_user_ticks:
         ylabels = []
     mask_list = []
     if mask:
-        mask_list = data == mask_value
-    heat_map(data, mask_list, xlabels, ylabels, title=base_title+country +
-             " from "+fro+" to "+to, anno=anno, multiple=False,
+        if multiple:
+            for d in data:
+                mask_list.append(d == mask_value)
+        else:
+            mask_list = data == mask_value
+
+    heat_map(data, mask_list, xlabels, ylabels, title=(base_title+country +
+             " from "+fro+" to "+to) if not multiple else (base_title+country+" for all months"), anno=anno, multiple=multiple,
              max_val=max_val, log=log, cbar=show_cbar)
 
 
@@ -990,8 +1079,9 @@ if __name__ == '__main__':
     #location_updates_at_hq_or_not()
     countries = ["Japan", "Sweden"]
     show_all_month_same_scale(countries, values_loc_updates=True,
+                              same_scale_over_countries=True,
                               sorter_efter_sum=True, log=True,
-                              mask=True, mask_value=0, show_user_ticks=False)
+                              mask=True, mask_value=0, show_user_ticks=False, multiple=True)
 
 
     #---------------------------

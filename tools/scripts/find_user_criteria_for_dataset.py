@@ -52,8 +52,8 @@ def compute_cdf_in_three_periods(country):
     return [cdf(x) for x in np.arange(0, 1, 0.01)]
 
 
-sweden, = plt.plot(np.arange(0, 1, 0.01), compute_cdf_in_three_periods("Sweden"), linewidth=6.0, label="Sweden", color='#990033')
-japan, = plt.plot(np.arange(0, 1, 0.01), compute_cdf_in_three_periods("Japan"), linewidth=6.0, label="Japan", color='#333399', marker="+")
+sweden, = plt.plot(np.arange(0, 1, 0.01), compute_cdf_in_three_periods("Sweden"), linewidth=6.0, label="Sweden - All months", color='#990033')
+japan, = plt.plot(np.arange(0, 1, 0.01), compute_cdf_in_three_periods("Japan"), linewidth=6.0, label="Japan - All months", color='#333399')
 
 first_period_datetime_min = "2015-09-01 00:00:00+00:00"
 first_period_time_bin_min = db.calculate_time_bins(first_period_datetime_min)[0]
@@ -68,10 +68,45 @@ third_period_time_bin_min = db.calculate_time_bins(third_period_datetime_min)[0]
 third_period_datetime_max = "2015-09-30 23:59:59+00:00"
 third_period_time_bin_max = db.calculate_time_bins(third_period_datetime_max)[0]
 
-sweden_sept, = plt.plot(np.arange(0, 1, 0.01), compute_cdf_in_three_periods("Sweden"), linewidth=6.0, label="Sweden - september", color='#990033')
-japan_sept, = plt.plot(np.arange(0, 1, 0.01), compute_cdf_in_three_periods("Japan"), linewidth=6.0, label="Japan - september", color='#333399', marker="+")
+sweden_sept, = plt.plot(np.arange(0, 1, 0.01), compute_cdf_in_three_periods("Sweden"), linewidth=6.0, label="Sweden - september", color='#990033', linestyle='--')
+japan_sept, = plt.plot(np.arange(0, 1, 0.01), compute_cdf_in_three_periods("Japan"), linewidth=6.0, label="Japan - september", color='#333399', linestyle='--')
 
-plt.legend(handles=[sweden, japan, sweden_sept, japan_sept], prop={'size': 40})
+first_period_datetime_min = "2015-10-01 00:00:00+00:00"
+first_period_time_bin_min = db.calculate_time_bins(first_period_datetime_min)[0]
+first_period_datetime_max = "2015-10-09 23:59:59+00:00"
+first_period_time_bin_max = db.calculate_time_bins(first_period_datetime_max)[0]
+second_period_datetime_min = "2015-10-10 00:00:00+00:00"
+second_period_time_bin_min = db.calculate_time_bins(second_period_datetime_min)[0]
+second_period_datetime_max = "2015-10-19 23:59:59+00:00"
+second_period_time_bin_max = db.calculate_time_bins(second_period_datetime_max)[0]
+third_period_datetime_min = "2015-10-20 00:00:00+00:00"
+third_period_time_bin_min = db.calculate_time_bins(third_period_datetime_min)[0]
+third_period_datetime_max = "2015-10-31 23:59:59+00:00"
+third_period_time_bin_max = db.calculate_time_bins(third_period_datetime_max)[0]
+
+
+sweden_oct, = plt.plot(np.arange(0, 1, 0.01), compute_cdf_in_three_periods("Sweden"), linewidth=6.0, label="Sweden - october", color='#990033', linestyle='-')
+japan_oct, = plt.plot(np.arange(0, 1, 0.01), compute_cdf_in_three_periods("Japan"), linewidth=6.0, label="Japan - october", color='#333399', linestyle='-')
+
+first_period_datetime_min = "2015-11-01 00:00:00+00:00"
+first_period_time_bin_min = db.calculate_time_bins(first_period_datetime_min)[0]
+first_period_datetime_max = "2015-11-09 23:59:59+00:00"
+first_period_time_bin_max = db.calculate_time_bins(first_period_datetime_max)[0]
+second_period_datetime_min = "2015-11-10 00:00:00+00:00"
+second_period_time_bin_min = db.calculate_time_bins(second_period_datetime_min)[0]
+second_period_datetime_max = "2015-11-19 23:59:59+00:00"
+second_period_time_bin_max = db.calculate_time_bins(second_period_datetime_max)[0]
+third_period_datetime_min = "2015-11-20 00:00:00+00:00"
+third_period_time_bin_min = db.calculate_time_bins(third_period_datetime_min)[0]
+third_period_datetime_max = "2015-11-30 23:59:59+00:00"
+third_period_time_bin_max = db.calculate_time_bins(third_period_datetime_max)[0]
+
+
+sweden_nov, = plt.plot(np.arange(0, 1, 0.01), compute_cdf_in_three_periods("Sweden"), linewidth=6.0, label="Sweden - november", color='#990033', linestyle='-.')
+japan_nov, = plt.plot(np.arange(0, 1, 0.01), compute_cdf_in_three_periods("Japan"), linewidth=6.0, label="Japan - november", color='#333399', linestyle='-.')
+
+
+plt.legend(handles=[sweden, japan, sweden_sept, japan_sept, sweden_oct, japan_oct, sweden_nov, japan_nov], prop={'size': 40})
 plt.ylabel("Number of users")
 plt.xlabel("Percentage of total timebins")
 plt.title("CDF for unique timebins in all three months")

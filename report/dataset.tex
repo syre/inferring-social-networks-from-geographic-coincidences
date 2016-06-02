@@ -86,26 +86,26 @@ Efter dette, så quantilerne af accuracy ud som man kan se på Tabel \ref{tab:ac
             \hline
                  Min     &  3,000       \\
             \hline
-                 Q1      &  10,000   \\
+                 Q1      &  9,000   \\
             \hline
-                 Median  &  23,000    \\
+                 Median  &  20,000    \\
             \hline
-                 Mean    &  26,894.356    \\
+                 Mean    &  22,565.72    \\
             \hline
-                 Q3      &  39,000      \\
+                 Q3      &  35,541      \\
             \hline
-                 Max &  100,000   \\
+                 Max &  55,000   \\
             \hline
-                 IQR     &   29,000     \\
+                 IQR     &   26,541     \\
             \hline
-                Std. dev.  &  20,290.826   \\
+                Std. dev.  &  14,669.72   \\
             \hline
         \end{tabular}
         \caption{Quantiles of accuracy after cleaning} %add this between 'caption' and '{...' for new text in listing of tables: [New caption text only for listing of tables]
         \label{tab:acc_quantiles}
 \end{table}
 
-Vi kan se på medianen og mean, at de fleste brugere har lav værdi i accuracy - hvilket er godt! Hvis vi antager at det følger en normalfordeling, kan vi ud fra standard deviation udlede, at 95\% af brugerne har en accuracy mellem 6,603.53 og 47,185.182. Dette viser at der sandsynligvis er nogle få brugere med meget høje værdier i accuracy, hvor max er 100,000. At det kun er nogle få brugere med høje værdier er godt, da det omvendt betyder at der er mange bruger med lav (og derved god) accuracy. Da vi har gjort at max for accuracy er 100,000, kan vi sagtens bruge disse brugere med høj værdi i accuracy. Hvis man senere skulle bruge en mere fin binning, ville man sagtens kunne gøre dette uden at skulle udelukke alt for meget data, da værdierne for accuracy ligger så fint som de gør.  
+Vi kan se på medianen og mean, at de fleste brugere har lav værdi i accuracy - hvilket er godt! Hvis vi antager at det følger en normalfordeling, kan vi ud fra standard deviation udlede, at 95\% af brugerne har en accuracy mellem 7,896 og 37,235.44. Dette viser at der sandsynligvis er nogle få brugere med meget høje værdier i accuracy, hvor max er 100,000. At det kun er nogle få brugere med høje værdier er godt, da det omvendt betyder at der er mange bruger med lav (og derved god) accuracy. Da vi har gjort at max for accuracy er 100,000, kan vi sagtens bruge disse brugere med høj værdi i accuracy. Hvis man senere skulle bruge en mere fin binning, ville man sagtens kunne gøre dette uden at skulle udelukke alt for meget data, da værdierne for accuracy ligger så fint som de gør.  
 
 Medianen og mean svarer til henholdsvis 23m og 26.89m og 95\% standard deviation er på mellem 6.6m og 47.19m hvilken er en fin accuracy. 
 
@@ -171,17 +171,17 @@ Vi vil gerne se hvordan lokations opdateringerne for de to lande, er fordelt på
             \hline
                  Min     &    1       &   1           \\
             \hline
-                 Q1      &  22        &   71      \\
+                 Q1      &  26        &   68      \\
             \hline
-                 Median  & 251.50     &   902.50      \\
+                 Median  & 233     &   840      \\
             \hline
-                 Mean    &  946.70   &  1,879.70     \\
+                 Mean    &  851.49   &  1,735.38     \\
             \hline
-                 Q3      & 1,063.25    &   2,848.25     \\
+                 Q3      & 994.5    &   2,642     \\
             \hline
-                 Max     &  10,361 &  15,447     \\
+                 Max     &  9,320 &  14,759     \\
             \hline
-                 IQR     &  1,041.25   &  2,777.25      \\
+                 IQR     &  968.5   &   2,574     \\
             \hline
             
         \end{tabular}

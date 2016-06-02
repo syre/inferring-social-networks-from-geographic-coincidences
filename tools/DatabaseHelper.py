@@ -197,17 +197,17 @@ class DatabaseHelper():
         datetime = min_datetime+relativedelta(seconds=60*60*int(time_bin))
         return datetime
 
-    def is_saturday_night(self, datetime, timezonestring="Asia/Tokyo"):
+    def is_saturday_night(self, datetime, timezonestring="Europe/Stockholm"):
         converted = datetime.astimezone(timezone(timezonestring))
-        if converted.date().isoweekday() == 6 and converted.hour > 18:
-            return True
-        return False
+        return converted.hour > 18
 
-    def is_weekend(self, datetime, timezonestring="Asia/Tokyo"):
+    def is_evening(self, datetime, timezonestring="Europe/Stockholm"):
         converted = datetime.astimezone(timezone(timezonestring))
-        if converted.date().isoweekday in [6,7] or (converted.date().isoweekday == 5 and converted.hour > 18):
-            return True
-        return False
+        return converted.date().isoweekday() == 6 and converted.hour > 18
+
+    def is_weekend(self, datetime, timezonestring="Europe/Stockholm"):
+        converted = datetime.astimezone(timezone(timezonestring))
+        return converted.date().isoweekday in [6, 7] or (converted.date().isoweekday == 5 and converted.hour > 18)
 
     def get_distributions_numbers(self, feature, num_bins=20, max_value=0):
         cursor = self.conn.cursor()

@@ -22,11 +22,16 @@ class DatasetHelper():
         return np.unique(cooc_arr[:, 2]).shape[0]
 
     def calculate_number_of_saturday_night_coocs(self, cooc_arr):
-        count = 0
-        for cooc in cooc_arr:
-            if self.db_helper.is_saturday_night(self.db_helper.calculate_datetime(cooc[3])):
-                count += 1
-        return count/cooc_arr.shape[0]
+        return sum([self.db_helper.is_saturday_night(self.db_helper.calculate_datetime(cooc[3])) for cooc in cooc_arr])
+
+    def calculate_number_of_weekend_coocs(self, cooc_arr):
+        return sum([self.db_helper.is_weekend(self.db_helper.calculate_datetime(cooc[3])) for cooc in cooc_arr])
+
+    def calculate_number_of_evening_coocs(self, cooc_arr):
+        return sum([self.db_helper.is_evening(self.db_helper.calculate_datetime(cooc[3])) for cooc in cooc_arr])
+
+    def calculate_specificity(self, user1, user2, cooc_arr, loc_arr):
+        return cooc_arr.shape[0]/(loc_arr[loc_arr[:, 0] == user1].shape[0] + loc_arr[loc_arr[:, 0] == user2].shape[0])
 
     def calculate_number_of_common_travels(self, cooc_arr):
         bins = cooc_arr[:, [2, 3]]

@@ -80,7 +80,7 @@ class Predictor():
         if selected_users:
             coocs_users = coocs_users[np.in1d(coocs_users[:, 0], [users[u] for u in selected_users if u in users])]
             coocs_users = coocs_users[np.in1d(coocs_users[:, 1], [users[u] for u in selected_users if u in users])]
-        X = np.zeros(shape=(len(coocs_users), 12), dtype="float")
+        X = np.zeros(shape=(len(coocs_users), 16), dtype="float")
         y = np.zeros(shape=len(coocs_users), dtype="int")
         demo_dict = self.file_loader.filter_demographic_outliers(self.file_loader.generate_demographics_from_csv())
         app_data_dict = defaultdict(set)
@@ -99,7 +99,7 @@ class Predictor():
 
             pair_coocs = coocs[
                 (coocs[:, 0] == user1) & (coocs[:, 1] == user2)]
-            X[index:, 0] = pair_coocs.shape[0]
+            X[index:, 0] = self.has_two_unique_coocs(user1, user2, coocs)
             X[index:, 1] = datahelper.calculate_arr_leav(pair_coocs, loc_arr)
             X[index, 2] = datahelper.calculate_diversity(pair_coocs)
             X[index, 3] = datahelper.calculate_unique_cooccurrences(pair_coocs)
@@ -108,13 +108,15 @@ class Predictor():
             X[index:, 5] = datahelper.calculate_coocs_w(pair_coocs, loc_arr)
             X[index:, 6] = datahelper.calculate_number_of_common_travels(
                 pair_coocs)
-            X[index:, 7] = self.has_two_unique_coocs(user1, user2, coocs)
-            #X[index:, 8] = datahelper.calculate_countries_in_common(
-            #    user1, user2, loc_arr)
+            X[index:, 7] = pair_coocs.shape[0]
             X[index:, 8] = self.compute_mutual_cooccurrences(coocs, user1, user2)
             X[index:, 9] = self.is_within_6_years(demo_dict, users[user1], users[user2])
             X[index:, 10] = self.is_same_sex(demo_dict, users[user1], users[user2])
             X[index:, 11] = self.compute_app_jaccard_index(app_data_dict, users[user1], users[user2])
+            X[index:, 12] = datahelper.calculate_number_of_saturday_night_coocs(pair_coocs)
+            X[index:, 13] = datahelper.calculate_number_of_evening_coocs(pair_coocs)
+            X[index:, 14] = datahelper.calculate_number_of_weekend_coocs(pair_coocs)
+            X[index:, 15] = datahelper.calculate_specificity(user1, user2, pair_coocs, loc_arr)
             y[index] = self.has_met(user1, user2, met_next)
 
         return X, y
@@ -236,7 +238,7 @@ class Predictor():
         X_train = scaler.transform(X_train)
         X_test = scaler.transform(X_test)
         print("Logistic Regression - with number of cooccurrences")
-        lg = sklearn.linear_model.LogisticRegression(random_state=0, class_weight="balanced")
+        lg = sklearn.linear_model.LogisticRegression(random_state=0)
         lg.fit(X_train[:, 0].reshape(-1, 1), y_train)
         y_pred = lg.predict(X_test[:, 0].reshape(-1, 1))
         print(sklearn.metrics.classification_report(y_test, y_pred, target_names=["did not meet", "did meet"]))
@@ -245,7 +247,9 @@ class Predictor():
         self.plot_confusion_matrix(cm, title="Confusion matrix (Logistic Regression)")
         print(cm)
         print("Random Forest - all features")
-        forest = sklearn.ensemble.RandomForestClassifier(n_estimators = 200, random_state=0, class_weight="balanced")
+        np.delete(X_train, [0], axis=1)
+        np.delete(X_test, [0], axis=1)
+        forest = sklearn.ensemble.RandomForestClassifier(n_estimators = 1000, random_state=0)
         forest.fit(X_train, y_train)
         y_pred = forest.predict(X_test)
         print(sklearn.metrics.classification_report(y_test, y_pred, target_names=["did not meet", "did meet"]))
@@ -254,7 +258,7 @@ class Predictor():
         plt.style.use("default")
         # compute ROC curve
         self.compute_roc_curve(y_test, forest.predict_proba(X_test)[:,1])
-        cm = confusion_matrix(y_test, y_pred, labels=[0, 1])
+        cm = confusion_matrix(y_test, y_pred)
         self.plot_confusion_matrix(cm, title="Confusion matrix (Random Forest)")
         print(cm)
 

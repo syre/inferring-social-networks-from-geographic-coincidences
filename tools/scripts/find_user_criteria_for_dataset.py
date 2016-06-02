@@ -52,8 +52,8 @@ def compute_cdf_in_three_periods(country):
     return [plot(x) for x in np.arange(0, 1, 0.01)]
 
 
-sweden, = plt.plot(np.arange(0, 1, 0.01), compute_cdf_in_three_periods("Sweden"), label="Sweden - All months", color='#990033')
-japan, = plt.plot(np.arange(0, 1, 0.01), compute_cdf_in_three_periods("Japan"), label="Japan - All months", color='#333399')
+sweden, = plt.plot(np.arange(0, 1, 0.01), compute_cdf_in_three_periods("Sweden"), label="Sweden - All months", color='#990033', linewidth=4.0)
+japan, = plt.plot(np.arange(0, 1, 0.01), compute_cdf_in_three_periods("Japan"), label="Japan - All months", color='#333399', linewidth=4.0)
 
 first_period_datetime_min = "2015-09-01 00:00:00+00:00"
 first_period_time_bin_min = db.calculate_time_bins(first_period_datetime_min)[0]
@@ -68,8 +68,8 @@ third_period_time_bin_min = db.calculate_time_bins(third_period_datetime_min)[0]
 third_period_datetime_max = "2015-09-30 23:59:59+00:00"
 third_period_time_bin_max = db.calculate_time_bins(third_period_datetime_max)[0]
 
-sweden_sept, = plt.plot(np.arange(0, 1, 0.01), compute_cdf_in_three_periods("Sweden"), label="Sweden - september", color='#990033', linestyle='--')
-japan_sept, = plt.plot(np.arange(0, 1, 0.01), compute_cdf_in_three_periods("Japan"), label="Japan - september", color='#333399', linestyle='--')
+sweden_sept, = plt.plot(np.arange(0, 1, 0.01), compute_cdf_in_three_periods("Sweden"), label="Sweden - september", color='#990033', linestyle='--', linewidth=4.0, markersize=20)
+japan_sept, = plt.plot(np.arange(0, 1, 0.01), compute_cdf_in_three_periods("Japan"), label="Japan - september", color='#333399', linestyle='--', linewidth=4.0, markersize=20)
 
 first_period_datetime_min = "2015-10-01 00:00:00+00:00"
 first_period_time_bin_min = db.calculate_time_bins(first_period_datetime_min)[0]
@@ -85,8 +85,8 @@ third_period_datetime_max = "2015-10-31 23:59:59+00:00"
 third_period_time_bin_max = db.calculate_time_bins(third_period_datetime_max)[0]
 
 
-sweden_oct, = plt.plot(np.arange(0, 1, 0.01), compute_cdf_in_three_periods("Sweden"), label="Sweden - october", color='#990033', linestyle="None", marker="x")
-japan_oct, = plt.plot(np.arange(0, 1, 0.01), compute_cdf_in_three_periods("Japan"), label="Japan - october", color='#333399', linestyle="None", marker="x")
+sweden_oct, = plt.plot(np.arange(0, 1, 0.01), compute_cdf_in_three_periods("Sweden"), label="Sweden - october", color='#990033', linestyle="None", marker="x", markersize=20)
+japan_oct, = plt.plot(np.arange(0, 1, 0.01), compute_cdf_in_three_periods("Japan"), label="Japan - october", color='#333399', linestyle="None", marker="x", markersize=20)
 
 first_period_datetime_min = "2015-11-01 00:00:00+00:00"
 first_period_time_bin_min = db.calculate_time_bins(first_period_datetime_min)[0]
@@ -102,18 +102,20 @@ third_period_datetime_max = "2015-11-30 23:59:59+00:00"
 third_period_time_bin_max = db.calculate_time_bins(third_period_datetime_max)[0]
 
 
-sweden_nov, = plt.plot(np.arange(0, 1, 0.01), compute_cdf_in_three_periods("Sweden"), label="Sweden - november", color='#990033', linestyle="None", marker=".")
-japan_nov, = plt.plot(np.arange(0, 1, 0.01), compute_cdf_in_three_periods("Japan"), label="Japan - november", color='#333399', linestyle="None", marker=".")
+sweden_nov, = plt.plot(np.arange(0, 1, 0.01), compute_cdf_in_three_periods("Sweden"), label="Sweden - november", color='#990033', linestyle="None", marker=".", markersize=20)
+japan_nov, = plt.plot(np.arange(0, 1, 0.01), compute_cdf_in_three_periods("Japan"), label="Japan - november", color='#333399', linestyle="None", marker=".", markersize=20)
 
 
-plt.legend(handles=[sweden, japan, sweden_sept, japan_sept, sweden_oct, japan_oct, sweden_nov, japan_nov], prop={'size': 20})
+plt.legend(handles=[sweden, japan, sweden_sept, japan_sept, sweden_oct, japan_oct, sweden_nov, japan_nov], prop={'size': 30})
 plt.ylabel("Number of users")
 plt.xlabel("Percentage of total timebins")
 plt.title("Plot of users with unique timebins in all three months")
-plt.tick_params(labelsize=15)
-[item.set_fontsize(30) for item in [plt.gca().yaxis.label, plt.gca().xaxis.label]]
+plt.tick_params(labelsize=20)
+[item.set_fontsize(45) for item in [plt.gca().yaxis.label, plt.gca().xaxis.label]]
 plt.gca().title.set_fontsize(48)
-[item.set_fontsize(25) for item in plt.gca().get_xticklabels() + plt.gca().get_yticklabels()]
+
+[item.set_fontsize(33) for item in plt.gca().get_xticklabels() + plt.gca().get_yticklabels()]
+
 plt.show()
 
 user_locations_dict = {}

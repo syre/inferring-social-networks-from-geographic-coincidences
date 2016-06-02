@@ -211,15 +211,6 @@ Da opdateringerne kommer hver gang brugeren skifter lokation, betyder dette, at 
 Vi vil gerne se om der er et mønster i hvornår opdateringerne kommer, da vi derfra muligvis kan udpege bedre eller dårligere sub-perioder som vi kan tage stilling til. Derfor har vi lavet nogle heat maps. 
 De første heat maps viser hvordan opdateringerne er fordelt over et døgn. Dette er lavet, ved at aggregerer over tidsrummet i det pågældende døgn. Det der bliver aggregeret er, om en brugere har haft mindst én opdatering, i det tidsrum på døgnet (repræsenteret med 0 eller 1), uanset hvilken dag det er.
 
-Figure \ref{fig:agg_heatmap_jap} viser hvordan opdateringerne for hver user (y-aksen), fordeler sig over tidsrummet på en dag, målt over alle tre måneder. Det ses at skalaen går til ca. 70, hvilket betyder at brugeren med flest aggregerede opdateringer i et time-slot (på en time), har ca. 70 opdateringer henover alle tre måneder. Brugerne er sorteret på baggrund af deres samlede aggregerede værdier, men den største nederst på y-aksen. 
-
-Man ser tydeligt, at der er en periode mellem kl. 02:00 og kl. 06:00 hvor de fleste brugere ikke har nogle updates, dette kunne tyde på at de enten slukker eller på anden måde lukker for kommunikationen med omverdenen i det givne tidsrum. Herefter fra kl. 06:00 til 00:00 er der regelmæssig opdateringer, hvorefter det stilner af til kl. 02:00. Hvis vi sammenligner dette med Figure \ref{fig:cumu_loc_time_jap_swe} kan vi se det stemmer meget godt overens. Figure \ref{fig:cumu_loc_time_jap_swe} viser den cumulative location updates henover et døgn i både Japan og Sverige. Her ser vi samme udvikling for Japan som heat mappet indikerer, som beskrevet ovenfor. 
-
-Det ovenstående gælder også for Sverige (Figure \ref{fig:agg_heatmap_swe}), som viser det samme som Japan. Her slukker næsten alle brugere også deres mobiler mellem 02:00 og 06:00
-Der er ikke andre time-slots som skilder sig ud, hverken i Japan eller Sverige. 
-
-Da vi har sorteret brugerne kan vi nemt se, at der er en del brugere som ikke har nogle, eller meget få, opdateringer henover alle tre måneder. Disse bruge kunne vi se bort fra i vores forsøg, da de alligevel ikke bidrager med noget. 
-
 \begin{figure}[H]
     \hspace*{-0.8cm}
     \centering
@@ -227,6 +218,16 @@ Da vi har sorteret brugerne kan vi nemt se, at der er en del brugere som ikke ha
     \caption{Heat map for location updates over the 3 month period in Japan, aggregated over a day with 60 minutes of binsize. Users are sorted by total number of location. Largest is at the bottom}
     \label{fig:agg_heatmap_jap}
 \end{figure}
+Figure \ref{fig:agg_heatmap_jap} viser hvordan opdateringerne for hver user (y-aksen), fordeler sig over tidsrummet på en dag, målt over alle tre måneder. Det ses at skalaen går til ca. 70, hvilket betyder at brugeren med flest aggregerede opdateringer i et time-slot (på en time), har ca. 70 opdateringer henover alle tre måneder. Brugerne er sorteret på baggrund af deres samlede aggregerede værdier, med den største nederst på y-aksen. 
+
+Man ser tydeligt, at der er en periode mellem kl. 02:00 og kl. 06:00 hvor de fleste brugere ikke har nogle updates, dette kunne tyde på at de enten slukker eller på anden måde lukker for kommunikationen med omverdenen i det givne tidsrum. Herefter fra kl. 06:00 til 00:00 er der regelmæssig opdateringer, hvorefter det stilner af til kl. 02:00. Hvis vi sammenligner dette med Figure \ref{fig:cumu_loc_time_jap_swe} kan vi se det stemmer meget godt overens. Figure \ref{fig:cumu_loc_time_jap_swe} viser den aggrgerede location updates henover et døgn i både Japan og Sverige. Her ser vi samme udvikling for Japan som heat mappet indikerer, som beskrevet ovenfor. 
+
+Det ovenstående gælder også for Sverige (Figure \ref{fig:agg_heatmap_swe}), som viser det samme som Japan. Her slukker næsten alle brugere også deres mobiler mellem 02:00 og 06:00
+Der er ikke andre time-slots som skilder sig ud, hverken i Japan eller Sverige. 
+
+Da vi har sorteret brugerne kan vi nemt se, at der er en del brugere som ikke har nogle, eller meget få, opdateringer henover alle tre måneder. Disse bruge kunne vi se bort fra i vores forsøg, da de alligevel ikke bidrager med noget. 
+
+
 \begin{figure}[H]
     \hspace*{-0.8cm}
     \centering
@@ -243,17 +244,12 @@ Da vi har sorteret brugerne kan vi nemt se, at der er en del brugere som ikke ha
     \label{fig:cumu_loc_time_jap_swe}
 \end{figure}
 
-Hvis vi udelukkende kigger på Figure \ref{fig:cumu_loc_time_jap_swe}, kan vi se at det topper i begge lande omkring kl. 08:00 om morgenen. I Sverige topper det desuden også kl. 16:00, hvor det ikke gør det i Japan. Her er det neutral. \\
+Hvis vi udelukkende kigger på Figure \ref{fig:cumu_loc_time_jap_swe}, kan vi se at det topper i begge lande omkring kl. 08:00 om morgenen. I Sverige topper det desuden også kl. 16:00, hvor det ikke gør det i Japan. Her er det neutralt. \\
 Toppen der finder sted kl. 08:00 om morgen, skyldes nok at brugerne er på vej til arbejde og derved får en masse updates. Tilsvarende kan den anden top (i Sverige), være der hvor brugerene er på vej hjem fra arbejde, hvor man derved også får en masse updates. Det bemærkes at Japan ikke har en tilsvarende stigning i locations updates ved eftermiddagen, men dog har en lille stigning ved 19:00 og højere værdier end Sverige fra 21:00-23:00.\\
 
-Begge disse scenarier tegner ikke godt for vores mål, da det giver sig selv at der skal være nogle data for at finde co-occurences. 
-På baggrund af quantiles og CDF, kunne det tyde på at data fra Sverige vil være mere brugbart end Japan. 
+Figure \ref{fig:agg_heatmap_jap}, \ref{fig:agg_heatmap_swe} og \ref{fig:cumu_loc_time_jap_swe} fortæller os hvilket tidsrum på dagen, som kan være give mere udbytte end andre. F.eks. at vi skal være opmærksomme på tidsrummet mellem kl. 01:00 og 06:00, da mange har meget få opdateringer i dette tidsrum. Derfor er det sandsynligt, at vi skal undgå dette tidsrum. 
 
-Når vi nu ved, at største delen af brugerne i begge lande har få opdateringer, vil vi gerne vide hvodan disse opdateringer er fordelt henover perioden. Det er interssant for os at vide, om opdateringerne er ligeligt fordelt på dagene eller om de klumber sig sammen. Det er interessant, da det kan gøre en forskel med hvad vi bruger til vores modeller. 
-
-Vi har valgt at visualisere dette, ved brug af Heatmaps. 
-
-\newpage
+Hvad Figurerne ikke fortæller os er, om der er nogle dage i de tre måneder der er bedre end andre. Dette vil vi gerne finde ud af, for at se om der er nogle dage som vi med fordel kunne bruge i stedet for alle dagene. Herudover kan vi måske se et mønster i dagene. Man kunne forestille sige, at der fredag og/eller lørdag er flere opdateringer end andre dage, forddi folk går ud i byen og dermed er aktive. 
 
 
 \begin{figure}[H]
@@ -263,6 +259,20 @@ Vi har valgt at visualisere dette, ved brug af Heatmaps.
     \caption{Heat map for mean location updates over the 3 month period in Japan}
     \label{fig:heatmap_jap}
 \end{figure}
+
+Figure \ref{fig:heatmap_jap} viser hvordan lokations opdateringerne per bruger (afrundet til heltal) i Japan er fordelt over hver dag i hver af de tre måneder. Vi kan f.eks. se, at der i Japan er gennemsnitligt 16 opdateringer per bruger om fredagen i uge 2 i september. 
+
+Igen kan man se at der generelt er flere opdateringer i september end i de andre to måneder. Både oktober og november ligner hinanden, bortset fra et par dage hvor november har et par højere værdier end noglre andre dage i oktober. 
+
+I mange tilfælde kan man se at fredage og/eller lørdage har højere værdi end de andre dage i den pågælende måned.
+
+
+ %Vi kan se at for både Japan og Sverige gælder, at der generelt er mere aktivitet i september, end i de andre måneder. Dette underbygger tendensen fra Figure \ref{fig:mean_loc_updates_sep-nov}, hvor vi kunne se en nedadgående tendens fra september til november. I Japan er october og november på nogenlunde samme niveau, hvor man i Sverige tyderligere kan se en ydeligere reducering af antal opdateringer. 
+
+
+
+%\newpage
+
 \begin{figure}[H]
     \hspace*{-1.5cm}
     \centering
@@ -271,34 +281,45 @@ Vi har valgt at visualisere dette, ved brug af Heatmaps.
     \label{fig:heatmap_swe}
 \end{figure}
 
-
- Figure \ref{fig:heatmap_jap} viser hvordan lokations opdateringerne per bruger (afrundet til heltal) i Japan er fordelt over hver dag i hver af de tre måneder. Figure \ref{fig:heatmap_swe} viser det samme, bare for Sverige. 
- Vi kan f.eks. se, at der i Japan er gennemsnitligt 18 opdateringer per bruger om fredagen i uge 2 i september, hvor der samme dag i Sverige er 29 opdateringer. 
-
- Vi kan se at for både Japan og Sverige gælder, at der generelt er mere aktivitet i september, end i de andre måneder. Dette underbygger tendensen fra Figure \ref{fig:mean_loc_updates_sep-nov}, hvor vi kunne se en nedadgående tendens fra september til november. I Japan er october og november på nogenlunde samme niveau, hvor man i Sverige tyderligere kan se en ydeligere reducering af antal opdateringer. 
-
+Figure \ref{fig:heatmap_swe} viser hvordan lokations opdateringerne per bruger (afrundet til heltal) i Sverige, er fordelt over hver dag i hver af de tre måneder. Som i Japan er der generelt flere opdateringer i september end i de andre to måneder. I Sverige er denne tendens dog mere tydelig end Japan. Ligesom i Japan, har vi set denne tendens i Figure 
+\ref{fig:mean_loc_updates_sep-nov}, så dette er ikke overraskende. 
  
-\newpage
+Også her, ligesom Japan, ligger værdierne for fredage og/eller lørdage en anelse højere end de andre dage. Disse værdier er dog ikke så meget højere så det er af betydning, hvilket også gælder for Japan. 
+
+På de to figurer ovenfor, kan vi få en fornemmelse af gennemsnitlig updates for hver dag. Vi kan ikke få en fornemmelse hvordan dette ser ud for hver bruger. Derfor har vi lavet nedenstående figurer. 
 
 \begin{figure}[H]
     \hspace*{-1.5cm}
     \centering
     \includegraphics[scale=0.16]{location_updates_japan_combined_log.png}
-    \caption{Heat map for mean location updates over the 3 month period in Japan}
+    \caption{Heat map for mean location updates over the 3 month period in Japan. x-axis is days and y-axis is users. The scale is logarithmic}
+    %\vspace*{-3.5cm}
+    \vspace{-12pt}
     \label{fig:heatmap_japan_combined}
 \end{figure}
-\begin{figure}[H]
-    \hspace*{-1.5cm}
-    \centering
-    \includegraphics[scale=0.16]{location_updates_sweden_combined_log.png}
-    \caption{Heat map for mean location updates over the 3 month period in Sweden}
-    \label{fig:heatmap_sweden_combined}
-\end{figure}
+Figure \ref{fig:heatmap_japan_combined} viser antal updates for hver bruger, for hver dag i hver af de tre måneder. Hver række i hver af de tre heatmaps (ét for hver måned), repræsenterer en bruger. Der er altså \numberUsersJapan{} antal rækker i hvert heatmap \textcolor{red}{nej de er sorteret fra. Skal de det?}. Hvert heatmap er sorteret så brugeren med updates i flest dage, ligger nederst. Det gør at brugerene ikke nødvendigvis er repræsenteret i samme række over alle tre heatmaps.
+Ved at plotte dage og månederne på denne måde, kan det være nemmere at sammenligne dagene for hver måned med hinanden. 
+
+Vi kan se der er relativt få brugere som har updates i alle dage i en måned. Dette alene er bekymrende og tegner ikke godt for vores projekt, og når vi i dette plot ikke kan være sikker på det er samme bruger der har updates i alle dage for alle tre måneder, så er det endnu mere bekymrende. 
+
+Igen virker det som at september har flere brugere, som har opdateringer i relativt mange dage, i forhold til de andre måneder.
+
+Hvis vi kigger på oktober, kan vi se nogle par af dage som danner lyse lodrette striber, hvilket betyder lavere antal updates. Disse foregår d. 3 og 4, 10 og 11, 17 og 18 og til sidst 24 og 25. Disse par dukker op med en uges interval, hvor d. 3 er en lørdag og d. 4 er en søndag. Dvs. de andre par også er lørdage og søndage. Dette mønster gentager sig i november, hvor man rigtig kan se det fra d. 7 og 8. September er ikke så tydelig, men det er der. Dette er meget interessant, da det kan indikere at lørdage og søndage ikke er så gode at gøre brug af. 
+
+
 
 \begin{figure}[H]
     \hspace*{-1.5cm}
     \centering
-    \includegraphics[scale=0.25]{users_by_criteria.png}
+    \includegraphics[scale=0.16]{location_updates_sweden_combined_log.png}
+    \caption{Heat map for mean location updates over the 3 month period in Sweden. x-axis is days and y-axis is users. The scale is logarithmic}
+    \label{fig:heatmap_sweden_combined}
+\end{figure}
+Figure \ref{fig:heatmap_sweden_combined} viser det samme blot for Sverige. Igen kan vi se i alle tre måneder, at lørdage og søndage skiller sig ud af mængden. 
+\begin{figure}[H]
+    \hspace*{-1.5cm}
+    \centering
+    \includegraphics[scale=0.16]{users_by_criteria.png}
     \caption{}
     \label{fig:users_by_criteria}
 \end{figure}

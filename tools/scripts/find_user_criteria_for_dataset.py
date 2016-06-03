@@ -57,7 +57,7 @@ def compute_plot_in_three_periods(country, periods):
     user_timebins_dict = generate_user_timebins_dict(country, periods)
     user_timebins_dict = user_timebins_to_percentages(user_timebins_dict, periods)
 
-    def plot(x): return len([(user, p) for user, p in user_timebins_dict.items() if p["first_period"] > x and p["second_period"] > x and p["third_period"] > x])
+    def plot(x): return len([(user, p) for user, p in user_timebins_dict.items() if p["first_period"] >= x and p["second_period"] >= x and p["third_period"] >= x])
     return [plot(x) for x in np.arange(0, 1, 0.01)]
 
 

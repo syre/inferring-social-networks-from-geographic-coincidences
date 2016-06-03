@@ -185,6 +185,8 @@ The total number of co-occurrences between two users divided by the sum of the t
 
 
 \subsection{Results}
+In this section we will discuss the results of the work we have done in this thesis.
+
 Initially we tried to infer friendship based on app usage. We did not have directed call-logs available so we could not reliably say if for example two people were calling each other. However the idea was that if we could find users with a similar timestamp and duration in an app, they could perhaps be communicating with each other either through phone calls or messaging apps. After finding user-pairs that met that criteria we try to validate them looking at their co-occurrences, were they many or few, were they off Sony properties or on, a lot of co-occurrences off sony properties could perhaps indicate a friendship. We identified the Android activity application name and package name for when a user is in a phone call called "Phone" and "package.com.android.incallui" respectively. Furthermore we identified a large number of messaging apps. We tried finding user pairs having activity in the phone app with a start time difference and end time difference of 10 seconds from each other. We looked at co-occurrences between user-pairs found this way and found that they either had a low number of co-occurrences around Sony properties or none at all.
 
 We decided to use a meeting in a next period as a proxy for friendship.

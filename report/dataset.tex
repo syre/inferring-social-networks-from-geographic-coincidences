@@ -345,7 +345,7 @@ Japan locations for November: 102442
 
 Over disse 3 måneder blev der indsamlet 2.665.893 geolokation lokations opdaterings, som er vores primær data. 
 
-When we got the dataset it was stored in three folders, one for each month (9, 10, 11) and within each folder were multiple chunks of data in Apache Avro format\cite{apacheavro}, which we learned is a data serialization framework for Hadoop similar to the JSON format. The chunks were contained in folders bearing the number for each month, however we learned they were sorted by when the server had received the data packet containing the location from the phone and not when the phone had registered the location. The app is storing the collected data on the users phone for a maximum of one month, if the data is not uploaded within a month it is discarded. This approach to data collection means the month folders can contain location updates from the previous month as well.
+When we got the dataset it was stored in three folders, one for each month (9, 10, 11) and within each folder were multiple chunks of data in Apache Avro format\cite{apacheavro}, which is a data serialization framework for Hadoop similar to the JSON format. The chunks were contained in folders bearing the number for each month, however we learned they were sorted by when the server had received the data packet containing the location from the phone and not when the phone had registered the location. The app is storing the collected data on the users phone for a maximum of one month, if the data is not uploaded within a month it is discarded. This approach to data collection means the month folders can contain location updates from the previous month as well.
 
 
 \section{Production data}

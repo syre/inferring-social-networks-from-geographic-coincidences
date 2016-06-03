@@ -47,11 +47,14 @@ spatial\_bin        & BIGINT NOT NULL        \\
 We created scripts for exportation to numpy arrays for use in the sklearn module. The users were encoded with K values where K = number of users. The countries were encoded with K values where K = number of countries.
 
 \subsubsection{Binning} \label{ssec:binning}
-In the following section the term grid cell or spatial bin will be used synonymously and time interval and time bin aswell.
+In the following section the term grid cell or spatial bin will be used synonymously, the same holds for time interval and time bin.
 A spatiotemporal co-occurrence between two users is defined as an instance in which they co-occurred in approximately the same time and approximately the same place.
-We have partitioned or binned the globe into a discrete grid where the cells span .001\degree of latitude and longitude on each side (approximately 111m at the equator), and in a discrete time interval of 1-hour.
-Thus we say a co-occurrence happens between users $i$ and $j$ if they share the same .001\degree spatial cell C within the same discrete time interval.
- Each grid cell has a unique ID, this is obtained by considering the grid as a matrix and flattening it to a list by traversing from left to right and top to bottom (row-first ordering) and using the list index as an ID. This makes a total possible spatial bin indexes of: $(190\times dec)\times(360\times dec)=68.400.000.000$ with $dec=3$ We calculated the time bins by counting every hour from the start of the day of the earliest date appearing in the dataset, which has the ISO 8601 timestring: "2015-08-09 22:25:33.766+02". The latest day has the ISO 8601 timestring: "2015-12-01 00:59:15.738+01". This leaves us with $2738$ possible time bin IDs. As each location update has a start\_time and an end\_time, each update will result in one or more entries for each time bin. For generating our dataset we count co-occurrences between pairs only once per spatial and time bin.
+We have partitioned or binned the globe into a discrete grid where the cells span .001{\degree} of latitude and longitude on each side (approximately 111m at the equator), and in a discrete time interval of 1-hour.
+Thus we say a co-occurrence happens between users $i$ and $j$ if they share the same .001{\degree} spatial cell C within the same discrete time interval.
+
+Each grid cell has a unique ID, this is obtained by considering the grid as a matrix and flattening it to a list by traversing from left to right and top to bottom (row-first ordering) and using the list index as an ID. This makes a total possible spatial bin indexes of: $$(190\times d)\times(360\times d)$$ where $d$ is the number of decimals, this makes in our case a total number of spatial bins of $68.400.000.000$ with our case of $d=3$.
+
+We calculated the time bins by counting every hour from the start of the day of the earliest date appearing in the dataset, which has the ISO 8601 timestring: "2015-08-09 22:25:33.766+02". The last day has the ISO 8601 timestring: "2015-12-01 00:59:15.738+01". This leaves us with $2738$ possible time bin IDs. As each location update has a start\_time and an end\_time, each update will result in one or more entries for each time bin. For generating our dataset we count co-occurrences between pairs only once per spatial and time bin.
 \begin{figure}[H]
     \hspace*{-1.0cm}
     \centering

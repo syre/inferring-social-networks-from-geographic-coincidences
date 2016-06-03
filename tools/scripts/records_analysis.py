@@ -475,7 +475,7 @@ def heat_map(data, mask, xticks, yticks, title="", xlabels=[], ylabels=[], anno=
         #sns.set(font_scale=5.5)
         if not yticks:
             yticks = [[" "]*data.shape[1]]
-        if mask.shape[0] > 0:
+        if isinstance(mask, np.ndarray) and mask.shape[0] > 0:
             if log:
                 data = np.array(data, dtype=np.float)
                 np.place(data, data == 0, [0.1])
@@ -910,6 +910,24 @@ def fetch_data(countries=["Japan", "Sweden"]):
     return data, df, total_count, countries
 
 
+def accuracy_summary():
+    d = DatabaseHelper.DatabaseHelper()
+    data = {'Accuracy': []}
+    query = """SELECT accuracy FROM location"""
+    result = d.run_specific_query(query)
+    [data['Accuracy'].append(r[0]) for r in result]
+    df = pd.DataFrame(data)
+    #print(df)
+    q = df.quantile([0.0, 0.25, 0.5, 0.75, 1.0])
+    mean = df.mean()
+    std = df.std()
+    print(q)
+    print("Mean = {}".format(mean))
+    print("Std = {}".format(std))
+    #print("Japan - mean: {}".format(means['Japan']))
+    #print("Sweden - mean: {}".format(means['Sweden']))
+
+
 def location_updates_at_hq_or_not():
     d = DatabaseHelper.DatabaseHelper()
     filter_places_dict = {"Sweden": [[(13.2262862, 55.718211), 1000],
@@ -1026,9 +1044,9 @@ def time_plot():
         temp = zip(x, y)
         temp2 = list(zip(*sorted(temp)))
         data.append((list(temp2[0]), list(temp2[1])))
-    title = "Cummulative location updates by time of day"
+    title = "Aggregate location updates by time of day"
     xlabel = "Time of day in hours"
-    ylabel = "Cummulative location updates frequency"
+    ylabel = "Location updates frequency"
     legend_labels = countries
     ax = plt.subplot(111, xlabel=xlabel, ylabel=ylabel, title=title)
     plt.plot(data[0][0], data[0][1], label=legend_labels[0], linewidth=6.0)
@@ -1036,7 +1054,7 @@ def time_plot():
     #xlim_max = max([max(data[0][0]), max(data[1][0])])
     #plt.ylim(0, 1)
     plt.xticks(data[0][0])
-    ax.yaxis.set_major_formatter(tck.FormatStrFormatter('%.1e'))
+    #ax.yaxis.set_major_formatter(tck.FormatStrFormatter('%.1e'))
     plt.xlim(0, 24)
     plt.title(title)
     plt.legend(prop={'size': 40})
@@ -1053,23 +1071,24 @@ def adjust_hour(hour, country):
     
 
 def aggregated_heatmap(sorter_efter_sum=False):
-    country = "Japan"
+    countries = ["Japan", "Sweden"]
     start = '2015-09-01'
     end = '2015-11-30'
     bin_size = 60 #minutes
-    data, users = get_data_for_heat_map_per_user_aggregated(country, start, end, bin_size)
-    lst = generate_time_list(parser.parse(start+' 00:00:00+00:00'),
-                             parser.parse(start+' 00:00:00+00:00') +
-                             timedelta(days=1), bin_size)
-    xticks = [row.strftime("%H:%M") for row in lst]
-    print(xticks)
-    yticks = list(range(data.shape[0]))
-    if sorter_efter_sum:
-        s = np.sum(data, axis=1)
-        data = np.take(data, s.argsort(), axis=0)
-    heat_map(data, [], [xticks], [],
-             title=country + " - '" + start + "' to '" + end + "'",
-             xlabels="Time of day", ylabels=[], anno=False, multiple=False, max_val=0, log=True)
+    for country in countries:
+        data, users = get_data_for_heat_map_per_user_aggregated(country, start, end, bin_size)
+        lst = generate_time_list(parser.parse(start+' 00:00:00+00:00'),
+                                 parser.parse(start+' 00:00:00+00:00') +
+                                 timedelta(days=1), bin_size)
+        xticks = [row.strftime("%H:%M") for row in lst]
+        print(xticks)
+        yticks = list(range(data.shape[0]))
+        if sorter_efter_sum:
+            s = np.sum(data, axis=1)
+            data = np.take(data, s.argsort(), axis=0)
+        heat_map(data, [], [xticks], [],
+                 title=country + " - '" + start + "' to '" + end + "'",
+                 xlabels="Time of day", ylabels=[], anno=False, multiple=False, max_val=0, log=True)
 
 
 if __name__ == '__main__':
@@ -1077,9 +1096,12 @@ if __name__ == '__main__':
 
     #show_all_month_for_contries()
     #location_updates_at_hq_or_not()
+    #
+    #accuracy_summary()
     countries = ["Japan", "Sweden"]
     show_all_month_same_scale(countries, values_loc_updates=True,
                               same_scale_over_countries=True,
+                              sorter_non_location_user_fra=False,
                               sorter_efter_sum=True, log=True,
                               mask=True, mask_value=0, show_user_ticks=False, multiple=True)
 

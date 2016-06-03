@@ -330,14 +330,16 @@ En ting er at kunne se hvordan opdateringer fordeler sig pr. dag pr. bruger, men
     \hspace*{-2.0cm}
     \centering
     \includegraphics[scale=0.16]{users_by_criteria.png}
-    \caption{Plot over number of users which have location updates in certain percentage unique timebins for the given period}
+    \caption{Plot over number of users which have location updates in certain percentage unique timebins in each sub-period. A sub-period is defined in section \ref{ssec:methods_and_results}, which is a period devided in three. In all month is a month a sub-period}
     \label{fig:users_by_criteria}
 \end{figure}
-Figure \ref{fig:users_by_criteria} viser, hvor mange brugere der har lokations opdateringer i en vis procentdel af unikke timebins for en givet periode. F.eks. kan vi se, at der er ca 90 brugere som har opdateringer i 20\% af de mulige timebins i september i Sverige. 
+Fra section \ref{ssec:methods_and_results} ved vi, at vi deler vores valgte periode op i tre subperioder, for at kunne træne og teste på disse. Figure \ref{fig:users_by_criteria} viser, hvor mange brugere der har lokations opdateringer i en vis procentdel af unikke timebins i alle tre subperioder for en givet periode. F.eks. kan vi se, at der er ca 90 brugere som har opdateringer i 20\% af de mulige timebins i hver af de tre subperioder i september i Sverige. Her er septembers 30 dage delt op i følgende subperioder: 1-10, 11-20, 21-30
 
-Vi kan se der er rigtig mange brugere, som har opdateringer i meget få timebins. Værdierne er beregnet med en opløsning på 1\%. Allerede ved 1\% unikke timebins, er september for Sverige gået fra \numberUsersSweden{} til ca. 140. Dvs. 140 brugere har updates fordelt på 1\% af de mulige timebins. For de andre måneder er tallet endnu lavere. Dette er meget kraftigt dyk i antal brugere. 
-Da september har 30 dage og vores timebins har en størrelse på en time, er der $30*24=720$ mulige timebins. Dvs. at 1\% svarer til $720/100=7.2$ hvilket vil sige at de 140 brugere, skal have opdateringer henover 8 unikke timebins, da man skal runde op til nærmeste heltal. 
-De 90 brugere med 20\% unikkebins, svarer til at have opdateringer henover 144 timebins. 
+Vi kan se der er rigtig mange brugere, som har opdateringer i meget få timebins i hver subperiode. Værdierne er beregnet med en opløsning på 1\%. Allerede ved 1\% unikke timebins, er september for Sverige gået fra \numberUsersSweden{} til ca. 140. Dvs. 140 brugere har updates fordelt på 1\% af de mulige timebins i hver subperiode. For de andre måneder er tallet endnu lavere. Dette er meget kraftigt dyk i antal brugere. 
+Da en subperiode i september har 10 dage og vores timebins har en størrelse på en time, er der $10*24=240$ mulige timebins. Dvs. at 1\% svarer til $240/100=2.4$ hvilket vil sige at de 140 brugere, skal have opdateringer henover 3 unikke timebins i hver af de tre subperioder, da man skal runde op til nærmeste heltal. 
+De 90 brugere med 20\% unikkebins, svarer til at have opdateringer henover 48 timebins i hver periode. 
+
+Ved all months er hver subperiode en måned, hvilket vil sige 30-31 dage.  
 
 Generelt kan vi se, at selvom udviklingen starter med et kæmpe dyk, flader det hurtigt ud. September i Sverige er klart bedre end de andre måneder i Sverige, hvor i Japan er det mindre klart. Her ser det ud  til, at det står mellem september og november. 
 
@@ -348,3 +350,15 @@ Generelt kan vi se, at selvom udviklingen starter med et kæmpe dyk, flader det 
 
 
 \section{Summary}
+Vi vil i dette afsnit, hurtig opridse de vigtigste pointer vi har fundet i vores analyse gennemgået ovenfor. 
+
+Vi har fundet ud af, at Sverige og Japan var de to størst repræsenterede lande set på antal lokations opdateringer. Derfor gik vi videre med disse to lande, hvor vi fandt ud af, at der var nogle værdier for accuracy som var ugyldige. Disse fik vi fjernet, da vi ikke kunne stole på disse opdateringer. Herudover fjernede vi også dem der havde en accuracy på over 55,000 pga. vores binning. 
+Vi rensede yderligere ved, at opdatere 500.000 lokations opdateringer hvor landet manglede. Disse blev opdateret med land, hvilket også gjorde vi fik flere lande repræsenteret - det var dog stadig Sverige og Japan der var repræsenteret mest. 
+
+Vi fandt hurigt ud af, at der var en dalene tendens mellem månederne, hvor september havde flest opdateringer hvorefter det dalede i de to andre måneder. Ud af alle opdateringerne, var der henholdsvis 23.89\% og 19.86\% af dem i Sverige og Japan, som forgik på Sony lokationerne. 
+
+Da vi kiggede på de \numberUsersSweden{} og \numberUsersJapan{} brugere i henholdsvis Sverige og Japan, var der mange der havde meget få opdateringer henover alle tre måneder. Vi fandt ud af, at mange slukkede deres telefoner i tidsprummet kl. 02:00 og kl. 06:00, hvorfor der ikk var ret mange opdateringer. Dette galdt både for Sverige og Japan. Desuden kunne vi se at det toppede kl. 08:00 og kl. 16:00 i Sverige mht. antal opdateringer, hvor det kun toppede kl. 08:00 i Japan. Japan havde ingen tilsvarende top kl. 16:00. 
+
+Til sidst fandt vi ud af, at der generelt ikke var så mange opdateringer om lørdagen og søndagen, som de andre dage. Vi fandt også ud af, at når vi kiggede på hvor mange brugere der havde opdateringer henover flere timebins i  hver subperiode, faldt antallet af brugere kraftigt i starten. Herefter fladede det ud. I Sverige for september, var der ca. 140 brugere som havde opdateringer henover 3 timebins i hver subperiode, svarende til 1\% af de mulige timebins i hver subperiode. Hvis man kiggede på 20\% (48 timebins i hver subperiode), var der ca. 90 brugere. 
+
+Vi vil på baggrund af dette sige, at september i Sverige ser mest lovende ud og vi vil derfor gå ud fra denne og bruge den i vores modeller. 

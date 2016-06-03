@@ -5,7 +5,7 @@ from DatasetHelper import DatasetHelper
 import numpy as np
 import sklearn
 import sklearn.metrics
-from sklearn.metrics import roc_auc_score, roc_curve, auc, confusion_matrix
+from sklearn.metrics import roc_auc_score, roc_curve, auc, confusion_matrix, precision_recall_curve
 from sklearn.preprocessing import StandardScaler
 import sklearn.ensemble
 from tqdm import tqdm
@@ -219,7 +219,7 @@ class Predictor():
         plt.ylabel('True label')
         plt.xlabel('Predicted label')
         plt.show()
-    
+
     def tweak_features(self, X_train, y_train, X_test, y_test):
         max_auc = (0,0,0)
         for x in range(1,500):
@@ -241,7 +241,7 @@ class Predictor():
         lg = sklearn.linear_model.LogisticRegression(random_state=0)
         lg.fit(X_train[:, 0].reshape(-1, 1), y_train)
         y_pred = lg.predict(X_test[:, 0].reshape(-1, 1))
-        print(sklearn.metrics.classification_report(y_test, y_pred, target_names=["did not meet", "did meet"]))
+        print(sklearn.metrics.classification_report(y_test, y_pred))
         self.compute_roc_curve(y_test, lg.predict_proba(X_test[:, 0].reshape(-1, 1))[:,1])
         cm = confusion_matrix(y_test, y_pred, labels=[0, 1])
         self.plot_confusion_matrix(cm, title="Confusion matrix (Logistic Regression)")
@@ -252,7 +252,7 @@ class Predictor():
         forest = sklearn.ensemble.RandomForestClassifier(n_estimators = 1000, random_state=0)
         forest.fit(X_train, y_train)
         y_pred = forest.predict(X_test)
-        print(sklearn.metrics.classification_report(y_test, y_pred, target_names=["did not meet", "did meet"]))
+        print(sklearn.metrics.classification_report(y_test, y_pred))
         plt.style.use("ggplot")
         self.compute_feature_ranking(forest, X_test)
         plt.style.use("default")

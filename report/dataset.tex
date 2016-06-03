@@ -297,16 +297,16 @@ På de to figurer ovenfor, kan vi få en fornemmelse af gennemsnitlig updates fo
     \vspace{-12pt}
     \label{fig:heatmap_japan_combined}
 \end{figure}
-Figure \ref{fig:heatmap_japan_combined} viser antal updates for hver bruger, for hver dag i hver af de tre måneder. Hver række i hver af de tre heatmaps (ét for hver måned), repræsenterer en bruger. Der er altså \numberUsersJapan{} antal rækker i hvert heatmap \textcolor{red}{nej de er sorteret fra. Skal de det?}. Hvert heatmap er sorteret så brugeren med updates i flest dage, ligger nederst. Det gør at brugerene ikke nødvendigvis er repræsenteret i samme række over alle tre heatmaps.
-Ved at plotte dage og månederne på denne måde, kan det være nemmere at sammenligne dagene for hver måned med hinanden. 
+Figure \ref{fig:heatmap_japan_combined} viser antal updates for hver bruger (y-axis), for hver dag i hver af de tre måneder (x-axis). Hver række i hver af de tre heatmaps (ét for hver måned), repræsenterer en bruger. Der er altså \numberUsersJapan{} antal rækker i hvert heatmap. Hvert heatmap er sorteret så brugeren med updates i flest dage, ligger nederst. Det gør at brugerene ikke nødvendigvis er repræsenteret i samme række over alle tre heatmaps. Vi kan dermed også se, at der er mange brugere (omkring halvdelen) som ikke har nogle opdateringer i nogle af dagene for hver af de tre måneder. Dette kan godt passe, ud fra hvad vi ved fra Figure \ref{fig:country_cdf} og at disse brugere som sagt ikke nødvendigvis er de samme henover månederne, 
+Vi har plottet dage og månederne på denne måde, da det giver os muligheden for nemmere at sammenligne dagene for hver måned med hinanden. 
 
 Vi kan se der er relativt få brugere som har updates i alle dage i en måned. Dette alene er bekymrende og tegner ikke godt for vores projekt, og når vi i dette plot ikke kan være sikker på det er samme bruger der har updates i alle dage for alle tre måneder, så er det endnu mere bekymrende. 
 
 Igen virker det som at september har flere brugere, som har opdateringer i relativt mange dage, i forhold til de andre måneder.
 
-Hvis vi kigger på oktober, kan vi se nogle par af dage som danner lyse lodrette striber, hvilket betyder lavere antal updates. Disse foregår d. 3 og 4, 10 og 11, 17 og 18 og til sidst 24 og 25. Disse par dukker op med en uges interval, hvor d. 3 er en lørdag og d. 4 er en søndag. Dvs. de andre par også er lørdage og søndage. Dette mønster gentager sig i november, hvor man rigtig kan se det fra d. 7 og 8. September er ikke så tydelig, men det er der. Dette er meget interessant, da det kan indikere at lørdage og søndage ikke er så gode at gøre brug af. 
+Hvis vi kigger på oktober, kan vi se nogle par af dage som danner lyse lodrette striber i forhold til de andre dage. Dette betyder lavere antal updates. Disse foregår d. 3 og 4, 10 og 11, 17 og 18 og til sidst 24 og 25. Disse par dukker op med en uges interval, hvor d. 3 er en lørdag og d. 4 er en søndag. Dvs. de andre par også er lørdage og søndage. Dette mønster gentager sig i november, hvor man rigtig kan se det fra d. 7 og 8. September er ikke så tydelig, men det er der. Dette er meget interessant, da det kan indikere at lørdage og søndage ikke er så gode at gøre brug af. 
 
-
+Der er ellers ikke nogle dage eller perioder af dage, som skiller sig ud af mængden. Grunden til af d. 31 i september og november er tom er, at der ikke er en dato der hedder d. 31 i disse to måneder, mens der er det for oktober. Det er derfor meningen at den dato for september og november skal være tom. 
 
 \begin{figure}[H]
     \hspace*{-1.5cm}
@@ -315,15 +315,25 @@ Hvis vi kigger på oktober, kan vi se nogle par af dage som danner lyse lodrette
     \caption{Heat map for mean location updates over the 3 month period in Sweden. x-axis is days and y-axis is users. The scale is logarithmic}
     \label{fig:heatmap_sweden_combined}
 \end{figure}
-Figure \ref{fig:heatmap_sweden_combined} viser det samme blot for Sverige. Igen kan vi se i alle tre måneder, at lørdage og søndage skiller sig ud af mængden. 
+Figure \ref{fig:heatmap_sweden_combined} viser det samme blot for Sverige. Igen kan vi se i alle tre måneder, at lørdage og søndage skiller sig ud af mængden ved at have færrer opdateringer.  Vi kan også se at specielt september har færrer brugere som ikke har nogen opdateringer gennem måneden end Japan, hvor oktober og november ligger mere på niveau med Japan. 
+
+Sverige har også flere brugere med opdateringer for hver dag, end Japan. 
+
+Vi kan vha. Figure \ref{fig:heatmap_japan_combined} og Figure \ref{fig:heatmap_sweden_combined} få en fornemmelse for, hvilke dage der er bedre end andre, som f.eks. lørdage og søndage ikke virker som gode dage, pga. færrer opdateringer. 
+
+Der er ellers ikke nogle dage eller perioder af dage, som skiller sig ud af mængden. Ligesom i Japan, er d. 31 i september og november tom, da der ikke er en dato der hedder d. 31 i disse to måneder. 
+
+En ting er at kunne se hvordan opdateringer fordeler sig pr. dag pr. bruger, men vi ved ikke om alle opdateringerne for en dag, foregår i løbet af en time eller om de er fordelt henover dagen. Det ville være bedst at kunne finde brugere som har opdateringer på flere tidspunkter i løbet er f.eks. en måned, da der er bedre sandsynlighed for, at disse brugere har co-occurences. 
+
+
 \begin{figure}[H]
-    \hspace*{-1.5cm}
+    \hspace*{-2.0cm}
     \centering
     \includegraphics[scale=0.16]{users_by_criteria.png}
-    \caption{}
+    \caption{Plot over number of users which have location updates in certain percentage unique timebins for the given period}
     \label{fig:users_by_criteria}
 \end{figure}
-
+Figure \ref{fig:users_by_criteria} viser, hvor mange brugere der har lokations opdateringer i en vis procentdel af unikke timebins for en givet periode. F.eks. kan vi se, at der er ca 85 brugere som har opdateringer i 20\% af de mulige timebins i september i Sverige. 
 \newpage
 Our work will focus on the location updates from Japan. There is 332 users in Japan for which we have location updates.
 When training our classifier we divided the dataset into three parts where each corresponded to a month.
@@ -338,7 +348,7 @@ Over disse 3 måneder blev der indsamlet 2.665.893 geolokation lokations opdater
 When we got the dataset it was stored in three folders, one for each month (9, 10, 11) and within each folder were multiple chunks of data in Apache Avro format\cite{apacheavro}, which we learned is a data serialization framework for Hadoop similar to the JSON format. The chunks were contained in folders bearing the number for each month, however we learned they were sorted by when the server had received the data packet containing the location from the phone and not when the phone had registered the location. The app is storing the collected data on the users phone for a maximum of one month, if the data is not uploaded within a month it is discarded. This approach to data collection means the month folders can contain location updates from the previous month as well.
 
 
-\subsection{Production data}
+\section{Production data}
 
 
 \section{Summary}

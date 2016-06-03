@@ -333,19 +333,15 @@ En ting er at kunne se hvordan opdateringer fordeler sig pr. dag pr. bruger, men
     \caption{Plot over number of users which have location updates in certain percentage unique timebins for the given period}
     \label{fig:users_by_criteria}
 \end{figure}
-Figure \ref{fig:users_by_criteria} viser, hvor mange brugere der har lokations opdateringer i en vis procentdel af unikke timebins for en givet periode. F.eks. kan vi se, at der er ca 85 brugere som har opdateringer i 20\% af de mulige timebins i september i Sverige. 
-\newpage
-Our work will focus on the location updates from Japan. There is 332 users in Japan for which we have location updates.
-When training our classifier we divided the dataset into three parts where each corresponded to a month.
+Figure \ref{fig:users_by_criteria} viser, hvor mange brugere der har lokations opdateringer i en vis procentdel af unikke timebins for en givet periode. F.eks. kan vi se, at der er ca 90 brugere som har opdateringer i 20\% af de mulige timebins i september i Sverige. 
 
-Japan locations for September: 340198
-Japan locations for October: 208242
-Japan locations for November: 102442
+Vi kan se der er rigtig mange brugere, som har opdateringer i meget få timebins. Værdierne er beregnet med en opløsning på 1\%. Allerede ved 1\% unikke timebins, er september for Sverige gået fra \numberUsersSweden{} til ca. 140. Dvs. 140 brugere har updates fordelt på 1\% af de mulige timebins. For de andre måneder er tallet endnu lavere. Dette er meget kraftigt dyk i antal brugere. 
+Da september har 30 dage og vores timebins har en størrelse på en time, er der $30*24=720$ mulige timebins. Dvs. at 1\% svarer til $720/100=7.2$ hvilket vil sige at de 140 brugere, skal have opdateringer henover 8 unikke timebins, da man skal runde op til nærmeste heltal. 
+De 90 brugere med 20\% unikkebins, svarer til at have opdateringer henover 144 timebins. 
+
+Generelt kan vi se, at selvom udviklingen starter med et kæmpe dyk, flader det hurtigt ud. September i Sverige er klart bedre end de andre måneder i Sverige, hvor i Japan er det mindre klart. Her ser det ud  til, at det står mellem september og november. 
 
 
-Over disse 3 måneder blev der indsamlet 2.665.893 geolokation lokations opdaterings, som er vores primær data. 
-
-When we got the dataset it was stored in three folders, one for each month (9, 10, 11) and within each folder were multiple chunks of data in Apache Avro format\cite{apacheavro}, which we learned is a data serialization framework for Hadoop similar to the JSON format. The chunks were contained in folders bearing the number for each month, however we learned they were sorted by when the server had received the data packet containing the location from the phone and not when the phone had registered the location. The app is storing the collected data on the users phone for a maximum of one month, if the data is not uploaded within a month it is discarded. This approach to data collection means the month folders can contain location updates from the previous month as well.
 
 
 \section{Production data}

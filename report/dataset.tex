@@ -3,27 +3,23 @@
 På de følgende sider vil vi gennnemgå vores dataset. Vi vil vise de basale statistikker over det pågældende data vi har arbejdet med og gennemgå afvigelser. Vi vil også gennemgå hvordan vi forholder os til disse afvigelser og hvordan vi lavede datacleaning. \\
 Til sidst vil vi runde afsnittet af med en del-konlusion. 
 
-Vores data stammer fra Sony's Lifelog\cite{sonyLifeLog} som, navnet antyder, er en mobil Lifelog app som logger ens aktiviteter i løbet af dagen. Heri logger den bla. aktivitet i apps og geolokation. Vores dataset stammer fra denne app, indsamlet fra Sony mobiltelefoner verden over. % over 3 måneder\footnote{September 2015 - November 2015} fordelt på 80 lande. 
-
-%Vi har valgt at dele datasættet op i to dele, for overblikkets skylde: En \textbf{geolokation del} og en \textbf{app og homophily del}.
-
-%\section{Geolokation del}
+Vores data stammer fra Sony's Lifelog\cite{sonyLifeLog} som er en lifetracking app som tracker ens aktiviteter i løbet af dagen, heriblandt lokation og app-brug.
 
 Datasættet beskriver geolokationerne for hvor en bruger har været. Det beskriver præcis hvor, hvornår og hvor længe brugeren har været det pågældende sted. Hver gang brugeren skifter lokation (defineret ud fra latitude og longitude), bliver der logget en lokationsopdatering med følgende oplysninger:
 \begin{enumerate}
 \item \texttt{\textbf{timestamp\_seen}}\\Millisekunder siden brugerens systems epoch, da den pågældende lokations opdatering bliver logget. 
 \item \texttt{\textbf{id}}\\Lokations id repræsenteret som en streng. 
-\item \texttt{\textbf{useruuid}}\\Brugerens unikke id repræsenteret som en streng
-\item \texttt{\textbf{start\_time}}\\Tid for hvornår brugeren går ind i en lokation. Repræsenteret som ISO8601 time stamp med timezone
-\item \texttt{\textbf{end\_time}}\\Tid for hvornår brugeren går ud af en lokation. Repræsenteret som ISO8601 time stamp med timezone
-\item \texttt{\textbf{name}}\\Navnet på byen hvor brugeren befinder sig, når lokations opdateringen bliver logget
+\item \texttt{\textbf{useruuid}}\\Brugerens unikke id repræsenteret som en streng.
+\item \texttt{\textbf{start\_time}}\\Tid for hvornår brugeren går ind i en lokation. Repræsenteret som ISO8601 time stamp med timezone.
+\item \texttt{\textbf{end\_time}}\\Tid for hvornår brugeren går ud af en lokation. Repræsenteret som ISO8601 time stamp med timezone.
+\item \texttt{\textbf{name}}\\Navnet på byen hvor brugeren befinder sig, når lokations opdateringen bliver logget.
 \item \texttt{\textbf{area}}\\Navnet på området hvor brugeren befinder sig, når lokations opdateringen bliver logget. F.eks. Skåne i Sverige
 \item \texttt{\textbf{country}}\\Navnet på landet hvor brugeren befinder sig, når lokations opdateringen bliver logget.
 \item \texttt{\textbf{region}}\\Navnet på regionen hvor brugeren befinder sig, når lokations opdateringen bliver logget. F.eks. Europa
-\item \texttt{\textbf{latitude}}\\Latitude for lokationen. Latitude har en præcition på ca 15 cifre, hvilket svarer til 0.1 nanometer \textcolor{red}{[KILDE!!!]}. Denne præcition er skal man dog ikke tage så højtidligt, da de fleste mobil GPS'er har en fejl margen på maks 30 meter \cite{NAV:8292634}.  
-\item \texttt{\textbf{longitude}}\\Longitude for lokationen. Latitude har en præcition på ca 15 cifre, hvilket svarer til 0.1 nanometer. Vedr. præcition, gælder det samme som ved latitude
+\item \texttt{\textbf{latitude}}\\Latitude for lokationen. Latitude har en præcision på ca 15 cifre, hvilket svarer til 0.1 nanometer \textcolor{red}{[KILDE!!!]}. Denne præcition er skal man dog ikke tage så højtidligt, da de fleste mobil GPS'er har en fejl margen på maks 30 meter \cite{NAV:8292634}.  
+\item \texttt{\textbf{longitude}}\\Longitude for lokationen. Latitude har en præcision på ca 15 cifre, hvilket svarer til 0.1 nanometer. Vedr. præcition, gælder det samme som ved latitude
 \item \texttt{\textbf{altitude}}\\Altitude repræsenteret i mm. Dette bliver beregnet af telefonens gyroskop samt GPS
-\item \texttt{\textbf{accuracy}}\\Accuracy repræsenteret i mm. Accuracy er hvor nøjagtigt man kan regne med GPS'en er i den pågældene lokations opdatering. Værdien fortæller at brugeren med 68\% sikkerhed er i pågældende sted, indenfor denne distance som accuracy er \cite{android_accuracy}. Jo lavere værdi, jo bedre. Dette styres af telefonens styresystem og GPS
+\item \texttt{\textbf{accuracy}}\\Accuracy repræsenteret i mm. Accuracy er hvor nøjagtigt man kan regne med GPS'en er i den pågældene lokations opdatering. Værdien fortæller at brugeren med 68\% sikkerhed er i pågældende sted, indenfor denne distance som accuracy er \cite{android_accuracy}. Jo lavere værdi, jo bedre. Dette styres af telefonens styresystem og GPS.
 \item \texttt{\textbf{devices}}\\Devices er repræsentet som et array med name, type og id. Type er hvilken type device (f.eks. Phone), name er navnet på det device og id er devices unikke id. 
 \end{enumerate}
 
@@ -38,7 +34,7 @@ Nogle af overstående oplysninger er ikke relevante for vores problemstilling. D
 \item \texttt{longitude}
 \end{itemize}
 
-Disse oplysinger har vi valgt, da de mere eller mindre er vigtige eller interssante i forhold til vores problemstilling. \texttt{useruuid} er vigtig for at kunne skelne brugerene fra hinanden, \texttt{start\_time} og \texttt{end\_time} er vigtige, da de fortæller hvornår og hvor længe brugeren har været i den pågældende lokation. \texttt{country} er til nemt at kunne filtrere brugerene. \texttt{latitude} og \texttt{longitude} er meget væsentlige, da de fortæller det mest vigtigste, nemlig hvilken lokation brugeren befinder sig i. \texttt{accuracy} kan fortælle os i for høj grad vi kan bruge den pågældene lokationsopdatering.  
+Disse oplysinger har vi valgt, da de er vigtige eller interssante at kigge på i forhold til vores problemstilling. \texttt{useruuid} er vigtig for at kunne skelne brugerene fra hinanden, \texttt{start\_time} og \texttt{end\_time} er vigtige, da de fortæller hvornår og hvor længe brugeren har været i den pågældende lokation. \texttt{country} er til nemt at kunne filtrere brugerene. \texttt{latitude} og \texttt{longitude} er meget væsentlige, da de fortæller det mest vigtigste, nemlig hvilken lokation brugeren befinder sig i. \texttt{accuracy} kan fortælle os i for høj grad vi kan bruge den pågældene lokationsopdatering.  
 
 
 Vi har kigget på test data som er et sub-sæt af production data. Dette test data, er fra en specifik periode og med specifikke brugere. Efter dette sub-sæt, har vi kigget på hele production data. Vi vil beskrive hvordan henholdsvis test data og production data ser ud mht. distributioner mm. 
@@ -114,7 +110,7 @@ Når vi kigger på hvilke lande der er repræsenteret og i hvilken grad, har vi 
 Da vi gerne vil kunne sorterer data på baggrund af land, var dette et problem. Dette fik vi løst, ved at udføre omvendt geolokation. For næsten alle de 500.000 lokations opdateringer, var latitude og longitude til stede, så vi kunne ved hjælp af et API\cite{reversegeocode} slå landet op på bagrund af latitude og longitude, og herefter indsætte det i dataet. Dette gjorde vi kun skulle gøre dette én gang, i stedet for at slå landet op hver gang vi kørte vores scripts. Dette ville have været ineffektivt og spild af tid. Derudover havde API'et en grænse hvor hvor mange man kunne slå op i minuttet, hvilket gjorde at det tog en uges tid at slå alle op. Her kørte scriptet 24/7. \\ 
 Vores omvendt geolokation gjorde, at vi gik fra over 500,000 lokations opdateringer hvor landet ikke var til stede, til blot 130 lokations opdateringer. I samme omgang fik vi nye lande repræsenteret i dataet, så vi gik fra 74 lande til 80 (inkl. land med tom streng)
 
-Vi kan herefter kigge på, hvordan lokations opdateringerne er distribueret over de fem lande, med højest antal opdateringer. På figur \ref{fig:country_dist} kan vi se at Sverige og Japan topper listen og ay landet med en tom streng er udenfor top 5 (det røg ned blandt den sidste fjerde del).
+Vi kan herefter kigge på, hvordan lokations opdateringerne er distribueret over de fem lande, med højest antal opdateringer. På figur \ref{fig:country_dist} kan vi se at Sverige og Japan topper listen og at landet med en tom streng er udenfor top 5 (det røg ned blandt den sidste fjerde del).
 
 
 \begin{figure}[H]
@@ -128,7 +124,7 @@ Vi kan herefter kigge på, hvordan lokations opdateringerne er distribueret over
 
 At Sverige og Japan er de to størst repræsenterede lande er ikke så mærkeligt, da Sony er et Japansk firma og Sony overtog helt Sony-Ericsson, hvor Ericsson var Svensk. Sony-Ericsson var den gang Sony's mobil mærke, så en stor del af Sony's mobil udvikling ligger stadig i Sverige. Dette kan forsklare hvorfor Sverige har tre gange flere opdateringer end Japan.  
 
-På baggrund af Figure \ref{fig:country_dist}, har vi valgt at gå videre med endten Sverige eller Japan. Derfor vil vi nu sammeligne data for de to lande. 
+På baggrund af Figure \ref{fig:country_dist}, har vi valgt at gå videre med enten Sverige eller Japan. Derfor vil vi nu sammenligne data for de to lande. 
 I Japan er der \numberUsersJapan{} unikke brugere, mens der i Sverige er \numberUsersSweden. De to lande kan have brugere tilfælles, da brugerne principielt kan rejse mellem flere lande og derved have lokations opdateringer i flere lande.  
 Af antallet af totale lokations opdateringer har Japan 299,157 opdateringer henover alle tre måneder, mens Sverige har 1,018,781 opdateringer.
 
@@ -208,8 +204,8 @@ Den ovenstående tendens, vil vi gerne vise mere tydeligt, hvorfor vi har plotte
 Plottet viser, at der både i Japan og Sverige er en stor del af brugerne, som har meget få lokations opdateringer set henover hele perioden. Det kan ses, at Japan får hurtigt flere brugere med få opdateringer, end Sverige. 
 Da opdateringerne kommer hver gang brugeren skifter lokation, betyder dette, at mange af brugerene er meget stillestående eller også har de slukket mobilen. Her kan stillestående også menes, at brugeren har glemt sin telefon derhjemme. Vi kan se forskel i dataen på, om de har slukket mobilen eller er stillestående, men ikke om de er stillestående eller har glemt mobilen. Vi kan se den førstnævnte forskel ved, at der simpelthen mangler data i et tidsrum, hvor hvis brugeren er stillstående er intervallet mellem \texttt{start\_time} og \texttt{end\_time} markant. 
 
-Vi vil gerne se om der er et mønster i hvornår opdateringerne kommer, da vi derfra muligvis kan udpege bedre eller dårligere sub-perioder som vi kan tage stilling til. Derfor har vi lavet nogle heat maps. 
-De første heat maps viser hvordan opdateringerne er fordelt over et døgn. Dette er lavet, ved at aggregerer over tidsrummet i det pågældende døgn. Det der bliver aggregeret er, om en brugere har haft mindst én opdatering, i det tidsrum på døgnet (repræsenteret med 0 eller 1), uanset hvilken dag det er.
+Vi vil gerne se om der er et mønster i hvornår opdateringerne kommer, da vi derfra muligvis kan udpege bedre eller dårligere sub-perioder som vi kan tage stilling til.
+Vi har plotted heatmaps over hvordan opdateringerne er fordelt over et døgn. Dette er lavet, ved at aggregerer over tidsrummet i det pågældende døgn. Det der bliver aggregeret er, om en brugere har haft mindst én opdatering, i det tidsrum på døgnet (repræsenteret med 0 eller 1), uanset hvilken dag det er.
 
 \begin{figure}[H]
     \hspace*{-0.8cm}
@@ -249,7 +245,7 @@ Toppen der finder sted kl. 08:00 om morgen, skyldes nok at brugerne er på vej t
 
 Figure \ref{fig:agg_heatmap_jap}, \ref{fig:agg_heatmap_swe} og \ref{fig:cumu_loc_time_jap_swe} fortæller os hvilket tidsrum på dagen, som kan være give mere udbytte end andre. F.eks. at vi skal være opmærksomme på tidsrummet mellem kl. 01:00 og 06:00, da mange har meget få opdateringer i dette tidsrum. Derfor er det sandsynligt, at vi skal undgå dette tidsrum. 
 
-Hvad Figurerne ikke fortæller os er, om der er nogle dage i de tre måneder der er bedre end andre. Dette vil vi gerne finde ud af, for at se om der er nogle dage som vi med fordel kunne bruge i stedet for alle dagene. Herudover kan vi måske se et mønster i dagene. Man kunne forestille sige, at der fredag og/eller lørdag er flere opdateringer end andre dage, forddi folk går ud i byen og dermed er aktive. 
+Hvad Figurerne ikke fortæller os er, om der er nogle dage i de tre måneder der er bedre end andre. Dette vil vi gerne finde ud af, for at se om der er nogle dage som vi med fordel kunne bruge i stedet for alle dagene. Herudover kan vi måske se et mønster i dagene. Man kunne forestille sige, at der fredag og/eller lørdag er flere opdateringer end andre dage, fordi folk går ud i byen og dermed er aktive. 
 
 
 \begin{figure}[H]
@@ -323,7 +319,7 @@ Vi kan vha. Figure \ref{fig:heatmap_japan_combined} og Figure \ref{fig:heatmap_s
 
 Der er ellers ikke nogle dage eller perioder af dage, som skiller sig ud af mængden. Ligesom i Japan, er d. 31 i september og november tom, da der ikke er en dato der hedder d. 31 i disse to måneder. 
 
-En ting er at kunne se hvordan opdateringer fordeler sig pr. dag pr. bruger, men vi ved ikke om alle opdateringerne for en dag, foregår i løbet af en time eller om de er fordelt henover dagen. Det ville være bedst at kunne finde brugere som har opdateringer på flere tidspunkter i løbet er f.eks. en måned, da der er bedre sandsynlighed for, at disse brugere har co-occurences. 
+En ting er at kunne se hvordan opdateringer fordeler sig pr. dag pr. bruger, men vi ved ikke om alle opdateringerne for en dag, foregår i løbet af en time eller om de er fordelt henover dagen. Det ville være bedst at kunne finde brugere som har opdateringer på flere tidspunkter i løbet af en periode, da der er bedre sandsynlighed for, at disse brugere har co-occurences. 
 
 
 \begin{figure}[H]

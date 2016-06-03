@@ -138,9 +138,9 @@ Figure \ref{fig:mean_loc_updates_sep-nov} sammenligner gennemsnittet for lokatio
 \end{figure}
 
 Vi kan se at Sverige har betydeligt flere opdateringer end Japan i alle tre måneder, hvor landet i September og Oktober endda har dobbelt så mange end Japan. Vi kan også se en nedadgående tendens i begge lande. September har højest antal opdateringer, hvor det herefter går nedad i de to resterende måneder, hvor November for Sverige ligger over 300 opdateringer under September. Selvom tendensen ses tydeligst for Sverige, er den også synlig for Japan. \\
-Dette kigger vi nærmere på senere. \textcolor{red}{heatmaps???}
+Dette kigger vi nærmere på senere.
 
-Som der blev nævnt tidligere, er der nogle naturlige samlingssteder for Sverige og Japan, da dataet er for Sony medarbejdere. Disse steder er naturligvis arbejdsrelaterede, såsom Sonys kontorer i de to lande. Vi har fundet frem til to steder i Sverige og et i Japan. Grunden til at dette er væsentligt for os er, at folk selvfølgelig har flere co-occurrences på et arbejdsrelateret sted, end et ikke arbejdsrelateret sted, da man er mange på et forholdvis lille område.\textcolor{red}{kilde?!?!} Derudover er der møder, pauser og andet som også gør at folk har en co-occurrence. Dette lyder meget godt, men det betyder langt fra at folk kender hinanden, fordi de har en co-occurence. Folk møder ofte kolegaer, uden de nødvendigvis kender hinanden. \textcolor{red}{Dette er noget vi beskriver nærmere i ....}
+Som der blev nævnt tidligere, er der nogle naturlige samlingssteder for Sverige og Japan, da dataet er for Sony medarbejdere. Disse steder er naturligvis arbejdsrelaterede, såsom Sonys kontorer i de to lande. Vi har fundet frem til tre steder i Sverige og et i Japan. Grunden til at dette er væsentligt for os er, at folks co-ocurences er arbejdsrelaterede, hvilket ikke nødvendigs betyder, at de er venner med personen de fik en co-occurence med.
 
 Det er derfor interessant at se, hvor mange af opdateringer for hvert land der ligger indenfor de fundne samlingssteder og hvor mange der ligger udenfor. 
 
@@ -211,10 +211,10 @@ Vi har plotted heatmaps over hvordan opdateringerne er fordelt over et døgn. De
     \hspace*{-0.8cm}
     \centering
     \includegraphics[scale=0.15]{aggregated_updates_over_time_japan}
-    \caption{Heat map for location updates over the 3 month period in Japan, aggregated over a day with 60 minutes of binsize. Users are sorted by total number of location. Largest is at the bottom}
+    \caption{Heat map for location updates over the 3 month period in Japan, aggregated over a day with 60 minutes of binsize. Users are sorted by total number of location. Largest is at the bottom. The scale is logarithmic}
     \label{fig:agg_heatmap_jap}
 \end{figure}
-Figure \ref{fig:agg_heatmap_jap} viser hvordan opdateringerne for hver user (y-aksen), fordeler sig over tidsrummet på en dag, målt over alle tre måneder. Det ses at skalaen går til ca. 70, hvilket betyder at brugeren med flest aggregerede opdateringer i et time-slot (på en time), har ca. 70 opdateringer henover alle tre måneder. Brugerne er sorteret på baggrund af deres samlede aggregerede værdier, med den største nederst på y-aksen. 
+Figure \ref{fig:agg_heatmap_jap} viser hvordan opdateringerne for hver user (y-aksen), fordeler sig over tidsrummet på en dag, målt over alle tre måneder. Brugerne er sorteret på baggrund af deres samlede aggregerede værdier, med den største nederst på y-aksen. 
 
 Man ser tydeligt, at der er en periode mellem kl. 02:00 og kl. 06:00 hvor de fleste brugere ikke har nogle updates, dette kunne tyde på at de enten slukker eller på anden måde lukker for kommunikationen med omverdenen i det givne tidsrum. Herefter fra kl. 06:00 til 00:00 er der regelmæssig opdateringer, hvorefter det stilner af til kl. 02:00. Hvis vi sammenligner dette med Figure \ref{fig:cumu_loc_time_jap_swe} kan vi se det stemmer meget godt overens. Figure \ref{fig:cumu_loc_time_jap_swe} viser den aggrgerede location updates henover et døgn i både Japan og Sverige. Her ser vi samme udvikling for Japan som heat mappet indikerer, som beskrevet ovenfor. 
 

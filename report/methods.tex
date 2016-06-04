@@ -109,15 +109,14 @@ We will try to answer the following question: Can we predict if people meet in a
 The models and algorithms we use are implemented in \textit{scikit-learn}\cite{scikit-learn} a Python module for machine learning. 
 
 First we will describe the different features of which our dataset is composed.
-\subsection{Features}
+
+\subsection{Location Features}
+
+\subsubsection{Specificity}
+The total number of co-occurrences between two users divided by the sum of the two users location updates. Feature ID: \textit{14}
 
 \subsubsection{Number of co-occurrences}
 The total number of co-occurrences between users. Feature ID:\textit{0}.
-
-\subsubsection{Timely arrival and leaving}
-We use the timely arrival and leaving measure proposed in the master's thesis of Sapieżyński\cite{IMM2013-06556}.
-Sapieżyński argued that two persons arriving or leaving a location synchronously could be more indicative of friendship than them arriving or leaving non-synchronously.
-Feature ID: \textit{1}.
 
 \subsubsection{Diversity of a co-occurrence}
 We use the diversity measure taken from the papers of Shahabi and Pham\cite{iRWRfSD}\cite{AEBMtISSfSD}.
@@ -165,19 +164,14 @@ The number of common travels between two users. Common travels are defined when 
 \subsubsection{Mutual co-occurrences}
 Number of mutual co-occurrences, the mutual co-occurrences for user \textit{i} and \textit{j} will be the number of users whom they share co-occurrences with. Feature ID:\textit{8}.
 
+\subsection{Homophily Features}
+Based on the work by McPherson et al.\cite{mcpherson2001birds}, we have tried to create several features based on homophily between users.
+
 \subsubsection{Within 6 years of age}
 Whether they are within 6 years of age of each other. Feature ID: \textit{9}
 
 \subsubsection{Same gender}
 Whether they are the same gender. Feature ID: \textit{10}
-
-\subsubsection{Number of weekends}
-How many co-occurrences between to users happened in the weekend, defined as either a Friday after 18:00, a Saturday or a Sunday.
-Feature ID: \textit{11}.
-
-\subsubsection{Number of evenings}
-How many co-occurrences between two users happened after 18:00.
-Feature ID: \textit{12}.
 
 \subsubsection{Jaccard index similarity of used apps}
 The Jaccard index is a measure used in comparing the similarity of sample sets. We extract what apps two users have used in the period and compute the similarity between them using the Jaccard index. Feature ID:\textit{13}.
@@ -188,11 +182,23 @@ J(A_i,A_j) = \frac{ |A_i \cap A_j| }{ |A_i \cup A_j | }
 \end{equation}
 where $A_i$ is the set of apps used by user $i$ and $A_j$ is the set of apps used by user $j$. If $A_i$ and $A_j$ are empty sets we define $J(A_i, A_j) = 1$
 
-\subsubsection{Specificity}
-The total number of co-occurrences between two users divided by the sum of the two users location updates. Feature ID: \textit{14}
+\subsection{Temporal features}
+In this section we have features related to the time of the co-occurrences.
 
+\subsubsection{Timely arrival and leaving}
+We use the timely arrival and leaving measure proposed in the master's thesis of Sapieżyński\cite{IMM2013-06556}.
+Sapieżyński argued that two persons arriving or leaving a location synchronously could be more indicative of friendship than them arriving or leaving non-synchronously.
+Feature ID: \textit{1}.
 
-\subsection{Results}
+\subsubsection{Number of weekends}
+How many co-occurrences between to users happened in the weekend, defined as either a Friday after 18:00, a Saturday or a Sunday.
+Feature ID: \textit{11}.
+
+\subsubsection{Number of evenings}
+How many co-occurrences between two users happened after 18:00.
+Feature ID: \textit{12}.
+
+\section{Results}
 In this section we will discuss the results of the work we have done in this thesis.
 
 Initially we tried to infer friendship based on app usage. We did not have directed call-logs available so we could not reliably say if for example two people were calling each other. However the idea was that if we could find users with a similar timestamp and duration in an app, they could perhaps be communicating with each other either through phone calls or messaging apps. After finding user-pairs that met that criteria we try to validate them looking at their co-occurrences, were they many or few, were they off Sony properties or on, a lot of co-occurrences off sony properties could perhaps indicate a friendship. We identified the Android activity application name and package name for when a user is in a phone call called "Phone" and "package.com.android.incallui" respectively. Furthermore we identified a large number of messaging apps. We tried finding user pairs having activity in the phone app with a start time difference and end time difference of 10 seconds from each other. We looked at co-occurrences between user-pairs found this way and found that they either had a low number of co-occurrences around Sony properties or none at all.

@@ -865,7 +865,7 @@ def compare_loc_updates_per_month():
     ax = sns.countplot(x="Month", hue="Countries", data=df)
     ax.set_ylabel("Number of location updates")
     ax.set_title("Location updates per user in Japan and Sweden over three month period")
-    #ax.set_xlabel("Days")
+    ax.set_xlabel("")
     sns.plt.legend(prop={'size': 40})
     sns.plt.tick_params(labelsize=20)
     [item.set_fontsize(45) for item in [ax.yaxis.label, ax.xaxis.label]]
@@ -973,8 +973,9 @@ def location_updates_at_hq_or_not():
     bottom_plot.set_ylabel("Number of location updates")
     bottom_plot.set_title("Distribution of location updates (inside/outside Sony perimeters)")
     #ax.set_xlabel("Days")
+    ax.set_xlabel("")
     #plt.legend(prop={'size': 40})
-    ax.yaxis.set_major_formatter(tck.FormatStrFormatter('%.2e'))
+    #ax.yaxis.set_major_formatter(tck.FormatStrFormatter('%.2e'))
     sns.plt.tick_params(labelsize=20)
     [item.set_fontsize(45) for item in [ax.yaxis.label, ax.xaxis.label]]
     ax.title.set_fontsize(48)
@@ -1021,6 +1022,7 @@ def coocs_at_hq_or_not():
     bottom_plot.set_title("Distribution of co-occurrences (inside/outside Sony perimeters)")
     #ax.set_xlabel("Days")
     #plt.legend(prop={'size': 40})
+    
     sns.plt.ylim(0, 1300000)
     sns.plt.tick_params(labelsize=20)
     ax.yaxis.set_major_formatter(tck.FormatStrFormatter('%.2e'))
@@ -1099,11 +1101,11 @@ if __name__ == '__main__':
     #
     #accuracy_summary()
     countries = ["Japan", "Sweden"]
-    show_all_month_same_scale(countries, values_loc_updates=True,
-                              same_scale_over_countries=True,
-                              sorter_non_location_user_fra=False,
-                              sorter_efter_sum=True, log=True,
-                              mask=True, mask_value=0, show_user_ticks=False, multiple=True)
+    # show_all_month_same_scale(countries, values_loc_updates=True,
+    #                           same_scale_over_countries=True,
+    #                           sorter_non_location_user_fra=False,
+    #                           sorter_efter_sum=True, log=True,
+    #                           mask=True, mask_value=0, show_user_ticks=False, multiple=True)
 
 
     #---------------------------
@@ -1125,7 +1127,7 @@ if __name__ == '__main__':
     #location_updates_at_hq_or_not()
     #cdf_xy_plot()
     #time_plot()
-    #compare_loc_updates_per_month()
+    compare_loc_updates_per_month()
     #data, df, total_count, countries = fetch_data()
 
     #show_all_month_for_contries()

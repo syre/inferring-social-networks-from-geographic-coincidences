@@ -115,7 +115,7 @@ In this thesis we will use two models, Logistic Regression and Random Forest. Fo
 The Logistic Regression model will be used as the baseline model. It will be fit on only one feature, whether or not people have had two co-occurrences in distinct spatial bins. We will compare the predictive strength of just that one feature to several different features fitted to a Random Forest model.
 
 \subsubsection{Random Forest}
-The random forest is an \textit{ensemble learning} classifier which means it fits several models to obtain better predictive performance than just a single model would achieve. In the case of the random forest it fits several decision trees. Each decision tree is fitted with a random sample with replacement of the training data using a random subset of features, a technique called \textit{bagging}. The predicted class will then be the \texit{mode} of predictions of the decision trees.
+The random forest is an \textit{ensemble learning} classifier which means it fits several models to obtain better predictive performance than just a single model would achieve. In the case of the random forest it fits several decision trees. Each decision tree is fitted with a random sample with replacement of the training data, a technique called \textit{bagging}, furthermore it uses a random subset of features. The predicted class will then be the \textit{mode} of predictions of the decision trees.
 
 In the following sections we will describe the different features which our models are fitted on.
 
@@ -125,7 +125,7 @@ In the following sections we will describe the different features which our mode
 The total number of co-occurrences between two users divided by the sum of the two users location updates. Feature ID: \textit{14}
 
 \subsubsection{Number of co-occurrences}
-The total number of co-occurrences between users. Feature ID:\textit{0}.
+The total number of co-occurrences between users. Feature ID: \textit{0}.
 
 \subsubsection{Diversity of a co-occurrence}
 We use the diversity measure taken from the papers of Shahabi and Pham\cite{iRWRfSD}\cite{AEBMtISSfSD}.

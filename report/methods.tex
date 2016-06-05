@@ -60,10 +60,10 @@ In the following section the term grid cell or spatial bin will be used synonymo
 A spatiotemporal co-occurrence between two users is defined as an instance in which they co-occurred in approximately the same time and approximately the same place.
 We have partitioned or binned the globe into a discrete grid where the cells span .001{\degree} of latitude and longitude on each side (approximately 111m at the equator), and in a discrete time interval of 1-hour.
 Thus we say a co-occurrence happens between users $i$ and $j$ if they share the same .001{\degree} spatial cell C within the same discrete time interval.
-
+\textcolor{red}{WHY 0.001}
 Each grid cell has a unique ID, this is obtained by considering the grid as a matrix and flattening it to a list by traversing from left to right and top to bottom (row-first ordering) and using the list index as an ID. This makes a total possible spatial bin indexes of: $$(190\times d)\times(360\times d)$$ where $d$ is the number of decimals, this makes in our case a total number of spatial bins of $68.400.000.000$ with our case of $d=3$.
 
-We calculated the time bins by counting every hour from the start of the day of the earliest date appearing in the dataset, which has the ISO 8601 timestring: "2015-08-09 22:25:33.766+02". The last day has the ISO 8601 timestring: "2015-12-01 00:59:15.738+01". This leaves us with $2738$ possible time bin IDs. As each location update has a start\_time and an end\_time, each update will result in one or more entries for each time bin. For generating our dataset we count co-occurrences between pairs only once per spatial and time bin.
+We calculated the time bins by counting every hour from the start of the day of the earliest date appearing in the dataset, which has the ISO 8601 timestring: "2015-08-09 22:25:33.766+02". The last day has the ISO 8601 timestring: "2015-12-01 00:59:15.738+01". This leaves us with $2738$ possible time bin IDs. As each location update has a start\_time and an end\_time, each update will result in one or more entries for each time bin. \textcolor{red}{WHY 1 hour} For generating our dataset we count co-occurrences between pairs only once per spatial and time bin.\textcolor{red}{WHY only once, cite crandall}
 \begin{figure}[H]
     \hspace*{-1.0cm}
     \centering
@@ -112,15 +112,24 @@ In this subsection we will describe the model and features used for prediction.
 We will try to answer the following question: Can we predict if people meet in a period based on their spatiotemporal patterns in a previous period.
 The models and algorithms we use are implemented in \textit{scikit-learn}\cite{scikit-learn} a Python module for machine learning. 
 
-First we will describe the different features of which our dataset is composed.
+\subsection{Models}
+In this thesis we will use two models, Logistic Regression and Random Forest. For each model we will first fit them on the complete period of 3 months and then the month which best met our criteria in \autoref{chap:dataset}.
 
-\subsection{Location Features}
+\subsubsection{Logistic Regression}
+The Logistic Regression model will be used as the baseline model. It will be fit on only one feature, whether or not people have had two co-occurrences in distinct spatial bins. We will compare the predictive strength of just that one feature to several different features fitted to a Random Forest model.
+
+\subsubsection{Random Forest}
+The random forest is an \textit{ensemble learning} classifier which means it fits several models to obtain better predictive performance than just a single model would achieve. In the case of the random forest it fits several decision trees. Each decision tree is fitted with a random sample with replacement of the training data, a technique called \textit{bagging}, furthermore it uses a random subset of features. The predicted class will then be the \textit{mode} of predictions of the decision trees.
+
+In the following sections we will describe the different features which our models are fitted on.
+
+\subsection{Spatial Features}
 
 \subsubsection{Specificity}
 The total number of co-occurrences between two users divided by the sum of the two users location updates. Feature ID: \textit{14}
 
 \subsubsection{Number of co-occurrences}
-The total number of co-occurrences between users. Feature ID:\textit{0}.
+The total number of co-occurrences between users. Feature ID: \textit{0}.
 
 \subsubsection{Diversity of a co-occurrence}
 We use the diversity measure taken from the papers of Shahabi and Pham\cite{iRWRfSD}\cite{AEBMtISSfSD}.
@@ -191,11 +200,11 @@ In this section we have features related to the time of the co-occurrences.
 
 \subsubsection{Timely arrival and leaving}
 We use the timely arrival and leaving measure proposed in the master's thesis of Sapieżyński\cite{IMM2013-06556}.
-Sapieżyński argued that two persons arriving or leaving a location synchronously could be more indicative of friendship than them arriving or leaving non-synchronously.
+Sapieżyński argued that two persons arriving or leaving a location synchronously could be more indicative of friendship than them arriving or leaving non-synchronously. If for every co-occurrence one of the persons remains in the antecedent or subsequent time bin, the co-occurrence is non-synchronously arrived or left at.
 Feature ID: \textit{1}.
 
 \subsubsection{Number of weekends}
-How many co-occurrences between to users happened in the weekend, defined as either a Friday after 18:00, a Saturday or a Sunday.
+How many co-occurrences between two users happened in the weekend, defined as either a Friday after 18:00, a Saturday or a Sunday.
 Feature ID: \textit{11}.
 
 \subsubsection{Number of evenings}

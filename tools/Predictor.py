@@ -80,7 +80,7 @@ class Predictor():
         if selected_users:
             coocs_users = coocs_users[np.in1d(coocs_users[:, 0], [users[u] for u in selected_users if u in users])]
             coocs_users = coocs_users[np.in1d(coocs_users[:, 1], [users[u] for u in selected_users if u in users])]
-        X = np.zeros(shape=(len(coocs_users), 16), dtype="float")
+        X = np.zeros(shape=(len(coocs_users), 15), dtype="float")
         y = np.zeros(shape=len(coocs_users), dtype="int")
         demo_dict = self.file_loader.filter_demographic_outliers(self.file_loader.generate_demographics_from_csv())
         app_data_dict = defaultdict(set)
@@ -113,10 +113,9 @@ class Predictor():
             X[index:, 9] = self.is_within_6_years(demo_dict, users[user1], users[user2])
             X[index:, 10] = self.is_same_sex(demo_dict, users[user1], users[user2])
             X[index:, 11] = self.compute_app_jaccard_index(app_data_dict, users[user1], users[user2])
-            X[index:, 12] = datahelper.calculate_number_of_saturday_night_coocs(pair_coocs)
-            X[index:, 13] = datahelper.calculate_number_of_evening_coocs(pair_coocs)
-            X[index:, 14] = datahelper.calculate_number_of_weekend_coocs(pair_coocs)
-            X[index:, 15] = datahelper.calculate_specificity(user1, user2, pair_coocs, loc_arr)
+            X[index:, 12] = datahelper.calculate_number_of_evening_coocs(pair_coocs)
+            X[index:, 13] = datahelper.calculate_number_of_weekend_coocs(pair_coocs)
+            X[index:, 14] = datahelper.calculate_specificity(user1, user2, pair_coocs, loc_arr)
             y[index] = self.has_met(user1, user2, met_next)
 
         return X, y

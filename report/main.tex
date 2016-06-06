@@ -38,6 +38,8 @@
 \usepackage{pbox}
 \usepackage{tabulary}
 \usepackage{minted}
+\usepackage{ifthen}
+\usepackage{xstring}
 %\usepackage{blindtext}
 %\usepackage[scaled=0.85]{beramono}
 
@@ -89,6 +91,59 @@
 %--------------------------------
 \newcommand{\numberUsersJapan}{316}
 \newcommand{\numberUsersSweden}{542}
+\newcommand{\feature}[1]{
+    \IfEqCase{#1}{%
+        {0}{Number of co-occurrences}
+        {1}{Timely arrival and leaving}
+        {2}{Diversity of a co-occurrence}
+        {3}{Unique co-occurrences}
+        {4}{Weighted frequency}
+        {5}{Co-occurrences weighted with respect to each location}
+        {6}{Common travels}
+        {7}{hej}
+        {8}{Mutual co-occurrences}
+        {9}{Within 6 years of age}
+        {10}{Same gender}
+        {11}{Number of weekends}
+        {12}{Number of evenings}
+        {13}{Jaccard index similarity of used apps}
+        {14}{Specificity}
+
+        % you can add more cases here as desired
+    }[\PackageError{tree}{Undefined option for feature: #1}{}]%
+
+    % \ifthenelse{#1 = 0}{hej}
+    %     {\ifthenelse{#1 = 1}{hej}
+    %         {\ifthenelse{#1 = 2}{hej}
+    %             {\ifthenelse{#1 = 3}{hej}
+    %                 {\ifthenelse{#1 = 4}{hej}
+    %                     {\ifthenelse{#1 = 5}{hej}
+    %                         {\ifthenelse{#1 = 6}{hej}
+    %                             {\ifthenelse{#1 = 7}{hej}
+    %                                 {\ifthenelse{#1 = 8}{hej}
+    %                                     {\ifthenelse{#1 = 9}{hej}
+    %                                         {\ifthenelse{#1 = 10}{hej}
+    %                                             {\ifthenelse{#1 = 11}{hej}
+    %                                                 {\ifthenelse{#1 = 12}{hej}
+    %                                                     {\ifthenelse{#1 = 13}{hej}
+    %                                                         {\ifthenelse{#1 = 14}{hej}
+    %                                                             {\ifthenelse{#1 = 15}{hej}}
+    %                                                         }
+    %                                                     }
+    %                                                 }
+    %                                             }
+    %                                         }
+    %                                     }
+    %                                 }
+    %                             }
+    %                         }
+    %                     }
+    %                 }
+    %             }
+    %         }
+    %     }
+
+    }
 %--------------------------------
 %------------------
 % Table of contents

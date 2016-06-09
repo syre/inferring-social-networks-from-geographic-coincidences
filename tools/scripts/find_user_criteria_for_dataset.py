@@ -62,17 +62,17 @@ def compute_plot_in_three_periods(country, periods):
 
 
 def generate_plot():
-    first_period_datetime_min = "2015-09-01 00:00:00+00:00"
+    first_period_datetime_min = "2015-09-01 00:00:00+02:00"
     first_period_time_bin_min = db.calculate_time_bins(first_period_datetime_min)[0]
-    first_period_datetime_max = "2015-09-30 23:59:59+00:00"
+    first_period_datetime_max = "2015-09-10 23:59:59+02:00"
     first_period_time_bin_max = db.calculate_time_bins(first_period_datetime_max)[0]
-    second_period_datetime_min = "2015-10-01 00:00:00+00:00"
+    second_period_datetime_min = "2015-10-11 00:00:00+02:00"
     second_period_time_bin_min = db.calculate_time_bins(second_period_datetime_min)[0]
-    second_period_datetime_max = "2015-10-31 23:59:59+00:00"
+    second_period_datetime_max = "2015-10-20 23:59:59+02:00"
     second_period_time_bin_max = db.calculate_time_bins(second_period_datetime_max)[0]
-    third_period_datetime_min = "2015-11-01 00:00:00+00:00"
+    third_period_datetime_min = "2015-11-21 00:00:00+02:00"
     third_period_time_bin_min = db.calculate_time_bins(third_period_datetime_min)[0]
-    third_period_datetime_max = "2015-11-30 23:59:59+00:00"
+    third_period_datetime_max = "2015-11-30 23:59:59+02:00"
     third_period_time_bin_max = db.calculate_time_bins(third_period_datetime_max)[0]
 
     periods = (first_period_time_bin_min, first_period_time_bin_max, second_period_time_bin_min, second_period_time_bin_max, third_period_time_bin_min, third_period_time_bin_max)
@@ -80,17 +80,17 @@ def generate_plot():
     sweden, = plt.plot(np.arange(0, 1, 0.01), compute_plot_in_three_periods("Sweden", periods), label="Sweden - All months", linewidth=4.0, color='#990033')
     japan, = plt.plot(np.arange(0, 1, 0.01), compute_plot_in_three_periods("Japan", periods), label="Japan - All months", linewidth=4.0, color='#333399')
 
-    first_period_datetime_min = "2015-09-01 00:00:00+00:00"
+    first_period_datetime_min = "2015-09-01 00:00:00+02:00"
     first_period_time_bin_min = db.calculate_time_bins(first_period_datetime_min)[0]
-    first_period_datetime_max = "2015-09-09 23:59:59+00:00"
+    first_period_datetime_max = "2015-09-10 23:59:59+02:00"
     first_period_time_bin_max = db.calculate_time_bins(first_period_datetime_max)[0]
-    second_period_datetime_min = "2015-09-10 00:00:00+00:00"
+    second_period_datetime_min = "2015-09-11 00:00:00+02:00"
     second_period_time_bin_min = db.calculate_time_bins(second_period_datetime_min)[0]
-    second_period_datetime_max = "2015-09-19 23:59:59+00:00"
+    second_period_datetime_max = "2015-09-20 23:59:59+02:00"
     second_period_time_bin_max = db.calculate_time_bins(second_period_datetime_max)[0]
-    third_period_datetime_min = "2015-09-20 00:00:00+00:00"
+    third_period_datetime_min = "2015-09-21 00:00:00+02:00"
     third_period_time_bin_min = db.calculate_time_bins(third_period_datetime_min)[0]
-    third_period_datetime_max = "2015-09-30 23:59:59+00:00"
+    third_period_datetime_max = "2015-09-30 23:59:59+02:00"
     third_period_time_bin_max = db.calculate_time_bins(third_period_datetime_max)[0]
 
     periods = (first_period_time_bin_min, first_period_time_bin_max, second_period_time_bin_min, second_period_time_bin_max, third_period_time_bin_min, third_period_time_bin_max)
@@ -98,17 +98,17 @@ def generate_plot():
     sweden_sept, = plt.plot(np.arange(0, 1, 0.01), compute_plot_in_three_periods("Sweden", periods), label="Sweden - september", color='#990033', linestyle='--', linewidth=4.0)
     japan_sept, = plt.plot(np.arange(0, 1, 0.01), compute_plot_in_three_periods("Japan", periods), label="Japan - september", color='#333399', linestyle='--', linewidth=4.0)
 
-    first_period_datetime_min = "2015-10-01 00:00:00+00:00"
+    first_period_datetime_min = "2015-10-01 00:00:00+02:00"
     first_period_time_bin_min = db.calculate_time_bins(first_period_datetime_min)[0]
-    first_period_datetime_max = "2015-10-09 23:59:59+00:00"
+    first_period_datetime_max = "2015-10-10 23:59:59+02:00"
     first_period_time_bin_max = db.calculate_time_bins(first_period_datetime_max)[0]
-    second_period_datetime_min = "2015-10-10 00:00:00+00:00"
+    second_period_datetime_min = "2015-10-11 00:00:00+02:00"
     second_period_time_bin_min = db.calculate_time_bins(second_period_datetime_min)[0]
-    second_period_datetime_max = "2015-10-19 23:59:59+00:00"
+    second_period_datetime_max = "2015-10-20 23:59:59+02:00"
     second_period_time_bin_max = db.calculate_time_bins(second_period_datetime_max)[0]
-    third_period_datetime_min = "2015-10-20 00:00:00+00:00"
+    third_period_datetime_min = "2015-10-21 00:00:00+02:00"
     third_period_time_bin_min = db.calculate_time_bins(third_period_datetime_min)[0]
-    third_period_datetime_max = "2015-10-31 23:59:59+00:00"
+    third_period_datetime_max = "2015-10-31 23:59:59+02:00"
     third_period_time_bin_max = db.calculate_time_bins(third_period_datetime_max)[0]
 
     periods = (first_period_time_bin_min, first_period_time_bin_max, second_period_time_bin_min, second_period_time_bin_max, third_period_time_bin_min, third_period_time_bin_max)
@@ -116,17 +116,17 @@ def generate_plot():
     sweden_oct, = plt.plot(np.arange(0, 1, 0.01), compute_plot_in_three_periods("Sweden", periods), label="Sweden - october", color='#990033', linestyle="None", marker="x", markersize=20)
     japan_oct, = plt.plot(np.arange(0, 1, 0.01), compute_plot_in_three_periods("Japan", periods), label="Japan - october", color='#333399', linestyle="None", marker="x", markersize=20)
 
-    first_period_datetime_min = "2015-11-01 00:00:00+00:00"
+    first_period_datetime_min = "2015-11-01 00:00:00+02:00"
     first_period_time_bin_min = db.calculate_time_bins(first_period_datetime_min)[0]
-    first_period_datetime_max = "2015-11-09 23:59:59+00:00"
+    first_period_datetime_max = "2015-11-10 23:59:59+02:00"
     first_period_time_bin_max = db.calculate_time_bins(first_period_datetime_max)[0]
-    second_period_datetime_min = "2015-11-10 00:00:00+00:00"
+    second_period_datetime_min = "2015-11-11 00:00:00+02:00"
     second_period_time_bin_min = db.calculate_time_bins(second_period_datetime_min)[0]
-    second_period_datetime_max = "2015-11-19 23:59:59+00:00"
+    second_period_datetime_max = "2015-11-20 23:59:59+02:00"
     second_period_time_bin_max = db.calculate_time_bins(second_period_datetime_max)[0]
-    third_period_datetime_min = "2015-11-20 00:00:00+00:00"
+    third_period_datetime_min = "2015-11-21 00:00:00+02:00"
     third_period_time_bin_min = db.calculate_time_bins(third_period_datetime_min)[0]
-    third_period_datetime_max = "2015-11-30 23:59:59+00:00"
+    third_period_datetime_max = "2015-11-30 23:59:59+02:00"
     third_period_time_bin_max = db.calculate_time_bins(third_period_datetime_max)[0]
 
     periods = (first_period_time_bin_min, first_period_time_bin_max, second_period_time_bin_min, second_period_time_bin_max, third_period_time_bin_min, third_period_time_bin_max)
@@ -138,7 +138,7 @@ def generate_plot():
     plt.legend(handles=[sweden, japan, sweden_sept, japan_sept, sweden_oct, japan_oct, sweden_nov, japan_nov], prop={'size': 40})
     plt.ylabel("Number of users")
     plt.xlabel("Percentage of total timebins")
-    plt.title("Plot of users with unique timebins in all three months")
+    plt.title("Plot of users with unique timebins in all three periods")
     plt.tick_params(labelsize=15)
     [item.set_fontsize(30) for item in [plt.gca().yaxis.label, plt.gca().xaxis.label]]
     plt.gca().title.set_fontsize(48)

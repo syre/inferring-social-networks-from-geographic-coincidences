@@ -25,15 +25,14 @@ I dataset:
 - Der bliver nævnt at altitude kunne være interessant mht. at kunne fin-filtrerer. Dette skal vi komme ind på i "future work"
   Evt. en fodnote som henviser til "future work"-sectionen så læseren ikke undre sig.
 
-Sony prod datasæt 1
-yearmonth 201602
-number of rows 1.566.382.588 rows
-
 Sony prod datasæt
-yearmonth 201509
-1-9, 10-19, 20-30
-period 1 bins to users 19397
-period 2 bins to users 102687
-period 3 bins to users 1769645
+yearmonth: 201509
+using periods: 1-9, 10-19, 20-30
 
+row count = 929697167
 
+1668438 spatial/timebin combinations
+
+number of users with 40% in all three periods: 
+
+plot: users_by_criteria.png skal title laves om til "Periods istedet for months"

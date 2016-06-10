@@ -1,11 +1,7 @@
 %!TEX root = main.tex
 \chapter{Dataset}
 \label{chap:dataset}
-<<<<<<< HEAD
 On the following pages the datasets used will be examined. Basic statistics of the datasets will be shown and deviations will be examined aswell as methods to deal with these deviations, especially how dataclearing was done. \\
-=======
-On the following pages the datasets used will be examined. Basic statistics of the datasets will be shown and deviations will be examined. Methods to deal with these deviations will be examined and it will be shown how these deviations were dealt with, especially how data cleaning was done. \\
->>>>>>> b409a410b70a84c70cdf86d6e442404f8ac84d63
 The section will end with a part conclusion. 
 
 Our data are derived from Sony's Lifelog\cite{sonyLifeLog} which is a mobile lifetracking app which logs your activities during the day, among those location update and use of app's. 
@@ -22,10 +18,10 @@ The dataset describes the geolocations where a user has been present. It describ
 \item \texttt{\textbf{area}}\\Name of the local region where the user is situated when the location update is logged. E.g. Skane in Sweden 
 \item \texttt{\textbf{country}}\\Name of the country where the user is situated when the location update is logged 
 \item \texttt{\textbf{region}}\\Name of the global region where the user is situated when the location update is logged. E.g. Europe
-\item \texttt{\textbf{latitude}}\\Latitude for the location. Latitude has a precision of appr. 15 digits, which corresponds to 0.1 mikrometer or less.  \textcolor{red}{[KILDE!!!]}. This precision is not to be taken too seriously, as most mobile GPS modules has an uncertainty of about 30 meters   \cite{NAV:8292634}.  
-\item \texttt{\textbf{longitude}}\\Longitude for the location. Longitude has a precision of appr. 15 digits, which corresponds to 0.1 micrometer or less. The precautions about precision are the same as for the latitude 
+\item \texttt{\textbf{latitude}}\\Latitude for the location. Latitude has a precision of up to appr. 15 decimals, which corresponds to 0.1 nanometer or less. This precision is not to be taken too seriously, as most mobile GPS modules has an uncertainty of about 30 meters   \cite{NAV:8292634}.  
+\item \texttt{\textbf{longitude}}\\Longitude for the location. Longitude has a precision of up to appr. 15 digits, which corresponds to 0.1 nanometer or less. The precautions about precision are the same as for the latitude 
 \item \texttt{\textbf{altitude}}\\Altitude represented in mm. Altitude is calculated from the gyroscope of the phone together with information from the GPS.  
-\item \texttt{\textbf{accuracy}}\\Accuracy represented in mm. Accuracy is the estimated uncertainty of the GPS data in the current location update. The value indicates that the user with 68\% certainty is at the logged location, inside the defined accuracy. The lower value, the better. This is defined by the operating system of the phone together with the GPS 
+\item \texttt{\textbf{accuracy}}\\Accuracy represented in mm. Accuracy is the estimated uncertainty of the GPS data in the current location update. The value indicates that the user with 68\% certainty is at the logged location, inside the defined accuracy \cite{android_accuracy}. The lower value, the better. This is defined by the operating system of the phone together with the GPS 
 \item \texttt{\textbf{devices}}\\The device is represented as an array with name, type and id. Type is the type of device (e.g. Phone), name is the name of the current device and the id is the unique identifier of the device 
 \end{enumerate}
 
@@ -46,7 +42,7 @@ Test data which are a sub-set of production data has been investigated. These te
 
 \section{Test data}
 The period for the test data stretches over 3 months: September - November 2015.   
-In this period 2,665,893 location updates from 1,586 users were collected. These users are all employees of Sony based around the world. This means that they have some natural common meeting places which are Sony related, such as Sony offices in different countries. \textcolor{red}{figure with map or reference?} \textcolor{red}{figur af kort eller henvisning?}
+In this period 2,665,893 location updates from 1,586 users were collected. These users are all employees of Sony based around the world. This means that they have some natural common meeting places which are Sony related, such as Sony offices in different countries. \textcolor{red}{figure with map or reference?}
 This fact has a large impact on the content of the data, and will be investigated later. 
 
 
@@ -76,7 +72,7 @@ From the many location updates only 20 show a negative accuracy, which correspon
         \label{tab:stat_geo_p1}
 \end{table}
 
-As accuracy affects both latitude and longitude, which are the most important attributes, the updates with negative accuracy are removed. Furthermore location updates with an accuracy of more then 55.000 (55m) is removed. Our binning will correspond to cells with a side of 111 meters. As accuracy tells that the user with a confidence of 68\% is inside the distance of the accuracy, the maximum allowed accuracy is chosen to be 55 meters, which is half the size of the bin. This means that the user with 68\% confidence is in the defined bin on condition that the user is situated in the middle of the cell. This condition may not always be met. But after all it seems to be the best way to set the limit of the allowed accuracy. 
+As accuracy affects both latitude and longitude, which are the most important attributes, the updates with negative accuracy are removed. Furthermore location updates with an accuracy of more then 55.000 (55m) is removed. Our binning will correspond to cells with a side of maximum 111 meters. As accuracy tells that the user with a confidence of 68\% is inside the distance of the accuracy, the maximum allowed accuracy is chosen to be 55 meters, which is half the size of the maximum bin. This means that the user with 68\% confidence is in the defined bin on condition that the user is situated in the middle of the cell. This condition may not always be met. But after all it seems to be the best way to set the limit of the allowed accuracy. 
 See more in section \ref{ssec:binning}, p. \pageref{ssec:binning}, about how binning is defined and in the discussion about the challenges for binning and cell size. 
 
 
@@ -110,14 +106,14 @@ After this reduction, the quantiles of the accuracy can be seen in Table \ref{ta
         \label{tab:acc_quantiles}
 \end{table}
 
-You can see on the values for the median and mean that most users have a low value for the accuracy - which is good! If you assume a normal distribution for the accuracy and use a 2 sigma value, 95\% of the users have an accuracy between 7,896 and 37,235.44. This shows that there is a probability that a small number of users may (must) have very high values for the accuracy, where the max is 50,000. That only a few users have high values is good because it also means that there are many users with low (and good) accuracy. As the maximum for the accuracy has been set at 50.000 you may with confidence apply the users with a high value of accuracy. If you later were to use a finer binning it should be possible to do this without removing too much data, because the accuracy values are as good as they are.   
+You can see on the values for the median and mean that most users have a low value for the accuracy - which is good! If you assume a normal distribution for the accuracy and use a 2 sigma value, 95\% of the users have an accuracy between 7,896 and 37,235.44. This shows that there is a probability that a small number of users must have high values for the accuracy, where the max is 50,000. That only a few users have high values is good because it also means that there are many users with low (and good) accuracy. As the maximum for the accuracy has been set at 50.000 you may with confidence apply the users with a high value of accuracy. If we later were to use a finer binning it should be possible to do this without removing too much data, because the accuracy values are as good as they are.   
 
-The median value and the mean value are 23 m and 26.89 m respectively and the 95\% standard deviation is 6.6 m and 47.19 m. 
+The median value and the mean value are 23 m and 26.89 m respectively and the 95\% standard deviation is 7.9 m and 37.24 m. 
 
 
 When you see which countries are represented and in which degree, you have 80 unique countries. To begin with the value was 74 countries. It turned out that there were a lot of location updates where the country attribute had not been logged. In these occasions the county attribute was just represented by an empty string. This was the case in so many data that an empty string in the country attribute had the second most common occurrence with about 500.000 location updates. 
 As it was important to be able to sort data on the basis of country, this was a problem. The problem was solved by making a reverse geolocation. For almost all of the 500,000 location updates the latitude and longitude were logged, so it was possible by using an API\cite{reversegeocode} to look up the country on the basis of latitude and longitude, and insert the correct string in the country attribute. By adjusting the dataset once you avoided access to the API every time scripts were run. This would have been very ineffective and a waste of time. Furthermore the API had a limit for how many positions you could look up every minute, which resulted that it took a week to get all data resolved, running 24/7.  \\ 
-The use of reverse geolocation resulted in a reduction of the number of location updates with blank country attributes from 500,000 to 130. At the same time new countries were represented in the dataset, so the number of countries increased from 74 to 80 (incl. countries represented with an empty string). 
+The use of reverse geolocation resulted in a reduction of the number of location updates with blank country attributes from 500,000 to 130. The 130 where the country couldn't be found, was because of failure in the look-up. At the same time new countries were represented in the dataset, so the number of countries increased from 74 to 80 (incl. countries represented with an empty string). 
 
 
 After this you can investigate how the location updates are distributed across the five countries with most updates. In figure \ref{fig:country_dist} you can see that Sweden and Japan are at the top of the list, whereas the country with an empty string is outside the list (it moved down among the last 25\%). 

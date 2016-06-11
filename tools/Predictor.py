@@ -7,6 +7,7 @@ import sklearn
 import sklearn.metrics
 from sklearn.metrics import roc_auc_score, roc_curve, auc, confusion_matrix, precision_recall_curve
 from sklearn.preprocessing import StandardScaler
+from sklearn.datasets import load_svmlight_file
 import sklearn.ensemble
 from tqdm import tqdm
 import matplotlib.pyplot as plt
@@ -237,7 +238,7 @@ class Predictor():
         X_train = scaler.transform(X_train)
         X_test = scaler.transform(X_test)
         print("Logistic Regression - with number of cooccurrences")
-        lg = sklearn.linear_model.LogisticRegression(random_state=0)
+        lg = sklearn.linear_model.LogisticRegression(random_state=0, class_weight="balanced")
         lg.fit(X_train[:, 0].reshape(-1, 1), y_train)
         y_pred = lg.predict(X_test[:, 0].reshape(-1, 1))
         print(sklearn.metrics.classification_report(y_test, y_pred))
@@ -248,7 +249,7 @@ class Predictor():
         print("Random Forest - all features")
         np.delete(X_train, [0], axis=1)
         np.delete(X_test, [0], axis=1)
-        forest = sklearn.ensemble.RandomForestClassifier(n_estimators = 1000, random_state=0)
+        forest = sklearn.ensemble.RandomForestClassifier(n_estimators = 1000, random_state=0, class_weight="balanced")
         forest.fit(X_train, y_train)
         y_pred = forest.predict(X_test)
         print(sklearn.metrics.classification_report(y_test, y_pred))
@@ -286,8 +287,13 @@ if __name__ == '__main__':
     p = Predictor("Sweden")
     f = FileLoader()
     d = DatabaseHelper()
-    X_train, y_train, X_test, y_test = f.load_x_and_y()
-    #p.tweak_features(X_train, y_train, X_test, y_test)
+
+    X_train, y_train = load_svmlight_file("data/vedran_thesis_students/X_train_filter_merged")
+    X_test, y_test = load_svmlight_file("data/vedran_thesis_students/X_test_filter_merged")
+    X_train = X_train.toarray()
+    X_test = X_test.toarray()
+    #X_train, y_train, X_test, y_test = f.load_x_and_y()
+    print(type(X_train), type(y_train))
     print("y_train contains {} that didnt meet, and {} that did meet".format(
         list(y_train).count(0), list(y_train).count(1)))
     print("y_test contains {} that didnt meet and {} that did meet".format(

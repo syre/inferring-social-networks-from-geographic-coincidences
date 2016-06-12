@@ -47,7 +47,7 @@ This fact has a large impact on the content of the data, and will be investigate
 
 
 In Table \ref{tab:stat_geo_p1} the statistic summary of af \texttt{accuracy} can be seen. 
-In the table you can see that there are invalid values for the accuracy. The invalid values shows up in the form of negative values. 
+In the table we can see that there are invalid values for the accuracy. The invalid values shows up in the form of negative values. 
 From the many location updates only 20 show a negative accuracy, which corresponds to less than 10 ppm.  
 
 
@@ -106,17 +106,17 @@ After this reduction, the quantiles of the accuracy can be seen in Table \ref{ta
         \label{tab:acc_quantiles}
 \end{table}
 
-You can see on the values for the median and mean that most users have a low value for the accuracy - which is good! If you assume a normal distribution for the accuracy and use a 2 sigma value, 95\% of the users have an accuracy between 7,896 and 37,235.44. This shows that there is a probability that a small number of users must have high values for the accuracy, where the max is 50,000. That only a few users have high values is good because it also means that there are many users with low (and good) accuracy. As the maximum for the accuracy has been set at 50.000 you may with confidence apply the users with a high value of accuracy. If we later were to use a finer binning it should be possible to do this without removing too much data, because the accuracy values are as good as they are.   
+We can see on the values for the median and mean that most users have a low value for the accuracy - which is good! If we assume a normal distribution for the accuracy and use a 2 sigma value, 95\% of the users have an accuracy between 7,896 and 37,235.44. This shows that there is a probability that a small number of users must have high values for the accuracy, where the max is 50,000. That only a few users have high values is good because it also means that there are many users with low (and good) accuracy. As the maximum for the accuracy has been set at 50.000 we may with confidence apply the users with a high value of accuracy. If we later were to use a finer binning it should be possible to do this without removing too much data, because the accuracy values are as good as they are.   
 
 The median value and the mean value are 23 m and 26.89 m respectively and the 95\% standard deviation is 7.9 m and 37.24 m. 
 
 
-When you see which countries are represented and in which degree, you have 80 unique countries. To begin with the value was 74 countries. It turned out that there were a lot of location updates where the country attribute had not been logged. In these occasions the county attribute was just represented by an empty string. This was the case in so many data that an empty string in the country attribute had the second most common occurrence with about 500.000 location updates. 
-As it was important to be able to sort data on the basis of country, this was a problem. The problem was solved by making a reverse geolocation. For almost all of the 500,000 location updates the latitude and longitude were logged, so it was possible by using an API\cite{reversegeocode} to look up the country on the basis of latitude and longitude, and insert the correct string in the country attribute. By adjusting the dataset once you avoided access to the API every time scripts were run. This would have been very ineffective and a waste of time. Furthermore the API had a limit for how many positions you could look up every minute, which resulted that it took a week to get all data resolved, running 24/7.  \\ 
+When we see which countries are represented and in which degree, we have 80 unique countries. To begin with the value was 74 countries. It turned out that there were a lot of location updates where the country attribute had not been logged. In these occasions the county attribute was just represented by an empty string. This was the case in so many updates that an empty string in the country attribute had the second most common occurrence with about 500.000 location updates. 
+As it was important to be able to sort data on the basis of country, this was a problem. The problem was solved by making a reverse geolocation. For almost all of the 500,000 location updates the latitude and longitude were logged, so it was possible by using an API\cite{reversegeocode} to look up the country on the basis of latitude and longitude, and insert the correct string in the country attribute. By adjusting the dataset once, we avoided access to the API every time scripts were run. This would have been very ineffective and a waste of time. Furthermore the API had a limit for how many positions we could look up every minute, which resulted that it took a week to get all data resolved, running 24/7.  \\ 
 The use of reverse geolocation resulted in a reduction of the number of location updates with blank country attributes from 500,000 to 130. The 130 where the country couldn't be found, was because of failure in the look-up. At the same time new countries were represented in the dataset, so the number of countries increased from 74 to 80 (incl. countries represented with an empty string). 
 
 
-After this you can investigate how the location updates are distributed across the five countries with most updates. In figure \ref{fig:country_dist} you can see that Sweden and Japan are at the top of the list, whereas the country with an empty string is outside the list (it moved down among the last 25\%). 
+After this we can investigate how the location updates are distributed across the five countries with most updates. In figure \ref{fig:country_dist} we can see that Sweden and Japan are at the top of the list, whereas the country with an empty string is outside the list (it moved down among the last 25\%). 
 
 
 \begin{figure}[H]
@@ -131,8 +131,8 @@ After this you can investigate how the location updates are distributed across t
 That Sweden and Japan are the top of the list is not strange as Sony is a Japanese company which took over Sony-Ericsson where Ericsson is a Swedish company. Sony-Ericsson was at that time the mobile brand of Sony, so a large part of Sony's mobile development is still placed in Sweden. This may explain why Sweden has three times as many updates as Japan.  
 
 On the basis of figure \ref{fig:country_dist}, it has been chosen to continue with the data for either Sweden or Japan. Now the data for the two countries will be compared. 
-In Japan there are \numberUsersJapan{} unique users while in Sweden there are \numberUsersSweden. The two countries may have common users as users may travel between several countries and thereby have location updates in several countries.  
-In the total number of location updates Japan has 299,157 updates, whereas Sweden has 1,018,781 updates for all three months. 
+In Japan there are \numberUsersJapan{} unique users while in Sweden there are \numberUsersSweden{}. The two countries may have common users as users may travel between several countries and thereby have location updates in several countries.  
+In the total number of location updates Japan has \locUpdatesJapan{} updates, whereas Sweden has \locUpdatesSweden{} updates for all three months. 
 
 Figure \ref{fig:mean_loc_updates_sep-nov} compares the mean value of location updates in Japan and Sweden. 
 
@@ -145,7 +145,7 @@ Figure \ref{fig:mean_loc_updates_sep-nov} compares the mean value of location up
 \end{figure}
 
 
-You can see that Sweden has significantly more updates than Japan during all three months and in the two months September and October even twice as much. You can also see a decreasing tendency in both countries. September has the highest number of updates and thereafter the number decreases, where November in Sweden has more that 300 updates less than in September. Even as the tendency is more prominent for Sweden it is also visible for Japan.  \\
+We can see that Sweden has significantly more updates than Japan during all three months and in the two months September and October even twice as much. We can also see a decreasing tendency in both countries. September has the highest number of updates and thereafter the number decreases, where November in Sweden has more that 300 updates less than in September. Even as the tendency is more prominent for Sweden it is also visible for Japan.  \\
 This will be investigated more closely later.  
 
 
@@ -196,7 +196,7 @@ For each of the two countries the distribution of the updates between the users 
 \end{table}
 
 
-When you look upon the quartile of the countries, you can see that the 25\% quantile (Q1) is very low in both countries. Q1 shows in other words that 25\% of the users in Japan and Sweden respectively has less than 26 and 68 updates during these three months. It is not a good condition that so many users have so few updates. The 75\% quantile (Q3) is a good deal higher in Sweden than in Japan, which shows that there are 75\% of the users who has a maximum of 994.5 and 2,642 location updates in Japan and Sweden respectively. Again the data seems better in Sweden where the users have more updates than in Japan. \\ 
+When we look upon the quartile of the countries, we can see that the 25\% quantile (Q1) is very low in both countries. Q1 shows in other words that 25\% of the users in Japan and Sweden respectively has less than 26 and 68 updates during these three months. It is not a good condition that so many users have so few updates. The 75\% quantile (Q3) is a good deal higher in Sweden than in Japan, which shows that there are 75\% of the users who has a maximum of 994.5 and 2,642 location updates in Japan and Sweden respectively. Again the data seems better in Sweden where the users have more updates than in Japan. \\ 
 
 
 Both countries has a small percentage of users having extraordinary many updates. In Sweden there are 25\% users who have between 2,642 and 14,759 updates and in Japan they have between 994.5 and 9,320 updates. As with Q1 this is a bad sign. 
@@ -213,7 +213,7 @@ The tendency described above can be shown more clearly by plotting the Cumulativ
 \end{figure}
 
 The plot shows that in both Japan and Sweden there are a large part of the users with very few location updates during the whole period. It can be seen that in Japan the number of users with few updates increases faster than in Sweden.  
-As the updates are generated each time the user changes his location, it must indicate that many of the users are very stationary or they have turned off their mobile phones. It must be stated that stationary also encompasses the situation where the user has forgotten his phone at home. In the data you can see the difference between whether the phone has been switched off or is stationary, but not whether the phone is stationary or just forgotten. You can differentiate between the situation with a phone turned off and a stationary phone by noting that in the first case data are missing for a while whereas with a forgotten phone there is a long time between \texttt{start\_time} and \texttt{end\_time}.  
+As the updates are generated each time the user changes his location, it must indicate that many of the users are very stationary or they have turned off their mobile phones. It must be stated that stationary also encompasses the situation where the user has forgotten his phone at home. In the data we can see the difference between whether the phone has been switched off or is stationary, but not whether the phone is stationary or just forgotten. We can differentiate between the situation with a phone turned off and a stationary phone by noting that in the first case data are missing for a while whereas with a forgotten phone there is a long time between \texttt{start\_time} and \texttt{end\_time}.  
 
 It is important to see if there is a pattern in the time-stamp of the updates, as it may be possible on this background to identify better or worse sub-periods, which may be taken into account. 
 We have plotted heatmaps for how the updates are distributed over 24 hours. These are produced by aggregating data from a timeslot in a 24 hour period. The aggregated data are based on whether the user has had at least one update in the timeslot of the day (represented by 0 or 1), regardless of which day it is. 
@@ -222,17 +222,17 @@ We have plotted heatmaps for how the updates are distributed over 24 hours. Thes
     \hspace*{-0.8cm}
     \centering
     \includegraphics[scale=0.15]{aggregated_updates_over_time_japan}
-    \caption{Heat map for location updates over the 3 month period in Japan, aggregated over a day with 60 minutes of binsize. Users are sorted by total number of location. Largest is at the bottom. The scale is logarithmic}
+    \caption{Heat map for location updates over the 3 month period in Japan, aggregated over a day with 60 minutes of binsize. Users are sorted by total values. Largest is at the bottom. The scale is logarithmic}
     \label{fig:agg_heatmap_jap}
 \end{figure}
 Figure \ref{fig:agg_heatmap_jap} shows how updates for each user (y-axis), are distributed over the time of day, measured over all 3 months. The users are sorted according to their total aggregated values, with the largest at the lowest part of the Y-axis.  
 
-You see clearly that there is a period between 02:00 AM and 06:00 AM where most users do not have any updates, which might indicate that they either turn the mobile off or otherwise shuts down the communication with the external world in the mentioned period. From this time 06:00 AM until 12:00 PM there are regular updates after which time the number of updates decreases until 02:00 AM. If you compare this with Figure \ref{fig:cumu_loc_time_jap_swe} you can see a reasonable good correlation. Figure \ref{fig:cumu_loc_time_jap_swe} shows the  aggregated location updates over 24 hours in both Japan and Sweden. In this you see the same development in Japan as the heatmap indicates, as described above. 
+We see clearly that there is a period between 02:00 AM and 06:00 AM where most users do not have any updates, which might indicate that they either turn the mobile off or otherwise shuts down the communication with the external world in the mentioned period. From this time 06:00 AM until 12:00 PM there are regular updates after which time the number of updates decreases until 02:00 AM. If we compare this with Figure \ref{fig:cumu_loc_time_jap_swe} we can see a reasonable good correlation. Figure \ref{fig:cumu_loc_time_jap_swe} shows the  aggregated location updates over 24 hours in both Japan and Sweden. In this we see the same development in Japan as the heatmap indicates, as described above. 
 
 The above mentioned is also valid for Sweden (Figure \ref{fig:agg_heatmap_swe}), which show the same as for Japan. Also here almost all users turn their mobiles off between 02:00 AM and 06:00 AM. 
 No other timeslots have a significant deviation neither in Japan nor in Sweden.  
 
-As the users have been sorted, you can easily see that a part of the users do not have any or very few updates during all three months. These users are discarded in the testdata as they do not contribute with a significant amount of data.  
+As the users have been sorted, we can easily see that a part of the users do not have any or very few updates during all three months. These users are discarded in the testdata as they do not contribute with a significant amount of data.  
 
 
 \begin{figure}[H]
@@ -251,11 +251,11 @@ As the users have been sorted, you can easily see that a part of the users do no
     \label{fig:cumu_loc_time_jap_swe}
 \end{figure}
 
-If you only look at Figure \ref{fig:cumu_loc_time_jap_swe}, you can see that in both countries the number of updates have a peak at about 08:00 AM. In Sweden there is a further peak at 04:00 PM whereas in Japan there is no similar peak. \\
-The peak at 08:00 AM may be caused by users moving from home to work and in this process generates a lot of updates. Similarly the second peak (in Sweden) may be caused by users returning to their home again generating a certain number of updates. It can be remarked that Japan does not have a similar increase in location updates in the afternonn, but a slight increase at 7:00 PM and higher values than Sweden from 21:00 PM until 23:00 PM. \\
+If we only look at Figure \ref{fig:cumu_loc_time_jap_swe}, we can see that in both countries the number of updates have a peak at about 08:00 AM. In Sweden there is a further peak at 04:00 PM whereas in Japan there is no similar peak. \\
+The peak at 08:00 AM may be caused by users moving from home to work and in this process generates a lot of updates. Similarly the second peak (in Sweden) may be caused by users returning to their home again generating a certain number of updates. It can be remarked that Japan does not have a similar increase in location updates in the afternoon, but a slight increase at 7:00 PM and higher values than Sweden from 21:00 PM until 01:00 AM. \\
 
 Figures \ref{fig:agg_heatmap_jap}, \ref{fig:agg_heatmap_swe} and \ref{fig:cumu_loc_time_jap_swe} tell which times of the day may be more usable than others. For instance that it is important to be aware of the time between 01:00 AM and 06:00 AM, as many users have very few updates in this period. It will probably mean that this period should be avoided. 
-What the figures do not tell, is whether there are days in the three months which are better than others. This issue is interesting to investigate to see whether there are some days which might be used with advantage instead of using all days. Furthermore it might be possible to see a pattern for the days. You can imagine that on fridays and/or saturdays there are more updates than on other days because people get together in town and because of this are active.  
+What the figures do not tell, is whether there are days in the three months which are better than others. This issue is interesting to investigate to see whether there are some days which might be used with advantage instead of using all days. Furthermore it might be possible to see a pattern for the days. We can imagine that on fridays and/or saturdays there are more updates than on other days because people get together in town and because of this are active.  
 
 
 \begin{figure}[H]
@@ -266,19 +266,11 @@ What the figures do not tell, is whether there are days in the three months whic
     \label{fig:heatmap_jap}
 \end{figure}
 
-Figure \ref{fig:heatmap_jap} shows how location updates per user in Japan (rounded to nearest integer) is distributed for each day in each of the three months. You can for example see that in Japan you have as a mean 16 updates per user on Friday in week 2 of September.  
+Figure \ref{fig:heatmap_jap} shows how location updates per user in Japan (rounded to nearest integer) is distributed for each day in each of the three months. We can for example see that in Japan we have as a mean 16 updates per user on Friday in week 2 of September.  
 
-Again you see that generally there are more updates in September than in the other two months. October and November are similar apart from some days where November has some higher values than some other days in October. 
+Again we see that generally there are more updates in September than in the other two months. October and November are similar apart from some days where November has some higher values than some other days in October. 
 
-In many cases you can see that Fridays and/or Saturdays have higher values than other days in the same month. 
-
-
- %It can be seen that for both Japan and Sweden there is generally more activity in september than in the other months. This support the tendency from Figure \ref{fig:mean_loc_updates_sep-nov}, where you may see a decreasing tendency from september till november. In Japan values for october and november are at approximately the same level whereas in Sweden you can more clearly see a further reduction in the number of updates. 
- 
-
-
-
-%\newpage
+In many cases we can see that Fridays and/or Saturdays have higher values than other days in the same month. 
 
 \begin{figure}[H]
     \hspace*{-1.5cm}
@@ -288,11 +280,11 @@ In many cases you can see that Fridays and/or Saturdays have higher values than 
     \label{fig:heatmap_swe}
 \end{figure}
 
-Figure \ref{fig:heatmap_swe} shows how location updates per user in Sweden (rounded to nearest integer) is distributed for each day in each of the three months. As in Japan you have in general more updates in September than in the other two months. In Sweden this tendency is more pronounced than in Japan. As in Japan this tendency has been observed in Figure \ref{fig:mean_loc_updates_sep-nov}, so it is not surprising.  
+Figure \ref{fig:heatmap_swe} shows how location updates per user in Sweden (rounded to nearest integer) is distributed for each day in each of the three months. As in Japan we have in general more updates in September than in the other two months. In Sweden this tendency is more pronounced than in Japan. As in Japan this tendency has been observed in Figure \ref{fig:mean_loc_updates_sep-nov}, so it is not surprising.  
  
 Here too, like in Japan, the values for Fridays and/or Saturdays are slightly higher than for the other days. The values are not so much higher that it is of importance, which is also the case for Japan. 
 
-In the two figures above, you can get a feeling for the mean number of updates for each day. It is not possible to get a feeling for the situation for each user. Because of this the following figures have been produced. 
+In the two figures above, we can get a feeling for the mean number of updates for each day. It is not possible to get a feeling for the situation for each user. Because of this the following figures have been produced. 
 
 \begin{figure}[H]
     \hspace*{-1.5cm}
@@ -306,11 +298,11 @@ In the two figures above, you can get a feeling for the mean number of updates f
 Figure \ref{fig:heatmap_japan_combined} shows the number of updates for each user (y-axis) for each day in each of the three months (x-axis). Each row in each of the three heatmaps (one for each month) represents one user. So there are \numberUsersJapan{} number of rows in each heatmap.  Each heatmap is sorted so the user with most updates in most days is in the lowest row. This means that the users are not necessarily represented in the same row in all three heatmaps. It can also be seen that many users (appr. half) has no updates in some of the days for each of the three months. This is reasonable from what is known from Figure \ref{fig:country_cdf} and these users are as mentioned not necessarily the same over all the months. 
 The days and months are plotted this way as it gives a possibility to compare the days for each month with each other. 
 
-It can be seen that there are relatively few users who has updates in all days in a month. This fact alone is worrying and does not look promising for the project, and when we in this plot cannot be sure that it is the same user that has updates in all days in the three months, it looks even more worrying. 
+It can be seen that there are relatively few users who has updates in all days in a month. This fact alone is worrying and does not look promising for the thesis, and when we in this plot cannot be sure that it is the same user that has updates in all days in the three months, it looks even more worrying. 
 
 Again it seems that September has more users who have updates in relatively more days than in the other months. 
 
-If you look at October, you can see some pairs of days which make light vertical stripes in comparison with the other days. This indicates a lower amount of updates. This is happening  on the 3rd and 4th, 10th and 11th, 17th and 18th and at last the 24th and 25th. These pairs pop up with an interval of a week, where the 3rd is a Saturday and the 4th is a Sunday. This means that the other pairs are also Saturdays and Sundays. This pattern is repeated in November where it is really significant on the 7th and 8th. The data for September are not so distinct but the effect is observable. This is very interesting as it may indicate that Saturdays and Sundays are not suited for the purpose. 
+If we look at October, we can see some pairs of days which make light vertical stripes in comparison with the other days. This indicates a lower amount of updates. This is happening  on the 3rd and 4th, 10th and 11th, 17th and 18th and at last the 24th and 25th. These pairs pop up with an interval of a week, where the 3rd is a Saturday and the 4th is a Sunday. This means that the other pairs are also Saturdays and Sundays. This pattern is repeated in November where it is really significant on the 7th and 8th. The data for September are not so distinct but the effect is observable. This is very interesting as it may indicate that Saturdays and Sundays are not suited for the purpose. 
 
 Otherwise no days or periods stands out from the main data. The reason that the 31st September and November are empty is that these dates are invalid, while the 31st of October exists. Therefore the dates for September and November must be empty.  
 
@@ -325,7 +317,7 @@ Figure \ref{fig:heatmap_sweden_combined} shows the same for Sweden. Again it can
 
 Sweden also has more users with updates every day than Japan. 
 
-By using Figure \ref{fig:heatmap_japan_combined} and Figure \ref{fig:heatmap_sweden_combined} you can get a feeling for which days are better than others, e.g. that Saturdays and Sundays seems not so good as there are fewer updates. 
+By using Figure \ref{fig:heatmap_japan_combined} and Figure \ref{fig:heatmap_sweden_combined} we can get a feeling for which days are better than others, e.g. that Saturdays and Sundays seems not so good as there are fewer updates. 
 
 Otherwise no days or periods stands out from the main data. As for Japan the 31st September and 31st November are empty as these dates do not exist.  
 
@@ -339,15 +331,15 @@ One thing is to be able to see how the updates are distributed per day per user,
     \caption{Plot over number of users which have location updates in certain percentage unique timebins in each sub-period. A sub-period is defined in chapter \ref{chap:methods_and_results}, which is a period decided in three. In all month is a month a sub-period}
     \label{fig:users_by_criteria}
 \end{figure}
-From chapter \ref{chap:methods_and_results} it is known that the chosen period is divided into three sub-period to be able to train and analyze on these. Figure \ref{fig:users_by_criteria} shows how many users who has location updates in a certain percentage of unique timebins in all three sub-periods for a given period. For example you can see that there are appr. 90 users who have updates in 20\% of the possible timebins in each of the three sub-periods in Sweden in September. Here the 30 days of September are divided into the following sub-periods: 1-10, 11-20, 21-30. 
+From chapter \ref{chap:methods_and_results} it is known that the chosen period is divided into three sub-period to be able to train and analyze on these. Figure \ref{fig:users_by_criteria} shows how many users who has location updates in a certain percentage of unique timebins in all three sub-periods for a given period. For example we can see that there are appr. 90 users who have updates in 20\% of the possible timebins in each of the three sub-periods in Sweden in September. Here the 30 days of September are divided into the following sub-periods: 1-10, 11-20, 21-30. 
 
 It can be seen that a large amount of users have updates in very few timebins in each sub-period. The values are calculated with a resolution of 1\%. Already at 1\% unique timebins the number for September in Sweden has changed from \numberUsersSweden{} to appr. 140. This means that 140 users have updates distributed on 1\% of the possible timebins in each sub-period. For the other months the number is even lower. This is a very drastic decrease in the number of users. 
-As a sub-period in September has 10 days and our timebins have a size of one hour, you have $10*24=240$ possible  timebins. 1\% of this is equal to $240/100=2.4$, which means that the 140 users must have updates over 3 unique timebins in each of the three sub-periods, as you shall round to the next higher integer. 
+As a sub-period in September has 10 days and our timebins have a size of one hour, we have $10*24=240$ possible  timebins. 1\% of this is equal to $240/100=2.4$, which means that the 140 users must have updates over 3 unique timebins in each of the three sub-periods, as we shall round to the next higher integer. 
 The 90 users with 20\% unique bins must have updates over 48 unique timebins in each period. 
 
 Using all months the sub-period is a month which is 30 - 31 days. 
 
-In general you can see that even if the data development starts with a huge dip, it flattens out very quickly. September in Sweden is clearly better than the other months in Sweden, whereas in Japan the situation is less clear. Here it seems that the choice may be made between September and November. 
+In general we can see that even if the data development starts with a huge dip, it flattens out very quickly. September in Sweden is clearly better than the other months in Sweden, whereas in Japan the situation is less clear. Here it seems that the choice may be made between September and November. 
 
 
 
@@ -365,6 +357,6 @@ We found a decreasing tendency in the number of updates between the months where
 
 When we looked at the \numberUsersSweden{} and \numberUsersJapan{} users in Sweden and Japan respectively, many had very few updates over all three months. It is assumed that many turned their phone off in the period 02:00 AM to 06:00 AM which leads to the few updates. This was valid for both Sweden and Japan. Furthermore it can be seen that the number of updates peaks at 08:00 AM and 04:00 PM in Sweden, where the number in Japan only peaks at 08:00 AM.  Japan has no corresponding peak at 04:00 PM. 
 
-At last we found that in general there were not as many updates Saturdays and Sundays as for the other days. We also found that when we looked upon how many users who had updates over several timebins in each sub-period, the number of users decreased very rapidly as a function of the number of timebins until a certain number. After this the decrease was very slow. In Sweden for September there were appr. 140 users having updates over 3 timebins in each sub-period, corresponding to 1\% of the possible timebins in each sub-period. If you looked at the number for 20\% (48 timebins in each sub-period) there were appr. 90  users. 
+At last we found that in general there were not as many updates Saturdays and Sundays as for the other days. We also found that when we looked upon how many users who had updates over several timebins in each sub-period, the number of users decreased very rapidly as a function of the number of timebins until a certain number. After this the decrease was very slow. In Sweden for September there were appr. 140 users having updates over 3 timebins in each sub-period, corresponding to 1\% of the possible timebins in each sub-period. If we looked at the number for 20\% (48 timebins in each sub-period) there were appr. 90  users. 
 
 On the basis of this it seems that the data for Sweden in September looks most promising, and we will use them in our models. 

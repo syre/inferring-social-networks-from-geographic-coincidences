@@ -1094,7 +1094,7 @@ def aggregated_heatmap(sorter_efter_sum=False):
 
 
 if __name__ == '__main__':
-    #aggregated_heatmap(True)
+    aggregated_heatmap(True)
 
     #show_all_month_for_contries()
     #location_updates_at_hq_or_not()
@@ -1127,7 +1127,7 @@ if __name__ == '__main__':
     #location_updates_at_hq_or_not()
     #cdf_xy_plot()
     #time_plot()
-    compare_loc_updates_per_month()
+    #compare_loc_updates_per_month()
     #data, df, total_count, countries = fetch_data()
 
     #show_all_month_for_contries()

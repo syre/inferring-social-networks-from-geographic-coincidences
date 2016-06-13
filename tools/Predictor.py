@@ -5,14 +5,14 @@ from DatasetHelper import DatasetHelper
 import numpy as np
 import sklearn
 import sklearn.metrics
-from sklearn.metrics import roc_auc_score, roc_curve, auc, confusion_matrix, precision_recall_curve
+from sklearn.metrics import roc_auc_score, roc_curve, auc, confusion_matrix, precision_recall_curve, average_precision_score
 from sklearn.preprocessing import StandardScaler
 from sklearn.datasets import load_svmlight_file
 import sklearn.ensemble
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 from sklearn.grid_search import GridSearchCV
-from collections import Counter, defaultdict
+from collections import defaultdict
 
 
 class Predictor():
@@ -207,6 +207,32 @@ class Predictor():
         plt.xlabel('False Positive Rate')
         plt.show()
 
+    def compute_precision_recall_curve(self, y_test, y_pred_proba):
+        precision = dict()
+        recall = dict()
+        average_precision = dict()
+        for i in range(2):
+            precision[i], recall[i], _ = precision_recall_curve(y_test[:, i],
+                                                        y_pred_proba[:, i])
+            average_precision[i] = average_precision_score(y_test[:, i], y_pred_proba[:, i])
+        # Plot Precision-Recall curve for each class
+        plt.clf()
+        plt.plot(recall["micro"], precision["micro"],
+                 label='micro-average Precision-recall curve (area = {0:0.2f})'
+                       ''.format(average_precision["micro"]))
+        for i in range(2):
+            plt.plot(recall[i], precision[i],
+                     label='Precision-recall curve of class {0} (area = {1:0.2f})'
+                           ''.format(i, average_precision[i]))
+
+        plt.xlim([0.0, 1.0])
+        plt.ylim([0.0, 1.05])
+        plt.xlabel('Recall')
+        plt.ylabel('Precision')
+        plt.title('Extension of Precision-Recall curve to multi-class')
+        plt.legend(loc="lower right")
+        plt.show()
+
     def plot_confusion_matrix(self, cm, title="Confusion matrix", target_names=["did not meet", "did meet"], cmap=plt.cm.Blues):
         plt.figure()
         plt.imshow(cm, interpolation='nearest', cmap=cmap)
@@ -234,15 +260,24 @@ class Predictor():
         print("max is {} trees with auc of: {}".format(max_auc[0], max_auc[1]))
 
     def predict(self, X_train, y_train, X_test, y_test):
-        scaler = StandardScaler().fit(np.vstack((X_train, X_test)))
-        X_train = scaler.transform(X_train)
-        X_test = scaler.transform(X_test)
+        # create new feature two_unique_coocs from unique_coocs
+        solo_feature_train = np.zeros(X_train[:, 1].shape)
+        np.putmask(solo_feature_train, X_train[:, 1] >= 2, 1)
+        solo_feature_test = np.zeros(X_test[:, 1].shape)
+        np.putmask(solo_feature_test, X_test[:, 1] >= 2, 1)
+        print(np.count_nonzero(solo_feature_test))
+        #scaler = StandardScaler().fit(np.vstack((X_train, X_test)))
+        #X_train = scaler.transform(X_train)
+        #X_test = scaler.transform(X_test)
         print("Logistic Regression - with number of cooccurrences")
         lg = sklearn.linear_model.LogisticRegression(random_state=0, class_weight="balanced")
-        lg.fit(X_train[:, 0].reshape(-1, 1), y_train)
-        y_pred = lg.predict(X_test[:, 0].reshape(-1, 1))
+
+
+        lg.fit(solo_feature_train.reshape(-1, 1), y_train)
+        y_pred = lg.predict(solo_feature_test.reshape(-1, 1))
+        #self.compute_precision_recall_curve(y_test, lg.predict_proba(solo_feature_test.reshape(-1, 1)))
         print(sklearn.metrics.classification_report(y_test, y_pred))
-        self.compute_roc_curve(y_test, lg.predict_proba(X_test[:, 0].reshape(-1, 1))[:,1])
+        self.compute_roc_curve(y_test, lg.predict_proba(solo_feature_test.reshape(-1, 1))[:,1])
         cm = confusion_matrix(y_test, y_pred, labels=[0, 1])
         self.plot_confusion_matrix(cm, title="Confusion matrix (Logistic Regression)")
         print(cm)
@@ -258,6 +293,7 @@ class Predictor():
         plt.style.use("default")
         # compute ROC curve
         self.compute_roc_curve(y_test, forest.predict_proba(X_test)[:,1])
+        #self.compute_precision_recall_curve(y_test, forest.predict_proba(X_test))
         cm = confusion_matrix(y_test, y_pred)
         self.plot_confusion_matrix(cm, title="Confusion matrix (Random Forest)")
         print(cm)
@@ -292,6 +328,7 @@ if __name__ == '__main__':
     X_test, y_test = load_svmlight_file("data/vedran_thesis_students/X_test_filter_merged")
     X_train = X_train.toarray()
     X_test = X_test.toarray()
+
     #X_train, y_train, X_test, y_test = f.load_x_and_y()
     print(type(X_train), type(y_train))
     print("y_train contains {} that didnt meet, and {} that did meet".format(

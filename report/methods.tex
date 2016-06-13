@@ -283,11 +283,11 @@ For our test data without user-filtering we found a training set with 1798 negat
 
 Using production data with user-filtering in just September we found a training set with 118 that did not meet and 95 that did meet. The test set consisted of 151 that did not meet and 98 that did meet. 
 
-First we trained a Logistic Regression classifier which serves as our baseline classifier to compare our other model with. We trained it only with the feature num\_coocs. Next we trained a Random Forest classifier with all of our features.
-
-Using production data without user-filtering we found 5585 that did not meet and 10907 that did meet for our training set, for our test set we found 9148 that didnt meet and 10028 that did meet.
+Using production data without user-filtering we found 5585 that did not meet and 10907 that did meet for our training set, for our test set we found 9148 that did not meet and 10028 that did meet.
 
 Using production data with user-filtering we found 403 that did not meet and 4533 that did meet for our train set and 402 that did not meet and 4630 that did meet for our test set.
+
+First we trained a Logistic Regression classifier which serves as our baseline classifier to compare our other model with. We trained it only with the feature num\_coocs. Next we trained a Random Forest classifier with all of our features.
 
 Due to our imbalanced dataset, the Logistic Regression classifier we trained initially always wanted to just predict the largest prevalent class, positive, in our training dataset.
 

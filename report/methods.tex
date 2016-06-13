@@ -9,6 +9,8 @@ When we got the dataset it was stored in three folders, one for each month (9, 1
 
 
 \subsection{Preparation of Test data}
+In this section we will demonstrate what we have done to prepare the test data.
+
 \subsubsection{Data import to database}
 We imported the many JSON files to a Postgresql database which allowed us to easily manipulate the data using SQL. We created a single table with the schema shown in Table \ref{table:schema_denormalized}. We decided to compute the time and spatial bins on insertion, thus we only had to compute them once. We created indexes on the following features:start\_time, end\_time, location, useruuid, spatial\_bin, time\_bins, country.
 Initially we created a normalized database with several relations. We however discovered that a deonormalized database might improve our performance, as we reduce the number of tables and and thus the number of joins required\cite{sanders2001denormalization}. We found This was due to all our interaction with the data only consisting of READs, after the initial insertion of the data. After removing all relations (denormalizing) our performance significantly improved.
@@ -107,7 +109,15 @@ We decided to look at just how many co-occurrences happened inside the Sony peri
 \end{figure}
 
 \subsection{Preparation of Production data}
+In this section we will demonstrate what we have done to prepare the production data for analysis.
+
+The methods for binning of production data are the same as for test data\ref{ssec:binning}.
+
 \subsubsection{Code preparation - Apache Spark}
+The production data was stored on Sony's Apache Spark\cite{spark} cluster.
+To manipulate the data we converted some of our previously written code for use in \textit{RDDs} (Resilient Distributed Datasets) and \textit{Dataframes} which are fault-tolerant collections native to Spark that can be operated on in parallel.
+As the size of our datasets were modest we opted to not use the built-in machine learning library of Spark \textit{MLlib} and we saved the datasets in LibSVM format which enabled us to import the datasets in \textit{sci-kit learn}.
+
 \section{Modeling}
 In this subsection we will describe the model and features used for prediction.
 
@@ -148,6 +158,9 @@ From this the diversity is defined by taking the exponential function of the ent
 \label{eq:diversity}
 D^s_{ij} = exp(H^S_{ij})
 \end{equation}
+
+\subsubsection{Two unique co-occurrences}
+If the user pair \textit{i} and \textit{j} has at least two unique co-occurrences in terms of spatial bins. This feature is only used for the baseline model. Feature ID: \textit{0}.
 
 \subsubsection{Unique co-occurrences}
 The number of unique co-occurrences in terms of spatial bins between two users \textit{i} and \textit{j}. Feature ID: \textit{3}.

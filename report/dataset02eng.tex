@@ -349,7 +349,9 @@ Initially we tried using a newer month than the months from our test data, howev
 
 We found the data folder for 09-15 had 929,697,167 location updates. After our filtration by Sweden, accuracy and just the period of September we found a remaining number of location updates of 2,450,205 and number of users of 12,692.
 
-We divided September into three periods, 1-10, 11-20, and 21-30 and extracted two datasets, one using all users and another using only the users with 10\% cross-occupancy.
+We divided September into three periods, 1-10, 11-20, and 21-30 and extracted two datasets, one using all users and another using only the users with a certain cross-occupancy threshold. Using a cross-occupancy threshold of 40\% we found 296 users in period 1, 457 users in period 2, and 12561 users in period 3.
+
+As we can see there is a very large influx of users in period 3, this could perhaps be due to a new version of Sony Lifelog released in that exact period, this could also mean the number of 12,692 users could in reality be much lower in the first two periods. Of the users in each period we found none with 40\% in all three periods, thus we picked a lower threshold of 10\%.
 
 
 \section{Summary}

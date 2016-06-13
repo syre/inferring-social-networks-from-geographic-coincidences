@@ -217,13 +217,28 @@ Initially we tried to infer friendship based on app usage. We did not have direc
 
 We decided to use a meeting in a next period as a proxy for friendship.
 
+We have found the following datasets based on the available data:
+\begin{enumerate}
+\item Test data
+\begin{enumerate}
+\item without user-filtering
+\item with user-filtering using cross-occupancy of 40\%
+\end{enumerate}
+\item Production data
+\begin{enumerate}
+\item without user-filtering
+\item with user-filtering using cross-occupancy of 10\%
+\end{enumerate}
+\end{enumerate}
+
+
 For our training set we found 124 negative samples (did not meet) and 2331 positive samples (did meet), the high number of positive samples is due to the inclusion of location updates in the Sony properties perimeter in our training set. In our test set we found a more moderate 289 negative samples (did not meet) and 191 positive samples (did meet).
 First we trained a Logistic Regression classifier which serves as our baseline classifier to compare our other model with. We trained it only with the feature num\_coocs. Next we trained a Random Forest classifier with all of our features.
 
 Due to our imbalanced dataset, the Logistic Regression classifier we trained initially always wanted to just predict the largest prevalent class, positive, in our training dataset.
 
 \subsection{Class Imbalance Problem}
-The Class Imbalance Problem is when the total number of samples for one class greatly exceeds the number of samples for a different class. A number of techniques can be used to handle the class imbalance problem, we will use two techniques called oversampling and undersampling\cite{tan2006introduction}. In oversampling you sample the minor sample with replacement until there is an equal number of positive and negative samples. In undersampling you randomly sample from the major class N times where N is the number of minor classes.
+The Class Imbalance Problem is when the total number of samples for one class greatly exceeds the number of samples for a different class. A number of techniques can be used to handle the class imbalance problem, we will use two techniques called oversampling and undersampling\cite{tan2006introduction}. In oversampling you sample the minor sample with replacement until there is an equal number of positive and negative samples. In undersampling you randomly sample from the major class $N$ times where $N$ is the number of minor classes.
 
 \subsection{Performance metrics}
 We utilize the precision and recall metrics for evaluating the performance of our models as well as AUC of the ROC Curve.

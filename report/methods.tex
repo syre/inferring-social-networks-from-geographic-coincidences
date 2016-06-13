@@ -229,34 +229,31 @@ Feature ID: \textit{12}.
 \subsection{Overview}
 
 % Please add the following required packages to your document preamble:
-% \usepackage{booktabs}
 % \usepackage{multirow}
-\begin{table}[htbp]
+\begin{table}[H]
 \centering
-\small
-\setlength\tabcolsep{2pt}
-\begin{tabular}{|c|c|c|c|l|c|c|}
-\toprule
-\multirow{2}{*}{Feature ID} & \multirow{2}{*}{Feature name} & \multicolumn{3}{|c|}{Test data}             & \multicolumn{2}{c|}{Production data} \\ \cmidrule(l){3-7} 
-                            &                               & LR           & \multicolumn{2}{c|}{RF}     & LR                & RF               \\ \midrule
-0                           & Two unique co-occurrences     & \cmark       & \multicolumn{2}{c|}{\cmark} & \cmark            &                  \\ \midrule
-1                           & Timely arrival and leaving    &              & \multicolumn{2}{c|}{\cmark} &                   &                  \\ \midrule
-2                           & Diversity                     &              & \multicolumn{2}{c|}{\cmark} &                   & \cmark           \\ \midrule
-3                           & Unique co-occurrences         &              & \multicolumn{2}{c|}{\cmark} &                   & \cmark           \\ \midrule
-4                           & Weighted frequency            &              & \multicolumn{2}{c|}{\cmark} &                   & \cmark           \\ \midrule
-5                           & Co-occurrences weighted       &              & \multicolumn{2}{c|}{\cmark} &                   & \cmark           \\ \midrule
-6                           & Common travels                &              & \multicolumn{2}{c|}{\cmark} &                   &                  \\ \midrule
-7                           & Number of co-occurrences      &              & \multicolumn{2}{c|}{\cmark} &                   & \cmark           \\ \midrule
-8                           & Mutual co-occurrences         &              & \multicolumn{2}{c|}{\cmark} &                   & \cmark           \\ \midrule
-9                           & Within 6 years of age         &              & \multicolumn{2}{c|}{\cmark} &                   &                  \\ \midrule
-10                          & Same gender                   &              & \multicolumn{2}{c|}{\cmark} &                   &                  \\ \midrule
-11                          & Similarity (Jaccard)          &              & \multicolumn{2}{c|}{\cmark} &                   &                  \\ \midrule
-12                          & Number of evenings            &              & \multicolumn{2}{c|}{\cmark} &                   & \cmark           \\ \midrule
-13                          & Number of weekends            &              & \multicolumn{2}{c|}{\cmark} &                   & \cmark           \\ \midrule
-14                          & Specificity                   &              & \multicolumn{2}{c|}{\cmark} &                   & \cmark           \\ \bottomrule
-\end{tabular}
 \caption{My caption}
 \label{my-label}
+\begin{tabular}{|c|c|c|c|l|c|c|}
+\hline
+\multirow{2}{*}{Feature ID} & \multirow{2}{*}{Feature name} & \multicolumn{3}{c|}{Test data}             & \multicolumn{2}{c|}{Production data} \\ \cline{3-7} 
+                            &                               & LR           & \multicolumn{2}{c|}{RF}     & LR                & RF               \\ \hline
+0                           & Two unique co-occurrences     & \cmark       & \multicolumn{2}{c|}{\cmark} & \cmark            &                  \\ \hline
+1                           & Timely arrival and leaving    &              & \multicolumn{2}{c|}{\cmark} &                   &                  \\ \hline
+2                           & Diversity                     &              & \multicolumn{2}{c|}{\cmark} &                   & \cmark           \\ \hline
+3                           & Unique co-occurrences         &              & \multicolumn{2}{c|}{\cmark} &                   & \cmark           \\ \hline
+4                           & Weighted frequency            &              & \multicolumn{2}{c|}{\cmark} &                   & \cmark           \\ \hline
+5                           & Co-occurrences weighted       &              & \multicolumn{2}{c|}{\cmark} &                   & \cmark           \\ \hline
+6                           & Common travels                &              & \multicolumn{2}{c|}{\cmark} &                   &                  \\ \hline
+7                           & Number of co-occurrences      &              & \multicolumn{2}{c|}{\cmark} &                   & \cmark           \\ \hline
+8                           & Mutual co-occurrences         &              & \multicolumn{2}{c|}{\cmark} &                   & \cmark           \\ \hline
+9                           & Within 6 years of age         &              & \multicolumn{2}{c|}{\cmark} &                   &                  \\ \hline
+10                          & Same gender                   &              & \multicolumn{2}{c|}{\cmark} &                   &                  \\ \hline
+11                          & Similarity (Jaccard)          &              & \multicolumn{2}{c|}{\cmark} &                   &                  \\ \hline
+12                          & Number of evenings            &              & \multicolumn{2}{c|}{\cmark} &                   & \cmark           \\ \hline
+13                          & Number of weekends            &              & \multicolumn{2}{c|}{\cmark} &                   & \cmark           \\ \hline
+14                          & Specificity                   &              & \multicolumn{2}{c|}{\cmark} &                   & \cmark           \\ \hline
+\end{tabular}
 \end{table}
 
 

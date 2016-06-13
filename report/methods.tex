@@ -8,7 +8,8 @@ In this section we will outline what methods we have used for conducting the wor
 When we got the dataset it was stored in three folders, one for each month (9, 10, 11) and within each folder were multiple chunks of data in Apache Avro format\cite{apacheavro}, which we learned is a data serialization framework for Hadoop similar to the JSON format. The chunks were contained in folders bearing the number for each month, however we learned they were sorted by when the server had received the data packet containing the location from the phone and not when the phone had registered the location. The app is storing the collected data on the users phone for a maximum of one month, if the data is not uploaded within a month it is discarded. This approach to data collection means the month folders can contain location updates from the previous month as well.
 
 
-\subsection{Data import to database}
+\subsection{Preparation of Test data}
+\subsubsection{Data import to database}
 We imported the many JSON files to a Postgresql database which allowed us to easily manipulate the data using SQL. We created a single table with the schema shown in Table \ref{table:schema_denormalized}. We decided to compute the time and spatial bins on insertion, thus we only had to compute them once. We created indexes on the following features:start\_time, end\_time, location, useruuid, spatial\_bin, time\_bins, country.
 Initially we created a normalized database with several relations. We however discovered that a deonormalized database might improve our performance, as we reduce the number of tables and and thus the number of joins required\cite{sanders2001denormalization}. We found This was due to all our interaction with the data only consisting of READs, after the initial insertion of the data. After removing all relations (denormalizing) our performance significantly improved.
 
@@ -49,7 +50,7 @@ spatial\_bin        & BIGINT NOT NULL        \\
 \caption{Denormalized database schema}
 \label{table:schema_denormalized}
 \end{table}
-\subsection{Data export to Numpy arrays}
+\subsubsection{Data export to Numpy arrays}
 We created scripts for exportation to numpy arrays for use in the sklearn module. The users were encoded with K values where K = number of users. The countries were encoded with K values where K = number of countries.
 
 Each row in the dataset represents a pair of users and the features computed for them as well as the binary label of whether they met in the next period or not.
@@ -71,7 +72,7 @@ We calculated the time bins by counting every hour from the start of the day of 
     \label{fig:binning}
 \end{figure}
 
-\subsection{Visualization}
+\subsubsection{Visualization}
 We used Basemap\cite{basemap}, for plotting all the locations at once and and Leaflet\cite{leaflet} for producing interactive maps to visualize the data, we created a map for visualizing the users location traces over time and we created one that allowed us to see all the co-occurrences that happened between a pair of users. Figure \ref{fig:sweden_locations_hexbin} and \ref{fig:japan_locations_hexbin} shows location updates from Sweden and Japan respectively plotted on a map. We can see location updates happened very often near Sony properties in Lund\cite{sony_headquarters_sweden_lund}, Kista\cite{sony_headquarters_sweden_kista}, and at Ericsson AB in Göteborg\cite{ericsson} for the Swedish data, and in Tokyo\cite{sony_headquarters_japan} for the Japanese data. Figure \ref{fig:user_pair_at_sony} shows an example of the co-occurrences visualized for a typical pair of users in Sweden having lots of co-occurrences within the Sony perimeter. This enabled us to exclude co-occurrences from these locations from our dataset as we are looking for co-occurrences outside of the users work.
 \begin{figure}[H]
     \hspace*{-1.0cm}
@@ -105,6 +106,8 @@ We decided to look at just how many co-occurrences happened inside the Sony peri
     \label{fig:dist_coocs_sony}
 \end{figure}
 
+\subsection{Preparation of Production data}
+\subsubsection{Code preparation - Apache Spark}
 \section{Modeling}
 In this subsection we will describe the model and features used for prediction.
 

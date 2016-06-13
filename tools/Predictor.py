@@ -292,6 +292,7 @@ if __name__ == '__main__':
     X_test, y_test = load_svmlight_file("data/vedran_thesis_students/X_test_filter_merged")
     X_train = X_train.toarray()
     X_test = X_test.toarray()
+
     #X_train, y_train, X_test, y_test = f.load_x_and_y()
     print(type(X_train), type(y_train))
     print("y_train contains {} that didnt meet, and {} that did meet".format(

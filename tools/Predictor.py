@@ -275,7 +275,7 @@ class Predictor():
 
         lg.fit(solo_feature_train.reshape(-1, 1), y_train)
         y_pred = lg.predict(solo_feature_test.reshape(-1, 1))
-        self.compute_precision_recall_curve(y_test, lg.predict_proba(solo_feature_test.reshape(-1, 1)))
+        #self.compute_precision_recall_curve(y_test, lg.predict_proba(solo_feature_test.reshape(-1, 1)))
         print(sklearn.metrics.classification_report(y_test, y_pred))
         self.compute_roc_curve(y_test, lg.predict_proba(solo_feature_test.reshape(-1, 1))[:,1])
         cm = confusion_matrix(y_test, y_pred, labels=[0, 1])
@@ -293,7 +293,7 @@ class Predictor():
         plt.style.use("default")
         # compute ROC curve
         self.compute_roc_curve(y_test, forest.predict_proba(X_test)[:,1])
-        self.compute_precision_recall_curve(y_test, forest.predict_proba(X_test))
+        #self.compute_precision_recall_curve(y_test, forest.predict_proba(X_test))
         cm = confusion_matrix(y_test, y_pred)
         self.plot_confusion_matrix(cm, title="Confusion matrix (Random Forest)")
         print(cm)

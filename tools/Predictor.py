@@ -239,10 +239,17 @@ class Predictor():
         X_test = scaler.transform(X_test)
         print("Logistic Regression - with number of cooccurrences")
         lg = sklearn.linear_model.LogisticRegression(random_state=0, class_weight="balanced")
-        lg.fit(X_train[:, 0].reshape(-1, 1), y_train)
-        y_pred = lg.predict(X_test[:, 0].reshape(-1, 1))
+
+        # create new feature two_unique_coocs from unique_coocs
+        solo_feature_train = np.zeros(X_train[:,1].shape)
+        np.putmask(solo_feature_train, X_train[:,1] >= 2, 1)
+        solo_feature_test = np.zeros(X_test[:,1].shape)
+        np.putmask(solo_feature_test, X_test[:,1] >= 2, 1)
+
+        lg.fit(solo_feature_train.reshape(-1, 1), y_train)
+        y_pred = lg.predict(solo_feature_test.reshape(-1, 1))
         print(sklearn.metrics.classification_report(y_test, y_pred))
-        self.compute_roc_curve(y_test, lg.predict_proba(X_test[:, 0].reshape(-1, 1))[:,1])
+        self.compute_roc_curve(y_test, lg.predict_proba(solo_feature_test.reshape(-1, 1))[:,1])
         cm = confusion_matrix(y_test, y_pred, labels=[0, 1])
         self.plot_confusion_matrix(cm, title="Confusion matrix (Logistic Regression)")
         print(cm)

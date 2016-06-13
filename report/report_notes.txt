@@ -25,14 +25,34 @@ I dataset:
 - Der bliver nævnt at altitude kunne være interessant mht. at kunne fin-filtrerer. Dette skal vi komme ind på i "future work"
   Evt. en fodnote som henviser til "future work"-sectionen så læseren ikke undre sig.
 
+Generelle notes, hvor mange filtreres væk af accuracy?
+
+-----------------------
 Sony prod datasæt
 yearmonth: 201509
-using periods: 1-9, 10-19, 20-30
+using periods: 1-10, 11-20, 21-30
 
-row count = 929697167
+
+period 1 users with 40% timebins: 296
+period 2 users with 40% timebins: 457
+period 3 users with 40% timebins: 12561
+users with 40% timebins in all periods: 0
+Mange brugere i periode 3 kan skyldes ny version af lifelog app med influx af brugere
+
+
+
+total row count = 929.697.167
+row count of sweden, filtered by whole period 1-30 september and between 0 and 55.000 accuracy = 2.450.205
+count of all users, filtered by whole period 1-30 september and between 0 and 55.000 accuracy = 12692
 
 1668438 spatial/timebin combinations
 
-number of users with 40% in all three periods: 
 
-plot: users_by_criteria.png skal title laves om til "Periods istedet for months"
+Sammenlign non-meeters og meeters
+
+Beskriv ræssonement for filtrering (de skal have haft location updates i alle tre perioder da det er basis for label, at de skal kunne have mødt hinanden)
+
+Discussion (skulle have lavet preliminary analyse af months, manglende reverse geocode på måneder, fandt den første med geocoding (entries for country) )
+
+
+We used 5 m3.xlarge nodes with 4 virtual CPUs and 15GiB memory each.

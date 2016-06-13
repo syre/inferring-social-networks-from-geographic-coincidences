@@ -1,10 +1,10 @@
 %!TEX root = main.tex
 \chapter{Dataset}
 \label{chap:dataset}
-On the following pages the datasets used will be examined. Basic statistics of the datasets will be shown and deviations will be examined aswell as methods to deal with these deviations, especially how dataclearing was done. \\
+On the following pages the datasets used will be examined. Basic statistics of the datasets will be shown and deviations will be examined aswell as methods to deal with these deviations, especially how data cleaning was done. \\
 The section will end with a part conclusion. 
 
-Our data are derived from Sony's Lifelog\cite{sonyLifeLog} which is a mobile lifetracking app which logs your activities during the day, among those location update and use of app's. 
+Our data are derived from Sony's Lifelog\cite{sonyLifeLog} which is a mobile life tracking app which logs your activities during the day, among those location update and use of app's. 
 
 The dataset describes the geolocations where a user has been present. It describes exactly where, when and for how long the user has been on the defined site. Each time the user changes location (defined by latitude and longitude) a location update will be logged with the following informations: 
 
@@ -25,7 +25,7 @@ The dataset describes the geolocations where a user has been present. It describ
 \item \texttt{\textbf{devices}}\\The device is represented as an array with name, type and id. Type is the type of device (e.g. Phone), name is the name of the current device and the id is the unique identifier of the device 
 \end{enumerate}
 
-Some of the information listed above is not relevant for the present thesis. This enables us to delete some informations and the following information (from now on called attributes) is left: 
+Some of the information listed above is not relevant for the present thesis. This enables us to delete some information and the following information (from now on called attributes) is left: 
 
 \begin{itemize}
 \item \texttt{useruuid}
@@ -36,7 +36,7 @@ Some of the information listed above is not relevant for the present thesis. Thi
 \item \texttt{longitude}
 \end{itemize}
 
-These attributes has been chosen as they are important or interesting with respect to the current thesis. \texttt{useruuid} is important to differentiate the users, \texttt{start\_time} and \texttt{end\_time} are important as they show how long time the user has been at the current location. \texttt{country} allows an easy filtering of the users. \texttt{latitude} and og \texttt{longitude} are very important as they tell about the most central issue i.e. the location where the user has been situated. \texttt{accuracy} can tell about the confidence to be associated with the current location update.  
+These attributes has been chosen as they are important or interesting with respect to the current thesis. \texttt{useruuid} is important to differentiate the users, \texttt{start\_time} and \texttt{end\_time} are important as they show how long time the user has been at the current location. \texttt{country} allows an easy filtering of the users. \texttt{latitude} and \texttt{longitude} are very important as they tell about the most central issue i.e. the location where the user has been situated. \texttt{accuracy} can tell about the confidence to be associated with the current location update.  
 
 Test data which are a sub-set of production data has been investigated. These test data are from a specific period and from specific users. After defining this sub-set, the whole amount of production data has been investigated.  It will be described how test data and total production data, respectively, can be described with respect to distributions etc.  
 
@@ -46,7 +46,7 @@ In this period 2,665,893 location updates from 1,586 users were collected. These
 This fact has a large impact on the content of the data, and will be investigated later. 
 
 
-In Table \ref{tab:stat_geo_p1} the statistic summary of af \texttt{accuracy} can be seen. 
+In Table \ref{tab:stat_geo_p1} the statistic summary of \texttt{accuracy} can be seen. 
 In the table we can see that there are invalid values for the accuracy. The invalid values shows up in the form of negative values. 
 From the many location updates only 20 show a negative accuracy, which corresponds to less than 10 ppm.  
 
@@ -208,7 +208,7 @@ The tendency described above can be shown more clearly by plotting the Cumulativ
     \hspace*{-1.0cm}
     \centering
     \includegraphics[scale=0.14]{cdf_location_updates_swe_jap}
-    \caption{Cumulative Distribution Function (CDF) over location updates for Japan and Sweden henover periodens tre måneder}
+    \caption{Cumulative Distribution Function (CDF) over location updates for Japan and Sweden over the three months of the period}
     \label{fig:country_cdf}
 \end{figure}
 
@@ -247,7 +247,7 @@ As the users have been sorted, we can easily see that a part of the users do not
     \hspace*{-1.8cm}
     \centering
     \includegraphics[scale=0.15]{cumulative_updates_overTime_swe_jap}
-    \caption{Shows when the cumulative location updates occuring over a day. The value of the updates are normalized}
+    \caption{Shows when the cumulative location updates occurring over a day. The value of the updates are normalized}
     \label{fig:cumu_loc_time_jap_swe}
 \end{figure}
 
@@ -255,7 +255,7 @@ If we only look at Figure \ref{fig:cumu_loc_time_jap_swe}, we can see that in bo
 The peak at 08:00 AM may be caused by users moving from home to work and in this process generates a lot of updates. Similarly the second peak (in Sweden) may be caused by users returning to their home again generating a certain number of updates. It can be remarked that Japan does not have a similar increase in location updates in the afternoon, but a slight increase at 7:00 PM and higher values than Sweden from 21:00 PM until 01:00 AM. \\
 
 Figures \ref{fig:agg_heatmap_jap}, \ref{fig:agg_heatmap_swe} and \ref{fig:cumu_loc_time_jap_swe} tell which times of the day may be more usable than others. For instance that it is important to be aware of the time between 01:00 AM and 06:00 AM, as many users have very few updates in this period. It will probably mean that this period should be avoided. 
-What the figures do not tell, is whether there are days in the three months which are better than others. This issue is interesting to investigate to see whether there are some days which might be used with advantage instead of using all days. Furthermore it might be possible to see a pattern for the days. We can imagine that on fridays and/or saturdays there are more updates than on other days because people get together in town and because of this are active.  
+What the figures do not tell, is whether there are days in the three months which are better than others. This issue is interesting to investigate to see whether there are some days which might be used with advantage instead of using all days. Furthermore it might be possible to see a pattern for the days. We can imagine that on Fridays and/or Saturdays there are more updates than on other days because people get together in town and because of this are active.  
 
 
 \begin{figure}[H]
@@ -345,6 +345,11 @@ In general we can see that even if the data development starts with a huge dip, 
 
 
 \section{Production data}
+Initially we tried using a newer month than the months from our test data, however we found the months did not have geocoding data (region, country, area, place) and thus we could not filter by country. An option would be to do reverse geocoding on the data. Another option would be a coarse filtration where we use the borders of Sweden in terms of latitude and longitude. Both of these options would take time. Instead we found the newest month folders with geocoding data intact was 09-15, 10-15, 11-15, the same months we had as test data, and we decided to use September as we have for the test data.
+
+We found the data folder for 09-15 had 929,697,167 location updates. After our filtration by Sweden, accuracy and just the period of September we found a remaining number of location updates of 2,450,205 and number of users of 12,692.
+
+We divided September into three periods, 1-10, 11-20, and 21-30 and extracted two datasets, one using all users and another using only the users with 10\% cross-occupancy.
 
 
 \section{Summary}

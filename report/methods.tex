@@ -227,17 +227,14 @@ How many co-occurrences between two users happened after 18:00.
 Feature ID: \textit{12}.
 
 \subsection{Overview}
-
-% Please add the following required packages to your document preamble:
-% \usepackage{multirow}
+In this section we will give an overview of which model we will fit on which data. As Logistic Regression works as our baseline and Random Forest will be compared up against Logistic Regression, we will end up with pairs of Logistic Regression and Random Forest. We will come back to this later. \\
+First we will show which features the two models (Logistic Regression and Random Forest) use on which dataset. 
 \begin{table}[H]
 \centering
-\caption{My caption}
-\label{my-label}
 \begin{tabular}{|c|c|c|c|l|c|c|}
 \hline
 \multirow{2}{*}{Feature ID} & \multirow{2}{*}{Feature name} & \multicolumn{3}{c|}{Test data}             & \multicolumn{2}{c|}{Production data} \\ \cline{3-7} 
-                            &                               & LR           & \multicolumn{2}{c|}{RF}     & LR                & RF               \\ \hline
+                            &                               & T-LR         & \multicolumn{2}{c|}{T-RF}   & P-LR              & P-RF             \\ \hline
 0                           & Two unique co-occurrences     & \cmark       & \multicolumn{2}{c|}{\cmark} & \cmark            &                  \\ \hline
 1                           & Timely arrival and leaving    &              & \multicolumn{2}{c|}{\cmark} &                   &                  \\ \hline
 2                           & Diversity                     &              & \multicolumn{2}{c|}{\cmark} &                   & \cmark           \\ \hline
@@ -254,9 +251,37 @@ Feature ID: \textit{12}.
 13                          & Number of weekends            &              & \multicolumn{2}{c|}{\cmark} &                   & \cmark           \\ \hline
 14                          & Specificity                   &              & \multicolumn{2}{c|}{\cmark} &                   & \cmark           \\ \hline
 \end{tabular}
+\caption{Overview of which model in Test data and Production data, that uses which features. T-LR = Test data Logistic Regression, T-RF = Test data Random Forest, P-LR = Production data Logistic Regression, P-RF = Production data Random Forest}
+\label{tab:model_overview}
+\end{table}
+Table \ref{tab:model_overview} give this overview, where we have a Logistic Regression and Random Forest for both Test data and Production data. Both Logistic Regressions (T-LR \& P-LR) will only use one feature, as earlier explained, as it will be used as the baseline. The Random Forest models (T-RF \& P-RF) will be using all of the features for Test data and some of the features for Production data. 
+We only use some of the features in P-RF because we didn't manage to adapt all of our features to Apache Spark. The reason to this was it took us great amount of time and we was needed to go to Lund in Sweden to run our code. Every run took also a great amount of time, which in all took several days to achieve these features. 
+
+Table \ref{tab:model_overview} show only which features is in use in which model. Table \ref{tab:model_delimitation} shows which sub-period and other data delimitation each of the models from Table \ref{tab:model_overview} (T-LR, T-RF, P-LR, P-RF) uses. 
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|c|c|c|c|c|}\hline
+\diaghead{\theadfont Diag ColumnmnHead II}%
+{Data\\delimitation}{Model}&
+\thead{T-LR}&\thead{T-RF}& \thead{P-LR}&\thead{P-RF}\\    \hline
+\thead{All three month} & \cmark & \cmark &  & \\    \hline
+\thead{September\\All users} &  &  & \cmark & \cmark \\    \hline
+\thead{September \\Users with \\40\% cross-occupancy} & \cmark & \cmark &  & \\    \hline
+\thead{September \\Users with \\10\% cross-occupancy} &  &  & \cmark & \cmark \\    \hline
+\end{tabular}
+\caption{Overview of which models from Table \ref{tab:model_overview} (T-LR, T-RF, P-LR, P-RF) that uses which sub-period and other delimitations}
+\label{tab:model_delimitation}
 \end{table}
 
-
+As Table \ref{tab:model_delimitation} shows, we end up with four model-pairs. Each represented as a row in the table (exclusive table header): 
+\begin{itemize}
+\item All three month (September, October, November) for all users\\ \textbf{Name ID: TP-1}
+\item For September for all users\\ \textbf{Name ID: PP-1}
+\item For September for users with 40\% cross-occupancy\\ \textbf{Name ID: TP-2}
+\item For September for users with 10\% cross-occupancy\\ \textbf{Name ID: PP-2}
+\end{itemize}
+For each of these pairs (TP-1, PP-1, TP-2, PP-2), the Random Forest will be compared with the baseline (the Logistic Regression in the pair). 
 \section{Results}
 In this section we will discuss the results of the work we have done in this thesis.
 

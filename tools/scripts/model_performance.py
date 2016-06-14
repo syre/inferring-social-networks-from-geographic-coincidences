@@ -52,7 +52,7 @@ for data in [(X_train, y_train, solo_feature_train, X_test, y_test, solo_feature
         data[4], y_pred)
     mean_tpr_lr += interp(mean_fpr_lr, false_positive_rate, true_positive_rate)
 
-    forest = sklearn.ensemble.RandomForestClassifier(n_estimators = 100)
+    forest = sklearn.ensemble.RandomForestClassifier(n_estimators = 10)
     grid_search = GridSearchCV(forest, param_grid=param_grid, scoring="roc_auc")
     grid_search.fit(data[0], data[1])
     print(grid_search.best_params_)

@@ -249,7 +249,7 @@ class Predictor():
         print("Random Forest - all features")
         np.delete(X_train, [0], axis=1)
         np.delete(X_test, [0], axis=1)
-        forest = sklearn.ensemble.RandomForestClassifier(n_estimators = 1000, random_state=0, class_weight="balanced")
+        forest = sklearn.ensemble.ExtraTreesClassifier(n_estimators = 1000, random_state=0, class_weight="balanced")
         forest.fit(X_train, y_train)
         y_pred = forest.predict(X_test)
         print(sklearn.metrics.classification_report(y_test, y_pred))

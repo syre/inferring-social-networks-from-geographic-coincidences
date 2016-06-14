@@ -254,8 +254,7 @@ First we will show which features the two models (Logistic Regression and Random
 \caption{Overview of which model in Test data and Production data, that uses which features. T-LR = Test data Logistic Regression, T-RF = Test data Random Forest, P-LR = Production data Logistic Regression, P-RF = Production data Random Forest}
 \label{tab:model_overview}
 \end{table}
-Table \ref{tab:model_overview} give this overview, where we have a Logistic Regression and Random Forest for both Test data and Production data. Both Logistic Regressions (T-LR \& P-LR) will only use one feature, as earlier explained, as it will be used as the baseline. The Random Forest models (T-RF \& P-RF) will be using all of the features for Test data and some of the features for Production data. 
-We only use some of the features in P-RF because we didn't manage to adapt all of our features to Apache Spark. The reason to this was it took us great amount of time and we was needed to go to Lund in Sweden to run our code. Every run took also a great amount of time, which in all took several days to achieve these features. 
+Table \ref{tab:model_overview} give this overview, where we have a Logistic Regression and Random Forest for both Test data and Production data. Both Logistic Regressions (T-LR \& P-LR) will only use one feature, as earlier explained, as it will be used as the baseline. The Random Forest models (T-RF \& P-RF) will be using all of the features for Test data and some of the features for Production data. See Discussion for why we only used some of the features.   
 
 Table \ref{tab:model_overview} show only which features is in use in which model. Table \ref{tab:model_delimitation} shows which sub-period and other data delimitation each of the models from Table \ref{tab:model_overview} (T-LR, T-RF, P-LR, P-RF) uses. 
 

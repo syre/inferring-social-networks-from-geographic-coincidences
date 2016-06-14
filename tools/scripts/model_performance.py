@@ -56,8 +56,7 @@ for data in [(X_train, y_train, solo_feature_train, X_test, y_test, solo_feature
     grid_search = GridSearchCV(forest, param_grid=param_grid, scoring="roc_auc")
     grid_search.fit(data[0], data[1])
     print(grid_search.best_params_)
-    forest.fit(data[0], data[1])
-    y_pred = forest.predict_proba(data[3])[:, 1]
+    y_pred = grid_search.predict_proba(data[3])[:, 1]
     # forest ROC
     false_positive_rate, true_positive_rate, _ = roc_curve(
         data[4], y_pred)

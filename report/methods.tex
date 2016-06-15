@@ -130,7 +130,8 @@ Initially we tried to infer friendship based on app usage. We did not have direc
 We decided to use a meeting in a next period as a proxy for friendship.
 
 \subsection{Models}
-In this thesis we will use two models, Logistic Regression and Random Forest. For each model we will first fit them on the complete period of 3 months and then the month which best met our criteria in \autoref{chap:dataset}.
+In this thesis we will use two models, Logistic Regression and Random Forest. For each model we will first fit them on the complete period of 3 months and then the month which best met our criteria in \autoref{chap:dataset}.\\
+%We will use RandomSearch to find the optimized hyper parameters on each model, 
 
 \subsubsection{Logistic Regression}
 The Logistic Regression model will be used as the baseline model. It will be fit on only one feature, whether or not people have had two co-occurrences in distinct spatial bins. We will compare the predictive strength of just that one feature to several different features fitted to a Random Forest model.
@@ -232,6 +233,7 @@ How many co-occurrences between two users happened after 18:00.
 Feature ID: \textit{12}.
 
 \subsection{Overview}
+\label{ssec:overview}
 In this section we will give an overview of which model we will fit on which data. As Logistic Regression works as our baseline and Random Forest will be compared up against Logistic Regression, we will end up with pairs of Logistic Regression and Random Forest. We will come back to this later. \\
 First we will show which features the two models (Logistic Regression and Random Forest) use on which dataset. 
 \begin{table}[H]
@@ -285,4 +287,4 @@ As Table \ref{tab:model_delimitation} shows, we end up with four model-pairs. Ea
 \item For September for users with 40\% cross-occupancy\\ \textbf{Name ID: TP-2}
 \item For September for users with 10\% cross-occupancy\\ \textbf{Name ID: PP-2}
 \end{itemize}
-For each of these pairs (TP-1, PP-1, TP-2, PP-2), the Random Forest will be compared with the baseline, the Logistic Regression. 
+For each of these pairs (TP-1, PP-1, TP-2, PP-2), the Random Forest will be compared with the baseline, the Logistic Regression. Furthermore, we will use 

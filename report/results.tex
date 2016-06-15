@@ -8,13 +8,13 @@ From \autoref{chap:methods} we have found the following datasets and modelpairs 
 \begin{enumerate}
 \item Test data
 \begin{enumerate}
-\item without user-filtering (\textbf{Modelpair: TP-1})
-\item with user-filtering using cross-occupancy of 40\% (\textbf{Modelpair: TP-2})
+\item without user-filtering (\textbf{Model pair: TP-1})
+\item with user-filtering using cross-occupancy of 40\% (\textbf{Model pair: TP-2})
 \end{enumerate}
 \item Production data
 \begin{enumerate}
-\item without user-filtering (\textbf{Modelpair: PP-1})
-\item with user-filtering using cross-occupancy of 10\% (\textbf{Modelpair: PP-1})
+\item without user-filtering (\textbf{Model pair: PP-1})
+\item with user-filtering using cross-occupancy of 10\% (\textbf{Model pair: PP-1})
 \end{enumerate}
 \end{enumerate}
 
@@ -29,7 +29,7 @@ Using production data with user-filtering we found 403 that did not meet and 453
 
 We show that the datasets composed from the test data have more negative samples than positive samples. In TP-1 the difference is more pronounced than in TP-2. 
 
-First we trained a Logistic Regression classifier which serves as our baseline classifier to compare our other model with. We trained it only with the feature two_unique_coocs. Next we trained a Random Forest classifier with all of our features.
+First we trained a Logistic Regression classifier which serves as our baseline classifier to compare our other model with. We trained it only with the feature two\_unique\_coocs. Next we trained a Random Forest classifier with all of our features.
 
 Due to our imbalanced dataset, the Logistic Regression classifier we trained initially predicted the largest prevalent class, in our training dataset. The next section explains this problem and how we dealt with it.
 

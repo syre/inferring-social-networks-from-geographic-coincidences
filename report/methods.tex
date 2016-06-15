@@ -1,6 +1,6 @@
 %!TEX root = main.tex
-\chapter{Methods and results}
-\label{chap:methods_and_results}
+\chapter{Methods}
+\label{chap:methods}
 
 In this section we will outline what methods we have used for conducting the work.
 \section{Data preparation}
@@ -123,6 +123,11 @@ In this subsection we will describe the model and features used for prediction.
 
 We will try to answer the following question: Can we predict if people meet in a period based on their spatiotemporal patterns in a previous period.
 The models and algorithms we use are implemented in \textit{scikit-learn}\cite{scikit-learn} a Python module for machine learning. 
+
+
+Initially we tried to infer friendship based on app usage. We did not have directed call-logs available so we could not reliably say if for example two people were calling each other. However the idea was that if we could find users with a similar timestamp and duration in an app, they could perhaps be communicating with each other either through phone calls or messaging apps. After finding user-pairs that met that criteria we try to validate them looking at their co-occurrences, were they many or few, were they off Sony properties or on, a lot of co-occurrences off sony properties could perhaps indicate a friendship. We identified the Android activity application name and package name for when a user is in a phone call called "Phone" and "package.com.android.incallui" respectively. Furthermore we identified a large number of messaging apps. We tried finding user pairs having activity in the phone app with a start time difference and end time difference of 10 seconds from each other. We looked at co-occurrences between user-pairs found this way and found that they either had a low number of co-occurrences around Sony properties or none at all.
+
+We decided to use a meeting in a next period as a proxy for friendship.
 
 \subsection{Models}
 For our work we will use two models, Logistic Regression and Random Forest. For each model we will first fit them on the complete period of 3 months and then the month which best met our criteria in \autoref{chap:dataset}. For the datasets we will use an outer loop of 2-fold cross-validation and an inner loop of randomized search. We chose randomized search over grid search because of the efficiency in computation time. We will use ROC AUC as the score function for the randomized search.
@@ -280,6 +285,7 @@ As Table \ref{tab:model_delimitation} shows, we end up with four model-pairs. Ea
 \item For September for users with 40\% cross-occupancy\\ \textbf{Name ID: TP-2}
 \item For September for users with 10\% cross-occupancy\\ \textbf{Name ID: PP-2}
 \end{itemize}
+<<<<<<< HEAD
 For each of these pairs (TP-1, PP-1, TP-2, PP-2), the Random Forest will be compared with the baseline, the Logistic Regression. 
 \section{Results}
 In this section we will discuss the results of the work we have done in this thesis.
@@ -386,3 +392,5 @@ We can plot the feature importances of the random forest classifier
     \caption{ROC AUC of mean of Logistic Regression (LR) and Random Forest (RF) in the four model-pairs (TP-1, TP-2, PP-1, PP-2). The mean is done over RandomizedSearch and K-fold cross-validation with $K=3$, and with undersampling of the biggest class}
     \label{fig:rocs_undersampling}
 \end{figure}
+For each of these pairs (TP-1, PP-1, TP-2, PP-2), the Random Forest will be compared with the baseline, the Logistic Regression. 
+

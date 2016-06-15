@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy import interp
 from sklearn.grid_search import GridSearchCV, RandomizedSearchCV
+from sklearn.cross_validation import StratifiedKFold
 import pickle
 from scipy.stats import randint as sp_randint
 
@@ -82,6 +83,32 @@ def gen_alldata():
     return all_data
 
 
+def oversample(X_train, y_train):
+    train_stacked = np.hstack((X_train, y_train.reshape(-1, 1)))
+    didnt_meets = train_stacked[train_stacked[:,-1] == 0]
+    did_meets = train_stacked[train_stacked[:,-1] == 1]
+    train_stacked = np.vstack((didnt_meets[np.random.choice(didnt_meets.shape[0], did_meets.shape[0], replace=True)],
+                               did_meets[np.random.choice(did_meets.shape[0], did_meets.shape[0], replace=False)]))
+    y_train = train_stacked[:, -1]
+    X_train = np.delete(train_stacked, -1, 1)
+    return X_train, y_train
+
+
+def undersample(X_train, y_train):
+    train_stacked = np.hstack((X_train, y_train.reshape(-1, 1)))
+    didnt_meets = train_stacked[train_stacked[:,-1] == 0]
+    did_meets = train_stacked[train_stacked[:,-1] == 1]
+    if didnt_meets.shape[0] > did_meets.shape[0]:
+        train_stacked = np.vstack((didnt_meets[np.random.choice(didnt_meets.shape[0], did_meets.shape[0], replace=False)],
+                                   did_meets[np.random.choice(did_meets.shape[0],
+                                             did_meets.shape[0], replace=False)]))
+    elif did_meets.shape[0] > didnt_meets.shape[0]:
+        train_stacked = np.vstack((didnt_meets[np.random.choice(didnt_meets.shape[0], didnt_meets.shape[0], replace=False)],
+                                   did_meets[np.random.choice(did_meets.shape[0],
+                                             didnt_meets.shape[0], replace=False)]))
+    y_train = train_stacked[:, -1]
+    X_train = np.delete(train_stacked, -1, 1)
+    return X_train, y_train
 #[(X_train, y_train, solo_feature_train, X_test, y_test, solo_feature_test),
 # (X_test, y_test, solo_feature_test, X_train, y_train, solo_feature_train)]
 def plot_performance(all_data):
@@ -111,10 +138,13 @@ def plot_performance(all_data):
             # logistic regression ROC
             false_positive_rate, true_positive_rate, _ = roc_curve(data[4], y_pred)
             mean_tpr_lr += interp(mean_fpr_lr, false_positive_rate, true_positive_rate)
-
             forest = sklearn.ensemble.RandomForestClassifier(n_estimators=500)
-            grid_search = RandomizedSearchCV(forest, param_distributions=param_grid, scoring="roc_auc", n_jobs=-1, n_iter=20)
-            grid_search.fit(data[0], data[1])
+            grid_search = RandomizedSearchCV(forest,
+                                             param_distributions=param_grid,
+                                             scoring="roc_auc", n_jobs=-1,
+                                             n_iter=20)
+            undersample_data = undersample(data[0], data[1])
+            grid_search.fit(undersample_data[0], undersample_data[1])
             print(grid_search.best_params_)
             y_pred = grid_search.predict_proba(data[3])[:, 1]
             # forest ROC

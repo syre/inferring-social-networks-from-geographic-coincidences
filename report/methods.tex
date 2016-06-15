@@ -372,3 +372,18 @@ We can plot the feature importances of the random forest classifier
     \caption{Feature importances of random forest}
     \label{fig:feature_importances}
 \end{figure}
+
+\begin{figure}[H]
+    \hspace*{-1.0cm}
+    \centering
+    \includegraphics[scale=0.15]{ROCS}
+    \caption{ROC AUC of mean of Logistic Regression (LR) and Random Forest (RF) in the four model-pairs (TP-1, TP-2, PP-1, PP-2). The mean is done over GridSearch and K-fold cross-validation with $K=3$. }
+    \label{fig:rocs}
+\end{figure}
+\begin{figure}[H]
+    \hspace*{-1.0cm}
+    \centering
+    \includegraphics[scale=0.15]{ROCS_undersampling}
+    \caption{ROC AUC of mean of Logistic Regression (LR) and Random Forest (RF) in the four model-pairs (TP-1, TP-2, PP-1, PP-2). The mean is done over GridSearch and K-fold cross-validation with $K=3$, and with undersampling of the biggest class}
+    \label{fig:rocs_undersampling}
+\end{figure}

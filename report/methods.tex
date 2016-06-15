@@ -1,6 +1,6 @@
 %!TEX root = main.tex
-\chapter{Methods and results}
-\label{chap:methods_and_results}
+\chapter{Methods}
+\label{chap:methods}
 
 In this section we will outline what methods we have used for conducting the work.
 \section{Data preparation}
@@ -123,6 +123,11 @@ In this subsection we will describe the model and features used for prediction.
 
 We will try to answer the following question: Can we predict if people meet in a period based on their spatiotemporal patterns in a previous period.
 The models and algorithms we use are implemented in \textit{scikit-learn}\cite{scikit-learn} a Python module for machine learning. 
+
+
+Initially we tried to infer friendship based on app usage. We did not have directed call-logs available so we could not reliably say if for example two people were calling each other. However the idea was that if we could find users with a similar timestamp and duration in an app, they could perhaps be communicating with each other either through phone calls or messaging apps. After finding user-pairs that met that criteria we try to validate them looking at their co-occurrences, were they many or few, were they off Sony properties or on, a lot of co-occurrences off sony properties could perhaps indicate a friendship. We identified the Android activity application name and package name for when a user is in a phone call called "Phone" and "package.com.android.incallui" respectively. Furthermore we identified a large number of messaging apps. We tried finding user pairs having activity in the phone app with a start time difference and end time difference of 10 seconds from each other. We looked at co-occurrences between user-pairs found this way and found that they either had a low number of co-occurrences around Sony properties or none at all.
+
+We decided to use a meeting in a next period as a proxy for friendship.
 
 \subsection{Models}
 In this thesis we will use two models, Logistic Regression and Random Forest. For each model we will first fit them on the complete period of 3 months and then the month which best met our criteria in \autoref{chap:dataset}.
@@ -281,109 +286,3 @@ As Table \ref{tab:model_delimitation} shows, we end up with four model-pairs. Ea
 \item For September for users with 10\% cross-occupancy\\ \textbf{Name ID: PP-2}
 \end{itemize}
 For each of these pairs (TP-1, PP-1, TP-2, PP-2), the Random Forest will be compared with the baseline, the Logistic Regression. 
-\section{Results}
-In this section we will discuss the results of the work we have done in this thesis.
-
-Initially we tried to infer friendship based on app usage. We did not have directed call-logs available so we could not reliably say if for example two people were calling each other. However the idea was that if we could find users with a similar timestamp and duration in an app, they could perhaps be communicating with each other either through phone calls or messaging apps. After finding user-pairs that met that criteria we try to validate them looking at their co-occurrences, were they many or few, were they off Sony properties or on, a lot of co-occurrences off sony properties could perhaps indicate a friendship. We identified the Android activity application name and package name for when a user is in a phone call called "Phone" and "package.com.android.incallui" respectively. Furthermore we identified a large number of messaging apps. We tried finding user pairs having activity in the phone app with a start time difference and end time difference of 10 seconds from each other. We looked at co-occurrences between user-pairs found this way and found that they either had a low number of co-occurrences around Sony properties or none at all.
-
-We decided to use a meeting in a next period as a proxy for friendship.
-
-We have found the following datasets based on the available data:
-\begin{enumerate}
-\item Test data
-\begin{enumerate}
-\item without user-filtering
-\item with user-filtering using cross-occupancy of 40\%
-\end{enumerate}
-\item Production data
-\begin{enumerate}
-\item without user-filtering
-\item with user-filtering using cross-occupancy of 10\%
-\end{enumerate}
-\end{enumerate}
-
-
-For our test data without user-filtering we found a training set with 1798 negative samples (did not meet) and 9203 positive samples (did meet). In our test set we found a more moderate 5513 negative samples (did not meet) and 1674 positive samples (did meet).
-
-Using production data with user-filtering in just September we found a training set with 118 that did not meet and 95 that did meet. The test set consisted of 151 that did not meet and 98 that did meet. 
-
-Using production data without user-filtering we found 5585 that did not meet and 10907 that did meet for our training set, for our test set we found 9148 that did not meet and 10028 that did meet.
-
-Using production data with user-filtering we found 403 that did not meet and 4533 that did meet for our train set and 402 that did not meet and 4630 that did meet for our test set.
-
-First we trained a Logistic Regression classifier which serves as our baseline classifier to compare our other model with. We trained it only with the feature num\_coocs. Next we trained a Random Forest classifier with all of our features.
-
-Due to our imbalanced dataset, the Logistic Regression classifier we trained initially always wanted to just predict the largest prevalent class, positive, in our training dataset.
-
-\subsection{Class Imbalance Problem}
-The Class Imbalance Problem is when the total number of samples for one class greatly exceeds the number of samples for a different class. A number of techniques can be used to handle the class imbalance problem, we will use two techniques called oversampling and undersampling\cite{tan2006introduction}. In oversampling you sample the minor sample with replacement until there is an equal number of positive and negative samples. In undersampling you randomly sample from the major class $N$ times where $N$ is the number of minor classes.
-
-\subsection{Performance metrics}
-We utilize the precision and recall metrics for evaluating the performance of our models as well as AUC of the ROC Curve.
-\subsubsection{Precision}
-Precision or the positive predictive value (PPV) is a metric that measures the number of a given class that are correctly identified in proportion to the number of classes that are predicted to be that class.
-\subsubsection{Recall}
-Recall or the true positive rate (TPR) is a metric that measures the number of a given class that are correctly identified as that class.
-
-In Table \ref{table:models_performance_report} we can see the performance metrics of the different classifiers for the positive (did meet) and negative class (did not meet).
-
-\begin{table}[H]
-\centering
-\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|}
-\hline
-\textbf{Model} & \textbf{PPV +} & \textbf{TPR +} & \textbf{PPV -} & \textbf{PPV -}   \\
-\hline
-Logistic Regression (num\_coocs)          & 0.86 & 0.03 & 0.00 & 0.00       \\
-\hline
-Random Forest (T = 10)    & 0.49 & 0.57 & 0.68 & 0.62\\
-\hline
-Logistic Regression (num\_coocs, balanced)          & 0.86 & 0.03 & 0.61 & 1.00      \\
-\hline
-Random Forest (balanced, T = 200)    & 0.44 & 0.79 & 0.71 & 0.34\\
-\hline
-\end{tabular}
-\caption{Models performance metrics}
-\label{table:models_performance_report}
-\end{table}
-
-We can further look at the number of classes correctly and incorrectly predicted using a Confusion Matrix. Figure \ref{fig:conf_matrix_log_reg} and \ref{fig:conf_matrix_random_forest} shows the confusion matrices for our two models.
-
-\begin{figure}[H]
-    \hspace*{-1.0cm}
-    \centering
-    \includegraphics[scale=0.50]{confusion_matrix_log_reg}
-    \caption{Confusion matrix for Logistic Regression (num\_coocs feature)}
-    \label{fig:conf_matrix_log_reg}
-\end{figure}
-\begin{figure}[H]
-    \hspace*{-1.0cm}
-    \centering
-    \includegraphics[scale=0.50]{confusion_matrix_random_forest}
-    \caption{Confusion matrix for Random Forest (all features, 200 trees)}
-    \label{fig:conf_matrix_random_forest}
-\end{figure}
-
-Looking at Figure \ref{fig:conf_matrix_log_reg} we see our baseline classifier has a very high BLABLA
-We can plot the feature importances of the random forest classifier
-\begin{figure}[H]
-    \hspace*{-1.0cm}
-    \centering
-    \includegraphics[scale=0.40]{feature_importances}
-    \caption{Feature importances of random forest}
-    \label{fig:feature_importances}
-\end{figure}
-
-\begin{figure}[H]
-    \hspace*{-1.0cm}
-    \centering
-    \includegraphics[scale=0.15]{ROCS}
-    \caption{ROC AUC of mean of Logistic Regression (LR) and Random Forest (RF) in the four model-pairs (TP-1, TP-2, PP-1, PP-2). The mean is done over RandomizedSearch and K-fold cross-validation with $K=3$. }
-    \label{fig:rocs}
-\end{figure}
-\begin{figure}[H]
-    \hspace*{-1.0cm}
-    \centering
-    \includegraphics[scale=0.15]{ROCS_undersampling}
-    \caption{ROC AUC of mean of Logistic Regression (LR) and Random Forest (RF) in the four model-pairs (TP-1, TP-2, PP-1, PP-2). The mean is done over RandomizedSearch and K-fold cross-validation with $K=3$, and with undersampling of the biggest class}
-    \label{fig:rocs_undersampling}
-\end{figure}

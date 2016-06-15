@@ -1,0 +1,361 @@
+%!TEX root = main.tex
+\chapter{Dataset}
+\label{chap:dataset}
+På de følgende sider vil vi gennnemgå vores dataset. Vi vil vise de basale statistikker over det pågældende data vi har arbejdet med og gennemgå afvigelser. Vi vil også gennemgå hvordan vi forholder os til disse afvigelser og hvordan vi lavede datacleaning. \\
+Til sidst vil vi runde afsnittet af med en del-konlusion. 
+
+Vores data stammer fra Sony's Lifelog\cite{sonyLifeLog} som er en lifetracking app som tracker ens aktiviteter i løbet af dagen, heriblandt lokation og app-brug.
+
+Datasættet beskriver geolokationerne for hvor en bruger har været. Det beskriver præcis hvor, hvornår og hvor længe brugeren har været det pågældende sted. Hver gang brugeren skifter lokation (defineret ud fra latitude og longitude), bliver der logget en lokationsopdatering med følgende oplysninger:
+\begin{enumerate}
+\item \texttt{\textbf{timestamp\_seen}}\\Millisekunder siden brugerens systems epoch, da den pågældende lokations opdatering bliver logget. 
+\item \texttt{\textbf{id}}\\Lokations id repræsenteret som en streng. 
+\item \texttt{\textbf{useruuid}}\\Brugerens unikke id repræsenteret som en streng.
+\item \texttt{\textbf{start\_time}}\\Tid for hvornår brugeren går ind i en lokation. Repræsenteret som ISO8601 time stamp med timezone.
+\item \texttt{\textbf{end\_time}}\\Tid for hvornår brugeren går ud af en lokation. Repræsenteret som ISO8601 time stamp med timezone.
+\item \texttt{\textbf{name}}\\Navnet på byen hvor brugeren befinder sig, når lokations opdateringen bliver logget.
+\item \texttt{\textbf{area}}\\Navnet på området hvor brugeren befinder sig, når lokations opdateringen bliver logget. F.eks. Skåne i Sverige
+\item \texttt{\textbf{country}}\\Navnet på landet hvor brugeren befinder sig, når lokations opdateringen bliver logget.
+\item \texttt{\textbf{region}}\\Navnet på regionen hvor brugeren befinder sig, når lokations opdateringen bliver logget. F.eks. Europa
+\item \texttt{\textbf{latitude}}\\Latitude for lokationen. Latitude har en præcision på ca 15 cifre, hvilket svarer til 0.1 nanometer \textcolor{red}{[KILDE!!!]}. Denne præcition er skal man dog ikke tage så højtidligt, da de fleste mobil GPS'er har en fejl margen på maks 30 meter \cite{NAV:8292634}.  
+\item \texttt{\textbf{longitude}}\\Longitude for lokationen. Latitude har en præcision på ca 15 cifre, hvilket svarer til 0.1 nanometer. Vedr. præcition, gælder det samme som ved latitude
+\item \texttt{\textbf{altitude}}\\Altitude repræsenteret i mm. Dette bliver beregnet af telefonens gyroskop samt GPS
+\item \texttt{\textbf{accuracy}}\\Accuracy repræsenteret i mm. Accuracy er hvor nøjagtigt man kan regne med GPS'en er i den pågældene lokations opdatering. Værdien fortæller at brugeren med 68\% sikkerhed er i pågældende sted, indenfor denne distance som accuracy er \cite{android_accuracy}. Jo lavere værdi, jo bedre. Dette styres af telefonens styresystem og GPS.
+\item \texttt{\textbf{devices}}\\Devices er repræsentet som et array med name, type og id. Type er hvilken type device (f.eks. Phone), name er navnet på det device og id er devices unikke id. 
+\end{enumerate}
+
+Nogle af overstående oplysninger er ikke relevante for vores problemstilling. Dette gør vi kan skære disse fra og vi ender dermed at have følgende oplysninger (fra nu af kaldt  attributter) at arbejde med: 
+
+\begin{itemize}
+\item \texttt{useruuid}
+\item \texttt{start\_time}
+\item \texttt{end\_time}
+\item \texttt{country}
+\item \texttt{latitude}
+\item \texttt{longitude}
+\end{itemize}
+
+Disse oplysinger har vi valgt, da de er vigtige eller interssante at kigge på i forhold til vores problemstilling. \texttt{useruuid} er vigtig for at kunne skelne brugerene fra hinanden, \texttt{start\_time} og \texttt{end\_time} er vigtige, da de fortæller hvornår og hvor længe brugeren har været i den pågældende lokation. \texttt{country} er til nemt at kunne filtrere brugerene. \texttt{latitude} og \texttt{longitude} er meget væsentlige, da de fortæller det mest vigtigste, nemlig hvilken lokation brugeren befinder sig i. \texttt{accuracy} kan fortælle os i for høj grad vi kan bruge den pågældene lokationsopdatering.  
+
+
+Vi har kigget på test data som er et sub-sæt af production data. Dette test data, er fra en specifik periode og med specifikke brugere. Efter dette sub-sæt, har vi kigget på hele production data. Vi vil beskrive hvordan henholdsvis test data og production data ser ud mht. distributioner mm. 
+
+\section{Test data}
+Dette data's periode strakte sig over 3 måneder: september - november 2015. 
+Henover denne periode blev der indsamlet 2,665,893 lokations opdateringer fordelt på 1,586 brugere. Disse brugere er alle Sony medarbejdere rundt om i verdenen. Dette betyder at de har nogle naturlige samlingssteder som er Sony relaterede, såsom Sonys kontorer rundt i diverse lande. \textcolor{red}{figur af kort eller henvisning?}
+Dette har i højgrad en indvirkning på vores hvordan dataet ser ud, hvilket vi vender tilbage til. 
+
+I Table \ref{tab:stat_geo_p1} ses statistic summary af \texttt{accuracy}.
+Vi kan se i tabellen, at der er nogle ugyldige værdier for accuracy. Disse ugyldige værdier viser sig i form af negative værdier. 
+Ud af de mange lokations opdateringer er der kun 20 hvor accuracy er negativ hvilket svarer til knapt en 1,000 del procent. 
+\begin{table}[H]
+        \centering
+        \small
+        \setlength\tabcolsep{2pt}
+        \begin{tabular}{|c|c|c|}
+            \hline
+                         & Accuracy (mm)          \\[0pt]% compensate for extrarowheight
+            \hline
+                 Min     &  -2,147,483,500             \\
+            \hline
+                 Max     &  500,000                \\
+            \hline
+                 Mean    & 35,249                      \\
+            \hline
+                Std. dev.   & 3,672,390                \\
+            \hline
+        \end{tabular}
+        \caption{Statistic summary of dataset in test periode} %add this between 'caption' and '{...' for new text in listing of tables: [New caption text only for listing of tables]
+        \label{tab:stat_geo_p1}
+\end{table}
+
+Da accuracy påvirker latitude og longitude, som er vores vigtigste attribut, så fjerner vi de opdateringer hvor acuracy er negativ. Herudover fjerner vi også de lokations opdateringer hvor accuracy er over 55.000 (55m). Vores binning svare maksimalt til 111m. Da accuracy fortæller at brugeren med 68\% sikkerhed er i pågældende sted, indenfor denne distance som accuracy er, vælger vi derfor 55m som er halvdelen af den maksimale længde, vores cell kan være. Det gør, at vi med 68\% sikkerhed ved, at brugeren er i den pågældende binning, med den forudsætning, at brugeren er står præcis i midten af cellen. Dette er dog en forudsætning, som vi ikke kan gå ud fra er gældene. Dog synes vi, dette er den bedste måde at sætte grænsen for accuracy på. 
+Se mere i section \ref{ssec:binning}, s. \pageref{ssec:binning}, ang. hvordan binning er defineret og i dicussion for vores udfordringer mht. binning og cell size. 
+
+Efter dette, så quantilerne af accuracy ud som man kan se på Tabel \ref{tab:acc_quantiles}. 
+ \begin{table}[htbp]
+        \centering
+        \small
+        \setlength\tabcolsep{2pt}
+        \begin{tabular}{|c|c|c|}
+            \hline
+                         & Accuracy      \\[0pt]
+            \hline
+                 Min     &  3,000       \\
+            \hline
+                 Q1      &  9,000   \\
+            \hline
+                 Median  &  20,000    \\
+            \hline
+                 Mean    &  22,565.72    \\
+            \hline
+                 Q3      &  35,541      \\
+            \hline
+                 Max &  55,000   \\
+            \hline
+                 IQR     &   26,541     \\
+            \hline
+                Std. dev.  &  14,669.72   \\
+            \hline
+        \end{tabular}
+        \caption{Quantiles of accuracy after cleaning} %add this between 'caption' and '{...' for new text in listing of tables: [New caption text only for listing of tables]
+        \label{tab:acc_quantiles}
+\end{table}
+
+Vi kan se på medianen og mean, at de fleste brugere har lav værdi i accuracy - hvilket er godt! Hvis vi antager at det følger en normalfordeling, kan vi ud fra standard deviation udlede, at 95\% af brugerne har en accuracy mellem 7,896 og 37,235.44. Dette viser at der sandsynligvis er nogle få brugere med meget høje værdier i accuracy, hvor max er 100,000. At det kun er nogle få brugere med høje værdier er godt, da det omvendt betyder at der er mange bruger med lav (og derved god) accuracy. Da vi har gjort at max for accuracy er 100,000, kan vi sagtens bruge disse brugere med høj værdi i accuracy. Hvis man senere skulle bruge en mere fin binning, ville man sagtens kunne gøre dette uden at skulle udelukke alt for meget data, da værdierne for accuracy ligger så fint som de gør.  
+
+Medianen og mean svarer til henholdsvis 23m og 26.89m og 95\% standard deviation er på mellem 6.6m og 47.19m hvilken er en fin accuracy. 
+
+
+Når vi kigger på hvilke lande der er repræsenteret og i hvilken grad, har vi at gøre med 80 unikke lande. Til at starte med lå dette tal på 74. Det viste sig, at der var en masse lokations opdateringer hvor landet ikke var blevet logget. I disse tilfælde var landet blot repræsenteret med en tom streng. Dette var tilfældet i så stor en del af dataet, at landet med en tom streng, var det andet mest repræsenterede land i dataet med lidt over 500.000 lokations opdateringer. 
+Da vi gerne vil kunne sorterer data på baggrund af land, var dette et problem. Dette fik vi løst, ved at udføre omvendt geolokation. For næsten alle de 500.000 lokations opdateringer, var latitude og longitude til stede, så vi kunne ved hjælp af et API\cite{reversegeocode} slå landet op på bagrund af latitude og longitude, og herefter indsætte det i dataet. Dette gjorde vi kun skulle gøre dette én gang, i stedet for at slå landet op hver gang vi kørte vores scripts. Dette ville have været ineffektivt og spild af tid. Derudover havde API'et en grænse hvor hvor mange man kunne slå op i minuttet, hvilket gjorde at det tog en uges tid at slå alle op. Her kørte scriptet 24/7. \\ 
+Vores omvendt geolokation gjorde, at vi gik fra over 500,000 lokations opdateringer hvor landet ikke var til stede, til blot 130 lokations opdateringer. I samme omgang fik vi nye lande repræsenteret i dataet, så vi gik fra 74 lande til 80 (inkl. land med tom streng)
+
+Vi kan herefter kigge på, hvordan lokations opdateringerne er distribueret over de fem lande, med højest antal opdateringer. På figur \ref{fig:country_dist} kan vi se at Sverige og Japan topper listen og at landet med en tom streng er udenfor top 5 (det røg ned blandt den sidste fjerde del).
+
+
+\begin{figure}[H]
+    \hspace*{-1.0cm}
+    \centering
+    \includegraphics[scale=0.14]{country_distribution}
+    \caption{Distribution for number of location updates between the five countries with most updates}
+    \label{fig:country_dist}
+\end{figure}
+
+
+At Sverige og Japan er de to størst repræsenterede lande er ikke så mærkeligt, da Sony er et Japansk firma og Sony overtog helt Sony-Ericsson, hvor Ericsson var Svensk. Sony-Ericsson var den gang Sony's mobil mærke, så en stor del af Sony's mobil udvikling ligger stadig i Sverige. Dette kan forsklare hvorfor Sverige har tre gange flere opdateringer end Japan.  
+
+På baggrund af Figure \ref{fig:country_dist}, har vi valgt at gå videre med enten Sverige eller Japan. Derfor vil vi nu sammenligne data for de to lande. 
+I Japan er der \numberUsersJapan{} unikke brugere, mens der i Sverige er \numberUsersSweden. De to lande kan have brugere tilfælles, da brugerne principielt kan rejse mellem flere lande og derved have lokations opdateringer i flere lande.  
+Af antallet af totale lokations opdateringer har Japan 299,157 opdateringer henover alle tre måneder, mens Sverige har 1,018,781 opdateringer.
+
+Figure \ref{fig:mean_loc_updates_sep-nov} sammenligner gennemsnittet for lokations opdateringer i Japan og Sverige.
+\begin{figure}[H]
+    \hspace*{-2.2cm}
+    \centering
+    \includegraphics[scale=0.16]{mean_loc_updates_sep-nov}
+    \caption{Distribution for mean of location updates for Japan and Sweden}
+    \label{fig:mean_loc_updates_sep-nov}
+\end{figure}
+
+Vi kan se at Sverige har betydeligt flere opdateringer end Japan i alle tre måneder, hvor landet i September og Oktober endda har dobbelt så mange end Japan. Vi kan også se en nedadgående tendens i begge lande. September har højest antal opdateringer, hvor det herefter går nedad i de to resterende måneder, hvor November for Sverige ligger over 300 opdateringer under September. Selvom tendensen ses tydeligst for Sverige, er den også synlig for Japan. \\
+Dette kigger vi nærmere på senere.
+
+Som der blev nævnt tidligere, er der nogle naturlige samlingssteder for Sverige og Japan, da dataet er for Sony medarbejdere. Disse steder er naturligvis arbejdsrelaterede, såsom Sonys kontorer i de to lande. Vi har fundet frem til tre steder i Sverige og et i Japan. Grunden til at dette er væsentligt for os er, at folks co-ocurences er arbejdsrelaterede, hvilket ikke nødvendigs betyder, at de er venner med personen de fik en co-occurence med.
+
+Det er derfor interessant at se, hvor mange af opdateringer for hvert land der ligger indenfor de fundne samlingssteder og hvor mange der ligger udenfor. 
+
+\begin{figure}[H]
+    \hspace*{-2.2cm}
+    \centering
+    \includegraphics[scale=0.16]{stack_bar_loc_updates}
+    \caption{Shows how many of the updates that is outside/inside Sony perimeters}
+    \label{fig:hq_stack_bar}
+\end{figure}
+
+Figure \ref{fig:hq_stack_bar} viser hvordan opdateringerne fordeler sig mht. om de er forgået på et samlingssted eller ej. Vi ser at i begge landes tilfælde, er der en beskeden del der er indenfor samlingsstederne. For henholdsvis Japan og Sverige, svarer denne del til 23.89\% og 19.86\%. 
+Dette tegner godt for projektet, at der er så stor del af opateringerne der ligger udenfor samlingstederne. 
+
+Vi vil gerne se hvordan lokations opdateringerne for de to lande, er fordelt på brugerne. Til dette har vi quantilerne for de to lande, som se i Tabel \ref{tab:stat_loc_updates} 
+
+\begin{table}[htbp]
+        \centering
+        \small
+        \setlength\tabcolsep{2pt}
+        \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|}
+            \hline
+                         & Japan      &   Sweden      \\[-1pt]
+            \hline
+                 Min     &    1       &   1           \\
+            \hline
+                 Q1      &  26        &   68      \\
+            \hline
+                 Median  & 233     &   840      \\
+            \hline
+                 Mean    &  851.49   &  1,735.38     \\
+            \hline
+                 Q3      & 994.5    &   2,642     \\
+            \hline
+                 Max     &  9,320 &  14,759     \\
+            \hline
+                 IQR     &  968.5   &   2,574     \\
+            \hline
+            
+        \end{tabular}
+        \caption{Quantiles and mean over location updates for Japan and Sweden} %add this between 'caption' and '{...' for new text in listing of tables: [New caption text only for listing of tables]
+        \label{tab:stat_loc_updates}
+\end{table}
+
+
+Hvis vi kigger på landenes quantiler, kan vi se at 25\% quantilen (Q1) er meget lav hos begge lande. Q1 vise med andre ord, at 25\% af brugerne i Japan og Sverige har henholdsvis maksimalt 22 og 71 opdateringer, henover alle tre måneder. Dette er ikke et godt tegn at så mange brugere har så få opdateringer. 75\% quantilen (Q3) er en del højere i Sverige end i Japan, hvilket viser der er 75\% af brugerne der har maksimal 1,063.25 og 2,848.25 lokations opdateringer i henholdsvis Japan og Sverige. Dette ser igen bedre ud i Sverige, hvis brugere har flere opdateringer end Japan. \\ 
+
+Begge lande har en lille procent brugere, som står får utroligt mange opdateringer. I Sverige er der 25\% brugere som har mellem 2,848.25 og 15,447 opdateringer og i Japan har de mellem 1,063.25 og 10,316 opdateringer. Dette er ligesom med Q1 et dårligt tegn. 
+Median og mean er meget større i Sverige end Japan. Dette tyder på at der er flere brugere med flere lokations opdateringer i Sverige end i Japan. \\
+
+
+Den ovenstående tendens, vil vi gerne vise mere tydeligt, hvorfor vi har plottet den Cumulative Distribution Function (CDF) for de to lande. 
+\begin{figure}[H]
+    \hspace*{-1.0cm}
+    \centering
+    \includegraphics[scale=0.14]{cdf_location_updates_swe_jap}
+    \caption{Cumulative Distribution Function (CDF) over location updates for Japan and Sweden henover periodens tre måneder}
+    \label{fig:country_cdf}
+\end{figure}
+
+Plottet viser, at der både i Japan og Sverige er en stor del af brugerne, som har meget få lokations opdateringer set henover hele perioden. Det kan ses, at Japan får hurtigt flere brugere med få opdateringer, end Sverige. 
+Da opdateringerne kommer hver gang brugeren skifter lokation, betyder dette, at mange af brugerene er meget stillestående eller også har de slukket mobilen. Her kan stillestående også menes, at brugeren har glemt sin telefon derhjemme. Vi kan se forskel i dataen på, om de har slukket mobilen eller er stillestående, men ikke om de er stillestående eller har glemt mobilen. Vi kan se den førstnævnte forskel ved, at der simpelthen mangler data i et tidsrum, hvor hvis brugeren er stillstående er intervallet mellem \texttt{start\_time} og \texttt{end\_time} markant. 
+
+Vi vil gerne se om der er et mønster i hvornår opdateringerne kommer, da vi derfra muligvis kan udpege bedre eller dårligere sub-perioder som vi kan tage stilling til.
+Vi har plotted heatmaps over hvordan opdateringerne er fordelt over et døgn. Dette er lavet, ved at aggregerer over tidsrummet i det pågældende døgn. Det der bliver aggregeret er, om en brugere har haft mindst én opdatering, i det tidsrum på døgnet (repræsenteret med 0 eller 1), uanset hvilken dag det er.
+
+\begin{figure}[H]
+    \hspace*{-0.8cm}
+    \centering
+    \includegraphics[scale=0.15]{aggregated_updates_over_time_japan}
+    \caption{Heat map for location updates over the 3 month period in Japan, aggregated over a day with 60 minutes of binsize. Users are sorted by total number of location. Largest is at the bottom. The scale is logarithmic}
+    \label{fig:agg_heatmap_jap}
+\end{figure}
+Figure \ref{fig:agg_heatmap_jap} viser hvordan opdateringerne for hver user (y-aksen), fordeler sig over tidsrummet på en dag, målt over alle tre måneder. Brugerne er sorteret på baggrund af deres samlede aggregerede værdier, med den største nederst på y-aksen. 
+
+Man ser tydeligt, at der er en periode mellem kl. 02:00 og kl. 06:00 hvor de fleste brugere ikke har nogle updates, dette kunne tyde på at de enten slukker eller på anden måde lukker for kommunikationen med omverdenen i det givne tidsrum. Herefter fra kl. 06:00 til 00:00 er der regelmæssig opdateringer, hvorefter det stilner af til kl. 02:00. Hvis vi sammenligner dette med Figure \ref{fig:cumu_loc_time_jap_swe} kan vi se det stemmer meget godt overens. Figure \ref{fig:cumu_loc_time_jap_swe} viser den aggrgerede location updates henover et døgn i både Japan og Sverige. Her ser vi samme udvikling for Japan som heat mappet indikerer, som beskrevet ovenfor. 
+
+Det ovenstående gælder også for Sverige (Figure \ref{fig:agg_heatmap_swe}), som viser det samme som Japan. Her slukker næsten alle brugere også deres mobiler mellem 02:00 og 06:00
+Der er ikke andre time-slots som skilder sig ud, hverken i Japan eller Sverige. 
+
+Da vi har sorteret brugerne kan vi nemt se, at der er en del brugere som ikke har nogle, eller meget få, opdateringer henover alle tre måneder. Disse bruge kunne vi se bort fra i vores forsøg, da de alligevel ikke bidrager med noget. 
+
+
+\begin{figure}[H]
+    \hspace*{-0.8cm}
+    \centering
+    \includegraphics[scale=0.15]{aggregated_updates_over_time_sweden}
+    \caption{Heat map for location updates over the 3 month period in Sweden, aggregated over a day with 60 minutes of binsize. Users are sorted by total number of location. Largest is at the bottom}
+    \label{fig:agg_heatmap_swe}
+\end{figure}
+
+\begin{figure}[H]
+    \hspace*{-1.8cm}
+    \centering
+    \includegraphics[scale=0.15]{cumulative_updates_overTime_swe_jap}
+    \caption{Shows when the cumulative location updates occuring over a day. The value of the updates are normalized}
+    \label{fig:cumu_loc_time_jap_swe}
+\end{figure}
+
+Hvis vi udelukkende kigger på Figure \ref{fig:cumu_loc_time_jap_swe}, kan vi se at det topper i begge lande omkring kl. 08:00 om morgenen. I Sverige topper det desuden også kl. 16:00, hvor det ikke gør det i Japan. Her er det neutralt. \\
+Toppen der finder sted kl. 08:00 om morgen, skyldes nok at brugerne er på vej til arbejde og derved får en masse updates. Tilsvarende kan den anden top (i Sverige), være der hvor brugerene er på vej hjem fra arbejde, hvor man derved også får en masse updates. Det bemærkes at Japan ikke har en tilsvarende stigning i locations updates ved eftermiddagen, men dog har en lille stigning ved 19:00 og højere værdier end Sverige fra 21:00-23:00.\\
+
+Figure \ref{fig:agg_heatmap_jap}, \ref{fig:agg_heatmap_swe} og \ref{fig:cumu_loc_time_jap_swe} fortæller os hvilket tidsrum på dagen, som kan være give mere udbytte end andre. F.eks. at vi skal være opmærksomme på tidsrummet mellem kl. 01:00 og 06:00, da mange har meget få opdateringer i dette tidsrum. Derfor er det sandsynligt, at vi skal undgå dette tidsrum. 
+
+Hvad Figurerne ikke fortæller os er, om der er nogle dage i de tre måneder der er bedre end andre. Dette vil vi gerne finde ud af, for at se om der er nogle dage som vi med fordel kunne bruge i stedet for alle dagene. Herudover kan vi måske se et mønster i dagene. Man kunne forestille sige, at der fredag og/eller lørdag er flere opdateringer end andre dage, fordi folk går ud i byen og dermed er aktive. 
+
+
+\begin{figure}[H]
+    \hspace*{-1.5cm}
+    \centering
+    \includegraphics[scale=0.15]{heatmap_location_updates_japan}
+    \caption{Heat map for mean location updates over the 3 month period in Japan}
+    \label{fig:heatmap_jap}
+\end{figure}
+
+Figure \ref{fig:heatmap_jap} viser hvordan lokations opdateringerne per bruger (afrundet til heltal) i Japan er fordelt over hver dag i hver af de tre måneder. Vi kan f.eks. se, at der i Japan er gennemsnitligt 16 opdateringer per bruger om fredagen i uge 2 i september. 
+
+Igen kan man se at der generelt er flere opdateringer i september end i de andre to måneder. Både oktober og november ligner hinanden, bortset fra et par dage hvor november har et par højere værdier end noglre andre dage i oktober. 
+
+I mange tilfælde kan man se at fredage og/eller lørdage har højere værdi end de andre dage i den pågælende måned.
+
+
+ %Vi kan se at for både Japan og Sverige gælder, at der generelt er mere aktivitet i september, end i de andre måneder. Dette underbygger tendensen fra Figure \ref{fig:mean_loc_updates_sep-nov}, hvor vi kunne se en nedadgående tendens fra september til november. I Japan er october og november på nogenlunde samme niveau, hvor man i Sverige tyderligere kan se en ydeligere reducering af antal opdateringer. 
+
+
+
+%\newpage
+
+\begin{figure}[H]
+    \hspace*{-1.5cm}
+    \centering
+    \includegraphics[scale=0.15]{heatmap_location_updates_sweden}
+    \caption{Heat map for mean location updates over the 3 month period in Sweden}
+    \label{fig:heatmap_swe}
+\end{figure}
+
+Figure \ref{fig:heatmap_swe} viser hvordan lokations opdateringerne per bruger (afrundet til heltal) i Sverige, er fordelt over hver dag i hver af de tre måneder. Som i Japan er der generelt flere opdateringer i september end i de andre to måneder. I Sverige er denne tendens dog mere tydelig end Japan. Ligesom i Japan, har vi set denne tendens i Figure 
+\ref{fig:mean_loc_updates_sep-nov}, så dette er ikke overraskende. 
+ 
+Også her, ligesom Japan, ligger værdierne for fredage og/eller lørdage en anelse højere end de andre dage. Disse værdier er dog ikke så meget højere så det er af betydning, hvilket også gælder for Japan. 
+
+På de to figurer ovenfor, kan vi få en fornemmelse af gennemsnitlig updates for hver dag. Vi kan ikke få en fornemmelse hvordan dette ser ud for hver bruger. Derfor har vi lavet nedenstående figurer. 
+
+\begin{figure}[H]
+    \hspace*{-1.5cm}
+    \centering
+    \includegraphics[scale=0.16]{location_updates_japan_combined_log.png}
+    \caption{Heat map for mean location updates over the 3 month period in Japan. x-axis is days and y-axis is users. The scale is logarithmic}
+    %\vspace*{-3.5cm}
+    \vspace{-12pt}
+    \label{fig:heatmap_japan_combined}
+\end{figure}
+Figure \ref{fig:heatmap_japan_combined} viser antal updates for hver bruger (y-axis), for hver dag i hver af de tre måneder (x-axis). Hver række i hver af de tre heatmaps (ét for hver måned), repræsenterer en bruger. Der er altså \numberUsersJapan{} antal rækker i hvert heatmap. Hvert heatmap er sorteret så brugeren med updates i flest dage, ligger nederst. Det gør at brugerene ikke nødvendigvis er repræsenteret i samme række over alle tre heatmaps. Vi kan dermed også se, at der er mange brugere (omkring halvdelen) som ikke har nogle opdateringer i nogle af dagene for hver af de tre måneder. Dette kan godt passe, ud fra hvad vi ved fra Figure \ref{fig:country_cdf} og at disse brugere som sagt ikke nødvendigvis er de samme henover månederne, 
+Vi har plottet dage og månederne på denne måde, da det giver os muligheden for nemmere at sammenligne dagene for hver måned med hinanden. 
+
+Vi kan se der er relativt få brugere som har updates i alle dage i en måned. Dette alene er bekymrende og tegner ikke godt for vores projekt, og når vi i dette plot ikke kan være sikker på det er samme bruger der har updates i alle dage for alle tre måneder, så er det endnu mere bekymrende. 
+
+Igen virker det som at september har flere brugere, som har opdateringer i relativt mange dage, i forhold til de andre måneder.
+
+Hvis vi kigger på oktober, kan vi se nogle par af dage som danner lyse lodrette striber i forhold til de andre dage. Dette betyder lavere antal updates. Disse foregår d. 3 og 4, 10 og 11, 17 og 18 og til sidst 24 og 25. Disse par dukker op med en uges interval, hvor d. 3 er en lørdag og d. 4 er en søndag. Dvs. de andre par også er lørdage og søndage. Dette mønster gentager sig i november, hvor man rigtig kan se det fra d. 7 og 8. September er ikke så tydelig, men det er der. Dette er meget interessant, da det kan indikere at lørdage og søndage ikke er så gode at gøre brug af. 
+
+Der er ellers ikke nogle dage eller perioder af dage, som skiller sig ud af mængden. Grunden til af d. 31 i september og november er tom er, at der ikke er en dato der hedder d. 31 i disse to måneder, mens der er det for oktober. Det er derfor meningen at den dato for september og november skal være tom. 
+
+\begin{figure}[H]
+    \hspace*{-1.5cm}
+    \centering
+    \includegraphics[scale=0.16]{location_updates_sweden_combined_log.png}
+    \caption{Heat map for mean location updates over the 3 month period in Sweden. x-axis is days and y-axis is users. The scale is logarithmic}
+    \label{fig:heatmap_sweden_combined}
+\end{figure}
+Figure \ref{fig:heatmap_sweden_combined} viser det samme blot for Sverige. Igen kan vi se i alle tre måneder, at lørdage og søndage skiller sig ud af mængden ved at have færrer opdateringer.  Vi kan også se at specielt september har færrer brugere som ikke har nogen opdateringer gennem måneden end Japan, hvor oktober og november ligger mere på niveau med Japan. 
+
+Sverige har også flere brugere med opdateringer for hver dag, end Japan. 
+
+Vi kan vha. Figure \ref{fig:heatmap_japan_combined} og Figure \ref{fig:heatmap_sweden_combined} få en fornemmelse for, hvilke dage der er bedre end andre, som f.eks. lørdage og søndage ikke virker som gode dage, pga. færrer opdateringer. 
+
+Der er ellers ikke nogle dage eller perioder af dage, som skiller sig ud af mængden. Ligesom i Japan, er d. 31 i september og november tom, da der ikke er en dato der hedder d. 31 i disse to måneder. 
+
+En ting er at kunne se hvordan opdateringer fordeler sig pr. dag pr. bruger, men vi ved ikke om alle opdateringerne for en dag, foregår i løbet af en time eller om de er fordelt henover dagen. Det ville være bedst at kunne finde brugere som har opdateringer på flere tidspunkter i løbet af en periode, da der er bedre sandsynlighed for, at disse brugere har co-occurences. 
+
+
+\begin{figure}[H]
+    \hspace*{-2.0cm}
+    \centering
+    \includegraphics[scale=0.16]{users_by_criteria.png}
+    \caption{Plot over number of users which have location updates in certain percentage unique timebins in each sub-period. A sub-period is defined in \ref{chap:methods_and_results}, which is a period devided in three. In all month is a month a sub-period}
+    \label{fig:users_by_criteria}
+\end{figure}
+Fra \ref{chap:methods_and_results} ved vi, at vi deler vores valgte periode op i tre subperioder, for at kunne træne og teste på disse. Figure \ref{fig:users_by_criteria} viser, hvor mange brugere der har lokations opdateringer i en vis procentdel af unikke timebins i alle tre subperioder for en givet periode. F.eks. kan vi se, at der er ca 90 brugere som har opdateringer i 20\% af de mulige timebins i hver af de tre subperioder i september i Sverige. Her er septembers 30 dage delt op i følgende subperioder: 1-10, 11-20, 21-30
+
+Vi kan se der er rigtig mange brugere, som har opdateringer i meget få timebins i hver subperiode. Værdierne er beregnet med en opløsning på 1\%. Allerede ved 1\% unikke timebins, er september for Sverige gået fra \numberUsersSweden{} til ca. 140. Dvs. 140 brugere har updates fordelt på 1\% af de mulige timebins i hver subperiode. For de andre måneder er tallet endnu lavere. Dette er meget kraftigt dyk i antal brugere. 
+Da en subperiode i september har 10 dage og vores timebins har en størrelse på en time, er der $10*24=240$ mulige timebins. Dvs. at 1\% svarer til $240/100=2.4$ hvilket vil sige at de 140 brugere, skal have opdateringer henover 3 unikke timebins i hver af de tre subperioder, da man skal runde op til nærmeste heltal. 
+De 90 brugere med 20\% unikkebins, svarer til at have opdateringer henover 48 timebins i hver periode. 
+
+Ved all months er hver subperiode en måned, hvilket vil sige 30-31 dage.  
+
+Generelt kan vi se, at selvom udviklingen starter med et kæmpe dyk, flader det hurtigt ud. September i Sverige er klart bedre end de andre måneder i Sverige, hvor i Japan er det mindre klart. Her ser det ud  til, at det står mellem september og november. 
+
+
+
+
+\section{Production data}
+
+
+\section{Summary}
+Vi vil i dette afsnit, hurtig opridse de vigtigste pointer vi har fundet i vores analyse gennemgået ovenfor. 
+
+Vi har fundet ud af, at Sverige og Japan var de to størst repræsenterede lande set på antal lokations opdateringer. Derfor gik vi videre med disse to lande, hvor vi fandt ud af, at der var nogle værdier for accuracy som var ugyldige. Disse fik vi fjernet, da vi ikke kunne stole på disse opdateringer. Herudover fjernede vi også dem der havde en accuracy på over 55,000 pga. vores binning. 
+Vi rensede yderligere ved, at opdatere 500.000 lokations opdateringer hvor landet manglede. Disse blev opdateret med land, hvilket også gjorde vi fik flere lande repræsenteret - det var dog stadig Sverige og Japan der var repræsenteret mest. 
+
+Vi fandt hurigt ud af, at der var en dalene tendens mellem månederne, hvor september havde flest opdateringer hvorefter det dalede i de to andre måneder. Ud af alle opdateringerne, var der henholdsvis 23.89\% og 19.86\% af dem i Sverige og Japan, som forgik på Sony lokationerne. 
+
+Da vi kiggede på de \numberUsersSweden{} og \numberUsersJapan{} brugere i henholdsvis Sverige og Japan, var der mange der havde meget få opdateringer henover alle tre måneder. Vi fandt ud af, at mange slukkede deres telefoner i tidsprummet kl. 02:00 og kl. 06:00, hvorfor der ikk var ret mange opdateringer. Dette galdt både for Sverige og Japan. Desuden kunne vi se at det toppede kl. 08:00 og kl. 16:00 i Sverige mht. antal opdateringer, hvor det kun toppede kl. 08:00 i Japan. Japan havde ingen tilsvarende top kl. 16:00. 
+
+Til sidst fandt vi ud af, at der generelt ikke var så mange opdateringer om lørdagen og søndagen, som de andre dage. Vi fandt også ud af, at når vi kiggede på hvor mange brugere der havde opdateringer henover flere timebins i  hver subperiode, faldt antallet af brugere kraftigt i starten. Herefter fladede det ud. I Sverige for september, var der ca. 140 brugere som havde opdateringer henover 3 timebins i hver subperiode, svarende til 1\% af de mulige timebins i hver subperiode. Hvis man kiggede på 20\% (48 timebins i hver subperiode), var der ca. 90 brugere. 
+
+Vi vil på baggrund af dette sige, at september i Sverige ser mest lovende ud og vi vil derfor gå ud fra denne og bruge den i vores modeller. 

@@ -246,19 +246,6 @@ class Predictor():
         plt.xlabel('Predicted label')
         plt.show()
 
-    def tweak_features(self, X_train, y_train, X_test, y_test):
-        max_auc = (0,0,0)
-        for x in range(1,500):
-            for y in range(1,8):
-                forest = sklearn.ensemble.RandomForestClassifier(n_estimators=x, class_weight="balanced", max_features=y)
-                forest.fit(X_train, y_train)
-                y_pred = forest.predict_proba(X_test)
-                curr_auc = roc_auc_score(y_test, y_pred[:,1])
-                if curr_auc > max_auc[0]:
-                    max_auc = (curr_auc, x, y)
-                    print("new max is: {}".format(max_auc))
-        print("max is {} trees with auc of: {}".format(max_auc[0], max_auc[1]))
-
     def predict(self, X_train, y_train, X_test, y_test):
         # create new feature two_unique_coocs from unique_coocs
         solo_feature_train = np.zeros(X_train[:, 1].shape)
@@ -329,6 +316,15 @@ if __name__ == '__main__':
     X_test, y_test = load_svmlight_file("data/vedran_thesis_students/X_test_filter_merged")
     X_train = X_train.toarray()
     X_test = X_test.toarray()
+
+    # undersampling did meet
+    train_stacked = np.hstack((X_train, y_train.reshape(-1, 1)))
+    didnt_meets = train_stacked[train_stacked[:,-1] == 0]
+    did_meets = train_stacked[train_stacked[:,-1] == 1]
+    train_stacked = np.vstack((didnt_meets[np.random.choice(didnt_meets.shape[0], 403, replace=False)],
+                              did_meets[np.random.choice(did_meets.shape[0], 403, replace=False)]))
+    y_train = train_stacked[:, -1]
+    X_train = np.delete(train_stacked, -1, 1)
     #X_train, y_train, X_test, y_test = f.load_x_and_y()
     print(type(X_train), type(y_train))
     print("y_train contains {} that didnt meet, and {} that did meet".format(

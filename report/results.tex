@@ -27,7 +27,9 @@ Using production data without user-filtering we found 5585 that did not meet and
 
 Using production data with user-filtering we found 403 that did not meet and 4533 that did meet for our train set and 402 that did not meet and 4630 that did meet for our test set.
 
-We can see that all of the test data have more negative samples that positive samples. In TP-1 are there much more negative sample than positive, while in TP-2 the different aren't so big. In production data 
+We show that the datasets composed from the test data have more negative samples than positive samples. In TP-1 the difference is more pronounced than in TP-2. 
+
+In production data 
 
 First we trained a Logistic Regression classifier which serves as our baseline classifier to compare our other model with. We trained it only with the feature num\_coocs. Next we trained a Random Forest classifier with all of our features.
 

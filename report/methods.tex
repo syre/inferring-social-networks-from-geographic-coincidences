@@ -126,12 +126,10 @@ As the size of our datasets were modest we opted to not use the built-in machine
 \section{Modeling}
 In this subsection we will describe the model and features used for prediction.
 
+As we do not have ground truth for friendship, we decided to use a meeting in a next period as a proxy for friendship.
+
 We will try to answer the following question: Can we predict if people meet in a period based on their spatiotemporal patterns in a previous period.
-The models and algorithms we use are implemented in \textit{scikit-learn}\cite{scikit-learn} a Python module for machine learning. 
-
-Initially we tried to infer friendship based on app usage. We did not have directed call-logs available so we could not reliably say if for example two people were calling each other. However the idea was that if we could find users with a similar time stamp and duration in an app, they could perhaps be communicating with each other either through phone calls or messaging apps. After finding user-pairs that met that criteria we try to validate them looking at their co-occurrences, were they many or few, were they off Sony properties or on, a lot of co-occurrences off sony properties could perhaps indicate a friendship. We identified the Android activity application name and package name for when a user is in a phone call called "Phone" and "package.com.android.incallui" respectively. Furthermore we identified a large number of messaging apps. We tried finding user pairs having activity in the phone app with a start time difference and end time difference of 10 seconds from each other. We looked at co-occurrences between user-pairs found this way and found that they either had a low number of co-occurrences around Sony properties or none at all.
-
-We decided to use a meeting in a next period as a proxy for friendship.
+The models and algorithms we use are implemented in \textit{scikit-learn}\cite{scikit-learn} a Python module for machine learning.
 
 \subsection{Models}
 For our work we will use two models, Logistic Regression and Random Forest. For each model we will first fit them on the complete period of 3 months and then the month which best met our criteria in \autoref{chap:dataset}. For the datasets we will use an outer loop of 2-fold cross-validation and an inner loop of randomized search. We chose randomized search over grid search because of the efficiency in computation time. We will use ROC AUC as the score function for the randomized search.

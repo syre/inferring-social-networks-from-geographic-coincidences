@@ -75,30 +75,33 @@ We calculated the time bins by counting every hour from the start of the day of 
 \end{figure}
 
 \subsubsection{Visualization}
-We used Basemap\cite{basemap}, for plotting all the locations at once and and Leaflet\cite{leaflet} for producing interactive maps to visualize the data, we created a map for visualizing the users location traces over time and we created one that allowed us to see all the co-occurrences that happened between a pair of users. Figure \ref{fig:sweden_locations_hexbin} and \ref{fig:japan_locations_hexbin} shows location updates from Sweden and Japan respectively plotted on a map. We can see location updates happened very often near Sony properties in Lund\cite{sony_headquarters_sweden_lund}, Kista\cite{sony_headquarters_sweden_kista}, and at Ericsson AB in Göteborg\cite{ericsson} for the Swedish data, and in Tokyo\cite{sony_headquarters_japan} for the Japanese data. Figure \ref{fig:user_pair_at_sony} shows an example of the co-occurrences visualized for a typical pair of users in Sweden having lots of co-occurrences within the Sony perimeter. This enabled us to exclude co-occurrences from these locations from our dataset as we are looking for co-occurrences outside of the users work.
+We used \textit{Basemap}\cite{basemap}, for plotting static visualizations of all the locations at once and \textit{Leaflet}\cite{leaflet} for producing interactive maps to visualize the data. We created a map for visualizing the users location traces over time and we created one that allowed us to see all the co-occurrences that happened between a pair of users.
 \begin{figure}[H]
     \hspace*{-1.0cm}
     \centering
     \includegraphics[scale=0.30]{all_locations_sweden}
-    \caption{Location updates in Sweden, hex-binned in log scale}
+    \caption{Location updates in Sweden, hex-binned in log scale with markers to Sony-related properties where we can see increased activity}
     \label{fig:sweden_locations_hexbin}
 \end{figure}
+
 \begin{figure}[H]
     \hspace*{-1.0cm}
     \centering
     \includegraphics[scale=0.30]{all_locations_japan}
-    \caption{Location updates in Japan, hex-binned in log scale}
+    \caption{Location updates in Japan, hex-binned in log scale with markers to Sony, Tokyo which also shows increased activity}
     \label{fig:japan_locations_hexbin}
 \end{figure}
+Figure \ref{fig:sweden_locations_hexbin} and Figure \ref{fig:japan_locations_hexbin} shows all location updates from Sweden and Japan for the three months plotted on a map. On Figure \ref{fig:sweden_locations_hexbin} we can see increased activity around Sony-related properties in Lund\cite{sony_headquarters_sweden_lund}, Kista\cite{sony_headquarters_sweden_kista}, and at Ericsson AB in Göteborg\cite{ericsson}. Likewise on Figure \ref{fig:japan_locations_hexbin} we can see increased activity at the Sony headquarters\cite{sony_headquarters_japan} in Tokyo. We exclude co-occurrences from these locations for our dataset.
+
 \begin{figure}[H]
     \hspace*{-1.0cm}
     \centering
     \includegraphics[scale=0.50]{user_pair_at_sony}
-    \caption{User pair with high number of co-occurrences for whole period at Sony perimeters}
+    \caption{User pair with high number of co-occurrences for whole period at Sony perimeters, blue traces are location updates}
     \label{fig:user_pair_at_sony}
 \end{figure}
+Figure \ref{fig:user_pair_at_sony} shows an example of the co-occurrences visualized for a typical pair of users in Sweden having lots of co-occurrences within the Sony perimeter. This enabled us to exclude co-occurrences from these locations from our dataset as we are looking for co-occurrences outside of the users work.
 
-We decided to look at just how many co-occurrences happened inside the Sony perimeter. Figure \ref{fig:dist_coocs_sony} shows the number of co-occurrences inside and outside Sony perimeters, here we see a massive amount of co-occurrences happening inside the Sony perimeters. This can pose a problem as we will only be looking at co-occurrences between users that is outside Sony perimeters.
 
 \begin{figure}[H]
     \hspace*{-1.0cm}
@@ -107,6 +110,8 @@ We decided to look at just how many co-occurrences happened inside the Sony peri
     \caption{Distribution of co-occurrences inside and outside Sony perimeters}
     \label{fig:dist_coocs_sony}
 \end{figure}
+
+We decided to look at just how many co-occurrences happened inside the Sony perimeter. Figure \ref{fig:dist_coocs_sony} shows the number of co-occurrences inside and outside Sony perimeters, here we see a massive amount of co-occurrences happening inside the Sony perimeters. This can pose a problem as we will only be looking at co-occurrences between users that is outside Sony perimeters.
 
 \subsection{Preparation of Production data}
 In this section we will demonstrate what we have done to prepare the production data for analysis.
@@ -124,8 +129,7 @@ In this subsection we will describe the model and features used for prediction.
 We will try to answer the following question: Can we predict if people meet in a period based on their spatiotemporal patterns in a previous period.
 The models and algorithms we use are implemented in \textit{scikit-learn}\cite{scikit-learn} a Python module for machine learning. 
 
-
-Initially we tried to infer friendship based on app usage. We did not have directed call-logs available so we could not reliably say if for example two people were calling each other. However the idea was that if we could find users with a similar timestamp and duration in an app, they could perhaps be communicating with each other either through phone calls or messaging apps. After finding user-pairs that met that criteria we try to validate them looking at their co-occurrences, were they many or few, were they off Sony properties or on, a lot of co-occurrences off sony properties could perhaps indicate a friendship. We identified the Android activity application name and package name for when a user is in a phone call called "Phone" and "package.com.android.incallui" respectively. Furthermore we identified a large number of messaging apps. We tried finding user pairs having activity in the phone app with a start time difference and end time difference of 10 seconds from each other. We looked at co-occurrences between user-pairs found this way and found that they either had a low number of co-occurrences around Sony properties or none at all.
+Initially we tried to infer friendship based on app usage. We did not have directed call-logs available so we could not reliably say if for example two people were calling each other. However the idea was that if we could find users with a similar time stamp and duration in an app, they could perhaps be communicating with each other either through phone calls or messaging apps. After finding user-pairs that met that criteria we try to validate them looking at their co-occurrences, were they many or few, were they off Sony properties or on, a lot of co-occurrences off sony properties could perhaps indicate a friendship. We identified the Android activity application name and package name for when a user is in a phone call called "Phone" and "package.com.android.incallui" respectively. Furthermore we identified a large number of messaging apps. We tried finding user pairs having activity in the phone app with a start time difference and end time difference of 10 seconds from each other. We looked at co-occurrences between user-pairs found this way and found that they either had a low number of co-occurrences around Sony properties or none at all.
 
 We decided to use a meeting in a next period as a proxy for friendship.
 

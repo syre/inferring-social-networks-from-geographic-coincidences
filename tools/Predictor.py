@@ -329,6 +329,15 @@ if __name__ == '__main__':
     X_test, y_test = load_svmlight_file("data/vedran_thesis_students/X_test_filter_merged")
     X_train = X_train.toarray()
     X_test = X_test.toarray()
+
+    # undersampling did meet
+    train_stacked = np.hstack((X_train, y_train.reshape(-1, 1)))
+    didnt_meets = train_stacked[train_stacked[:,-1] == 0]
+    did_meets = train_stacked[train_stacked[:,-1] == 1]
+    train_stacked = np.vstack((didnt_meets[np.random.choice(didnt_meets.shape[0], 403, replace=False)],
+                              did_meets[np.random.choice(did_meets.shape[0], 403, replace=False)]))
+    y_train = train_stacked[:, -1]
+    X_train = np.delete(train_stacked, -1, 1)
     #X_train, y_train, X_test, y_test = f.load_x_and_y()
     print(type(X_train), type(y_train))
     print("y_train contains {} that didnt meet, and {} that did meet".format(

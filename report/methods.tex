@@ -125,7 +125,7 @@ We will try to answer the following question: Can we predict if people meet in a
 The models and algorithms we use are implemented in \textit{scikit-learn}\cite{scikit-learn} a Python module for machine learning. 
 
 \subsection{Models}
-In this thesis we will use two models, Logistic Regression and Random Forest. For each model we will first fit them on the complete period of 3 months and then the month which best met our criteria in \autoref{chap:dataset}.
+For our work we will use two models, Logistic Regression and Random Forest. For each model we will first fit them on the complete period of 3 months and then the month which best met our criteria in \autoref{chap:dataset}. For the datasets we will use an outer loop of 2-fold cross-validation and an inner loop of randomized search. We chose randomized search over grid search because of the efficiency in computation time. We will use ROC AUC as the score function for the randomized search.
 
 \subsubsection{Logistic Regression}
 The Logistic Regression model will be used as the baseline model. It will be fit on only one feature, whether or not people have had two co-occurrences in distinct spatial bins. We will compare the predictive strength of just that one feature to several different features fitted to a Random Forest model.

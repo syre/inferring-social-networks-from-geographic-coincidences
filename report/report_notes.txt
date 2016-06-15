@@ -56,3 +56,10 @@ Discussion (skulle have lavet preliminary analyse af months, manglende reverse g
 
 
 We used 5 m3.xlarge nodes with 4 virtual CPUs and 15GiB memory each.
+
+--------------------------------------------------------------------
+
+mere tekst for Visualizations (methods and results)
+mere tekst for Features
+Check om jaccard er rigtigt at bruge for app features
+

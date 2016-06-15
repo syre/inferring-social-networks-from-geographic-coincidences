@@ -246,19 +246,6 @@ class Predictor():
         plt.xlabel('Predicted label')
         plt.show()
 
-    def tweak_features(self, X_train, y_train, X_test, y_test):
-        max_auc = (0,0,0)
-        for x in range(1,500):
-            for y in range(1,8):
-                forest = sklearn.ensemble.RandomForestClassifier(n_estimators=x, class_weight="balanced", max_features=y)
-                forest.fit(X_train, y_train)
-                y_pred = forest.predict_proba(X_test)
-                curr_auc = roc_auc_score(y_test, y_pred[:,1])
-                if curr_auc > max_auc[0]:
-                    max_auc = (curr_auc, x, y)
-                    print("new max is: {}".format(max_auc))
-        print("max is {} trees with auc of: {}".format(max_auc[0], max_auc[1]))
-
     def predict(self, X_train, y_train, X_test, y_test):
         # create new feature two_unique_coocs from unique_coocs
         solo_feature_train = np.zeros(X_train[:, 1].shape)

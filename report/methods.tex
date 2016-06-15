@@ -12,7 +12,7 @@ When we got the dataset it was stored in three folders, one for each month (9, 1
 In this section we will demonstrate what we have done to prepare the test data.
 
 \subsubsection{Data import to database}
-We imported the many JSON files to a Postgresql database which allowed us to easily manipulate the data using SQL. We created a single table with the schema shown in Table \ref{table:schema_denormalized}. We decided to compute the time and spatial bins on insertion, thus we only had to compute them once. We created indexes on the following features:start\_time, end\_time, location, useruuid, spatial\_bin, time\_bins, country.
+We imported the many JSON files to a PostgreSQL database which allowed us to easily manipulate the data using SQL. We created a single table with the schema shown in Table \ref{table:schema_denormalized}. We decided to compute the time and spatial bins on insertion, thus we only had to compute them once. We created indexes on the following features:start\_time, end\_time, location, useruuid, spatial\_bin, time\_bins, country.
 Initially we created a normalized database with several relations. We however discovered that a deonormalized database might improve our performance, as we reduce the number of tables and and thus the number of joins required\cite{sanders2001denormalization}. We found This was due to all our interaction with the data only consisting of READs, after the initial insertion of the data. After removing all relations (denormalizing) our performance significantly improved.
 
 \begin{table}[htbp]

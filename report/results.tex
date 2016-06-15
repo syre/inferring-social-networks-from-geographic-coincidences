@@ -29,11 +29,9 @@ Using production data with user-filtering we found 403 that did not meet and 453
 
 We show that the datasets composed from the test data have more negative samples than positive samples. In TP-1 the difference is more pronounced than in TP-2. 
 
-In production data 
-
 First we trained a Logistic Regression classifier which serves as our baseline classifier to compare our other model with. We trained it only with the feature two_unique_coocs. Next we trained a Random Forest classifier with all of our features.
 
-Due to our imbalanced dataset, the Logistic Regression classifier we trained initially always wanted to just predict the largest prevalent class, positive, in our training dataset.
+Due to our imbalanced dataset, the Logistic Regression classifier we trained initially predicted the largest prevalent class, in our training dataset. The next section explains this problem and how we dealt with it.
 
 \section{Class Imbalance Problem}
 \label{sec:class_imbalance_problem}

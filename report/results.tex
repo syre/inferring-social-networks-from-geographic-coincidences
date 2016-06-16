@@ -90,14 +90,18 @@ We can further look at the number of classes correctly and incorrectly predicted
 Looking at Figure \ref{fig:conf_matrix_log_reg} we see our baseline classifier has a very high BLABLA
 
 \subsection{Feature importance}
-We can plot the feature importances of the random forest classifier
+The Random Forest model allows for finding the relative importance of the different features. The depth of a feature in the trees can be used to determine importance as features at the top of of the tree contributes to the prediction decision over a larger fraction of samples. The average is then computed from each tree in the forest to obtain the final feature importances.
+Figure \ref{fig:feature_importances} shows the mean of the feature importances of the random forest of PP2. We can see the features which contribute most are features 8 (mutual co-occurrences), 14 (specificity), 5 (co-occurrences weighted), 4 (weighted frequency), 7 (number of co-occurrences), 2 (diversity), 3 (unique co-occurrences). Feature 12 (number of evenings) contributes very little and 13 (number of weekends) seems to have no variance.
 \begin{figure}[H]
     \hspace*{-1.0cm}
     \centering
-    \includegraphics[scale=0.40]{feature_importance_PP2}
+    \includegraphics[scale=0.10]{feature_importance_PP2}
     \caption{Feature importances of random forest for PP2}
     \label{fig:feature_importances}
+    \label{fig:feature_importances}
 \end{figure}
+
+
 
 In Figure \ref{fig:rocs} we have plotted the ROC curve and ROC AUC for the different model pairs, we have also plotted the curve of a randomly guessing classifier for comparison. Figure \ref{fig:rocs_undersampling} shows the same models performance, where the datasets most prevalent class have been undersampled. We used randomized search to find the optimal hyper-parameters in the Random Forest models, choosing from \textit{gini} or\textit{entropy} and $1-9$ max features for each split. The randomized search runs for 20 iterations where each iteration performs a 3-fold cross-validation to validate the parameters of the model, we used ROC AUC as the scoring function. When the best parameters for the model are found, 2-fold cross-validation is performed to validate the model.
 

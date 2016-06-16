@@ -5,13 +5,17 @@ sys.path.insert(1, os.path.join(sys.path[0], '..'))
 from FileLoader import FileLoader
 import seaborn as sns
 import matplotlib.pyplot as plt
-from collections import Counter
 import numpy as np
+from sklearn.datasets import load_svmlight_file
 fl = FileLoader()
-X_train, y_train, X_test, y_test = fl.load_x_and_y()
 
-features = ["num_coocs", "arr_leav", "diversity", "unique_coocs", "weighted_frequency", "coocs_w",
-            "common_travels", "two_unique_coocs", "mutual_cooccurrences"]
+X_train, y_train = load_svmlight_file("../data/vedran_thesis_students/X_train_filter_merged")
+X_test, y_test = load_svmlight_file("../data/vedran_thesis_students/X_test_filter_merged")
+X_train = X_train.toarray()
+X_test = X_test.toarray()
+
+features = ["num_coocs", "num_unique_coocs", "diversity", "weighted_frequency",
+ "sum_weekends", "sum_evenings", "coocs_w", "mutual_cooccurrences", "specificity"]
 
 f = plt.figure()
 

@@ -41,7 +41,7 @@ The Class Imbalance Problem is when the total number of samples for one class gr
 We utilize the precision and recall metrics for evaluating the performance of our models as well as AUC of the ROC Curve.
 
 \subsection{Receiver Operating Characteristic (ROC)}
-The Receiver Operating Characteristic or ROC in short, illustrates the performance of a binary classifier in terms of the true positive rate (TPR, also called recall) plotted against the false positive rate (FPR) at different discrimination thresholds. As points on the ROC-curve represents different thresholds with an associated (TPR,FPR) pair it allows us to see different trade offs between TPR and FPR. The ROC curve is useful for comparing the relative performance of different classifiers\cite{tan2006introduction} The area under the curve (AUC) represents the probability that a classifier will rank a random positive sample higher than a negative sample, assuming positive ranks higher. An AUC of 0.5 would mean the model would just randomly guess the class of each sample. We will use the ROC AUC as a metric for comparing our different models.
+The Receiver Operating Characteristic or ROC in short, illustrates the performance of a binary classifier in terms of the true positive rate (TPR, also called recall) plotted against the false positive rate (FPR) at different discrimination thresholds. As points on the ROC-curve represents different thresholds with an associated (TPR,FPR) pair it allows us to see different trade-offs between TPR and FPR. The ROC curve is useful for comparing the relative performance of different classifiers\cite{tan2006introduction} The area under the curve (AUC) represents the probability that a classifier will rank a random positive sample higher than a negative sample, assuming positive ranks higher. An AUC of 0.5 would mean the model would just randomly guess the class of each sample. We will use the ROC AUC as a metric for comparing our different models.
 
 \subsection{Precision and Recall}
 Precision or the positive predictive value (PPV) is a metric that measures the number of a given class that are correctly identified in proportion to the number of classes that are predicted to be that class.
@@ -94,12 +94,12 @@ We can plot the feature importances of the random forest classifier
 \begin{figure}[H]
     \hspace*{-1.0cm}
     \centering
-    \includegraphics[scale=0.40]{feature_importances}
-    \caption{Feature importances of random forest}
+    \includegraphics[scale=0.40]{feature_importances_PP2}
+    \caption{Feature importances of random forest for PP2}
     \label{fig:feature_importances}
 \end{figure}
 
-In Figure \ref{fig:rocs} we have plotted the ROC curve and ROC AUC for the different model pairs, we have also plotted the curve of a randomly guessing classifier for comparison. Figure \ref{fig:rocs_undersampling} shows the same models performance, where the datasets most prevalent class have been undersampled.
+In Figure \ref{fig:rocs} we have plotted the ROC curve and ROC AUC for the different model pairs, we have also plotted the curve of a randomly guessing classifier for comparison. Figure \ref{fig:rocs_undersampling} shows the same models performance, where the datasets most prevalent class have been undersampled. We used randomized search to find the optimal hyper-parameters in the Random Forest models, choosing from \textit{gini} or\textit{entropy} and $1-9$ max features for each split. The randomized search runs for 20 iterations where each iteration performs a 3-fold cross-validation to validate the parameters of the model, we used ROC AUC as the scoring function. When the best parameters for the model are found, 2-fold cross-validation is performed to validate the model.
 
 \begin{figure}[H]
     \hspace*{-1.0cm}

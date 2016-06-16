@@ -201,13 +201,14 @@ The number of common travels between two users. Common travels are defined when 
 Number of mutual co-occurrences, the mutual co-occurrences for user \textit{i} and \textit{j} will be the number of users whom they share co-occurrences with. Feature ID:\textit{8}.
 
 \subsection{Homophily Features}
-Based on the work by McPherson et al.\cite{mcpherson2001birds}, we have tried to create several features based on homophily between users.
+Based on the work by McPherson et al.\cite{mcpherson2001birds} finding homophily in personal networks, we have tried to create several features based on homophily between users.
 
 \subsubsection{Within 6 years of age}
-Whether they are within 6 years of age of each other. Feature ID: \textit{9}
+McPherson et al.\cite{mcpherson2001birds} found that age homophily is a strong dimension with respect to close friendship.
+This feature explains if a dyad of users are within 6 years of age of each other. Feature ID: \textit{9}
 
 \subsubsection{Same gender}
-Whether they are the same gender. Feature ID: \textit{10}
+This feature explains if a dyad of users share the same gender. Feature ID: \textit{10}
 
 \subsubsection{Jaccard index similarity of used apps}
 The Jaccard index is a measure used in comparing the similarity of sample sets. We extract what apps two users have used in the period and compute the similarity between them using the Jaccard index. Feature ID:\textit{11}.

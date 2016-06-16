@@ -3,18 +3,19 @@
 \label{chap:results}
 In this chapter we will show and discuss the results of the work we have done in this thesis.
 
+We will start by looking at the train and test sets of the four dataset (see \autoref{tab:model_delimitation} and below) and describe what we did about class imbalance. Then we describe and interpret our results and we end the chapter with a brief summary of our findings. 
 
-From \autoref{chap:methods} we have found the following datasets and model pairs based on the available data (see also \autoref{tab:model_overview} and \autoref{tab:model_delimitation}:
+From \autoref{chap:methods} we have found the following datasets and model pairs based on the available data (see also \autoref{tab:model_overview} and \autoref{tab:model_delimitation}):
 \begin{enumerate}
 \item Test data
 \begin{enumerate}
-\item without user-filtering (\textbf{Model pair: TP-1})
-\item with user-filtering using cross-occupancy of 40\% (\textbf{Model pair: TP-2})
+\item without user-filtering \\\textbf{Model pair: TP-1}
+\item with user-filtering using cross-occupancy of 40\% \\\textbf{Model pair: TP-2}
 \end{enumerate}
 \item Production data
 \begin{enumerate}
-\item without user-filtering (\textbf{Model pair: PP-1})
-\item with user-filtering using cross-occupancy of 10\% (\textbf{Model pair: PP-1})
+\item without user-filtering \\\textbf{Model pair: PP-1}
+\item with user-filtering using cross-occupancy of 10\% \\\textbf{Model pair: PP-1}
 \end{enumerate}
 \end{enumerate}
 
@@ -27,11 +28,9 @@ Using production data without user-filtering we found 5585 that did not meet and
 
 Using production data with user-filtering we found 403 that did not meet and 4533 that did meet for our train set and 402 that did not meet and 4630 that did meet for our test set.
 
-We show that the datasets composed from the test data have more negative samples than positive samples. In TP-1 the difference is more pronounced than in TP-2. 
+The datasets composed from the test data have more negative samples than positive samples. In TP-1 the difference is more pronounced than in TP-2, except of the training set. In the production data, we have the opposite. Here we have more positive samples than negative. \\
+This shows we have a class impalance problem since the dataset are imbalanced. Due to this, the Logistic Regression classifier we trained initially predicted the largest prevalent class, in our training dataset. The next section explains this problem and how we dealt with it. 
 
-First we trained a Logistic Regression classifier which serves as our baseline classifier to compare our other model with. We trained it only with the feature two\_unique\_coocs. Next we trained a Random Forest classifier with all of our features.
-
-Due to our imbalanced dataset, the Logistic Regression classifier we trained initially predicted the largest prevalent class, in our training dataset. The next section explains this problem and how we dealt with it.
 
 \section{Class Imbalance Problem}
 \label{sec:class_imbalance_problem}

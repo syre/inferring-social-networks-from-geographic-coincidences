@@ -14,7 +14,8 @@ from sklearn.grid_search import GridSearchCV, RandomizedSearchCV
 from sklearn.cross_validation import StratifiedKFold
 import pickle
 from scipy.stats import randint as sp_randint
-
+import seaborn
+plt.style.use("seaborn-deep")
 
 
 def load_file(path_file):
@@ -115,6 +116,7 @@ def plot_performance(all_data):
     param_grid = {"max_features": sp_randint(1, 10),
                   "criterion": ["gini", "entropy"]
                   }
+    importances = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0])
     for i, pair in enumerate(all_data, start=1):
         ax = plt.subplot(2, 2, i)
         print("plot number {}".format(i))
@@ -127,7 +129,6 @@ def plot_performance(all_data):
         precision_score_rf = [0,0]
         recall_score_lr = [0,0]
         recall_score_rf = [0,0]
-        importances = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0])
         for j, data in enumerate(pair):
             pair_name = data[6]
 
@@ -158,10 +159,10 @@ def plot_performance(all_data):
             false_positive_rate, true_positive_rate, _ = roc_curve(
                 data[4], y_pred)
             mean_tpr_rf += interp(mean_fpr_rf, false_positive_rate, true_positive_rate)
-            if i == 3:
+            if pair_name == "PP-2":
                importances = np.add(grid_search.best_estimator_.feature_importances_, importances)
-        if i == 3 and j == 1:
-            print(importances/2)
+        #if i == 3 and j == 1:
+        #    print(importances/2)
         mean_tpr_lr /= 2
         mean_tpr_rf /= 2
 
@@ -190,12 +191,43 @@ def plot_performance(all_data):
         [item.set_fontsize(45) for item in [ax.yaxis.label, ax.xaxis.label]]
         ax.title.set_fontsize(48)
         [item.set_fontsize(33) for item in ax.get_xticklabels() + ax.get_yticklabels()]
+    print(importances/2)
+    plt.show()
+    return importances/2
+
+
+def plot_feature_importance(feature_impor, feature_id):
+    feature_impor, feature_id = [list(t) for t in zip(*sorted(zip(feature_impor,
+                                                                  feature_id),
+                                                              reverse=True))]
+    print(feature_impor)
+    print(sum(feature_impor))
+    print(feature_id)
+
+    
+    ax = plt.subplot(1, 1, 1)
+
+    plt.title("Feature importances of PP-2")
+    plt.bar(range(9), feature_impor,
+            color="#e74c3c", align="center")
+    plt.xticks(range(9), feature_id)
+    plt.xlabel("Feature id")
+    plt.ylabel("Feature importance (%)")
+    #plt.xlim([-1, 9])
+    [item.set_fontsize(45) for item in [ax.yaxis.label, ax.xaxis.label]]
+    ax.title.set_fontsize(48)
+    [item.set_fontsize(33) for item in ax.get_xticklabels() + ax.get_yticklabels()]
     plt.show()
 
-
 if __name__ == '__main__':
-    plot_performance(gen_alldata())
+    #feature_impor = plot_performance(gen_alldata())
+    feature_impor = [0.11019591, 0.03314675, 0.07640342, 0.12112197,  0.,
+                     0.00336951, 0.15726969, 0.27784645, 0.2206463]
+    feature_id = [7, 3, 2, 4, 13, 12, 5, 8, 14]
+    plot_feature_importance(feature_impor, feature_id)
 
+
+#num_coocs, num_unique_coocs, diversity, weighted_frequency, sum_weekends, sum_evenings, coocs_w, mutual_cooccurrences, specificity
 #result for randomsearch with the following:
 #----------------------------------------
 #param_grid = {"max_depth": [3, None],

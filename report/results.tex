@@ -41,7 +41,7 @@ The Class Imbalance Problem is when the total number of samples for one class gr
 We utilize the precision and recall metrics for evaluating the performance of our models as well as AUC of the ROC Curve.
 
 \subsection{Receiver Operating Characteristic (ROC)}
-The Receiver Operating Characteristic or ROC in short, illustrates the performance of a binary classifier in terms of the true positive rate (TPR, also called recall) plotted against the false positive rate (FPR) at different discrimination thresholds. The ROC curve is useful for comparing the relative performance of different classifiers\cite{tan2006introduction} The area under the curve (AUC) represents the probability that a classifier will rank a random positive sample higher than a negative sample, assuming positive ranks higher. An AUC of 0.5 would mean the model would just randomly guess the class of each sample. We will use the ROC AUC as a metric for comparing our different models.
+The Receiver Operating Characteristic or ROC in short, illustrates the performance of a binary classifier in terms of the true positive rate (TPR, also called recall) plotted against the false positive rate (FPR) at different discrimination thresholds. As points on the ROC-curve represents different thresholds with an associated (TPR,FPR) pair it allows us to see different trade offs between TPR and FPR. The ROC curve is useful for comparing the relative performance of different classifiers\cite{tan2006introduction} The area under the curve (AUC) represents the probability that a classifier will rank a random positive sample higher than a negative sample, assuming positive ranks higher. An AUC of 0.5 would mean the model would just randomly guess the class of each sample. We will use the ROC AUC as a metric for comparing our different models.
 
 \subsection{Precision and Recall}
 Precision or the positive predictive value (PPV) is a metric that measures the number of a given class that are correctly identified in proportion to the number of classes that are predicted to be that class.
@@ -55,15 +55,15 @@ In Table \ref{table:models_performance_report} we can see the performance metric
 \centering
 \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|}
 \hline
-\textbf{Model} & \textbf{PPV +} & \textbf{TPR +} & \textbf{PPV -} & \textbf{PPV -}   \\
+\textbf{Model} & \textbf{PPV} & \textbf{TPR} & \textbf{PPV -} & \textbf{PPV -}   \\
 \hline
-Logistic Regression (num\_coocs)          & 0.86 & 0.03 & 0.00 & 0.00       \\
+TP-1          & 0.86 & 0.03\\
 \hline
-Random Forest (T = 10)    & 0.49 & 0.57 & 0.68 & 0.62\\
+TP-2    & 0.49 & 0.57\\
 \hline
-Logistic Regression (num\_coocs, balanced)          & 0.86 & 0.03 & 0.61 & 1.00      \\
+PP-1          & 0.86 & 0.03\\
 \hline
-Random Forest (balanced, T = 200)    & 0.44 & 0.79 & 0.71 & 0.34\\
+PP-2    & 0.44 & 0.79 &\\
 \hline
 \end{tabular}
 \caption{Models performance metrics}

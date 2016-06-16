@@ -207,7 +207,7 @@ class DatabaseHelper():
 
     def is_weekend(self, datetime, timezonestring="Europe/Stockholm"):
         converted = datetime.astimezone(timezone(timezonestring))
-        return converted.date().isoweekday in [6, 7] or (converted.date().isoweekday == 5 and converted.hour > 18)
+        return converted.date().isoweekday() in [6, 7]
 
     def get_distributions_numbers(self, feature, num_bins=20, max_value=0):
         cursor = self.conn.cursor()

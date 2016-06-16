@@ -55,15 +55,23 @@ In Table \ref{table:models_performance_report} we can see the performance metric
 \centering
 \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|}
 \hline
-\textbf{Model} & \textbf{PPV} & \textbf{TPR} & \textbf{PPV -} & \textbf{PPV -}   \\
+\textbf{Model} & \textbf{PPV +} & \textbf{TPR +} & \textbf{PPV -} & \textbf{TPR -}   \\
+\specialrule{.20em}{.0em}{.0em}
+LR in TP-1    & 0.25 & 0.67 & 0.86 & 0.51\\
 \hline
-TP-1          & 0.86 & 0.03\\
+RF in TP-1    & 0.28 & 0.53 & 0.85 & 0.67\\
+\specialrule{.15em}{.0em}{.0em} 
+LR in TP-2    & 0.53 & 0.68 & 0.70 & 0.56\\
 \hline
-TP-2    & 0.49 & 0.57\\
+RF in TP-2    & 0.52 & 0.59 & 0.68 & 0.60\\
+\specialrule{.15em}{.0em}{.0em}
+LR in PP-1    & 0.66 & 0.74 & 0.54 & 0.44\\
 \hline
-PP-1          & 0.86 & 0.03\\
+RF in PP-1    & 0.66 & 0.55 & 0.51 & 0.58\\
+\specialrule{.15em}{.0em}{.0em}
+LR in PP-2    & 0.94 & 0.81 & 0.17 & 0.40\\
 \hline
-PP-2    & 0.44 & 0.79 &\\
+RF in PP-2    & 0.94 & 0.92 & 0.26 & 0.34\\
 \hline
 \end{tabular}
 \caption{Models performance metrics}

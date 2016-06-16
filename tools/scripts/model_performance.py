@@ -172,8 +172,10 @@ def plot_performance(all_data):
         mean_auc_lr = auc(mean_fpr_lr, mean_tpr_lr)
 
         mean_auc_rf = auc(mean_fpr_rf, mean_tpr_rf)
+        print("For pair: {}\n---------".format(pair_name))
         print("Precision,Recall score (LR) for negative: {},{} and positive: {},{}".format(precision_score_lr[0]/2, recall_score_lr[0]/2, precision_score_lr[1]/2, recall_score_lr[1]/2))
         print("Precision,Recall score (RF) for negative: {},{} and positive: {},{}".format(precision_score_rf[0]/2, recall_score_rf[0]/2, precision_score_rf[1]/2, recall_score_rf[1]/2))
+        print("---------")
         # Compute ROC curve and ROC area for each class
         plt.title('Receiver Operating Characteristic for ' + pair_name)
         plt.plot(mean_fpr_lr, mean_tpr_lr, 'r',
@@ -191,7 +193,6 @@ def plot_performance(all_data):
         [item.set_fontsize(45) for item in [ax.yaxis.label, ax.xaxis.label]]
         ax.title.set_fontsize(48)
         [item.set_fontsize(33) for item in ax.get_xticklabels() + ax.get_yticklabels()]
-    print(importances/2)
     plt.show()
     return importances/2
 
@@ -201,12 +202,7 @@ def plot_feature_importance(feature_impor, feature_id):
                                                                   feature_id),
                                                               reverse=True))]
     print(feature_impor)
-    print(sum(feature_impor))
-    print(feature_id)
-
-    
     ax = plt.subplot(1, 1, 1)
-
     plt.title("Feature importances of PP-2")
     plt.bar(range(9), feature_impor,
             color="#e74c3c", align="center")
@@ -220,9 +216,7 @@ def plot_feature_importance(feature_impor, feature_id):
     plt.show()
 
 if __name__ == '__main__':
-    #feature_impor = plot_performance(gen_alldata())
-    feature_impor = [0.11019591, 0.03314675, 0.07640342, 0.12112197,  0.,
-                     0.00336951, 0.15726969, 0.27784645, 0.2206463]
+    feature_impor = plot_performance(gen_alldata())
     feature_id = [7, 3, 2, 4, 13, 12, 5, 8, 14]
     plot_feature_importance(feature_impor, feature_id)
 

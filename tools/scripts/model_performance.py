@@ -112,10 +112,7 @@ def undersample(X_train, y_train):
 #[(X_train, y_train, solo_feature_train, X_test, y_test, solo_feature_test),
 # (X_test, y_test, solo_feature_test, X_train, y_train, solo_feature_train)]
 def plot_performance(all_data):
-    param_grid = {"max_depth": [3, None],
-                  "max_features": sp_randint(1, 10),
-                  "min_samples_split":  sp_randint(1, 10),
-                  "min_samples_leaf": sp_randint(1, 11),
+    param_grid = {"max_features": sp_randint(1, 10),
                   "criterion": ["gini", "entropy"]
                   }
     for i, pair in enumerate(all_data, start=1):

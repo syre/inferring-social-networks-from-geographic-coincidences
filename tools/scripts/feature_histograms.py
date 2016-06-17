@@ -33,7 +33,10 @@ for index, feature in enumerate(test_features):
     ax.set_title(feature)
     all_events = np.hstack((meets[:, index], nonmeets[:, index]))
     types = np.hstack((["did meet" for x in range(len(meets[:, index]))], ["did not meet" for x in range(len(nonmeets[:,index]))]))
-    sns.boxplot(x=types, y=all_events, ax=ax)
+    if index in [9, 10]:
+        sns.barplot(x=types, y=all_events, ci=False)
+    else:
+        sns.boxplot(x=types, y=all_events, ax=ax)
     [item.set_fontsize(45) for item in [ax.yaxis.label, ax.xaxis.label]]
     ax.title.set_fontsize(48)
     [item.set_fontsize(33) for item in ax.get_xticklabels() + ax.get_yticklabels()]

@@ -15,9 +15,9 @@ fl = FileLoader()
 #X_test = X_test.toarray()
 
 X_train, y_train, X_test, y_test = fl.load_x_and_y()
-test_features = ["has_two_unique_coocs", "arr_leav", "diversity", "unique_coocs", "weighted_frequency",
-                 "coocs_w", "common_travels", "num_coocs", "mutual_coocs", "within_6", "same_gender",
-                 "app_jaccard", "num_evenings", "num_weekends", "specificity"]
+test_features = ["Two unique co-occurrences (0)", "Timely arrival and leaving (1)", "Diversity (2)", "Unique co-occurrences (3)", "Weighted frequency (4)",
+                 "Co-occurrences weighted (5)", "Common travels (6)", "Number of co-occurrences (7)", "Mutual co-occurrences (8)", "Within 6 years of age (9)", "Same gender (10)",
+                 "App usage similarity (11)", "Number of evenings (12)", "Number of weekends (13)", "Specificity (14)"]
 
 prod_features = ["num_coocs", "num_unique_coocs", "diversity", "weighted_frequency",
  "sum_weekends", "sum_evenings", "coocs_w", "mutual_cooccurrences", "specificity"]

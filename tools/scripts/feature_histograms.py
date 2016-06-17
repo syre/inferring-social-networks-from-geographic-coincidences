@@ -35,7 +35,7 @@ for index, feature in enumerate(test_features):
     ax.set_title(feature)
     all_events = np.hstack((meets[:, index], nonmeets[:, index]))
     types = np.hstack((["did meet" for x in range(len(meets[:, index]))], ["did not meet" for x in range(len(nonmeets[:,index]))]))
-    if index in [9, 10]:
+    if index in [0, 9, 10]:
         sns.barplot(x=types, y=all_events, ci=False)
     else:
         sns.boxplot(x=types, y=all_events, ax=ax)

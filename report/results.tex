@@ -109,22 +109,9 @@ RF in PP-2    & 0.95 & 0.87 & 0.25 & 0.44\\
 
 We can further look at the number of classes correctly and incorrectly predicted using a Confusion Matrix. Figure \ref{fig:conf_matrix_log_reg} and \ref{fig:conf_matrix_random_forest} shows the confusion matrices for our two models.
 
-\begin{figure}[H]
-    \hspace*{-1.0cm}
-    \centering
-    \includegraphics[scale=0.50]{confusion_matrix_log_reg}
-    \caption{Confusion matrix for Logistic Regression (num\_coocs feature)}
-    \label{fig:conf_matrix_log_reg}
-\end{figure}
-\begin{figure}[H]
-    \hspace*{-1.0cm}
-    \centering
-    \includegraphics[scale=0.50]{confusion_matrix_random_forest}
-    \caption{Confusion matrix for Random Forest (all features, 200 trees)}
-    \label{fig:conf_matrix_random_forest}
-\end{figure}
 
-Looking at Figure \ref{fig:conf_matrix_log_reg} we see our baseline classifier has a very high BLABLA
+
+
 
 \subsection{Feature importance}
 The Random Forest model allows for finding the relative importance of the different features. The depth of a feature in the trees can be used to determine importance as features at the top of of the tree contributes to the prediction decision over a larger fraction of samples. The average is then computed from each tree in the forest to obtain the final feature importances.

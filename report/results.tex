@@ -45,11 +45,26 @@ The Receiver Operating Characteristic or ROC in short, illustrates the performan
 
 \subsection{Precision and Recall}
 Precision or the positive predictive value (PPV) is a metric that measures the number of a given class that are correctly identified in proportion to the number of classes that are predicted to be that class.
-%\subsection{Recall}
-\textcolor{blue}{Recall}
-Recall or the true positive rate (TPR) is a metric that measures the number of a given class that are correctly identified as that class.
 
-In Table \ref{table:models_performance_report} we can see the performance metrics of the different classifiers for the positive (did meet) and negative class (did not meet).
+Recall, or the true positive rate (TPR), is a metric that measures the number of a given class that are correctly identified as that class. PPV and TPR is defined in \autoref{eq:precision} and \autoref{eq:recall} respectively. 
+
+\begin{equation}
+\label{eq:precision}
+PPV=\frac{tp}{tp+fp}
+\end{equation}
+
+\begin{equation}
+\label{eq:recall}
+TPR=\frac{tp}{tp+fn}
+\end{equation}
+
+$tp$ is true positive. It is the faction of records from the target class which really is from the target class ('did meet' or 'did not meet'). $fp$ is the false positive which is the fraction of records from the target class which actually are from the opposite (non-target) class. Last we have $fn$ that is the false negative. Here it is the fraction of records from the non-target class which actually is from the target-class. 
+
+Thus precision show how good the classifier is to predict the target class within the class (fraction of records that actually is the target class in the group the classifier has declared as the target class). Recall show how good the result are by looking at how complete the results are (the fraction of correct predicted records over all predicted records (both corrected and not corrected records) of the target class)\\
+
+We aim for high precision and high recall as it means low number of false possitive errors and few possitively misclassified as negative class \cite{tan2006introduction}. 
+
+In Table \ref{table:models_performance_report} and \ref{table:models_performance_report_undersampling} we can see the performance metrics of the different classifiers for the positive (did meet) and negative class (did not meet), in the dataset without undersampling and the dataset with undersampling respectively.
 
 \begin{table}[H]
 \centering
@@ -77,7 +92,17 @@ RF in PP-2    & 0.93 & 0.99 & 0.53 & 0.10\\
 \caption{Models performance metrics without undersampling}
 \label{table:models_performance_report}
 \end{table}
+As we are interested in the 'did meet' class is it the second and third column (PPV+ and TPR+) that are the most interested columns for our thesis. \\
+We can see the Random Forest (RF) has higher precision than the Logistic Regression (baseline) in almost all the pairs (except in PP-2. We come back to this later). 
+The recall is higher for the baseline in all except in PP-2.
 
+In TP-1 the RF is the worst of the RF's, when we compare is with the other RF's. It has better precision than the baseline (which has a quite bad precision). This means, it has lower number of 'did meets' which in fact was 'did not meet' than the baseline which is good. On the other hand, is has way worse recall than the baseline meaning, that is has more 'did meets' which been misclassified as 'did not meets'. 
+
+In TP-2 the recall of the RF is way better, but still worse than baseline. Precision is also a little better and infact a little better than the baseline. 
+
+In PP-1 both precision and recall for 'did meet' is better than both TP-1 and TP-2.     
+
+In PP-2 we have an fantastic precision and recall for 'did meet'. \textcolor{red}{hvorfor er PP-1 i ROC næsten denn dårligste????}
 
 \begin{table}[H]
 \centering

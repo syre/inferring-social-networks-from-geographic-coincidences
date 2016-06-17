@@ -162,7 +162,8 @@ def plot_performance(all_data, undersampling=False):
             false_positive_rate, true_positive_rate, _ = roc_curve(
                 data[4], y_pred)
             mean_tpr_rf += interp(mean_fpr_rf, false_positive_rate, true_positive_rate)
-            if pair_name == "PP-2":
+            target_importance = "TP-2"
+            if pair_name == target_importance:
                 importances = np.add(grid_search.best_estimator_.feature_importances_, importances)
         #if i == 3 and j == 1:
         #    print(importances/2)
@@ -200,17 +201,17 @@ def plot_performance(all_data, undersampling=False):
         ax.title.set_fontsize(48)
         [item.set_fontsize(33) for item in ax.get_xticklabels() + ax.get_yticklabels()]
     plt.show()
-    return importances/2
+    return importances/2, target_importance
 
 
-def plot_feature_importance(feature_impor, feature_id, undersampling):
+def plot_feature_importance(feature_impor, feature_id, pair_name, undersampling):
     feature_impor, feature_id = [list(t) for t in zip(*sorted(zip(feature_impor,
                                                                   feature_id),
                                                               reverse=True))]
     print(feature_impor)
     ax = plt.subplot(1, 1, 1)
     if undersampling:
-        plt.title("Feature importances of PP-2 with undersampling")
+        plt.title("Feature importances of " + pair_name + " with undersampling")
     else:
         plt.title("Feature importances of PP-2")
     plt.bar(range(9), feature_impor,
@@ -226,9 +227,9 @@ def plot_feature_importance(feature_impor, feature_id, undersampling):
 
 if __name__ == '__main__':
     undersampling = True
-    feature_impor = plot_performance(gen_alldata(), undersampling=undersampling)
+    feature_impor, pair = plot_performance(gen_alldata(), undersampling=undersampling)
     feature_id = [7, 3, 2, 4, 13, 12, 5, 8, 14]
-    plot_feature_importance(feature_impor, feature_id, undersampling=undersampling)
+    plot_feature_importance(feature_impor, feature_id, pair, undersampling=undersampling)
 
 
 #num_coocs, num_unique_coocs, diversity, weighted_frequency, sum_weekends, sum_evenings, coocs_w, mutual_cooccurrences, specificity

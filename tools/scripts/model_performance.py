@@ -112,7 +112,7 @@ def undersample(X_train, y_train):
     return X_train, y_train
 #[(X_train, y_train, solo_feature_train, X_test, y_test, solo_feature_test),
 # (X_test, y_test, solo_feature_test, X_train, y_train, solo_feature_train)]
-def plot_performance(all_data):
+def plot_performance(all_data, undersampling=False):
     param_grid = {"max_features": sp_randint(1, 10),
                   "criterion": ["gini", "entropy"]
                   }
@@ -147,8 +147,11 @@ def plot_performance(all_data):
                                              param_distributions=param_grid,
                                              scoring="roc_auc", n_jobs=-1,
                                              n_iter=20)
-            undersample_data = undersample(data[0], data[1])
-            grid_search.fit(undersample_data[0], undersample_data[1])
+            if undersampling:
+                temp_data0, temp_data1 = undersample(data[0], data[1])
+                grid_search.fit(temp_data0, temp_data1)
+            else:
+                grid_search.fit(data[0], data[1])
             print(grid_search.best_params_)
             y_pred = grid_search.predict_proba(data[3])[:, 1]
             precision_score_rf[0] += sklearn.metrics.precision_score(data[4], grid_search.predict(data[3]), pos_label=0)
@@ -160,7 +163,7 @@ def plot_performance(all_data):
                 data[4], y_pred)
             mean_tpr_rf += interp(mean_fpr_rf, false_positive_rate, true_positive_rate)
             if pair_name == "PP-2":
-               importances = np.add(grid_search.best_estimator_.feature_importances_, importances)
+                importances = np.add(grid_search.best_estimator_.feature_importances_, importances)
         #if i == 3 and j == 1:
         #    print(importances/2)
         mean_tpr_lr /= 2
@@ -177,7 +180,10 @@ def plot_performance(all_data):
         print("Precision,Recall score (RF) for negative: {},{} and positive: {},{}".format(precision_score_rf[0]/2, recall_score_rf[0]/2, precision_score_rf[1]/2, recall_score_rf[1]/2))
         print("---------")
         # Compute ROC curve and ROC area for each class
-        plt.title('Receiver Operating Characteristic for ' + pair_name)
+        if undersampling:
+            plt.title('ROC for ' + pair_name + " with undersampling")
+        else:
+            plt.title('ROC for ' + pair_name)
         plt.plot(mean_fpr_lr, mean_tpr_lr, 'r',
                  label='LR, Mean AUC = %0.2f' % mean_auc_lr)
         plt.plot(mean_fpr_rf, mean_tpr_rf, 'b',
@@ -197,13 +203,16 @@ def plot_performance(all_data):
     return importances/2
 
 
-def plot_feature_importance(feature_impor, feature_id):
+def plot_feature_importance(feature_impor, feature_id, undersampling):
     feature_impor, feature_id = [list(t) for t in zip(*sorted(zip(feature_impor,
                                                                   feature_id),
                                                               reverse=True))]
     print(feature_impor)
     ax = plt.subplot(1, 1, 1)
-    plt.title("Feature importances of PP-2")
+    if undersampling:
+        plt.title("Feature importances of PP-2 with undersampling")
+    else:
+        plt.title("Feature importances of PP-2")
     plt.bar(range(9), feature_impor,
             color="#e74c3c", align="center")
     plt.xticks(range(9), feature_id)
@@ -216,9 +225,10 @@ def plot_feature_importance(feature_impor, feature_id):
     plt.show()
 
 if __name__ == '__main__':
-    feature_impor = plot_performance(gen_alldata())
+    undersampling = True
+    feature_impor = plot_performance(gen_alldata(), undersampling=undersampling)
     feature_id = [7, 3, 2, 4, 13, 12, 5, 8, 14]
-    plot_feature_importance(feature_impor, feature_id)
+    plot_feature_importance(feature_impor, feature_id, undersampling=undersampling)
 
 
 #num_coocs, num_unique_coocs, diversity, weighted_frequency, sum_weekends, sum_evenings, coocs_w, mutual_cooccurrences, specificity

@@ -126,11 +126,32 @@ Figure \ref{fig:feature_importances} shows the mean of the feature importances o
 \begin{figure}[H]
     \hspace*{-1.0cm}
     \centering
-    \includegraphics[scale=0.25]{feature_boxplots}
+    \includegraphics[scale=0.15]{feature_boxplots1}
     \caption{Boxplots of features of TP2}
-    \label{fig:feature_boxplots}
+    \label{fig:feature_boxplots1}
 \end{figure}
 
+\begin{figure}[H]
+    \hspace*{-1.0cm}
+    \centering
+    \includegraphics[scale=0.15]{feature_boxplots2}
+    \caption{Boxplots of features of TP2}
+    \label{fig:feature_boxplots2}
+\end{figure}
+\begin{figure}[H]
+    \hspace*{-1.0cm}
+    \centering
+    \includegraphics[scale=0.15]{feature_boxplots3}
+    \caption{Boxplots of features of TP2}
+    \label{fig:feature_boxplots3}
+\end{figure}
+\begin{figure}[H]
+    \hspace*{-1.0cm}
+    \centering
+    \includegraphics[scale=0.15]{feature_boxplots4}
+    \caption{Boxplots of features of TP2}
+    \label{fig:feature_boxplots4}
+\end{figure}
 In Figure \ref{fig:rocs} we have plotted the ROC curve and ROC AUC for the different model pairs, we have also plotted the curve of a randomly guessing classifier for comparison. Figure \ref{fig:rocs_undersampling} shows the same models performance, where the datasets most prevalent class have been undersampled. We used randomized search to find the optimal hyper-parameters in the Random Forest models, choosing from \textit{gini} or\textit{entropy} and $1-9$ max features for each split. The randomized search runs for 20 iterations where each iteration performs a 3-fold cross-validation to validate the parameters of the model, we used ROC AUC as the scoring function. When the best parameters for the model are found, 2-fold cross-validation is performed to validate the model.
 
 \begin{figure}[H]

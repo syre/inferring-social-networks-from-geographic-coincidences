@@ -5,7 +5,7 @@ from DatasetHelper import DatasetHelper
 import numpy as np
 import sklearn
 import sklearn.metrics
-from sklearn.metrics import roc_auc_score, roc_curve, auc, confusion_matrix, precision_recall_curve, average_precision_score
+from sklearn.metrics import roc_auc_score, roc_curve, auc, confusion_matrix, precision_recall_curve, average_precision_score, matthews_corrcoef
 from sklearn.preprocessing import StandardScaler
 from sklearn.datasets import load_svmlight_file
 import sklearn.ensemble
@@ -262,6 +262,7 @@ class Predictor():
 
         lg.fit(solo_feature_train.reshape(-1, 1), y_train)
         y_pred = lg.predict(solo_feature_test.reshape(-1, 1))
+        print("matthews: {}".format(matthews_corrcoef(y_test, y_pred)))
         print(average_precision_score(y_test, y_pred))
         print(sklearn.metrics.classification_report(y_test, y_pred))
         self.compute_roc_curve(y_test, lg.predict_proba(solo_feature_test.reshape(-1, 1))[:,1])
@@ -274,6 +275,7 @@ class Predictor():
         forest = sklearn.ensemble.RandomForestClassifier(n_estimators = 1000, random_state=0)
         forest.fit(X_train, y_train)
         y_pred = forest.predict(X_test)
+        print("matthews: {}".format(matthews_corrcoef(y_test, y_pred)))
         print(average_precision_score(y_test, y_pred))
         print(sklearn.metrics.classification_report(y_test, y_pred))
         plt.style.use("ggplot")
@@ -316,15 +318,6 @@ if __name__ == '__main__':
     X_test, y_test = load_svmlight_file("data/vedran_thesis_students/X_test_filter_merged")
     X_train = X_train.toarray()
     X_test = X_test.toarray()
-
-    # undersampling did meet
-    train_stacked = np.hstack((X_train, y_train.reshape(-1, 1)))
-    didnt_meets = train_stacked[train_stacked[:,-1] == 0]
-    did_meets = train_stacked[train_stacked[:,-1] == 1]
-    train_stacked = np.vstack((didnt_meets[np.random.choice(didnt_meets.shape[0], 403, replace=False)],
-                              did_meets[np.random.choice(did_meets.shape[0], 403, replace=False)]))
-    y_train = train_stacked[:, -1]
-    X_train = np.delete(train_stacked, -1, 1)
     #X_train, y_train, X_test, y_test = f.load_x_and_y()
     print(type(X_train), type(y_train))
     print("y_train contains {} that didnt meet, and {} that did meet".format(

@@ -28,6 +28,7 @@ nonmeets = X_train[np.where(y_train == 0)]
 figure = 1
 f = plt.figure(figure, figsize=(10, 10))
 plot_index = 1
+sns.set_palette(sns.color_palette("Set1", n_colors=8, desat=.5))
 for index, feature in enumerate(test_features):
     ax = f.add_subplot(2, 2, plot_index)
     ax.set_title(feature)

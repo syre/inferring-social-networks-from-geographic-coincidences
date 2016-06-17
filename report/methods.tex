@@ -61,11 +61,11 @@ Each row in the dataset represents a dyad of users and the features computed for
 In the following section the term grid cell or spatial bin will be used synonymously, the same holds for time interval and time bin.
 A spatiotemporal co-occurrence between two users is defined as an instance in which they co-occurred in approximately the same time and approximately the same place.
 We have partitioned or binned the globe into a discrete grid where the cells span .001{\degree} of latitude and longitude on each side (approximately 111m at the equator), and in a discrete time interval of 1-hour.
-Thus we say a co-occurrence happens between users $i$ and $j$ if they share the same .001{\degree} spatial cell C within the same discrete time interval.
-\textcolor{red}{WHY 0.001}
+Thus we say a co-occurrence happens between users $i$ and $j$ if they share the same .001{\degree} spatial cell C within the same discrete time interval. We chose 0.001 as bin size as the location updates from GPS allowed for a high resolution.
+
 Each grid cell has a unique ID, this is obtained by considering the grid as a matrix and flattening it to a list by traversing from left to right and top to bottom (row-first ordering) and using the list index as an ID. This makes a total possible spatial bin indexes of: $$(190\times d)\times(360\times d)$$ where $d$ is the number of decimals, this makes in our case a total number of spatial bins of $68.400.000.000$ with our case of $d=3$.
 
-We calculated the time bins by counting every hour from the start of the day of the earliest date appearing in the dataset, which has the ISO 8601 timestring: "2015-08-09 22:25:33.766+02". The last day has the ISO 8601 timestring: "2015-12-01 00:59:15.738+01". This leaves us with $2738$ possible time bin IDs. As each location update has a start\_time and an end\_time, each update will result in one or more entries for each time bin dependent on the duration between start\_time and end\_time. \textcolor{red}{WHY 1 hour}  For generating our dataset we count co-occurrences between dyads only once per distinct spatial and time bin, as this corrects for BLABLA \cite{crandall2010inferring}.\textcolor{red}{WHY only once, cite crandall}
+We calculated the time bins by counting every hour from the start of the day of the earliest date appearing in the dataset, which has the ISO 8601 timestring: "2015-08-09 22:25:33.766+02". The last day has the ISO 8601 timestring: "2015-12-01 00:59:15.738+01". This leaves us with $2738$ possible time bin IDs. As each location update has a start\_time and an end\_time, each update will result in one or more entries for each time bin dependent on the duration between start\_time and end\_time. \textcolor{red}{WHY 1 hour}  For generating our dataset we count co-occurrences between dyads only once per distinct spatial and time bin, as duplicates would result in an artificially inflated number of co-occurrences between dyads.
 \begin{figure}[H]
     \hspace*{-1.0cm}
     \centering
@@ -154,7 +154,7 @@ The total number of co-occurrences between users. Feature ID: \textit{7}.
 \subsubsection{Diversity of a co-occurrence}
 We use the diversity measure taken from the papers of Shahabi and Pham\cite{iRWRfSD}\cite{AEBMtISSfSD}.
 Diversity is a measure of how important the spatial locations of the co-occurrences between a dyad is, given how many times they appear.
-It exists in two forms, one using Shannon entropy another using Rényi entropy, we will use Shannon. Feature ID: \textit{2}.
+The diversity measure uses the Shannon entropy. Feature ID: \textit{2}.
 The Shannon entropy is defined by Equation \ref{eq:shannon_entropy}
 \begin{equation}
 \label{eq:shannon_entropy}
@@ -168,7 +168,7 @@ D^s_{ij} = exp(H^S_{ij})
 \end{equation}
 
 \subsubsection{Two unique co-occurrences}
-If the user pair \textit{i} and \textit{j} has at least two unique co-occurrences in terms of spatial bins. This feature is only used for the baseline model. Feature ID: \textit{0}.
+If the user \textit{i} and \textit{j} has at least two unique co-occurrences in terms of spatial bins. This feature is only used for the baseline model. Feature ID: \textit{0}.
 
 \subsubsection{Unique co-occurrences}
 The number of unique co-occurrences in terms of spatial bins between two users \textit{i} and \textit{j}. Feature ID: \textit{3}.
@@ -211,7 +211,7 @@ This feature explains if a dyad of users are within 6 years of age of each other
 This feature explains if a dyad of users share the same gender. Feature ID: \textit{10}
 
 \subsubsection{Jaccard index similarity of used apps}
-The Jaccard index is a measure used in comparing the similarity of sample sets. We extract what apps two users have used in the period and compute the similarity between them using the Jaccard index. Feature ID:\textit{11}.
+The Jaccard index is a measure used in comparing the similarity of sample sets. We extract what apps two users have \textit{i} and \textit{j} used in the period and compute the similarity between them using the Jaccard index. Feature ID:\textit{11}.
 The Jaccard index is defined in Equation \ref{eq:jaccard_index}
 \begin{equation}
 \label{eq:jaccard_index}

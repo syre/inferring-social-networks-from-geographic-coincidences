@@ -5,11 +5,11 @@ In this section we will discuss the work we have done and the limitations of it.
 
 Initially we tried to infer friendship based on app usage. We did not have directed call-logs available so we could not reliably say if for example two people were calling each other. However the idea was that if we could find users with a similar time stamp and duration in an app, they could perhaps be communicating with each other either through phone calls or messaging apps. After finding user-pairs that met that criteria we try to validate them looking at their co-occurrences, were they many or few, were they off Sony properties or on, a lot of co-occurrences off sony properties could perhaps indicate a friendship. We identified the Android activity application name and package name for when a user is in a phone call called "Phone" and "package.com.android.incallui" respectively. Furthermore we identified a large number of messaging apps. We tried finding user pairs having activity in the phone app with a start time difference and end time difference of 10 seconds from each other. We looked at co-occurrences between user-pairs found this way and found that they either had a low number of co-occurrences around Sony properties or none at all.
 
-Different choices of time bin and spatial bin for binning could have been analyzed.
+We chose a relatively high resolution for spatial bins at 0.001 decimal degrees, however different choices of time bin and spatial bin for binning could have been analyzed.
 
-Because of the figure of the earth being an oblate spherioid, the area of our spatial cells based on latitude and longitude degrees will vary significantly dependent on the location on the surface. The area of the cells will decrease as we traverse the globe from the equator to the poles. Equal-area partitioning like HEALPix or Quad Sphere could have been used for preserving the area measure.
+Because of the figure of the earth being an oblate spherioid, the area of our spatial cells based on latitude and longitude degrees will vary significantly dependent on the location on the surface. The area of the cells will decrease as we traverse the globe from the equator to the poles. Equal-area partitioning could have been used for preserving the area measure.
 
-The pool of users from which the data is extracted is very homogenous as it only consists of Sony employees. Future work could use a more diverse pool of users as they might exhibit different behaviours in terms of mobility and in general.
+The pool of users from which the test data is extracted and analysed is very homogenous as it only consists of Sony employees. Future work could use a more diverse pool of users as they might exhibit different behaviours in terms of mobility and in general.
 
 As we did not have ground truth for friendship we used the metric if people met in the next period as a proxy. It is not known how well this metric conveys friendship and our work is thus limited in that regard.
 
@@ -23,13 +23,11 @@ Oversampling og Undersampling
 
 \textcolor{red}{Indsæt mulige grunde til at der er så stor ratio af did meets ifht. did not meets i vores fundne datasæt, for test data kan det være andre steder sony medarbejdere har mødtes vi ikke har taget højde for eller måske mødes de bare udover arbejde?, for prod data ved vi det reelt ikke, hvis det er små byer kan de møde hinanden ofte måske}
 
-\textcolor{red}{The conclusion is that individuals who choose to reveal small amounts of public information about the times and locations of their activities may be inadvertently sending strong signals about certain of their social ties as well. [p. 5, c. 1]}
-
 
 Altitude har også nogle negative værdier. Her er negative værdier sådan set ikke ugyldige, men dog sjældne og unormale. Hvis vi kigger på antal lokations opdateringer der har en negativ altitude på mindre end -50,000 (-50m), er der 9. Ved mindre end -10,000 (-10m) er der 14.
 
-Periode-opdelingen virker bedst ved opdeling i måneder kontra per 10. dag f.eks. da måneder af mennesker bruges som en naturlig målestok.
+The division in periods for a single month results in each period lasting 9-11 days. This period interval might not be sufficient as it is not as natural a period measure for humans as for example a month or a week. Thus we might not capture the co-occurrences of friends who meet with friends at monthly or weekly intervals.
 
 \textcolor{red}{Tekst om accuracy, måske fejlagtig filtrering}
 
-\textcolor{red}{Apache Spark and production data:} We only use some of the features in P-RF because we didn't manage to adapt all of our features to Apache Spark. The reason to this was it took us great amount of time and we was needed to go to Lund in Sweden to run our code. Every run took also a great amount of time, which in all took several days to achieve these features.
+Due to time constraints running the code which took considerable time and having to travel to Sweden to run our code, we unfortunately did not get to implement all our features for the production data in Apache Spark.

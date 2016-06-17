@@ -131,12 +131,6 @@ RF in PP-2    & 0.95 & 0.87 & 0.25 & 0.44\\
 \label{table:models_performance_report_undersampling}
 \end{table}
 
-
-
-
-
-
-
 \subsection{Feature importance}
 The Random Forest model allows for finding the relative importance of the different features. The depth of a feature in the trees can be used to determine importance as features at the top of of the tree contributes to the prediction decision over a larger fraction of samples. The average is then computed from each tree in the forest to obtain the final feature importances.
 Figure \ref{fig:feature_importances} shows the mean of the feature importances of the random forest of PP2. We can see the features which contribute most are features 8 (mutual co-occurrences), 14 (specificity), 5 (co-occurrences weighted), 4 (weighted frequency), 7 (number of co-occurrences), 2 (diversity), 3 (unique co-occurrences). Feature 12 (number of evenings) contributes very little and 13 (number of weekends) seems to have no variance.
@@ -147,6 +141,9 @@ Figure \ref{fig:feature_importances} shows the mean of the feature importances o
     \caption{Feature importances of random forest for PP2}
     \label{fig:feature_importances}
 \end{figure}
+
+In the next plots we try to look at the differences in features between the meet and non-meets.
+Looking at Figure \ref{fig:feature_boxplots1} to \ref{fig:feature_boxplots4} we can see features which have very little variance like number of weekends, evenings and common travels. Co-occurrences weighted and timely arrival and leaving seems to have similar values, we can note a slightly higher mean for the did not meet class. The homophily features seems very similar as well. Diversity, weighted frequency have very extreme outliers, a large diversity signifies a user pair with a very large number of locations between them. Specificity has extreme outliers as some of the previous features. App usage similarity strangely enough seems to be more similar for the did not meet class, this could be because it does not account for popular apps used by both groups. Number of co-occurrences, mutual co-occurrences and specificity seems to have higher values for the did meet class, and two of the three also contributed most to the importances for our features.
 
 \begin{figure}[H]
     \hspace*{-1.0cm}

@@ -34,18 +34,18 @@ for index, feature in enumerate(test_features):
     all_events = np.hstack((meets[:, index], nonmeets[:, index]))
     types = np.hstack((["did meet" for x in range(len(meets[:, index]))], ["did not meet" for x in range(len(nonmeets[:,index]))]))
     sns.boxplot(x=types, y=all_events, ax=ax)
-    [item.set_fontsize(35) for item in [ax.yaxis.label, ax.xaxis.label]]
-    ax.title.set_fontsize(40)
-    [item.set_fontsize(28) for item in ax.get_xticklabels() + ax.get_yticklabels()]
+    [item.set_fontsize(45) for item in [ax.yaxis.label, ax.xaxis.label]]
+    ax.title.set_fontsize(48)
+    [item.set_fontsize(33) for item in ax.get_xticklabels() + ax.get_yticklabels()]
     plot_index += 1
     if plot_index == 5:
         plt.show()
         figure += 1
         f = plt.figure(figure, figsize=(10, 10))
         plot_index = 1
-[item.set_fontsize(35) for item in [ax.yaxis.label, ax.xaxis.label]]
-ax.title.set_fontsize(40)
-[item.set_fontsize(28) for item in ax.get_xticklabels() + ax.get_yticklabels()]
+[item.set_fontsize(45) for item in [ax.yaxis.label, ax.xaxis.label]]
+ax.title.set_fontsize(48)
+[item.set_fontsize(33) for item in ax.get_xticklabels() + ax.get_yticklabels()]
 
 f.tight_layout()
 plt.show()

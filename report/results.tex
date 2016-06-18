@@ -29,7 +29,7 @@ Using production data without user-filtering we found 5585 that did not meet and
 Using production data with user-filtering we found 403 that did not meet and 4533 that did meet for our train set and 402 that did not meet and 4630 that did meet for our test set.
 
 The datasets composed from the test data have more negative samples than positive samples. In TP-1 the difference is more pronounced than in TP-2, except of the training set. In the production data, we have the opposite. Here we have more positive samples than negative. \\
-This shows we have a class impalance problem since the dataset are imbalanced. Due to this, the Logistic Regression classifier we trained initially predicted the largest prevalent class, in our training dataset. The next section explains this problem and how we dealt with it. 
+This shows we have a class imbalance problem since the dataset are imbalanced. Due to this, the Logistic Regression classifier we trained initially predicted the largest prevalent class, in our training dataset. The next section explains this problem and how we dealt with it. 
 
 
 \section{Class Imbalance Problem}
@@ -98,11 +98,11 @@ The recall is higher for the baseline in all except in PP-2.
 
 In TP-1 the RF is the worst of the RF's, when we compare is with the other RF's. It has better precision than the baseline (which has a quite bad precision). This means, it has lower number of 'did meets' which in fact was 'did not meet' than the baseline which is good. On the other hand, is has way worse recall than the baseline meaning, that is has more 'did meets' which been misclassified as 'did not meets'. 
 
-In TP-2 the recall of the RF is way better, but still worse than baseline. Precision is also a little better and infact a little better than the baseline. 
+In TP-2 the recall of the RF is way better, but still worse than baseline. Precision is also a little better and in fact a little better than the baseline. 
 
 In PP-1 both precision and recall for 'did meet' is better than both TP-1 and TP-2.     
 
-In PP-2 we have an fantastic precision and recall for 'did meet'. \textcolor{red}{hvorfor er PP-1 i ROC næsten denn dårligste????}
+In PP-2 we have an fantastic precision and recall for 'did meet'. \textcolor{red}{Why is PP-1 the one with the worst ROC?}
 
 \begin{table}[H]
 \centering

@@ -34,7 +34,7 @@ This shows we have a class imbalance problem since the dataset are imbalanced. D
 
 \section{Class Imbalance Problem}
 \label{sec:class_imbalance_problem}
-The Class Imbalance Problem is when the total number of samples for one class greatly exceeds the number of samples for a different class. A number of techniques can be used to handle the class imbalance problem, two of the most common techniques are called oversampling and undersampling\cite{tan2006introduction}. In oversampling you sample the minor sample with replacement until there is an equal number of positive and negative samples. In undersampling you randomly sample from the major class $N$ times where $N$ is the number of minor classes. We will try to use undersampling when training our models.
+The Class Imbalance Problem is when the total number of samples for one class greatly exceeds the number of samples for a different class. A number of techniques can be used to handle the class imbalance problem, two of the most common techniques are called \textit{oversampling} and \textit{undersampling}\cite{tan2006introduction}. In oversampling you sample the minor sample with replacement until there is an equal number of positive and negative samples. In undersampling you randomly sample from the major class $N$ times where $N$ is the number of minor classes. We will train our models with and without \textit{undersampling} our datasets to see how it affects our performance metrics.
 
 \section{Performance metrics}
 \label{sec:performance_metrics}
@@ -44,9 +44,13 @@ We utilize the precision and recall metrics for evaluating the performance of ou
 The Receiver Operating Characteristic or ROC in short, illustrates the performance of a binary classifier in terms of the true positive rate (TPR, also called recall) plotted against the false positive rate (FPR) at different discrimination thresholds. As points on the ROC-curve represents different thresholds with an associated (TPR,FPR) pair it allows us to see different trade-offs between TPR and FPR. The ROC curve is useful for comparing the relative performance of different classifiers\cite{tan2006introduction} The area under the curve (AUC) represents the probability that a classifier will rank a random positive sample higher than a negative sample, assuming positive ranks higher. An AUC of 0.5 would mean the model would just randomly guess the class of each sample. We will use the ROC AUC as a metric for comparing our different models.
 
 \subsection{Precision and Recall}
+We will use the metrics Precision and Recall to further evaluate the performance of our models.
+
+Precision and Recall are defined using the following measures: True positive ($TP$), the number of records predicted to be positive which really are positive. False positive ($FP$), the number of records predicted to be positive but are negative. Lastly, $FN$ which is false negative, the number of records predicted to be negative which actually are positive.
+
 Precision or the positive predictive value (PPV) is a metric that measures the number of a given class that are correctly identified in proportion to the number of classes that are predicted to be that class.
 
-Recall, or the true positive rate (TPR), is a metric that measures the number of a given class that are correctly identified as that class. PPV and TPR is defined in \autoref{eq:precision} and \autoref{eq:recall} respectively. 
+Recall, or the true positive rate (TPR), is a metric that measures the number of a given class that are correctly identified as that class. PPV and TPR is defined in \autoref{eq:precision} and \autoref{eq:recall} respectively.
 
 \begin{equation}
 \label{eq:precision}
@@ -58,22 +62,15 @@ PPV=\frac{TP}{TP+FP}
 TPR=\frac{TP}{TP+FN}
 \end{equation}
 
-$TP$ is true positive. It is the number of records predicted as 'did meet', which really is 'did meet'. $FP$ is the false positive which is the number of records predicted to be 'did meet' which actually is 'did not meet'. Last we have $FN$ that is the false negative. Here it is the number of records predicted to be 'did not meet' which actually is from 'did meet'. 
-
-Thus precision show how good the classifier is to predict 'did meet' of those is has classified as 'did meet' i.e. fraction of records that actually is the 'did meet' in the group the classifier has classified as 'did meet'. Recall show how good the result are by looking at how complete the results are i.e. the fraction of correct predicted 'did meet' over all predicted records (both records which is realy 'did meet' and those which is 'did not meet') of the 'did meet' class. \\
-
-We aim for high precision and high recall as it means low number of false positive errors and few positively misclassified as negative class\cite{tan2006introduction}. 
-
-As a summary we have the $F_1$ score which is the harmonic mean of the precision an recall. Since the score tence to be closer to the lowest value (of precision and recall), a high $F_1$ score ensures precision and recall to be reasonably high\cite{tan2006introduction}. 
-The $F_1$ score is defined as follows
+As a summary we have the $F_1$ score which is the harmonic mean of the precision and recall. Since the score tend to be closer to the lowest value (of precision and recall), a high $F_1$ score ensures precision and recall to be reasonably high\cite{tan2006introduction}. 
+The $F_1$ score is defined in Equation \ref{eq:f1_score}
 
 \begin{equation}
 \label{eq:f1_score}
 F_1=\frac{2*TP}{2*TP+FP+FN}
 \end{equation}
-$FP$ is the number of records 'did not meet' wrongly predicted as 'did meet'. 
 
-In Table \ref{table:models_performance_report} and \ref{table:models_performance_report_undersampling} we can see the performance metrics of the different classifiers for the positive (did meet) and negative class (did not meet), in the dataset without undersampling and the dataset with undersampling respectively.
+In Table \ref{table:models_performance_report} and \ref{table:models_performance_report_undersampling} we can see the performance metrics of the different classifiers for the positive class (did meet), in the dataset without and with undersampling respectively.
 
 \begin{table}[H]
 \centering
@@ -98,20 +95,16 @@ LR in PP-2    & 0.94 & 0.81 & 0.87 \\
 RF in PP-2    & 0.93 & 0.99 & 0.96 \\
 \hline
 \end{tabular}
-\caption{Models performance metrics without undersampling}
+\caption{Models performance metrics for the positive class (did meet) without undersampling}
 \label{table:models_performance_report}
 \end{table}
-We can see the Random Forest (RF) has higher precision than the Logistic Regression (baseline) in almost all the pairs (except in PP-2. We come back to this later). 
-The recall is higher for the baseline in all except in PP-2.
 
-In TP-1 the RF is the worst of the RF's, when we compare it with the other RF's. It has better precision than the baseline (which has quite bad precision). This means, it has lower number of 'did meets' which in fact was 'did not meet' than the baseline, which is good. On the other hand, it has way worse recall than the baseline meaning, that is has more 'did meets' which been misclassified as 'did not meets'. 
+Looking at Table \ref{table:models_performance_report} we find the recall is higher for the baseline for all of the datasets except for PP-2.
+The precision values for the different models have similar values for each dataset.
 
-In TP-2 the recall of the RF is way better, but still worse than baseline. Precision is also a little better and in fact a little better than the baseline. 
+Looking at the $F_1$ score which considers both precision and recall we see that each model pair performs better than the last when considering the datasets in sequence. This might be because the users of the production data are less homogeneous than the users in the test data and biases or noise which might be inherent in the test data might not be present in the production data. Furthermore as we anticipated filtering users on cross-occupancy ensured the users had data in all periods and thus might reduce the noise of finding whether users had a co-occurrence in the following period.
 
-In PP-1 and PP-2 we can see these have better performance than the other two in both baseline and Random Forest. As mentioned earlier, the precision for the RF in PP-2 are slight worse than the baseline. The racall is way better and the $F_1$ score shows a better performance than the baseline. 
-
-
-The $F_1$ score shows that the baseline is better in all the pairs except for PP-2. 
+The $F_1$ score also shows that the baseline is better in all the pairs except for PP-2. This is surprising but might be because some of our features are not important to the classification task and presents themselves as noise.
 
 \begin{table}[H]
 \centering
@@ -136,9 +129,14 @@ LR in PP-2    & 0.94 & 0.81 & 0.87 \\
 RF in PP-2    & 0.95 & 0.89 & 0.92 \\
 \hline
 \end{tabular}
-\caption{Models performance metrics with undersampling}
+\caption{Models performance metrics for the positive class (did meet) with undersampling}
 \label{table:models_performance_report_undersampling}
 \end{table}
+
+In Table \ref{table:models_performance_report_undersampling} with undersampling we see similar values for precision and recall as found without undersampling.
+Looking at the $F_1$ score we see the highest score coming from the RF model in PP-2, but values are higher from the baseline models for the other datasets.
+
+It seems undersampling does not affect the scores notably for the better with respect to the positive class, perhaps except for the RF model in TP-1.
 
 \subsection{Feature importance}
 The Random Forest model allows for finding the relative importance of the different features. The depth of a feature in the trees can be used to determine importance as features at the top of of the tree contributes to the prediction decision over a larger fraction of samples. The average is then computed from each tree in the forest to obtain the final feature importances.

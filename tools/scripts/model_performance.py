@@ -129,6 +129,7 @@ def plot_performance(all_data, undersampling=False):
         precision_score_rf = [0,0]
         recall_score_lr = [0,0]
         recall_score_rf = [0,0]
+        f_score = 0.0
         for j, data in enumerate(pair):
             pair_name = data[6]
 
@@ -158,15 +159,18 @@ def plot_performance(all_data, undersampling=False):
             recall_score_rf[0] += sklearn.metrics.recall_score(data[4], grid_search.predict(data[3]), pos_label=0)
             precision_score_rf[1] += sklearn.metrics.precision_score(data[4], grid_search.predict(data[3]), pos_label=1)
             recall_score_rf[1] += sklearn.metrics.recall_score(data[4], grid_search.predict(data[3]), pos_label=1)
+            
             # forest ROC
             false_positive_rate, true_positive_rate, _ = roc_curve(
                 data[4], y_pred)
             mean_tpr_rf += interp(mean_fpr_rf, false_positive_rate, true_positive_rate)
-            target_importance = "TP-2"
+            target_importance = "PP-2"
             if pair_name == target_importance:
                 importances = np.add(grid_search.best_estimator_.feature_importances_, importances)
         #if i == 3 and j == 1:
         #    print(importances/2)
+        f_score_lr = (2 * (precision_score_lr[1]/2 * recall_score_lr[1]/2) / (precision_score_lr[1]/2 + recall_score_lr[1]/2))
+        f_score_rf = (2 * (precision_score_rf[1]/2 * recall_score_rf[1]/2) / (precision_score_rf[1]/2 + recall_score_rf[1]/2))
         mean_tpr_lr /= 2
         mean_tpr_rf /= 2
 
@@ -177,8 +181,8 @@ def plot_performance(all_data, undersampling=False):
 
         mean_auc_rf = auc(mean_fpr_rf, mean_tpr_rf)
         print("For pair: {}\n---------".format(pair_name))
-        print("Precision,Recall score (LR) for negative: {},{} and positive: {},{}".format(precision_score_lr[0]/2, recall_score_lr[0]/2, precision_score_lr[1]/2, recall_score_lr[1]/2))
-        print("Precision,Recall score (RF) for negative: {},{} and positive: {},{}".format(precision_score_rf[0]/2, recall_score_rf[0]/2, precision_score_rf[1]/2, recall_score_rf[1]/2))
+        print("\t\tPrecision,\t\tRecall\t\t f-score \nLR:\t {}  \t{}  \t{}".format(precision_score_lr[1]/2, recall_score_lr[1]/2, f_score_lr))
+        print("RF:\t {}  \t{}  \t{}".format(precision_score_rf[1]/2, recall_score_rf[1]/2, f_score_rf))
         print("---------")
         # Compute ROC curve and ROC area for each class
         if undersampling:
@@ -226,7 +230,7 @@ def plot_feature_importance(feature_impor, feature_id, pair_name, undersampling)
     plt.show()
 
 if __name__ == '__main__':
-    undersampling = True
+    undersampling = False
     feature_impor, pair = plot_performance(gen_alldata(), undersampling=undersampling)
     feature_id = [7, 3, 2, 4, 13, 12, 5, 8, 14]
     plot_feature_importance(feature_impor, feature_id, pair, undersampling=undersampling)

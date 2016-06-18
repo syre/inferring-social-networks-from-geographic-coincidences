@@ -64,7 +64,7 @@ Thus precision show how good the classifier is to predict the target class withi
 
 We aim for high precision and high recall as it means low number of false positive errors and few positively misclassified as negative class \cite{tan2006introduction}. 
 
-In Table \ref{table:models_performance_report} and \ref{table:models_performance_report_undersampling} we can see the performance metrics of the different classifiers for the positive (did meet) and negative class (did not meet), in the dataset without undersampling and the dataset with undersampling respectively.
+In Table \ref{table:models_performance_report} and \ref{table:models_performance_report_undersampling} we can see the performance metrics of the different classifiers for the positive (did meet), in the dataset without and with undersampling respectively.
 
 \begin{table}[H]
 \centering
@@ -93,7 +93,7 @@ RF in PP-2    & 0.93 & 0.99 & 0.96 \\
 \label{table:models_performance_report}
 \end{table}
 As we are interested in the 'did meet' class is it the second and third column (PPV+ and TPR+) that are the most interested columns for our thesis. \\
-We can see the Random Forest (RF) has higher precision than the Logistic Regression (baseline) in almost all the pairs (except in PP-2. We come back to this later). 
+We can see the Random Forest (RF) has higher precision than the Logistic Regression (baseline) in almost all the pairs (except in PP-2. We come back to this later).
 The recall is higher for the baseline in all except in PP-2.
 
 In TP-1 the RF is the worst of the RF's, when we compare is with the other RF's. It has better precision than the baseline (which has a quite bad precision). This means, it has lower number of 'did meets' which in fact was 'did not meet' than the baseline which is good. On the other hand, is has way worse recall than the baseline meaning, that is has more 'did meets' which been misclassified as 'did not meets'. 

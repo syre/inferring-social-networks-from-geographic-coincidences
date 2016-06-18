@@ -52,10 +52,6 @@ spatial\_bin        & BIGINT NOT NULL        \\
 \caption{Denormalized database schema}
 \label{table:schema_denormalized}
 \end{table}
-\subsubsection{Data export to Numpy arrays}
-We created scripts for exportation to numpy arrays for use in the sklearn module. The users were encoded with K values where K = number of users. The countries were encoded with K values where K = number of countries.
-
-Each row in the dataset represents a dyad of users and the features computed for them as well as the binary label of whether they met in the next period or not.
 
 \subsubsection{Binning} \label{ssec:binning}
 In the following section the term grid cell or spatial bin will be used synonymously, the same holds for time interval and time bin.
@@ -112,6 +108,11 @@ Figure \ref{fig:user_pair_at_sony} shows an example of the co-occurrences visual
 \end{figure}
 
 We decided to look at just how many co-occurrences happened inside the Sony perimeter. Figure \ref{fig:dist_coocs_sony} shows the number of co-occurrences inside and outside Sony perimeters, here we see a massive amount of co-occurrences happening inside the Sony perimeters. This can pose a problem as we will only be looking at co-occurrences between users that is outside Sony perimeters.
+
+\subsubsection{Data export to Numpy arrays}
+We created scripts for exportation to numpy arrays for use in the sklearn module. The users were encoded with K values where K = number of users. The countries were encoded with K values where K = number of countries.
+
+Each row in the dataset represents a dyad of users and the features computed for them as well as the binary label of whether they met in the next period or not.
 
 \subsection{Preparation of Production data}
 In this section we will demonstrate what we have done to prepare the production data for analysis.
@@ -174,7 +175,7 @@ If the user \textit{i} and \textit{j} has at least two unique co-occurrences in 
 The number of unique co-occurrences in terms of spatial bins between two users \textit{i} and \textit{j}. Feature ID: \textit{3}.
 
 \subsubsection{Weighted frequency}
-We use the weighted frequency measure taken from the papers of Shababi and Pham\cite{iRWRfSD}\cite{AEBMtISSfSD}.
+We use the weighted frequency measure taken from the papers of Shahabi and Pham\cite{iRWRfSD}\cite{AEBMtISSfSD}.
 Weighted frequency is a measure of how important the co-occurrences at non-popular places are. Feature ID: \textit{4}.
 The weighed frequency is defined by Equation \ref{eq:weighted_frequency}
 \begin{equation}

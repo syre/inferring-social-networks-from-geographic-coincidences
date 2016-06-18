@@ -58,11 +58,20 @@ PPV=\frac{TP}{TP+FP}
 TPR=\frac{TP}{TP+FN}
 \end{equation}
 
-$TP$ is true positive. It is the fraction of records from the target class which really is from the target class ('did meet' or 'did not meet'). $FP$ is the false positive which is the fraction of records predicted to be the target class which actually are from the opposite (non-target) class. Last we have $FN$ that is the false negative. Here it is the fraction of records predicted to be the non-target class which actually is from the target-class. 
+$TP$ is true positive. It is the number of records predicted as 'did meet', which really is 'did meet'. $FP$ is the false positive which is the number of records predicted to be 'did meet' which actually is 'did not meet'. Last we have $FN$ that is the false negative. Here it is the number of records predicted to be 'did not meet' which actually is from 'did meet'. 
 
-Thus precision show how good the classifier is to predict the target class within the class (fraction of records that actually is the target class in the group the classifier has declared as the target class). Recall show how good the result are by looking at how complete the results are (the fraction of correct predicted records over all predicted records (both corrected and not corrected records) of the target class)\\
+Thus precision show how good the classifier is to predict 'did meet' of those is has classified as 'did meet' i.e. fraction of records that actually is the 'did meet' in the group the classifier has classified as 'did meet'. Recall show how good the result are by looking at how complete the results are i.e. the fraction of correct predicted 'did meet' over all predicted records (both records which is realy 'did meet' and those which is 'did not meet') of the 'did meet' class. \\
 
-We aim for high precision and high recall as it means low number of false positive errors and few positively misclassified as negative class \cite{tan2006introduction}. 
+We aim for high precision and high recall as it means low number of false positive errors and few positively misclassified as negative class\cite{tan2006introduction}. 
+
+As a summary we have the $F_1$ score which is the harmonic mean of the precision an recall. Since the score tence to be closer to the lowest value (of precision and recall), a high $F_1$ score ensures precision and recall to be reasonably high\cite{tan2006introduction}. 
+The $F_1$ score is defined as follows
+
+\begin{equation}
+\label{eq:f1_score}
+F_1=\frac{2*TP}{2*TP+FP+FN}
+\end{equation}
+$FP$ is the number of records 'did not meet' wrongly predicted as 'did meet'. 
 
 In Table \ref{table:models_performance_report} and \ref{table:models_performance_report_undersampling} we can see the performance metrics of the different classifiers for the positive (did meet) and negative class (did not meet), in the dataset without undersampling and the dataset with undersampling respectively.
 
@@ -70,7 +79,7 @@ In Table \ref{table:models_performance_report} and \ref{table:models_performance
 \centering
 \begin{tabular}{|c|c|c|c|c|c|c|c|}
 \hline
-\textbf{Model} & \textbf{PPV +} & \textbf{TPR +} & \textbf{f-score}   \\
+\textbf{Model} & \textbf{PPV} & \textbf{TPR} & \textbf{$F_1$-score}   \\
 \specialrule{.20em}{.0em}{.0em}
 LR in TP-1    & 0.25 & 0.67 & 0.37 \\
 \hline
@@ -92,17 +101,16 @@ RF in PP-2    & 0.93 & 0.99 & 0.96 \\
 \caption{Models performance metrics without undersampling}
 \label{table:models_performance_report}
 \end{table}
-As we are interested in the 'did meet' class is it the second and third column (PPV+ and TPR+) that are the most interested columns for our thesis. \\
 We can see the Random Forest (RF) has higher precision than the Logistic Regression (baseline) in almost all the pairs (except in PP-2. We come back to this later). 
 The recall is higher for the baseline in all except in PP-2.
 
-In TP-1 the RF is the worst of the RF's, when we compare is with the other RF's. It has better precision than the baseline (which has a quite bad precision). This means, it has lower number of 'did meets' which in fact was 'did not meet' than the baseline which is good. On the other hand, is has way worse recall than the baseline meaning, that is has more 'did meets' which been misclassified as 'did not meets'. 
+In TP-1 the RF is the worst of the RF's, when we compare it with the other RF's. It has better precision than the baseline (which has quite bad precision). This means, it has lower number of 'did meets' which in fact was 'did not meet' than the baseline, which is good. On the other hand, it has way worse recall than the baseline meaning, that is has more 'did meets' which been misclassified as 'did not meets'. 
 
 In TP-2 the recall of the RF is way better, but still worse than baseline. Precision is also a little better and infact a little better than the baseline. 
 
-In PP-1 both precision and recall for 'did meet' is better than both TP-1 and TP-2.     
+In PP-1 and PP-2 we can see these have better performance than the other two in both baseline and Random Forest. As mentioned earlier, the precision for the RF in PP-2 are slight worse than the baseline. The racall is way better and the $F_1$ score shows a better performance than the baseline. 
 
-In PP-2 we have an fantastic precision and recall for 'did meet'. \textcolor{red}{hvorfor er PP-1 i ROC næsten denn dårligste????}
+The $F_1$ score shows that the baseline is better in all the pairs except for PP-2. 
 
 \begin{table}[H]
 \centering

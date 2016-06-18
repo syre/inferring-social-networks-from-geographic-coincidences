@@ -84,6 +84,20 @@ def gen_alldata():
     return all_data
 
 
+def filter_features(data_tuple, filter_list):
+    prod = {7: 0, 3: 1, 2: 2,
+            4: 3, 13: 4, 12: 5,
+            8: 6, 14: 7}
+
+    if data_tuple[6][:2] == "PP":
+        filter_list = [prod[i] for i in filter_list]
+    data_tuple[0] = data_tuple[0][:, filter_list]
+    data_tuple[1] = data_tuple[1][:, filter_list]
+    data_tuple[3] = data_tuple[3][:, filter_list]
+    data_tuple[4] = data_tuple[4][:, filter_list]
+    return data_tuple
+
+
 def oversample(X_train, y_train):
     train_stacked = np.hstack((X_train, y_train.reshape(-1, 1)))
     didnt_meets = train_stacked[train_stacked[:,-1] == 0]
@@ -112,7 +126,7 @@ def undersample(X_train, y_train):
     return X_train, y_train
 #[(X_train, y_train, solo_feature_train, X_test, y_test, solo_feature_test),
 # (X_test, y_test, solo_feature_test, X_train, y_train, solo_feature_train)]
-def plot_performance(all_data, undersampling=False):
+def plot_performance(all_data, filter_feature_lst=[], undersampling=False):
     param_grid = {"max_features": sp_randint(1, 10),
                   "criterion": ["gini", "entropy"]
                   }
@@ -132,7 +146,8 @@ def plot_performance(all_data, undersampling=False):
         f_score = 0.0
         for j, data in enumerate(pair):
             pair_name = data[6]
-
+            if filter_feature_lst:
+                data = filter_features(data, filter_feature_lst)
             lr = sklearn.linear_model.LogisticRegression(random_state=0, class_weight="balanced")
             lr.fit(data[2].reshape(-1, 1), data[1])
             y_pred = lr.predict_proba(data[5].reshape(-1, 1))[:, 1]
@@ -233,7 +248,10 @@ if __name__ == '__main__':
     undersampling = False
     feature_impor, pair = plot_performance(gen_alldata(), undersampling=undersampling)
     feature_id = [7, 3, 2, 4, 13, 12, 5, 8, 14]
-    plot_feature_importance(feature_impor, feature_id, pair, undersampling=undersampling)
+    filter_list = [7, 3, 2, 4, 13, 12, 5, 14]
+    plot_feature_importance(feature_impor, feature_id, pair,
+                            filter_feature_lst=filter_list,
+                            undersampling=undersampling)
 
 
 #num_coocs, num_unique_coocs, diversity, weighted_frequency, sum_weekends, sum_evenings, coocs_w, mutual_cooccurrences, specificity

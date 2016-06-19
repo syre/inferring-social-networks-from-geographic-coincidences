@@ -29,6 +29,6 @@ Surprisingly the same is true for production data, although to a much lesser deg
 
 We did not include altitude as a factor in calculating co-occurrences, two users with vastly different altitude levels but same spatial and time bin would thus co-occur independently of altitude. We disregarded altitude because we were unsure of how binning should work for altitude levels and varying altitude levels would often mean being inside buildings or below ground resulting in an inaccurate GPS signal.
 
-\textcolor{red}{Tekst om accuracy, måske fejlagtig filtrering}
+Our filtering on accuracy at 55m makes the naive assumption that the user is in the center of the spatial bin with each side measuring 110m and thus remains inside even with their position being displaced 55m. A better solution could be filtering accuracy on the shortest distance to the actual cell perimeter for each location.
 
 Due to time constraints running the code which took considerable time and having to travel to Sweden to run our code, we unfortunately did not get to implement all our features for the production data in Apache Spark.

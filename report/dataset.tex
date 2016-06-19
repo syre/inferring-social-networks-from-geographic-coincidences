@@ -343,8 +343,14 @@ In general we can see that even if the data development starts with a huge dip, 
 
 
 
+\subsection{App usage data}
+\textcolor{red}{INDSÆT APP DATA TEKST}
+\subsection{Demographics data}
+\textcolor{red}{INDSÆT DEMOGRAPHICS TEKST}
 
 \section{Production data}
+In this section we will describe the real-world production data from Sony servers.
+
 Initially we tried using a newer month than the months from our test data, however we found the months did not have geocoding data (region, country, area, place) and thus we could not filter by country. An option would be to do reverse geocoding on the data. Another option would be a coarse filtration where we use the borders of Sweden in terms of latitude and longitude. Both of these options would take time. Instead we found the newest month folders with geocoding data intact was 09-15, 10-15, 11-15, the same months we had as test data, and we decided to use September as we have for the test data.
 
 We found the data folder for 09-15 had 929,697,167 location updates. After our filtration by Sweden, accuracy and just the period of September we found a remaining number of location updates of 2,450,205 and number of users of 12,692.
@@ -352,6 +358,8 @@ We found the data folder for 09-15 had 929,697,167 location updates. After our f
 We divided September into three periods, 1-10, 11-20, and 21-30 and extracted two datasets, one using all users and another using only the users with a certain cross-occupancy threshold. Using a cross-occupancy threshold of 40\% we found 296 users in period 1, 457 users in period 2, and 12561 users in period 3.
 
 As we can see there is a very large influx of users in period 3, this could perhaps be due to a new version of Sony Lifelog released in that exact period, this could also mean the number of 12,692 users could in reality be much lower in the first two periods. Of the users in each period we found none with 40\% in all three periods, thus we picked a lower threshold of 10\%.
+
+
 
 
 \section{Summary}

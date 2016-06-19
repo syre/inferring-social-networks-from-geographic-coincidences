@@ -156,7 +156,7 @@ def plot_performance(all_data, filter_feature_lst=[], undersampling=False):
             recall_score_lr[0] += sklearn.metrics.recall_score(data[4], lr.predict(data[5].reshape(-1, 1)), pos_label=0)
             precision_score_lr[1] += sklearn.metrics.precision_score(data[4], lr.predict(data[5].reshape(-1, 1)), pos_label=1)
             recall_score_lr[1] += sklearn.metrics.recall_score(data[4], lr.predict(data[5].reshape(-1, 1)), pos_label=1)
-            conf_matrix_lr = np.add(conf_matrix_lr, confusion_matrix(data[4], lr.predict(data[5].reshape(-1, 1))))
+            conf_matrix_lr = np.add(conf_matrix_lr, confusion_matrix(data[4], lr.predict(data[5].reshape(-1, 1)), labels=[1, 0]))
             # logistic regression ROC
             false_positive_rate, true_positive_rate, _ = roc_curve(data[4], y_pred)
             mean_tpr_lr += interp(mean_fpr_lr, false_positive_rate, true_positive_rate)
@@ -176,7 +176,7 @@ def plot_performance(all_data, filter_feature_lst=[], undersampling=False):
             recall_score_rf[0] += sklearn.metrics.recall_score(data[4], grid_search.predict(data[3]), pos_label=0)
             precision_score_rf[1] += sklearn.metrics.precision_score(data[4], grid_search.predict(data[3]), pos_label=1)
             recall_score_rf[1] += sklearn.metrics.recall_score(data[4], grid_search.predict(data[3]), pos_label=1)
-            conf_matrix_rf = np.add(conf_matrix_rf, confusion_matrix(data[4], grid_search.predict(data[3])))
+            conf_matrix_rf = np.add(conf_matrix_rf, confusion_matrix(data[4], grid_search.predict(data[3]), labels=[1, 0]))
 
             # forest ROC
             false_positive_rate, true_positive_rate, _ = roc_curve(
@@ -200,9 +200,9 @@ def plot_performance(all_data, filter_feature_lst=[], undersampling=False):
         mean_auc_rf = auc(mean_fpr_rf, mean_tpr_rf)
         print("For pair: {}\n---------".format(pair_name))
         print("\t\tPrecision,\t\tRecall\t\t f-score \nLR:\t {}  \t{}  \t{}".format(precision_score_lr[1]/2, recall_score_lr[1]/2, f_score_lr))
-        print("Confusion matrix LR : {}".format(conf_matrix_lr/2))
+        print("Confusion matrix LR : \n{}".format(conf_matrix_lr/2))
         print("RF:\t {}  \t{}  \t{}".format(precision_score_rf[1]/2, recall_score_rf[1]/2, f_score_rf))
-        print("Confusion matrix RF : {}".format(conf_matrix_rf/2))
+        print("Confusion matrix RF : \n{}".format(conf_matrix_rf/2))
         print("---------")
         # Compute ROC curve and ROC area for each class
         if undersampling:

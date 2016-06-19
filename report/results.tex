@@ -43,6 +43,23 @@ We utilize the precision and recall metrics for evaluating the performance of ou
 \subsection{Receiver Operating Characteristic (ROC)}
 The Receiver Operating Characteristic or ROC in short, illustrates the performance of a binary classifier in terms of the true positive rate (TPR, also called recall) plotted against the false positive rate (FPR) at different discrimination thresholds. As points on the ROC-curve represents different thresholds with an associated (TPR,FPR) pair it allows us to see different trade-offs between TPR and FPR. The ROC curve is useful for comparing the relative performance of different classifiers\cite{tan2006introduction} The area under the curve (AUC) represents the probability that a classifier will rank a random positive sample higher than a negative sample, assuming positive ranks higher. An AUC of 0.5 would mean the model would just randomly guess the class of each sample. We will use the ROC AUC as a metric for comparing our different models.
 
+In Figure \ref{fig:rocs} we have plotted the ROC curve and ROC AUC for the different model pairs, we have also plotted the curve of a randomly guessing classifier for comparison. Figure \ref{fig:rocs_undersampling} shows the same models performance, where the datasets most prevalent class have been undersampled. We used randomized search to find the optimal hyper-parameters in the Random Forest models, choosing from \textit{gini} or\textit{entropy} and $1-9$ max features for each split. The randomized search runs for 20 iterations where each iteration performs a 3-fold cross-validation to validate the parameters of the model, we used ROC AUC as the scoring function. When the best parameters for the model are found, 2-fold cross-validation is performed to validate the model.
+
+\begin{figure}[H]
+    \hspace*{-1.0cm}
+    \centering
+    \includegraphics[scale=0.15]{ROCS}
+    \caption{mean ROC AUC of Logistic Regression (LR) and Random Forest (RF) in the four model-pairs (TP-1, TP-2, PP-1, PP-2) using randomized search for hyper-parameter optimization (internal loop with 3-fold cross-validation) and 2-fold cross-validation. }
+    \label{fig:rocs}
+\end{figure}
+\begin{figure}[H]
+    \hspace*{-1.0cm}
+    \centering
+    \includegraphics[scale=0.15]{ROCS_undersampling}
+    \caption{mean ROC AUC of Logistic Regression (LR) and Random Forest (RF) in the four model-pairs (TP-1, TP-2, PP-1, PP-2) using randomized search for hyper-parameter optimization (internal loop with 3-fold cross-validation) and 2-fold cross-validation, and with undersampling of the most prevalent class}
+    \label{fig:rocs_undersampling}
+\end{figure}
+
 \subsection{Precision and Recall}
 We will use the metrics Precision and Recall to further evaluate the performance of our models.
 
@@ -149,14 +166,15 @@ Figure \ref{fig:feature_importances} shows the mean of the feature importances o
     \label{fig:feature_importances}
 \end{figure}
 
-In the next plots we try to look at the differences in features between the meet and non-meets.
+In the next plots we try to look at the differences in features between the meet and non-meets of the TP-2 dataset. We chose TP-2 because it is the filtered dataset with all of our features present.
+
 Looking at Figure \ref{fig:feature_boxplots1} to \ref{fig:feature_boxplots4} we can see features which have very little variance like number of weekends, evenings and common travels. Co-occurrences weighted and timely arrival and leaving seems to have similar values, we can note a slightly higher mean for the did not meet class. The homophily features seems very similar as well. Diversity, weighted frequency have very extreme outliers, a large diversity signifies a user pair with a very large number of locations between them. Specificity has extreme outliers as some of the previous features. App usage similarity strangely enough seems to be more similar for the did not meet class, this could be because it does not account for popular apps used by both groups. Number of co-occurrences, mutual co-occurrences and specificity seems to have higher values for the did meet class, and two of the three also contributed most to the importances for our features.
 
 \begin{figure}[H]
     \hspace*{-1.0cm}
     \centering
     \includegraphics[scale=0.15]{feature_boxplots1}
-    \caption{Boxplots of features of TP2}
+    \caption{Boxplots of and barplots of features of TP2}
     \label{fig:feature_boxplots1}
 \end{figure}
 
@@ -171,7 +189,7 @@ Looking at Figure \ref{fig:feature_boxplots1} to \ref{fig:feature_boxplots4} we 
     \hspace*{-1.0cm}
     \centering
     \includegraphics[scale=0.15]{feature_boxplots3}
-    \caption{Boxplots of features of TP2}
+    \caption{Boxplots and barplots of features of TP2}
     \label{fig:feature_boxplots3}
 \end{figure}
 \begin{figure}[H]
@@ -181,20 +199,5 @@ Looking at Figure \ref{fig:feature_boxplots1} to \ref{fig:feature_boxplots4} we 
     \caption{Boxplots of features of TP2}
     \label{fig:feature_boxplots4}
 \end{figure}
-In Figure \ref{fig:rocs} we have plotted the ROC curve and ROC AUC for the different model pairs, we have also plotted the curve of a randomly guessing classifier for comparison. Figure \ref{fig:rocs_undersampling} shows the same models performance, where the datasets most prevalent class have been undersampled. We used randomized search to find the optimal hyper-parameters in the Random Forest models, choosing from \textit{gini} or\textit{entropy} and $1-9$ max features for each split. The randomized search runs for 20 iterations where each iteration performs a 3-fold cross-validation to validate the parameters of the model, we used ROC AUC as the scoring function. When the best parameters for the model are found, 2-fold cross-validation is performed to validate the model.
 
-\begin{figure}[H]
-    \hspace*{-1.0cm}
-    \centering
-    \includegraphics[scale=0.15]{ROCS}
-    \caption{mean ROC AUC of Logistic Regression (LR) and Random Forest (RF) in the four model-pairs (TP-1, TP-2, PP-1, PP-2) using randomized search for hyper-parameter optimization (internal loop with 3-fold cross-validation) and 2-fold cross-validation. }
-    \label{fig:rocs}
-\end{figure}
-\begin{figure}[H]
-    \hspace*{-1.0cm}
-    \centering
-    \includegraphics[scale=0.15]{ROCS_undersampling}
-    \caption{mean ROC AUC of Logistic Regression (LR) and Random Forest (RF) in the four model-pairs (TP-1, TP-2, PP-1, PP-2) using randomized search for hyper-parameter optimization (internal loop with 3-fold cross-validation) and 2-fold cross-validation, and with undersampling of the most prevalent class}
-    \label{fig:rocs_undersampling}
-\end{figure}
 \section{Summary}

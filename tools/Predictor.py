@@ -81,7 +81,7 @@ class Predictor():
         if selected_users:
             coocs_users = coocs_users[np.in1d(coocs_users[:, 0], [users[u] for u in selected_users if u in users])]
             coocs_users = coocs_users[np.in1d(coocs_users[:, 1], [users[u] for u in selected_users if u in users])]
-        X = np.zeros(shape=(len(coocs_users), 15), dtype="float")
+        X = np.zeros(shape=(len(coocs_users), 19), dtype="float")
         y = np.zeros(shape=len(coocs_users), dtype="int")
         demo_dict = self.file_loader.filter_demographic_outliers(self.file_loader.generate_demographics_from_csv())
         app_data_dict = defaultdict(set)
@@ -97,6 +97,8 @@ class Predictor():
         for index, pair in tqdm(enumerate(coocs_users), total=coocs_users.shape[0]):
             user1 = pair[0]
             user2 = pair[1]
+            within_6_val = self.is_within_6_years(demo_dict, users[user1], users[user2])
+            same_sex_val = self.is_same_sex(demo_dict, users[user1], users[user2])
 
             pair_coocs = coocs[
                 (coocs[:, 0] == user1) & (coocs[:, 1] == user2)]
@@ -111,12 +113,16 @@ class Predictor():
                 pair_coocs)
             X[index:, 7] = pair_coocs.shape[0]
             X[index:, 8] = self.compute_mutual_cooccurrences(coocs, user1, user2)
-            X[index:, 9] = self.is_within_6_years(demo_dict, users[user1], users[user2])
-            X[index:, 10] = self.is_same_sex(demo_dict, users[user1], users[user2])
-            X[index:, 11] = self.compute_app_jaccard_index(app_data_dict, users[user1], users[user2])
-            X[index:, 12] = datahelper.calculate_number_of_evening_coocs(pair_coocs)
-            X[index:, 13] = datahelper.calculate_number_of_weekend_coocs(pair_coocs)
-            X[index:, 14] = datahelper.calculate_specificity(user1, user2, pair_coocs, loc_arr)
+            X[index:, 9] = self.compute_app_jaccard_index(app_data_dict, users[user1], users[user2])
+            X[index:, 10] = datahelper.calculate_number_of_evening_coocs(pair_coocs)
+            X[index:, 11] = datahelper.calculate_number_of_weekend_coocs(pair_coocs)
+            X[index:, 12] = datahelper.calculate_specificity(user1, user2, pair_coocs, loc_arr)
+            X[index:, 13] = 1 if within_6_val == 0 else 0
+            X[index:, 14] = 1 if within_6_val == 1 else 0
+            X[index:, 15] = 1 if within_6_val == 2 else 0
+            X[index:, 16] = 1 if same_sex_val == 0 else 0
+            X[index:, 17] = 1 if same_sex_val == 1 else 0
+            X[index:, 18] = 1 if same_sex_val == 2 else 0
             y[index] = self.has_met(user1, user2, met_next)
 
         return X, y
@@ -142,13 +148,17 @@ class Predictor():
             diff = abs(demo_dict[user1]["age"]-demo_dict[user2]["age"])
             if diff <= 6:
                 return 1
-        return 0
+            else:
+                return 0
+        return 2
 
     def is_same_sex(self, demo_dict, user1, user2):
         if user1 in demo_dict and user2 in demo_dict:
             if demo_dict[user1]["gender"] == demo_dict[user2]["gender"]:
                 return 1
-        return 0
+            else:
+                return 0
+        return 2
 
     def has_met(self, user1, user2, met_next):
         return np.any(np.all([met_next[:, 0] == user1, met_next[:, 1] == user2], axis=0))

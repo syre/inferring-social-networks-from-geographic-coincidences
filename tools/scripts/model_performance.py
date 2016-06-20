@@ -126,11 +126,15 @@ def undersample(X_train, y_train):
     return X_train, y_train
 #[(X_train, y_train, solo_feature_train, X_test, y_test, solo_feature_test),
 # (X_test, y_test, solo_feature_test, X_train, y_train, solo_feature_train)]
-def plot_performance(all_data, filter_feature_lst=[], undersampling=False):
+def plot_performance(all_data, filter_feature_lst=[], undersampling=False,
+                     target_importance="PP-2"):
     param_grid = {"max_features": sp_randint(1, 10),
                   "criterion": ["gini", "entropy"]
                   }
-    importances = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0])
+    if target_importance[0] == "T":
+        importances = np.array([0]*15)
+    else:
+        importances = np.array([0]*9)
     for i, pair in enumerate(all_data, start=1):
         ax = plt.subplot(2, 2, i)
         print("plot number {}".format(i))
@@ -160,7 +164,7 @@ def plot_performance(all_data, filter_feature_lst=[], undersampling=False):
             # logistic regression ROC
             false_positive_rate, true_positive_rate, _ = roc_curve(data[4], y_pred)
             mean_tpr_lr += interp(mean_fpr_lr, false_positive_rate, true_positive_rate)
-            forest = sklearn.ensemble.RandomForestClassifier(n_estimators=500)
+            forest = sklearn.ensemble.RandomForestClassifier(n_estimators=100)
             grid_search = RandomizedSearchCV(forest,
                                              param_distributions=param_grid,
                                              scoring="roc_auc", n_jobs=-1,
@@ -182,7 +186,6 @@ def plot_performance(all_data, filter_feature_lst=[], undersampling=False):
             false_positive_rate, true_positive_rate, _ = roc_curve(
                 data[4], y_pred)
             mean_tpr_rf += interp(mean_fpr_rf, false_positive_rate, true_positive_rate)
-            target_importance = "PP-2"
             if pair_name == target_importance:
                 importances = np.add(grid_search.best_estimator_.feature_importances_, importances)
         #if i == 3 and j == 1:
@@ -237,10 +240,10 @@ def plot_feature_importance(feature_impor, feature_id, pair_name, undersampling)
     if undersampling:
         plt.title("Feature importances of " + pair_name + " with undersampling")
     else:
-        plt.title("Feature importances of PP-2")
-    plt.bar(range(9), feature_impor,
+        plt.title("Feature importances of " + pair_name)
+    plt.bar(range(len(feature_id)), feature_impor,
             color="#e74c3c", align="center")
-    plt.xticks(range(9), feature_id)
+    plt.xticks(range(len(feature_id)), feature_id)
     plt.xlabel("Feature id")
     plt.ylabel("Feature importance (%)")
     #plt.xlim([-1, 9])
@@ -250,12 +253,17 @@ def plot_feature_importance(feature_impor, feature_id, pair_name, undersampling)
     plt.show()
 
 if __name__ == '__main__':
-    undersampling = True
-    feature_impor, pair = plot_performance(gen_alldata(), undersampling=undersampling)
-    feature_id = [7, 3, 2, 4, 13, 12, 5, 8, 14]
-    filter_list = [7, 3, 2, 4, 13, 12, 5, 14]
+    undersampling = False
+    target = "TP-2"
+    feature_impor, pair = plot_performance(gen_alldata(),
+                          undersampling=undersampling, target_importance=target)
+    if target[0] == "T":
+        feature_id = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+    else:
+        feature_id = [7, 3, 2, 4, 13, 12, 5, 8, 14]
+        #filter_list = [7, 3, 2, 4, 13, 12, 5, 14]
     plot_feature_importance(feature_impor, feature_id, pair,
-                            filter_feature_lst=filter_list,
+                            #filter_feature_lst=filter_list,
                             undersampling=undersampling)
 
 

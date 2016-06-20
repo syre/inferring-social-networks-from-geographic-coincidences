@@ -250,7 +250,7 @@ def plot_feature_importance(feature_impor, feature_id, pair_name, undersampling)
     plt.show()
 
 if __name__ == '__main__':
-    undersampling = False
+    undersampling = True
     feature_impor, pair = plot_performance(gen_alldata(), undersampling=undersampling)
     feature_id = [7, 3, 2, 4, 13, 12, 5, 8, 14]
     filter_list = [7, 3, 2, 4, 13, 12, 5, 14]

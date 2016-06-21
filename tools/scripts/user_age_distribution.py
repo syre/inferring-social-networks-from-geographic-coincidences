@@ -24,6 +24,7 @@ ages = [value["age"] for value in user_info_dict.values()]
 birthdates = [value["birthdate"] for value in user_info_dict.values()]
 #print([u for u in user_info_dict.values() if u["age"] < 16])
 #print(len([u for u in user_info_dict.values() if u["birthdate"].endswith("-01")]), len(user_info_dict.values()))
+print(len(set(birthdates)))
 print(Counter(birthdates).most_common(20))
 ax = sns.distplot(ages, kde=False)
 ax.set(xlabel="Age", title="Distribution of user ages", ylabel="Frequency")

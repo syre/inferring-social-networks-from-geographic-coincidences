@@ -80,14 +80,9 @@ def by_all_days(bin_size, times, rows_dict):
         for start, end in start_end_pairs:
             for x in range(int((start.hour*60+start.minute)/bin_size), math.ceil((end.hour*60+end.minute)/bin_size)):
                 values.append(x)
-        #print("start_end_pairs: {}".format(start_end_pairs))        
         print("len(values): {}".format(len(values)))
         print(values[:10])
         print("feature: "+feature)
-        #if len(values) > 1:
-        #    print("if!!!")
-        #    values.append(-1)
-        #try:
 
         if len(values) > 1:
             ax = sns.distplot(values, bins=(24*60+60)/bin_size, kde=False, norm_hist=True)
@@ -101,7 +96,7 @@ def by_all_days(bin_size, times, rows_dict):
 
             [label.set_visible(False) for label in ax.xaxis.get_ticklabels()]
 
-            for label in ax.xaxis.get_ticklabels()[::8]:
+            for label in ax.xaxis.get_ticklabels()[::18]:
                 label.set_visible(True)
         #except Exception as e:
         #    print(str(e))
@@ -133,7 +128,7 @@ def by_week_day(bin_size, times, rows):
 
         [label.set_visible(False) for label in ax.xaxis.get_ticklabels()]
 
-        for label in ax.xaxis.get_ticklabels()[::8]:
+        for label in ax.xaxis.get_ticklabels()[::18]:
             label.set_visible(True)
     sns.plt.show()
 

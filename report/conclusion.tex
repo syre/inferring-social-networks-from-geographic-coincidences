@@ -1,12 +1,14 @@
 %!TEX root = main.tex
 \chapter{Conclusion}
 \label{chap:conclusion}
-We built several datasets with a number of features based primarily on users spatiotemporal behavior collected from mobile sensors. Using these datasets we trained two classifiers and show it is possible to a certain extent to predict whether users meet in a future period as a proxy for social ties based on their patterns in a previous period. For our datasets we found no significant difference between the performance of a baseline logistic regression model with a single feature of two unique co-occurrences versus a random forest model trained on several features with respect to predicting the positive feature, did meet.
+We built several datasets with a number of features based primarily on users spatiotemporal behavior collected from mobile sensors. Using these datasets we trained two classifiers and show it is possible to a certain extent to predict whether users meet in a future period as a proxy for social ties based on their patterns in a previous period. For our datasets we found no significant difference between the performance of a baseline logistic regression model with a single feature of two unique co-occurrences versus a random forest model trained on several features with respect to predicting the positive feature, did meet except for the refined real-world dataset.
 
 We found increasing performance in the models when using only a subset of active users and also an increase in performance using a dataset of diverse real-world users contrasted with a dataset of Sony employees only. Furthermore for the dataset of real-world users using just a subset of active users, we found mutual co-occurrences, specificity and co-occurrences weighted by number of people present to be most important for prediction.
 
-Where as in other works, where the goal is predicting actual social ties, our features for prediction might work. We found in our work, where we used a co-occurrence in a next period as a proxy for social ties, that the features used were not significantly better than a baseline feature for prediction, except for the refined real-world dataset.
+If the goal is to predict actual social ties, our features for prediction might have made a more significant difference, for our work however, they did not.
 
 The inference of social ties or even just a co-occurrence has implications for user privacy as analysis from past data shared by the users, can reveal information about future occurrences between them. This is information which they might not give permission to share if they were aware of what can be inferred.
 
-The benefits of inferring social ties are many as already stated, however benefits from successful inferrence of just a co-occurrence can if combined with information of where, provide users with directions or time-to-arrival information.
+The benefits of inferring social ties are numerous as stated in \autoref{chap:Introduction}, however benefits from successful inferrence of just a co-occurrence can if combined with possible information of where, provide users with quick directions or time-to-arrival information.
+
+Future work could be spent on looking at the links between the users of the datasets to asses who have had a co-occurrence with whom or how well our features perform in predicting actual social ties between users.

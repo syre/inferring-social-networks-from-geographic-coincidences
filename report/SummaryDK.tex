@@ -2,10 +2,10 @@
 \chapter{Summary (Danish)}
 \begin{otherlanguage}{danish}
 
-Da verdenssamfundet bliver ved med at opleve flere teorister og radikaliserede grupper, er der et behov for at spore disse og derved have mulighed for at stoppe en eventuel terrorhanling i tide. Denne afhandling kigger på, i hvor høj grad man kan udlede fremtidigt møde, som substitut for social relation, mellem to personer udfra geografiske og tidsmæssige sammenfald, som kan bruges i en del af løsning til dette. 
-
-Data kommer fra Sonys mobil app 'Life log', som repræsenterede 1,586 personer henover tre måneder. Gennem dataanalyse, vælges der passende sub-data som bruges i en Logistic Regression og Random Forest. Logistic Regression bruges som baseline model med én feature og bliver sammenlignet med Random Forrest med flere features. De to modeller bliver også brugt på et meget større datasæt, for at kunne sammenligne modellerne melle de to datasæt. 
-
-Det viste sig, at Random Forest modellen ikke var signifikant bedre end Logistic Regression
+Da man ofte deler smag med ens venner kan anbefalinger om bl.a. produkter på baggrund af sociale relationer forbedres hvis man kender brugeres sociale relationer.
+Denne afhandling kigger på, i hvor høj grad man kan udlede et fremtidigt møde (som substitut for social relation) mellem to personer udfra geografiske og tidsmæssige sammenfald.
+Data kommer fra Sonys mobil app Lifelog, indsamlet fra henholdsvis Sony medarbejdere henover tre måneder og rigtige brugere fra en enkelt måned.
+Gennem data analyse, laver vi flere datasæt som vi træner med machine learning modeller.
+Vi benytter en Logistic Regression baseline model med én feature og sammenligner med en Random Forest model trænet med flere features ud fra spatiotemporale data, bruger-alder og køn samt mobil app forbrug. Vi fandt at til udledning af et fremtidigt møde var der ikke en større forskel mellem baseline og Random Forest modellen for de fleste af datasættene, vi fandt desuden at modellerne havde højere ROC AUC score samt Precision og Recall for den positive klasse, at de mødes, med datasættet for rigtige brugere end Sony medarbejdere.
 
 \end{otherlanguage}

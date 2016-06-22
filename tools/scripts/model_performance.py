@@ -254,13 +254,13 @@ def plot_feature_importance(feature_impor, feature_id, pair_name, undersampling)
 
 if __name__ == '__main__':
     undersampling = False
-    target = "PP-2"
+    target = "TP-2"
     feature_impor, pair = plot_performance(gen_alldata(), undersampling=undersampling, target_importance=target)
     #print("feature_impor = {}".format(feature_impor))
     if target[0] == "T":
         feature_id = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
     else:
-        feature_id = [7, 3, 2, 4, 13, 12, 5, 8, 14]
+        feature_id = [7, 3, 2, 4, 11, 10, 5, 8, 12]
         #filter_list = [7, 3, 2, 4, 13, 12, 5, 14]
 
     plot_feature_importance(feature_impor, feature_id, pair,

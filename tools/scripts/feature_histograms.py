@@ -8,18 +8,34 @@ import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.datasets import load_svmlight_file
 fl = FileLoader()
+import pickle
+
+def load_x_and_y(path):
+    with open(os.path.join(path, "X_train.pickle"), "rb") as fp:
+        X_train = pickle.load(fp)
+    with open(os.path.join(path, "y_train.pickle"), "rb") as fp:
+        y_train = pickle.load(fp)
+    with open(os.path.join(path, "X_test.pickle"), "rb") as fp:
+        X_test = pickle.load(fp)
+    with open(os.path.join(path, "y_test.pickle"), "rb") as fp:
+        y_test = pickle.load(fp)
+    return X_train, y_train, X_test, y_test
+
+
 
 
 def hist(is_prod=True):
     if is_prod:
+        #[7, 3, 2, 4, 11, 10, 5, 8, 12]
         X_train, y_train = load_svmlight_file("../data/vedran_thesis_students/X_train_filter_merged")
         X_test, y_test = load_svmlight_file("../data/vedran_thesis_students/X_test_filter_merged")
         X_train = X_train.toarray()
         X_test = X_test.toarray()
         features = ["Number of co-occurrences (7)", "Unique co-occurrences (3)", "Diversity (2)", "Weighted frequency (4)",
-                    "Number of weekends (13)", "Number of evenings (12)", "Co-occurrences weighted (5)", "Mutual co-occurrences (8)", "Specificity (14)"]
+                    "Number of weekends (11)", "Number of evenings (10)", "Co-occurrences weighted (5)", "Mutual co-occurrences (8)", "Specificity (12)"]
     else:
-        X_train, y_train, X_test, y_test = fl.load_x_and_y()
+        print("Test data"   )
+        X_train, y_train, X_test, y_test = load_x_and_y("../data/reduced_dataset/")
         features = ["Two unique co-occurrences (0)", "Timely arrival and leaving (1)", "Diversity (2)", "Unique co-occurrences (3)", "Weighted frequency (4)",
                     "Co-occurrences weighted (5)", "Common travels (6)", "Number of co-occurrences (7)", "Mutual co-occurrences (8)",
                     "App usage similarity (9)", "Number of evenings (10)", "Number of weekends (11)", "Specificity (12)",
@@ -38,8 +54,9 @@ def hist(is_prod=True):
         ax.set_title(feature)
         all_events = np.hstack((meets[:, index], nonmeets[:, index]))
         types = np.hstack((["did meet" for x in range(len(meets[:, index]))], ["did not meet" for x in range(len(nonmeets[:,index]))]))
-        if int(feature[-2]) not in [8]:
-            if feature in ["Two unique co-occurrences (0)", "Within 6 years of age (9)", "Same gender (10)"]:
+        if feature not in ["Mutual co-occurrences (8)"]:
+            if feature in ["Two unique co-occurrences (0)", "Not within 6 years of age (13)", "Within 6 years of age (14)", "Within 6 years of age - Unknown (15)",
+                           "Not same gender (16)", "Same gender (17)", "Same gender - Unknown (18)"]:
                 sns.barplot(x=types, y=all_events, ci=False)
             else:
                 sns.boxplot(x=types, y=all_events, ax=ax)
@@ -61,4 +78,4 @@ def hist(is_prod=True):
 
 
 if __name__ == '__main__':
-    hist()
+    hist(False)

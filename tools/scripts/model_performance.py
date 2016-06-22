@@ -253,32 +253,15 @@ def plot_feature_importance(feature_impor, feature_id, pair_name, undersampling)
     plt.show()
 
 if __name__ == '__main__':
-    undersampling = True
-    target = "TP-2"
-    #feature_impor, pair = plot_performance(gen_alldata(), undersampling=undersampling, target_importance=target)
+    undersampling = False
+    target = "PP-2"
+    feature_impor, pair = plot_performance(gen_alldata(), undersampling=undersampling, target_importance=target)
     #print("feature_impor = {}".format(feature_impor))
     if target[0] == "T":
         feature_id = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
     else:
-        feature_id = [7, 3, 2, 4, 13, 12, 5, 8, 12]
+        feature_id = [7, 3, 2, 4, 13, 12, 5, 8, 14]
         #filter_list = [7, 3, 2, 4, 13, 12, 5, 14]
-    
-    #TP-2 - No undersampling - kør igen!! :(
-    feature_impor = [0.2107953596345824, 0.17552968984250175, 0.1575255652084846,
-                     0.10863665893378369, 0.083530682258605826, 0.066864164399270329,
-                     0.04322873605784746, 0.037736401225521216, 0.020505802184967781,
-                     0.017123445980523944, 0.015962379970925398, 0.015264314905096665,
-                     0.013105203978630643, 0.012754013535850697, 0.0061974481172953145,
-                     0.0049730442273707987, 0.0046999227779159613, 0.0046748147534736925,
-                     0.00089235200735184939]
-    pair = "TP-2"
-    #----------------------------------
-    #TP-2 - With undersampling 
-    feature_impor = [0.00718261, 0.09163674, 0.04635485, 0.02868964,
-                     0.15216624, 0.10563969, 0.00667098, 0.03179363,
-                     0.20780607, 0.07277411, 0.00041404, 0.01383233,
-                     0.17404199, 0.01389499, 0.014035, 0.00388025,
-                     0.01352692, 0.01277392, 0.00288599]
 
     plot_feature_importance(feature_impor, feature_id, pair,
                             #filter_feature_lst=filter_list,

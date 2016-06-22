@@ -243,7 +243,7 @@ def plot_feature_importance(feature_impor, feature_id, pair_name, undersampling)
         plt.title("Feature importances of " + pair_name)
     plt.bar(range(len(feature_id)), feature_impor,
             color="#e74c3c", align="center")
-    plt.xticks(list(range(len(feature_id))), feature_id)
+    plt.xticks(range(len(feature_id)), feature_id)
     plt.xlabel("Feature id")
     plt.ylabel("Feature importance (%)")
     #plt.xlim([-1, 9])

@@ -21,7 +21,8 @@ def hist(is_prod=True):
     else:
         X_train, y_train, X_test, y_test = fl.load_x_and_y()
         features = ["Two unique co-occurrences (0)", "Timely arrival and leaving (1)", "Diversity (2)", "Unique co-occurrences (3)", "Weighted frequency (4)",
-                    "Co-occurrences weighted (5)", "Common travels (6)", "Number of co-occurrences (7)", "Mutual co-occurrences (8)", "Within 6 years of age (9)", "Same gender (10)",
+                    "Co-occurrences weighted (5)", "Common travels (6)", "Number of co-occurrences (7)", "Mutual co-occurrences (8)",
+                    "Not within 6 years of age (13)", "Within 6 years of age (14)", "Within 6 years of age - Unknown (9)", "Same gender (15)",
                     "App usage similarity (11)", "Number of evenings (12)", "Number of weekends (13)", "Specificity (14)"]
 
     meets = X_train[np.where(y_train == 1)]

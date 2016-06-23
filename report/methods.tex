@@ -86,7 +86,7 @@ We used \textit{Basemap}\cite{basemap}, for plotting static visualizations of al
     \caption{Location updates in Japan, hex-binned in log scale with markers to Sony, Tokyo which also shows increased activity}
     \label{fig:japan_locations_hexbin}
 \end{figure}
-Figure \ref{fig:sweden_locations_hexbin} and Figure \ref{fig:japan_locations_hexbin} shows all location updates from Sweden and Japan for the three months plotted on a map. On Figure \ref{fig:sweden_locations_hexbin} we can see increased activity around Sony-related properties in Lund\cite{sony_headquarters_sweden_lund}, Kista\cite{sony_headquarters_sweden_kista}, and at Ericsson AB in Göteborg\cite{ericsson}. Likewise on Figure \ref{fig:japan_locations_hexbin} we can see increased activity at the Sony headquarters\cite{sony_headquarters_japan} in Tokyo. We exclude co-occurrences from these locations for our dataset.
+Figure \ref{fig:sweden_locations_hexbin} and Figure \ref{fig:japan_locations_hexbin} shows all location updates from Sweden and Japan for the three months plotted on a map. On Figure \ref{fig:sweden_locations_hexbin} we can see increased activity around Sony-related properties in Lund\cite{sony_headquarters_sweden_lund}, Kista\cite{sony_headquarters_sweden_kista}, and at Ericsson AB in Göteborg\cite{ericsson}. Likewise on Figure \ref{fig:japan_locations_hexbin} we can see increased activity at the Sony headquarters\cite{sony_headquarters_japan} in Tokyo. We exclude co-occurrences from these locations for our dataset as they are work-related and being at the same workplace does not constitute a valid co-occurrence.
 
 \begin{figure}[H]
     \hspace*{-1.0cm}
@@ -133,7 +133,7 @@ We will try to answer the following question: Can we predict if people meet in a
 The models and algorithms we use are implemented in \textit{scikit-learn}\cite{scikit-learn} a Python module for machine learning.
 
 \subsection{Models}
-For our work we will use two models, Logistic Regression and Random Forest. For each model we will first fit them on the complete period of 3 months and then the month which best met our criteria in \autoref{chap:dataset}. For the datasets we will use an outer loop of 2-fold cross-validation and an inner loop of randomized search. We choose randomized search over grid search because of the efficiency in computation time. We will use ROC AUC as the score function for the randomized search.
+For our work we will use two models, Logistic Regression and Random Forest. For each model we will first fit them on the complete period of 3 months and the single month of September as found in \autoref{chap:dataset}. Furthermore we will use all of the users as well as a subset of users meeting our criteria for cross-occupancy as found in \autoref{chap:dataset} of 40\% and 10\% for test and production data respectively. For the datasets we will use an outer loop of 2-fold cross-validation and an inner loop of randomized search. We choose randomized search over grid search because of the efficiency in computation time. We will use ROC AUC as the score function for the randomized search.
 
 
 \subsubsection{Logistic Regression}
@@ -205,7 +205,7 @@ The number of common travels between two users. Common travels are defined when 
 Number of mutual co-occurrences, the mutual co-occurrences for user \textit{i} and \textit{j} will be the number of users, with whom they share co-occurrences. Feature ID:\textit{8}.
 
 \subsection{Homophily Features}
-Based on the work by McPherson et al.\cite{mcpherson2001birds} finding homophily in personal networks, we have tried to create several features based on homophily between users.
+Based on the work by McPherson et al.\cite{mcpherson2001birds} on homophily in personal networks, we have tried to create several features based on homophily between users.
 
 \subsubsection{Within 6 years of age}
 McPherson et al.\cite{mcpherson2001birds} found that age homophily is a strong dimension with respect to close friendship.

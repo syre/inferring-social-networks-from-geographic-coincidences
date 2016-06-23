@@ -391,7 +391,7 @@ Looking closer at the data we can see the most frequent birthdates are December 
 
 We determine the two most frequent birthdates to be outliers as they occur on the first day of the month and are likely due to the users having accepted a default birthdate in the app as theirs. Removing the outliers we have a birthdate for the remaining 742 users.
 
-We used the cleaned demographics data for implementing the homophily features described in Chapter \ref{chap:methods}.
+We used the cleaned demographics data for implementing the homophily features described in \autoref{chap:methods}.
 
 When we first obtained the demographics data, we identified 5 users in our test datasets which were missing from the demographics data. 
 We learned they were test-users, used for testing new features and thus we removed their location updates, 10 in total, from our datasets.
@@ -413,8 +413,8 @@ As we can see there is a very large influx of users in period 3, this could perh
 \section{Summary}
 In this section we will present the most important findings in the analysis above. 
 
-We have found that Sweden and Japan were the two countries with the largest representation of number of location updates.  On this basis we proceeded with the two countries, where we found that there were some data with values for accuracy which were invalid. These data were removed as these updates could not be trusted. Furthermore the data with an accuracy value of more than 50.000 were removed because of the binning size. 
-The data were cleaned further by updating the 500.000 location updates where the country attribute were missing. On basis of the geolocation the relevant country could be identified, which increased the number of represented countries. But after all Sweden and Japan were the countries with most data represented. 
+We have found that Sweden and Japan were the two countries with the largest representation of number of location updates. On this basis we proceeded with the two countries, furthermore we found data with invalid values for accuracy which we removed. The data with an accuracy value of more than 50.000 were removed as well because of the binning size. 
+The data were preprocessed further by updating nearly all of the 500.000 location updates with a missing country attribute, which increased our number of represented countries. After preprocessing, we concluded that Sweden and Japan most suitable in terms of number of location updates.
 
 We found a decreasing tendency in the number of updates between the months where September had the most updates, where after the number decreased in the two following months. Of all the updates 23.89\% and 19.86\% respectively in Sweden and Japan occurred on Sony locations.  
 

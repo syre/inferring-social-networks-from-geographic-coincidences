@@ -162,7 +162,7 @@ It is therefore interesting to see how many updates for each country are made in
 \end{figure}
 
 Figure \ref{fig:hq_stack_bar} show how updates are distributed with respect to whether they are made on a gathering place or not. It can be seen for both countries that there is a reasonably small proportion of updates inside gathering places. For Japan and Sweden this value is 23.89\% and 19.86\% respectively. 
-As we will only be using location updates outside these perimeters, a lower percentage of location updates within the perimeters is ideal. It is thus good for the purpose of this thesis that a relatively large amount of updates are outside the gathering places. 
+As we will only be using location updates outside these perimeters, a lower percentage of location updates within the perimeters is ideal. It is thus good for the purpose of this thesis that a relatively large amount of updates are outside the gathering places.
 
 For each of the two countries the distribution of the updates between the users is of interest. For this purpose the quantiles for each country are available in Table \ref{tab:stat_loc_updates}. 
 
@@ -199,7 +199,7 @@ For each of the two countries the distribution of the updates between the users 
 When we look upon the quartile of the countries, we can see that the 25\% quantile (Q1) is very low in both countries. Q1 shows in other words that 25\% of the users in Japan and Sweden respectively has less than 26 and 68 updates during these three months. It is not a good condition that so many users have so few updates. The 75\% quantile (Q3) is a good deal higher in Sweden than in Japan, which shows that there are 75\% of the users who has a maximum of 994.5 and 2,642 location updates in Japan and Sweden respectively. Again the data seems better in Sweden where the users have more updates than in Japan. \\ 
 
 
-Both countries has a small percentage of users having extraordinary many updates. In Sweden there are 25\% users who have between 2,642 and 14,759 updates and in Japan they have between 994.5 and 9,320 updates. As with Q1 this is a bad sign. 
+Both countries have a small percentage of users with extraordinarily many updates. In Sweden there are 25\% users who have between 2,642 and 14,759 updates and in Japan they have between 994.5 and 9,320 updates. As with Q1 this is a bad sign.
 Median and mean are very much larger in Sweden than in Japan. This indicates that there are more users with many updates in Sweden than in Japan.  \\
 
 The tendency described above can be shown more clearly by plotting the Cumulative Distribution Function (CDF) for the two countries.  
@@ -212,7 +212,7 @@ The tendency described above can be shown more clearly by plotting the Cumulativ
     \label{fig:country_cdf}
 \end{figure}
 
-The plot shows that in both Japan and Sweden there are a large part of the users with very few location updates during the whole period. It can be seen that in Japan the number of users with few updates increases faster than in Sweden.  
+The plot shows that in both Japan and Sweden, a large part of the users have very few location updates during the whole period. It can be seen that in Japan the number of users with few updates increases faster than in Sweden.  
 As the updates are generated each time the user changes his location, it must indicate that many of the users are very stationary or they have turned off their mobile phones. It must be stated that stationary also encompasses the situation where the user has forgotten his phone at home. In the data we can see the difference between whether the phone has been switched off or is stationary, but not whether the phone is stationary or just forgotten. We can differentiate between the situation with a phone turned off and a stationary phone by noting that in the first case data are missing for a while whereas with a forgotten phone there is a long time between \texttt{start\_time} and \texttt{end\_time}.  
 
 It is important to see if there is a pattern in the time-stamp of the updates, as it may be possible on this background to identify better or worse sub-periods, which may be taken into account. 

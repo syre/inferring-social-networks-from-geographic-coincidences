@@ -1,12 +1,12 @@
 %!TEX root = main.tex
 \chapter{Dataset}
 \label{chap:dataset}
-On the following pages the datasets used will be examined. Basic statistics of the datasets will be shown and deviations will be examined aswell as methods to deal with these deviations, especially how data cleaning was done. \\
+In the following chapter the datasets used will be examined. Basic statistics of the datasets will be shown and deviations will be examined as well as methods to deal with these deviations, especially how data cleaning was done. \\
 The section will end with a part conclusion. 
 
 Our data are derived from Sony's Lifelog\cite{sonyLifeLog} which is a mobile life tracking app which logs your activities during the day, among those location update and app usage. 
 
-The dataset describes the geolocations where a user has been present. It describes exactly where, when and for how long the user has been on the defined site. Each time the user changes location (defined by latitude and longitude) a location update will be logged with the following attributes: 
+The dataset describes the spatiotemporal location where a user has been present. It describes where, when and for how long the user has been in the given location. Each time the user changes spatial location, defined by latitude and longitude, a location update will be logged with the following attributes: 
 
 \begin{enumerate}
 \item \texttt{\textbf{timestamp\_seen}}\\Milliseconds since the epoch showing when the location update is logged on the server/cluster 

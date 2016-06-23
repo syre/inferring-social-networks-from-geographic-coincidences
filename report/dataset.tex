@@ -15,7 +15,7 @@ The dataset describes the spatiotemporal location where a user has been present.
 \item \texttt{\textbf{start\_time}}\\Time when the user enter a location. Represented as an ISO8601 time stamp with time zone 
 \item \texttt{\textbf{end\_time}}\\Time when the user leaves a location. Represented as an ISO8601 time stamp with time zone
 \item \texttt{\textbf{name}}\\Name of the city where the user is situated when the location update is logged 
-\item \texttt{\textbf{area}}\\Name of the local region where the user is situated when the location update is logged. E.g. Skane in Sweden 
+\item \texttt{\textbf{area}}\\Name of the local region where the user is situated when the location update is logged. E.g. Skåne in Sweden 
 \item \texttt{\textbf{country}}\\Name of the country where the user is situated when the location update is logged 
 \item \texttt{\textbf{region}}\\Name of the global region where the user is situated when the location update is logged. E.g. Europe
 \item \texttt{\textbf{latitude}}\\Latitude for the location. Latitude has a precision of up to approximately 15 decimals, which corresponds to 0.1 nanometer or less. This precision is not to be taken too seriously, as most mobile GPS modules has an uncertainty of about 30 meters   \cite{NAV:8292634}.  
@@ -25,7 +25,7 @@ The dataset describes the spatiotemporal location where a user has been present.
 \item \texttt{\textbf{devices}}\\The device is represented as an array with name, type and id. Type is the type of device (e.g. Phone), name is the name of the current device and the id is the unique identifier of the device 
 \end{enumerate}
 
-Some of the information listed above is not relevant for the present thesis. This enables us to delete some information and the following information (from now on called attributes) is left: 
+In our thesis the following attributes are of relevance to us: 
 
 \begin{itemize}
 \item \texttt{useruuid}
@@ -38,7 +38,7 @@ Some of the information listed above is not relevant for the present thesis. Thi
 
 These attributes has been chosen as they are important or interesting with respect to the current thesis. \texttt{useruuid} is important to differentiate the users, \texttt{start\_time} and \texttt{end\_time} are important as they show how long time the user has been at the current location. \texttt{country} allows an easy filtering of the users. \texttt{latitude} and \texttt{longitude} are very important as they tell about the most central issue i.e. the location where the user has been situated. \texttt{accuracy} can tell about the confidence to be associated with the current location update.  
 
-Test data which are a sub-set of production data has been investigated. These test data are from a specific period and from specific users. After defining this sub-set, the whole amount of production data has been investigated.  It will be described how test data and total production data, respectively, can be described with respect to distributions etc.  
+Test data which are a subset of production data has been investigated. These test data are from a specific period and from specific users. After defining this subset, the whole amount of production data has been investigated.  It will be described how test data and total production data, respectively, can be described with respect to distributions etc.  
 
 \section{Test data}
 The period for the test data stretches over 3 months: September - November 2015.   
@@ -48,7 +48,7 @@ This fact has a large impact on the content of the data, and will be investigate
 
 In Table \ref{tab:stat_geo_p1} the statistic summary of \texttt{accuracy} can be seen. 
 In the table we can see that there are invalid values for the accuracy. The invalid values shows up in the form of negative values. 
-From the many location updates only 20 show a negative accuracy, which corresponds to less than 10 ppm.  
+Of all location updates 20 show a negative accuracy, which corresponds to less than 10 ppm.  
 
 
 \begin{table}[H]
@@ -72,7 +72,7 @@ From the many location updates only 20 show a negative accuracy, which correspon
         \label{tab:stat_geo_p1}
 \end{table}
 
-As accuracy affects both latitude and longitude, which are the most important attributes, the updates with negative accuracy are removed. Furthermore location updates with an accuracy of more then 55.000 (55m) is removed. Our binning will correspond to cells with a side of maximum 111 meters. As accuracy tells that the user with a confidence of 68\% is inside the distance of the accuracy, the maximum allowed accuracy is chosen to be 55 meters, which is half the size of the maximum bin. This means that the user with 68\% confidence is in the defined bin on condition that the user is situated in the middle of the cell. This condition may not always be met. But after all it seems to be the best way to set the limit of the allowed accuracy. 
+As accuracy affects both latitude and longitude, which are the most important attributes, the updates with negative accuracy are removed. Furthermore location updates with an accuracy of more then 55.000 (55m) is removed. Our binning will correspond to cells with a side of maximum 111 meters. As accuracy means the user with a confidence of 68\% is at the location plus inside a radius of distance of the accuracy, the maximum allowed accuracy is chosen to be 55 meters, which is half the size of the maximum bin. This means that the user with 68\% confidence is in the defined bin on condition that the user is situated in the middle of the cell. This condition may not always be met. But after all it seems to be the best way to set the limit of the allowed accuracy. 
 See more in section \ref{ssec:binning}, p. \pageref{ssec:binning}, about how binning is defined and in the discussion about the challenges for binning and cell size. 
 
 
@@ -106,7 +106,7 @@ After this reduction, the quantiles of the accuracy can be seen in Table \ref{ta
         \label{tab:acc_quantiles}
 \end{table}
 
-We can see on the values for the median and mean that most users have a low value for the accuracy - which is good! If we assume a normal distribution for the accuracy and use a 2 sigma value, 95\% of the users have an accuracy between 7,896 and 37,235.44. This shows that there is a probability that a small number of users must have high values for the accuracy, where the max is 50,000. That only a few users have high values is good because it also means that there are many users with low (and good) accuracy. As the maximum for the accuracy has been set at 50.000 we may with confidence apply the users with a high value of accuracy. If we later were to use a finer binning it should be possible to do this without removing too much data, because the accuracy values are as good as they are.   
+By looking at the values for the median and mean we see that most users have a low value for the accuracy. If we assume a normal distribution for the accuracy and use a 2 sigma value, 95\% of the users have an accuracy between 7,896 and 37,235.44. This shows that there is a probability that a small number of users must have high values for the accuracy, where the max is 50,000. That only a few users have high values is good because it also means that there are many users with low (and good) accuracy. As the maximum for the accuracy has been set at 50.000 we may with confidence apply the users with a high value of accuracy. If we later were to use a finer binning it should be possible to do this without removing too much data, because the accuracy values are as good as they are.   
 
 The median value and the mean value are 23 m and 26.89 m respectively and the 95\% standard deviation is 7.9 m and 37.24 m. 
 

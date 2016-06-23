@@ -399,7 +399,7 @@ When we first obtained the demographics data, we identified 5 users in our test 
 We learned they were test-users, used for testing new features and thus we removed their location updates, 10 in total, from our datasets.
 
 \section{Production data}
-In this section we will describe the real-world production data from Sony servers.
+In this section we will describe the production data with regular users from Sony servers.
 
 Initially we tried using a newer month than the months from our test data, however we found the months did not have geocoding data (region, country, area, place) and thus we could not filter by country. An option would be to do reverse geocoding on the data. Another option would be a coarse filtration where we use the borders of Sweden in terms of latitude and longitude. Both of these options would take time. Instead we found the newest month folders with geocoding data intact was 09-15, 10-15, 11-15, the same months we had as test data, and we decided to use September as we have for the test data.
 

@@ -208,13 +208,15 @@ Based on the work by McPherson et al.\cite{mcpherson2001birds} finding homophily
 
 \subsubsection{Within 6 years of age}
 McPherson et al.\cite{mcpherson2001birds} found that age homophily is a strong dimension with respect to close friendship.
-This feature explains if a dyad of users are within 6 years of age of each other. Feature ID: \textit{9}
+This feature explains if a dyad of users are within 6 years of age of each other.
+Because this feature is categorical, we apply one-hot-encoding which converts it to three binary features, NO, YES, N/A. Feature ID: \textit{13,14,15}
 
 \subsubsection{Same gender}
-This feature explains if a dyad of users share the same gender. Feature ID: \textit{10}
+This feature explains if a dyad of users share the same gender. 
+Because this feature is categorical, we apply one-hot-encoding which converts it to three binary features, NO, YES, N/A.Feature ID: \textit{16,17,18}
 
 \subsubsection{App usage similarity}
-The Jaccard index is a measure used in comparing the similarity of sample sets. We extract what apps two users have \textit{i} and \textit{j} used in the period and compute the similarity between them using the Jaccard index. Feature ID:\textit{11}.
+The Jaccard index is a measure used in comparing the similarity of sample sets. We extract what apps two users have \textit{i} and \textit{j} used in the period and compute the similarity between them using the Jaccard index. Feature ID:\textit{9}.
 The Jaccard index is defined in Equation \ref{eq:jaccard_index}
 \begin{equation}
 \label{eq:jaccard_index}
@@ -232,11 +234,11 @@ Feature ID: \textit{1}.
 
 \subsubsection{Number of weekends}
 How many co-occurrences between two users happened in the weekend, defined as either a Friday after 18:00, a Saturday or a Sunday.
-Feature ID: \textit{13}.
+Feature ID: \textit{11}.
 
 \subsubsection{Number of evenings}
 How many co-occurrences between two users happened after 18:00.
-Feature ID: \textit{12}.
+Feature ID: \textit{10}.
 
 \subsection{Overview}
 \label{ssec:overview}

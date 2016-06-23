@@ -84,7 +84,7 @@ The $F_1$ score is defined in Equation \ref{eq:f1_score}
 
 \begin{equation}
 \label{eq:f1_score}
-F_1=\frac{2*TP}{2*TP+FP+FN}
+F_1=\frac{2 \cdot TP}{2 \cdot TP+FP+FN}
 \end{equation}
 
 In Table \ref{table:models_performance_report} and \ref{table:models_performance_report_undersampling} we can see the performance metrics of the different classifiers for the positive class (did meet), in the dataset without and with undersampling respectively.
@@ -153,7 +153,7 @@ RF in PP-2    & 0.95 & 0.89 & 0.92 \\
 In Table \ref{table:models_performance_report_undersampling} with undersampling we see similar values for precision and recall as found without undersampling.
 Looking at the $F_1$ score we see the highest score coming from the RF model in PP-2, but values are higher from the baseline models for the other datasets.
 
-It seems undersampling does not affect the scores notably for the better with respect to the positive class, perhaps except for the RF model in TP-1.
+It seems undersampling does not affect the scores notably with respect to the positive class, perhaps except for the RF model in TP-1.
 
 \subsection{Feature importance}
 The Random Forest model allows for finding the relative importance of the different features. The depth of a feature in the trees can be used to determine importance, as features at the top of the tree contributes to the prediction decision over a larger fraction of samples. The average is then computed from each tree in the forest to obtain the final feature importances.

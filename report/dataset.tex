@@ -222,17 +222,17 @@ We have plotted heat maps to show distribution of  updates over 24 hours. These 
     \hspace*{-0.8cm}
     \centering
     \includegraphics[scale=0.15]{aggregated_updates_over_time_japan}
-    \caption{Heat map for location updates over the 3 month period in Japan, aggregated over a day with 60 minutes of bin size. Users are sorted by total values. Largest is at the bottom. The scale is logarithmic}
+    \caption{Heat map for location updates over the 3 month period in Japan, aggregated over a day with 60 minutes of bin size and log scale. Users are sorted by total values.}
     \label{fig:agg_heatmap_jap}
 \end{figure}
 Figure \ref{fig:agg_heatmap_jap} shows how updates for each user (y-axis), are distributed over the time of day, measured over all 3 months. The users are sorted according to their total aggregated values, with the largest at the lowest part of the Y-axis.  
 
-We see clearly that there is a period between 02:00 AM and 06:00 AM where most users do not have any updates, which might indicate that they either turn the mobile off or otherwise shuts down the communication with the external world in the mentioned period. From this time 06:00 AM until 12:00 PM there are regular updates after which time the number of updates decreases until 02:00 AM. If we compare this with Figure \ref{fig:cumu_loc_time_jap_swe} we can see a reasonable good correlation. Figure \ref{fig:cumu_loc_time_jap_swe} shows the  aggregated location updates over 24 hours in both Japan and Sweden. In this we see the same development in Japan as the heat map indicates, as described above. 
+We see there is a period between 02:00 AM and 06:00 AM where most users do not have any updates, which might indicate that they either turn their phone off or otherwise shuts down the communication with the external world in the mentioned period. From 06:00 AM until 12:00 PM there are regular updates after which the number of updates decreases until 02:00 AM. If we compare this with Figure \ref{fig:cumu_loc_time_jap_swe} we can see a reasonable good correlation. Figure \ref{fig:cumu_loc_time_jap_swe} shows the  aggregated location updates over 24 hours in both Japan and Sweden. In this we see the same development in Japan as the heat map indicates, as described above. 
 
-The above mentioned is also valid for Sweden (Figure \ref{fig:agg_heatmap_swe}), which show the same as for Japan. Also here almost all users turn their mobiles off between 02:00 AM and 06:00 AM. 
+The above mentioned is also valid for Sweden (Figure \ref{fig:agg_heatmap_swe}), which show the same as for Japan. Also here almost all users turn their phones off between 02:00 AM and 06:00 AM. 
 No other time slots have a significant deviation neither in Japan nor in Sweden.  
 
-As the users have been sorted, we can easily see that a part of the users do not have any or very few updates during all three months. These users are discarded in the test data as they do not contribute with a significant amount of data.  
+As the users have been sorted, we can easily see that a part of the users have none or very few updates during all three months. These users are discarded in the test data as they do not contribute with a significant amount of data.
 
 When we initially plotted Figure \ref{fig:agg_heatmap_swe}, we discovered 16 users with an identical number of location updates in every hour period, upon further investigation we discovered the users all had duplicate location updates. We removed the users from the dataset as they were likely test-users from Sweden.
 
@@ -256,7 +256,7 @@ If we only look at Figure \ref{fig:cumu_loc_time_jap_swe}, we can see that in bo
 The peak at 08:00 AM may be caused by users moving from home to work and in this process generates a lot of updates. Similarly the second peak (in Sweden) may be caused by users returning to their home again generating a certain number of updates. It can be remarked that Japan does not have a similar increase in location updates in the afternoon, but a slight increase at 7:00 PM and higher values than Sweden from 21:00 PM until 01:00 AM. \\
 
 Figures \ref{fig:agg_heatmap_jap}, \ref{fig:agg_heatmap_swe} and \ref{fig:cumu_loc_time_jap_swe} tell which times of the day may be more usable than others. For instance that it is important to be aware of the time between 01:00 AM and 06:00 AM, as many users have very few updates in this period. It will probably mean that this period should be avoided. 
-What the figures do not tell, is whether there are days in the three months which are better than others. This issue is interesting to investigate to see whether there are some days which might be used with advantage instead of using all days. Furthermore it might be possible to see a pattern for the days. We can imagine that on Fridays and/or Saturdays there are more updates than on other days because people get together in town and because of this are active.  
+What the figures do not tell, is whether there are days in the three months which are better than others. This issue is interesting to investigate to see whether there are some days which might be used with advantage instead of using all days. Furthermore it might be possible to see a pattern for days of the week. We can imagine that the weekend will hold less or more updates than working days because people go out to socialize or perhaps the opposite, that they stay in.
 
 
 \begin{figure}[H]

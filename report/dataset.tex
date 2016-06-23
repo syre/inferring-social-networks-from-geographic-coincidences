@@ -363,7 +363,7 @@ The data contained the following attributes:
 \item \texttt{\textbf{icon}}\\ An URL to the application icon image
 \item \texttt{\textbf{devices}}\\The device is represented as an array with name, type and id. Type is the type of device (e.g. Phone), name is the name of the current device and the id is the unique identifier of the device 
 \end{enumerate}
-As can be seen from the attributes, the data contains information about which phone apps the users are using and when they are using them (when the app is in the foreground).
+As can be seen from the attributes, the data contains information about which apps the users are using and when they are using them (when the app is in the foreground).
 
 We use the data for implementing the App similarity measure as described in \autoref{chap:methods}.
 
@@ -387,14 +387,14 @@ We decide to plot the distribution of the user ages, which can be seen in Figure
     \caption{The distribution of user ages}
     \label{fig:user_age_distribution}
 \end{figure}
-Looking closer at the data we can see the most frequent birthdates are December 1st, 1980, ('1980-12-01') for 346 users, January 1st, 1981, ('1981-01-01') for 86 users, the third most frequent is May 16th, 1976, ('1976'05-16') for 31 users.
+Looking closer at the data we can see the most frequent birthdates are December 1st, 1980, ('1980-12-01') for 346 users, January 1st, 1981, ('1981-01-01') for 86 users, and May 16th, 1976, ('1976'05-16') for 31 users.
 
 We determine the two most frequent birthdates to be outliers as they occur on the first day of the month and are likely due to the users having accepted a default birthdate in the app as theirs. Removing the outliers we have a birthdate for the remaining 742 users.
 
 We used the cleaned demographics data for implementing the homophily features described in Chapter \ref{chap:methods}.
 
 When we first obtained the demographics data, we identified 5 users in our test datasets which were missing from the demographics data. 
-We learned they were test-users, used for testing new features and thus we eliminated their location updates, 10 in total, from our datasets.
+We learned they were test-users, used for testing new features and thus we removed their location updates, 10 in total, from our datasets.
 
 \section{Production data}
 In this section we will describe the real-world production data from Sony servers.

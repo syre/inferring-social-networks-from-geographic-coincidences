@@ -1,7 +1,7 @@
 %!TEX root = main.tex
 \chapter{Results}
 \label{chap:results}
-In this chapter we will show and discuss the results of the work we have done in this thesis.
+In this chapter we will show and discuss the results of the work we have reached in this thesis.
 
 We will start by looking at the train and test sets of the four dataset (see \autoref{tab:model_delimitation} and below) and describe what we did about class imbalance. Then we describe and interpret our results and we end the chapter with a brief summary of our findings. 
 
@@ -28,8 +28,8 @@ Using production data without user-filtering we found 5585 that did not meet and
 
 Using production data with user-filtering we found 403 that did not meet and 4533 that did meet for our train set and 402 that did not meet and 4630 that did meet for our test set.
 
-The datasets composed from the test data have more negative samples than positive samples. In TP-1 the difference is more pronounced than in TP-2, except of the training set. In the production data, we have the opposite. Here we have more positive samples than negative. \\
-This shows we have a class imbalance problem since the dataset are imbalanced. Due to this, the Logistic Regression classifier we trained initially predicted the largest prevalent class, in our training dataset. The next section explains this problem and how we dealt with it. 
+The datasets composed from the test data have more negative samples than positive samples. In TP-1 the difference is more pronounced than in TP-2, except for the training set. In the production data, we have the opposite. Here we have more positive samples than negative. \\
+This shows that for some of the datasets we have a class imbalance problem. Due to this, the Logistic Regression classifier we trained initially predicted the largest prevalent class, in our training dataset. The next section explains this problem and how we dealt with it. 
 
 
 \section{Class Imbalance Problem}
@@ -43,13 +43,13 @@ We utilize the precision and recall metrics for evaluating the performance of ou
 \subsection{Receiver Operating Characteristic (ROC)}
 The Receiver Operating Characteristic or ROC in short, illustrates the performance of a binary classifier in terms of the true positive rate (TPR, also called recall) plotted against the false positive rate (FPR) at different discrimination thresholds. As points on the ROC-curve represents different thresholds with an associated (TPR,FPR) pair, it allows us to see different trade-offs between TPR and FPR. The ROC curve is useful for comparing the relative performance of different classifiers\cite{tan2006introduction} The area under the curve (AUC) represents the probability that a classifier will rank a random positive sample higher than a negative sample, assuming positive ranks higher. An AUC of 0.5 would mean the model would just randomly guess the class of each sample. We will use the ROC AUC as a metric for comparing our different models.
 
-In Figure \ref{fig:rocs} we have plotted the ROC curve and ROC AUC for the different model pairs, we have also plotted the curve of a randomly guessing classifier for comparison. Figure \ref{fig:rocs_undersampling} shows the same models performance, where the datasets most prevalent class have been undersampled. We used randomized search to find the optimal hyper-parameters in the Random Forest models, choosing from \textit{gini} or\textit{entropy} and $1-9$ max features for each split. The randomized search runs for 20 iterations where each iteration performs a 3-fold cross-validation to validate the parameters of the model, we used ROC AUC as the scoring function. When the best parameters for the model are found, 2-fold cross-validation is performed to validate the model.
+In Figure \ref{fig:rocs} we have plotted the ROC curve and ROC AUC for the different model pairs, we have also plotted the curve of a randomly guessing classifier for comparison. Figure \ref{fig:rocs_undersampling} shows the same models performance, where the datasets most prevalent class have been undersampled. We used randomized search to find the optimal hyper-parameters in the Random Forest models, choosing from \textit{gini} or \textit{entropy} as split criterion and $1-9$ max features for each split. The randomized search runs for 20 iterations where each iteration performs a 3-fold cross-validation to validate the parameters of the model, we used ROC AUC as the scoring function. When the best parameters for the model are found, 2-fold cross-validation is performed to validate the model.
 
 \begin{figure}[H]
     \hspace*{-1.0cm}
     \centering
     \includegraphics[scale=0.15]{ROCS}
-    \caption{mean ROC AUC of Logistic Regression (LR) and Random Forest (RF) in the four model-pairs (TP-1, TP-2, PP-1, PP-2) using randomized search for hyper-parameter optimization (internal loop with 3-fold cross-validation) and 2-fold cross-validation. }
+    \caption{Mean ROC AUC of Logistic Regression (LR) and Random Forest (RF) in the four model-pairs (TP-1, TP-2, PP-1, PP-2) using randomized search for hyper-parameter optimization (internal loop with 3-fold cross-validation) and 2-fold cross-validation. }
     \label{fig:rocs}
 \end{figure}
 \begin{figure}[H]
@@ -119,7 +119,7 @@ RF in PP-2    & 0.93 & 0.99 & 0.96 \\
 Looking at Table \ref{table:models_performance_report} we find the recall is higher for the baseline for all of the datasets except for PP-2.
 The precision values for the different models have similar values for each dataset.
 
-Looking at the $F_1$ score which considers both precision and recall we see that each model pair performs better than the last when considering the datasets in sequence. This might be because the users of the production data are less homogeneous than the users in the test data and biases or noise which might be inherent in the test data might not be present in the production data. Furthermore as we anticipated filtering users on cross-occupancy ensured the users had data in all periods and thus might reduce the noise of finding whether users had a co-occurrence in the following period.
+Looking at the $F_1$ score which considers both precision and recall we see that each model pair performs better than the last when considering the datasets in sequence. This might be because the users of the production data are less homogeneous than the users in the test data and biases or noise which might be inherent in the test data might not be present in the production data. Furthermore filtering users on cross-occupancy, ensured the users had data in all periods and thus reduce the number of cases where they might have a co-occurrence, but fails to show it due to lack of location updates.
 
 The $F_1$ score also shows that the baseline is better in all the pairs except for PP-2. This is surprising but might be because some of our features are not important to the classification task and presents themselves as noise.
 
@@ -168,7 +168,7 @@ Figure \ref{fig:feature_importances} shows the mean of the feature importances o
 
 In the next plots we try to look at the differences in features between the meet and non-meets of the TP-2 dataset. We chose TP-2 because it is the filtered dataset with all of our features present. \textcolor{red}{MAYBE ALSO SHOW FOR PP-2?}
 
-Looking at Figure \ref{fig:feature_boxplots1} to \ref{fig:feature_boxplots5} we can see features which have very little variance like number of weekends, evenings and common travels. Co-occurrences weighted and timely arrival and leaving seems to have similar values, we can note a slightly higher mean for the did not meet class. The homophily features seems very similar as well. Diversity, weighted frequency have very extreme outliers, a large diversity signifies a user pair with a very large number of locations between them. Specificity has extreme outliers as some of the previous features. App usage similarity strangely enough seems to be more similar for the did not meet class. This could be because it does not account for popular apps used by both groups. Number of co-occurrences, mutual co-occurrences and specificity seems to have higher values for the did meet class, and two of the three also contributed most to the importances for our features.
+Looking at Figure \ref{fig:feature_boxplots1} to \ref{fig:feature_boxplots5} we can see features which have very little variance like number of weekends, evenings and common travels. Co-occurrences weighted and timely arrival and leaving seems to have similar values, we can note a slightly higher mean for the class did not meet. The homophily features seems very similar as well. Diversity, weighted frequency have very extreme outliers, a large diversity signifies a user pair with a very large number of locations between them. Specificity has extreme outliers as some of the previous features. App usage similarity strangely enough seems to be more similar for the class did not meet. This could be because it does not account for popular apps used by both groups. Number of co-occurrences, mutual co-occurrences and specificity seems to have higher values for the class did meet, and two of the three also contributed most to the importances for our features.
 
 \begin{figure}[H]
     \hspace*{-1.0cm}

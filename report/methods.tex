@@ -5,13 +5,13 @@
 In this section we will outline which methods we have used for conducting the work.
 \section{Data preparation}
 
-When we got the dataset it was stored in three folders, one for each month (9, 10, 11) and within each folder were multiple chunks of data in Apache Avro format\cite{apacheavro} which we learned is a format similar to JSON and easily convertable. The chunks were contained in folders bearing the number for each month, however they were sorted by when the server had received the data packet containing the location from the phone and not when the phone had registered the location. The app is storing the collected data on the users phone for a maximum of one month, if the data is not uploaded within a month it is discarded. This approach to data collection means the month folders can contain location updates from the previous month as well.
+When we got the dataset it was stored in three folders, one for each month (9, 10, 11) and within each folder were multiple chunks of data in Apache Avro format\cite{apacheavro} which we learned is a format similar to JSON and easily convertible. The chunks were contained in folders bearing the number for each month, however they were sorted by when the server had received the data packet containing the location from the phone and not when the phone had registered the location. The app is storing the collected data on the users phone for a maximum of one month, if the data is not uploaded within a month it is discarded. This approach to data collection means the month folders can contain location updates from the previous month as well.
 
 \subsection{Preparation of Test data}
 In this section we will demonstrate what we have done to prepare the test data.
 
 \subsubsection{Data import to database}
-We imported the JSON-formatted files to a PostgreSQL database which allowed us to easily manipulate the data using SQL. We created a single table with the schema shown in Table \ref{table:schema_denormalized}. We decided to compute the time and spatial bins on insertion, thus we only had to compute them once. We created indexes on the following features: \textit{start\_time}, \textit{end\_time}, \textit{location}, \textit{useruuid}, \textit{spatial\_bin}, \textit{time\_bins}, \textit{country}.
+We converted the Apache Avro formatted files to JSON format and imported them to a PostgreSQL database which allowed us to easily manipulate the data using SQL. We created a single table with the schema shown in Table \ref{table:schema_denormalized}. We decided to compute the time and spatial bins on insertion, thus we only had to compute them once. We created indexes on the following features: \textit{start\_time}, \textit{end\_time}, \textit{location}, \textit{useruuid}, \textit{spatial\_bin}, \textit{time\_bins}, \textit{country}.
 Initially we created a normalized database with several relations. We discovered however that a deonormalized database might improve our performance, as we reduce the number of tables and and thus the number of joins required\cite{sanders2001denormalization}. The interaction with the data consists mostly of data extraction, after the initial insertion of the data and after removing all relations our performance improved significantly.
 
 \begin{table}[htbp]
@@ -58,7 +58,7 @@ A spatiotemporal co-occurrence between two users is defined as an instance in wh
 We have partitioned or binned the globe into a discrete grid where the cells span .001{\degree} of latitude and longitude on each side (approximately 111m at the equator), and in a discrete time interval of 1-hour.
 Thus we say a co-occurrence happens between users $i$ and $j$ if they share the same .001{\degree} spatial cell C within the same discrete time interval. We chose 0.001 as bin size as the location updates from GPS allowed for a high resolution.
 
-Each grid cell has a unique ID, this is obtained by considering the grid as a matrix and flattening it to a list by traversing from left to right and top to bottom (row-first ordering) and using the list index as an ID. This makes a total possible spatial bin indexes of: $$(190\times d)\times(360\times d)$$ where $d$ is the number of decimals. This makes in our case a total number of spatial bins of $68.400.000.000$ with our case of $d=3$.
+Each grid cell has a unique ID, this is obtained by considering the grid as a matrix and flattening it to a list by traversing from left to right and top to bottom (row-first ordering) and using the list index as an ID. This makes a total possible spatial bin indexes of: $$(190 \cdot d)\cdot(360\cdot d)$$ where $d$ is the number of decimals. This makes in our case a total number of spatial bins of $68.400.000.000$ with our case of $d=3$.
 
 We calculated the time bins by counting every hour from the start of the day of the earliest date appearing in the dataset, which has the ISO 8601 timestring: "2015-08-09 22:25:33.766+02". The last day has the ISO 8601 timestring: "2015-12-01 00:59:15.738+01". This leaves us with $2738$ possible time bin IDs. As each location update has a start\_time and an end\_time, each update will result in one or more entries for each time bin dependent on the duration between start\_time and end\_time. \textcolor{red}{We chose a time bin size of 1 hour as the location updates between users were sparse, DISKUTER MED ANDERS}  For generating our dataset we count co-occurrences between dyads only once per distinct spatial and time bin, as duplicates would result in an artificially inflated number of co-occurrences between dyads.
 \begin{figure}[H]
@@ -86,7 +86,7 @@ We used \textit{Basemap}\cite{basemap}, for plotting static visualizations of al
     \caption{Location updates in Japan, hex-binned in log scale with markers to Sony, Tokyo which also shows increased activity}
     \label{fig:japan_locations_hexbin}
 \end{figure}
-Figure \ref{fig:sweden_locations_hexbin} and Figure \ref{fig:japan_locations_hexbin} shows all location updates from Sweden and Japan for the three months plotted on a map. On Figure \ref{fig:sweden_locations_hexbin} we can see increased activity around Sony-related properties in Lund\cite{sony_headquarters_sweden_lund}, Kista\cite{sony_headquarters_sweden_kista}, and at Ericsson AB in Göteborg\cite{ericsson}. Likewise on Figure \ref{fig:japan_locations_hexbin} we can see increased activity at the Sony headquarters\cite{sony_headquarters_japan} in Tokyo. We exclude co-occurrences from these locations for our dataset.
+Figure \ref{fig:sweden_locations_hexbin} and Figure \ref{fig:japan_locations_hexbin} shows all location updates from Sweden and Japan for the three months plotted on a map. On Figure \ref{fig:sweden_locations_hexbin} we can see increased activity around Sony-related properties in Lund\cite{sony_headquarters_sweden_lund}, Kista\cite{sony_headquarters_sweden_kista}, and at Ericsson AB in Göteborg\cite{ericsson}. Likewise on Figure \ref{fig:japan_locations_hexbin} we can see increased activity at the Sony headquarters\cite{sony_headquarters_japan} in Tokyo. We exclude co-occurrences from these locations for our dataset as they are work-related and being at the same workplace does not constitute a valid co-occurrence.
 
 \begin{figure}[H]
     \hspace*{-1.0cm}
@@ -133,7 +133,7 @@ We will try to answer the following question: Can we predict if people meet in a
 The models and algorithms we use are implemented in \textit{scikit-learn}\cite{scikit-learn} a Python module for machine learning.
 
 \subsection{Models}
-For our work we will use two models, Logistic Regression and Random Forest. For each model we will first fit them on the complete period of 3 months and then the month which best met our criteria in \autoref{chap:dataset}. For the datasets we will use an outer loop of 2-fold cross-validation and an inner loop of randomized search. We choose randomized search over grid search because of the efficiency in computation time. We will use ROC AUC as the score function for the randomized search.
+For our work we will use two models, Logistic Regression and Random Forest. For each model we will first fit them on the complete period of 3 months and the single month of September as found in \autoref{chap:dataset}. Furthermore we will use all of the users as well as a subset of users meeting our criteria for cross-occupancy as found in \autoref{chap:dataset} of 40\% and 10\% for test and production data respectively. For the datasets we will use an outer loop of 2-fold cross-validation and an inner loop of randomized search. We choose randomized search over grid search because of the efficiency in computation time. We will use ROC AUC as the score function for the randomized search.
 
 
 \subsubsection{Logistic Regression}
@@ -205,7 +205,7 @@ The number of common travels between two users. Common travels are defined when 
 Number of mutual co-occurrences, the mutual co-occurrences for user \textit{i} and \textit{j} will be the number of users, with whom they share co-occurrences. Feature ID:\textit{8}.
 
 \subsection{Homophily Features}
-Based on the work by McPherson et al.\cite{mcpherson2001birds} finding homophily in personal networks, we have tried to create several features based on homophily between users.
+Based on the work by McPherson et al.\cite{mcpherson2001birds} on homophily in personal networks, we have tried to create several features based on homophily between users.
 
 \subsubsection{Within 6 years of age}
 McPherson et al.\cite{mcpherson2001birds} found that age homophily is a strong dimension with respect to close friendship.
@@ -241,8 +241,8 @@ Feature ID: \textit{11}.
 How many co-occurrences between two users happened after 18:00.
 Feature ID: \textit{10}.
 
-\subsection{Overview}
-\label{ssec:overview}
+\section{Summary}
+\label{ssec:summary}
 In this section we will give an overview of which model we will fit on which data. As Logistic Regression works as our baseline and Random Forest will be compared up against Logistic Regression, we will end up with pairs of Logistic Regression and Random Forest. We will come back to this later. \\
 First we will show which features the two models (Logistic Regression and Random Forest) use on which dataset. 
 \begin{table}[H]

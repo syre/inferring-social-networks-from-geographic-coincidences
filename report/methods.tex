@@ -267,12 +267,12 @@ First we will show which features the two models (Logistic Regression and Random
 16,17,18                    & Same gender [NO, YES, N/A]                  &              & \multicolumn{2}{c|}{\cmark} &                   &                  \\ \hline
 
 \end{tabular}
-\caption{Overview of which model in Test data and Production data, that uses which features. T-LR = Test data Logistic Regression, T-RF = Test data Random Forest, P-LR = Production data Logistic Regression, P-RF = Production data Random Forest}
+\caption{Overview of the features used by each model in Test data and Production data. T-LR = Test data Logistic Regression, T-RF = Test data Random Forest, P-LR = Production data Logistic Regression, P-RF = Production data Random Forest}
 \label{tab:model_overview}
 \end{table}
-Table \ref{tab:model_overview} give this overview, where we have a Logistic Regression and Random Forest for both Test data and Production data. Both Logistic Regressions (T-LR \& P-LR) will only use one feature, as earlier explained, as it will be used as the baseline. The Random Forest models (T-RF \& P-RF) will be using all of the features for Test data and some of the features for Production data. See Discussion for why we only used some of the features.   
+Table \ref{tab:model_overview} give an overview, where we have a Logistic Regression and Random Forest for both Test data and Production data. Both Logistic Regressions (T-LR \& P-LR) will only use one feature, as earlier explained, as it will be used as the baseline. The Random Forest models (T-RF \& P-RF) will be using all of the features for Test data and some of the features for Production data. See \autoref{chap:discussion} for why we only used some of the features.   
 
-Table \ref{tab:model_overview} show only which features is in use in which model. Table \ref{tab:model_delimitation} shows which sub-period and other data delimitation each of the models from Table \ref{tab:model_overview} (T-LR, T-RF, P-LR, P-RF) uses. 
+Table \ref{tab:model_delimitation} shows which sub-period and data delimitations each of the models from Table \ref{tab:model_overview} (T-LR, T-RF, P-LR, P-RF) uses. 
 
 \begin{table}[H]
 \centering
@@ -297,5 +297,5 @@ As Table \ref{tab:model_delimitation} shows, we end up with four model-pairs. Ea
 \item For September for users with 10\% cross-occupancy\\ \textbf{Name ID: PP-2}
 \end{itemize}
 
-For each of these pairs (TP-1, PP-1, TP-2, PP-2), the Random Forest will be compared with the baseline, the Logistic Regression. 
+For each of the pairs (TP-1, PP-1, TP-2, PP-2), the Random Forest will be compared with the baseline, the Logistic Regression. 
 

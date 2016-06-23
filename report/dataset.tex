@@ -111,7 +111,7 @@ By looking at the values for the median and mean we see that most users have a l
 The median value and the mean value are 23 m and 26.89 m respectively and the 95\% standard deviation is 7.9 m and 37.24 m. 
 
 
-When we see which countries are represented and in which degree, we have 80 unique countries. To begin with the value was 74 countries. It turned out that there were a lot of location updates where the country attribute had not been logged. In these occasions the county attribute was just represented by an empty string. This was the case in so many updates that an empty string in the country attribute had the second most common occurrence with about 500.000 location updates. 
+When looking at which countries are represented in the dataset, we find that we have 80 unique countries. Initially we had 74 countries. It turned out that there were a lot of location updates where the country attribute had not been logged. In these occasions the county attribute was just represented by an empty string. This was the case in so many updates that an empty string in the country attribute had the second most common occurrence with about 500.000 location updates. 
 As it was important to be able to sort data on the basis of country, this was a problem. The problem was solved by making a reverse geolocation. For almost all of the 500,000 location updates the latitude and longitude were logged, so it was possible by using an API\cite{reversegeocode} to look up the country on the basis of latitude and longitude, and insert the correct string in the country attribute. By adjusting the dataset once, we avoided access to the API every time scripts were run. This would have been very ineffective and a waste of time. Furthermore the API had a limit for how many positions we could look up every minute, which resulted that it took a week to get all data resolved, running 24/7.  \\ 
 The use of reverse geolocation resulted in a reduction of the number of location updates with blank country attributes from 500,000 to 130. The 130 where the country couldn't be found, was because of failure in the look-up. At the same time new countries were represented in the dataset, so the number of countries increased from 74 to 80 (incl. countries represented with an empty string). 
 
@@ -130,7 +130,7 @@ After this we can investigate how the location updates are distributed across th
 
 That Sweden and Japan are the top of the list is not strange as Sony is a Japanese company which took over Sony-Ericsson where Ericsson is a Swedish company. Sony-Ericsson was at that time the mobile brand of Sony, so a large part of Sony's mobile development is still placed in Sweden. This may explain why Sweden has three times as many updates as Japan.  
 
-On the basis of figure \ref{fig:country_dist}, it has been chosen to continue with the data for either Sweden or Japan. Now the data for the two countries will be compared. 
+On the basis of figure \ref{fig:country_dist}, we will look at the data of Sweden and Japan going forward. Now the data for the two countries will be compared. 
 In Japan there are \numberUsersJapan{} unique users while in Sweden there are \numberUsersSweden{}. The two countries may have common users as users may travel between several countries and thereby have location updates in several countries.  
 In the total number of location updates Japan has \locUpdatesJapan{} updates, whereas Sweden has \locUpdatesSweden{} updates for all three months. 
 

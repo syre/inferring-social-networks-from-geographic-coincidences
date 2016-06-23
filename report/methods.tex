@@ -92,7 +92,7 @@ Figure \ref{fig:sweden_locations_hexbin} and Figure \ref{fig:japan_locations_hex
     \hspace*{-1.0cm}
     \centering
     \includegraphics[scale=0.50]{user_pair_at_sony}
-    \caption{User pair with high number of co-occurrences for whole period at Sony perimeters, blue traces are location updates}
+    \caption{User pair with high number of co-occurrences clustered for whole period at Sony perimeters, blue traces are location updates}
     \label{fig:user_pair_at_sony}
 \end{figure}
 Figure \ref{fig:user_pair_at_sony} shows an example of the co-occurrences visualized for a dyad in Sweden having lots of co-occurrences within the Sony perimeter. This enabled us to exclude co-occurrences from these locations from our dataset as we are looking for co-occurrences outside of the users work.
@@ -121,7 +121,7 @@ The methods for binning of production data are the same as for test data\ref{sse
 \subsubsection{Code preparation - Apache Spark}
 The production data was stored on Sony's Apache Spark\cite{spark} cluster.
 To manipulate the data we converted some of our previously written code for use in \textit{RDDs} (Resilient Distributed Datasets) and \textit{Dataframes} which are fault-tolerant collections native to Spark that can be operated on in parallel.
-As the size of our datasets were modest we opted to not use the built-in machine learning library of Spark \textit{MLlib} and we saved the datasets in LibSVM format which enabled us to import the datasets in \textit{sci-kit learn}.
+As the size of our datasets were manageable we opted to not use the built-in machine learning library of Spark \textit{MLlib} and thus we saved the datasets in LibSVM format which enabled us to import the datasets in \textit{sci-kit learn}.
 
 \section{Modeling}
 In this subsection we will describe the model and features used for prediction.
@@ -154,7 +154,8 @@ The total number of co-occurrences between users. Feature ID: \textit{7}.
 \subsubsection{Diversity of a co-occurrence}
 We use the diversity measure taken from the papers of Shahabi and Pham\cite{iRWRfSD}\cite{AEBMtISSfSD}.
 Diversity is a measure of how important the spatial locations of the co-occurrences between a dyad is, given how many times they appear.
-The diversity measure uses the Shannon entropy. Feature ID: \textit{2}.
+The diversity measure uses the Shannon entropy, which holds the amount of location information in the co-occurrences of each dyad and yields a higher value with more locations and a more equal distribution of updates for each location.
+Feature ID: \textit{2}.
 The Shannon entropy is defined by Equation \ref{eq:shannon_entropy}
 \begin{equation}
 \label{eq:shannon_entropy}
@@ -175,13 +176,15 @@ The number of unique co-occurrences in terms of spatial bins between two users \
 
 \subsubsection{Weighted frequency}
 We use the weighted frequency measure taken from the papers of Shahabi and Pham\cite{iRWRfSD}\cite{AEBMtISSfSD}.
-Weighted frequency is a measure of how important the co-occurrences at non-popular places are. Feature ID: \textit{4}.
+Weighted frequency is a measure of how important the co-occurrences at non-popular places are.
+It uses the Shannon entropy for a location, where a more crowded place yields a higher entropy.
+Feature ID: \textit{4}.
 The weighed frequency is defined by Equation \ref{eq:weighted_frequency}
 \begin{equation}
 \label{eq:weighted_frequency}
 F_{ij}=\sum\limits_{l}c_{ij,l} \times \exp(-H_l)
 \end{equation}
-where $H_l$ is the Location Entropy for location \textit{l} defined in Equation \ref{eq:location_entropy}
+where $H_l$ is the entropy for location \textit{l} defined in Equation \ref{eq:location_entropy}
 \begin{equation}
 \label{eq:location_entropy}
 H_l = \sum\limits_{u, P_{u,l}\neq0} P_{u,l}\log P_{u,l}

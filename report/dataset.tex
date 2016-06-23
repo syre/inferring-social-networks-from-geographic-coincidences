@@ -269,7 +269,7 @@ What the figures do not tell, is whether there are days in the three months whic
 
 Figure \ref{fig:heatmap_jap} shows how location updates per user in Japan (rounded to nearest integer) is distributed for each day in each of the three months. We can for example see that in Japan we have as a mean 16 updates per user on Friday in week 2 of September.  
 
-Again we see that generally there are more updates in September than in the other two months. October and November are similar apart from some days where November has some higher values than some other days in October. 
+Again we see that generally there are more updates in September than in the other two months. October and November are similar except for a couple of days where November has some higher values than some other days in October. 
 
 In many cases we can see that Fridays and/or Saturdays have higher values than other days in the same month. 
 
@@ -291,19 +291,19 @@ In the two figures above, we can get a feeling for the mean number of updates fo
     \hspace*{-1.5cm}
     \centering
     \includegraphics[scale=0.16]{location_updates_japan_combined_log.png}
-    \caption{Heat map for mean location updates over the 3 month period in Japan. x-axis is days and y-axis is users. The scale is logarithmic}
+    \caption{Heat map for mean location updates over the 3 month period in Japan in log scale. x-axis is days and y-axis is users.}
     %\vspace*{-3.5cm}
     \vspace{-12pt}
     \label{fig:heatmap_japan_combined}
 \end{figure}
-Figure \ref{fig:heatmap_japan_combined} shows the number of updates for each user (y-axis) for each day in each of the three months (x-axis). Each row in each of the three heat maps (one for each month) represents one user. So there are \numberUsersJapan{} number of rows in each heat map.  Each heat map is sorted so the user with most updates in most days is in the lowest row. This means that the users are not necessarily represented in the same row in all three heat maps. It can also be seen that many users (approximately half) has no updates in some of the days for each of the three months. This is reasonable from what is known from Figure \ref{fig:country_cdf} and these users are as mentioned not necessarily the same over all the months. 
+Figure \ref{fig:heatmap_japan_combined} shows the number of updates for each user (y-axis) for each day in each of the three months (x-axis). Each row in each of the three heat maps (one for each month) represents one user. So there are \numberUsersJapan{} number of rows in each heat map.  Each heat map is sorted so the user with most updates in most days is in the lowest row. This means that the users are not necessarily represented in the same row in all three heat maps. It can also be seen that many users (approximately half) has no updates in some of the days for each of the three months. This is reasonable from what we showed in Figure \ref{fig:country_cdf} and these users are as mentioned not necessarily the same over all the months. 
 The days and months are plotted this way as it gives a possibility to compare the days for each month with each other. 
 
-It can be seen that there are relatively few users who has updates in all days in a month. This fact alone is worrying and does not look promising for the thesis, and when we in this plot cannot be sure that it is the same user that has updates in all days in the three months, it looks even more worrying. 
+It can be seen that there are relatively few users who have updates in all days in a month. This is not optimal as we want to have as many location updates in as many time slots as possible for all users. Furthermore we cannot be sure that it is the same user that has updates in all days in the three months.
 
-Again it seems that September has more users who have updates in relatively more days than in the other months. 
+Again it seems that September has more users who have updates in relatively more days than in the other months.
 
-If we look at October, we can see some pairs of days which make light vertical stripes in comparison with the other days. This indicates a lower amount of updates. This is happening  on the 3rd and 4th, 10th and 11th, 17th and 18th and at last the 24th and 25th. These pairs pop up with an interval of a week, where the 3rd is a Saturday and the 4th is a Sunday. This means that the other pairs are also Saturdays and Sundays. This pattern is repeated in November where it is really significant on the 7th and 8th. The data for September are not so distinct but the effect is observable. This is very interesting as it may indicate that Saturdays and Sundays are not suited for the purpose. 
+If we look at October, we can see pairs of days which form a pattern of light vertical stripes in comparison with the other days. This indicates a lower amount of updates. This is happening  on the 3rd and 4th, 10th and 11th, 17th and 18th and at last the 24th and 25th. These pairs pop up with an interval of a week, where the 3rd is a Saturday and the 4th is a Sunday. This means that the other pairs are also Saturdays and Sundays. This pattern is repeated in November where it is really significant on the 7th and 8th. The data for September are not so distinct but the effect is observable. This is very interesting as it may indicate that Saturdays and Sundays are not suited for the purpose. 
 
 Otherwise no days or periods stands out from the main data. The reason that the 31st September and November are empty is that these dates are invalid, while the 31st of October exists. Therefore the dates for September and November must be empty.  
 
@@ -311,7 +311,7 @@ Otherwise no days or periods stands out from the main data. The reason that the 
     \hspace*{-1.5cm}
     \centering
     \includegraphics[scale=0.16]{location_updates_sweden_combined_log.png}
-    \caption{Heat map for mean location updates over the 3 month period in Sweden. x-axis is days and y-axis is users. The scale is logarithmic}
+    \caption{Heat map for mean location updates over the 3 month period in Sweden in log scale. x-axis is days and y-axis is users}
     \label{fig:heatmap_sweden_combined}
 \end{figure}
 Figure \ref{fig:heatmap_sweden_combined} shows the same for Sweden. Again it can be seen that Saturdays and Sundays deviates from the other days by having fewer updates. It can also be seen that September has fewer users without updates during the month than Japan, where October and November is more similar in level to Japan. 
@@ -329,7 +329,7 @@ One thing is to be able to see how the updates are distributed per day per user,
     \hspace*{-2.0cm}
     \centering
     \includegraphics[scale=0.16]{users_by_criteria.png}
-    \caption{Plot over number of users which have location updates in certain percentage unique time bins in each sub-period. A sub-period is defined in chapter \ref{chap:methods}, which is a period decided in three. In all month is a month a sub-period}
+    \caption{Plot over number of users which have location updates in certain percentage unique time bins in each sub-period. A sub-period is defined in chapter \ref{chap:methods}, which is a period divided in three. For three months a month is thus a sub-period}
     \label{fig:users_by_criteria}
 \end{figure}
 From chapter \ref{chap:methods} it is known that the chosen period is divided into three sub-period to be able to train and analyze on these. Figure \ref{fig:users_by_criteria} shows how many users who has location updates in a certain percentage of unique time bins in all three sub-periods for a given period. For example we can see that there are approximately 90 users who have updates in 20\% of the possible time bins in each of the three sub-periods in Sweden in September. From now on we will use the term \textbf{cross-occupancy} when referring to the metric of users with a certain percentage of time-bins occupied in all three sub-periods, we thus have 90 users with 20\% cross-occupancy. Here the 30 days of September are divided into the following sub-periods: 1-10, 11-20, 21-30. 

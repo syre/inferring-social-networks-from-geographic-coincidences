@@ -2,11 +2,11 @@
 \chapter{Dataset}
 \label{chap:dataset}
 On the following pages the datasets used will be examined. Basic statistics of the datasets will be shown and deviations will be examined aswell as methods to deal with these deviations, especially how data cleaning was done. \\
-The section will end with a part conclusion. 
+The section will end with a summary. 
 
 Our data are derived from Sony's Lifelog\cite{sonyLifeLog} which is a mobile life tracking app which logs your activities during the day, among those location update and app usage. 
 
-The dataset describes the geolocations where a user has been present. It describes exactly where, when and for how long the user has been on the defined site. Each time the user changes location (defined by latitude and longitude) a location update will be logged with the following attributes: 
+The dataset describes the geolocations where a user has been present. It describes exactly where, when and for how long the user has been on the defined site. Each time the user changes location (defined by latitude and longitude), a location update will be logged with the following attributes: 
 
 \begin{enumerate}
 \item \texttt{\textbf{timestamp\_seen}}\\Milliseconds since the epoch showing when the location update is logged on the server/cluster 
@@ -42,7 +42,7 @@ Test data which are a sub-set of production data has been investigated. These te
 
 \section{Test data}
 The period for the test data stretches over 3 months: September - November 2015.   
-In this period 2,665,893 location updates from 1,586 users were collected. These users are all employees of Sony based around the world. This means that they have some natural common meeting places which are Sony related, such as Sony offices in different countries. \textcolor{red}{figure with map or reference?}
+In this period 2,665,893 location updates from 1,586 users were collected. These users are all employees of Sony based around the world. This means that they have some natural common meeting places which are Sony related, such as Sony offices in different countries.
 This fact has a large impact on the content of the data, and will be investigated later. 
 
 
@@ -72,8 +72,8 @@ From the many location updates only 20 show a negative accuracy, which correspon
         \label{tab:stat_geo_p1}
 \end{table}
 
-As accuracy affects both latitude and longitude, which are the most important attributes, the updates with negative accuracy are removed. Furthermore location updates with an accuracy of more then 55.000 (55m) is removed. Our binning will correspond to cells with a side of maximum 111 meters. As accuracy tells that the user with a confidence of 68\% is inside the distance of the accuracy, the maximum allowed accuracy is chosen to be 55 meters, which is half the size of the maximum bin. This means that the user with 68\% confidence is in the defined bin on condition that the user is situated in the middle of the cell. This condition may not always be met. But after all it seems to be the best way to set the limit of the allowed accuracy. 
-See more in section \ref{ssec:binning}, p. \pageref{ssec:binning}, about how binning is defined and in the discussion about the challenges for binning and cell size. 
+As accuracy affects both latitude and longitude, which are the most important attributes, the updates with negative accuracy are removed. Furthermore location updates with an accuracy of more then 55.000 (55m) is removed. Our binning will correspond to cells with a side of maximum 111 meters. As accuracy tells that the user with a confidence of 68\% is inside the distance of the accuracy, the maximum allowed accuracy is chosen to be 55 meters, which is half the size of the maximum bin. This means that the user with 68\% confidence is in the defined bin on condition that the user is situated in the middle of the cell. This condition may not always be met. But after all, it seems to be the best way to set the limit of the allowed accuracy. 
+See more in section \ref{ssec:binning}, p. \pageref{ssec:binning}, about how binning is defined and in \autoref{chap:discussion} about the challenges for binning and cell size. 
 
 
 After this reduction, the quantiles of the accuracy can be seen in Table \ref{tab:acc_quantiles}. 
@@ -106,7 +106,7 @@ After this reduction, the quantiles of the accuracy can be seen in Table \ref{ta
         \label{tab:acc_quantiles}
 \end{table}
 
-We can see on the values for the median and mean that most users have a low value for the accuracy - which is good! If we assume a normal distribution for the accuracy and use a 2 sigma value, 95\% of the users have an accuracy between 7,896 and 37,235.44. This shows that there is a probability that a small number of users must have high values for the accuracy, where the max is 50,000. That only a few users have high values is good because it also means that there are many users with low (and good) accuracy. As the maximum for the accuracy has been set at 50.000 we may with confidence apply the users with a high value of accuracy. If we later were to use a finer binning it should be possible to do this without removing too much data, because the accuracy values are as good as they are.   
+We can see on the values for the median and mean that most users have a low value for the accuracy - which is good! If we assume a normal distribution for the accuracy and use a 2 sigma value, 95\% of the users have an accuracy between 7,896 and 37,235.44. This shows that there is a probability that a small number of users must have high values for the accuracy, where the max is 50,000. That only a few users have high values is good because it also means that there are many users with low (and good) accuracy. As the maximum for the accuracy has been set at 50.000, we may with confidence apply the users with a high value of accuracy. If we later were to use a finer binning it should be possible to do this without removing too much data, because the accuracy values are as good as they are.   
 
 The median value and the mean value are 23 m and 26.89 m respectively and the 95\% standard deviation is 7.9 m and 37.24 m. 
 
@@ -145,7 +145,7 @@ Figure \ref{fig:mean_loc_updates_sep-nov} compares the mean value of location up
 \end{figure}
 
 
-We can see that Sweden has significantly more updates than Japan during all three months and in the two months September and October even twice as much. We can also see a decreasing tendency in both countries. September has the highest number of updates and thereafter the number decreases, where November in Sweden has more that 300 updates less than in September. Even as the tendency is more prominent for Sweden it is also visible for Japan.  \\
+We can see that Sweden has significantly more updates than Japan during all three months and in the two months September and October even twice as much. We can also see a decreasing tendency in both countries. September has the highest number of updates and thereafter the number decreases, where November in Sweden has more that 300 updates less than in September. Even as the tendency is more prominent for Sweden, it is also visible for Japan.  \\
 This will be investigated more closely later.  
 
 
@@ -164,7 +164,7 @@ It is therefore interesting to see how many updates for each country are made in
 Figure \ref{fig:hq_stack_bar} show how updates are distributed with respect to whether they are made on a gathering place or not. It can be seen for both countries that there is a reasonably small proportion of updates inside gathering places. For Japan and Sweden this value is 23.89\% and 19.86\% respectively. 
 It looks good for the thesis that such a large amount of updates are outside the gathering places. 
 
-For each of the two countries the distribution of the updates between the users is of interest. For this purpose the quantiles for each country are available in Table \ref{tab:stat_loc_updates}. 
+For each of the two countries, the distribution of the updates between the users is of interest. For this purpose the quantiles for each country are available in Table \ref{tab:stat_loc_updates}. 
 
 
 \begin{table}[htbp]
@@ -296,7 +296,7 @@ In the two figures above, we can get a feeling for the mean number of updates fo
     \vspace{-12pt}
     \label{fig:heatmap_japan_combined}
 \end{figure}
-Figure \ref{fig:heatmap_japan_combined} shows the number of updates for each user (y-axis) for each day in each of the three months (x-axis). Each row in each of the three heat maps (one for each month) represents one user. So there are \numberUsersJapan{} number of rows in each heat map.  Each heat map is sorted so the user with most updates in most days is in the lowest row. This means that the users are not necessarily represented in the same row in all three heat maps. It can also be seen that many users (approximately half) has no updates in some of the days for each of the three months. This is reasonable from what is known from Figure \ref{fig:country_cdf} and these users are as mentioned not necessarily the same over all the months. 
+Figure \ref{fig:heatmap_japan_combined} shows the number of updates for each user (y-axis), for each day in each of the three months (x-axis) in Japan. Each row in each of the three heat maps (one for each month) represents one user. So there are \numberUsersJapan{} number of rows in each heat map.  Each heat map is sorted so the user with most updates in most days is in the lowest row. This means that the users are not necessarily represented in the same row in all three heat maps. It can also be seen that many users (approximately half) has no updates in some of the days for each of the three months. This is reasonable from what is known from Figure \ref{fig:country_cdf} and these users are as mentioned not necessarily the same over all the months. 
 The days and months are plotted this way as it gives a possibility to compare the days for each month with each other. 
 
 It can be seen that there are relatively few users who has updates in all days in a month. This fact alone is worrying and does not look promising for the thesis, and when we in this plot cannot be sure that it is the same user that has updates in all days in the three months, it looks even more worrying. 

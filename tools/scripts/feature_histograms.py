@@ -50,10 +50,10 @@ def hist(is_prod=True):
     colors = ['#3498db', '#e74c3c']
     sns.set_palette(colors)
     for index, feature in enumerate(features):
-        if index >= 17:
-            ax = f.add_subplot(1, 2, plot_index)
-        else:
-            ax = f.add_subplot(2, 2, plot_index)
+        # if index >= 17:
+        #     ax = f.add_subplot(1, 2, plot_index)
+        # else:
+        ax = f.add_subplot(2, 2, plot_index)
         ax.set_title(feature)
         all_events = np.hstack((meets[:, index], nonmeets[:, index]))
         types = np.hstack((["did meet" for x in range(len(meets[:, index]))], ["did not meet" for x in range(len(nonmeets[:,index]))]))

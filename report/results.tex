@@ -187,12 +187,11 @@ We can see for PP-2, the features which contribute most are features 8 (mutual c
     \caption{Feature importances of random forest for PP2}
     \label{fig:feature_importances_tp2}
 \end{figure}
-For TP-2 is it features 8 (mutual co-occurrences), 12 (specificity), 4 (weighted frequency) and 5 (co-occurrences weighted) that are the most important. Feature 10 (number of evenings) contributes again very little. 
+For TP-2 we find features 8 (mutual co-occurrences), 12 (specificity), 4 (weighted frequency) and 5 (co-occurrences weighted) are the most important. Feature 10 (number of evenings) again contributes very little. 
 
-Since we havn't implementet the same amount of features for PP-2 and TP-2, is it difficult to compare them. Though we can see that top 4 features are the same for PP-2 and TP-2. 
+Since we have not implemented the same amount of features for PP-2 and TP-2, is it difficult to compare them. Though we can see that the top 4 features are the same for PP-2 and TP-2. 
 
-
-In the next plots we try to look at the differences in features between the meet and non-meets of the TP-2 dataset. We chose TP-2 because it is the filtered dataset with all of our features present. \textcolor{red}{MAYBE ALSO SHOW FOR PP-2?}
+In the next plots we try to look at the differences in features between the meet and non-meets of the TP-2 dataset. We chose TP-2 because it is the filtered dataset with all of our features present.
 
 Looking at Figure \ref{fig:feature_boxplots1} to \ref{fig:feature_boxplots5} we can see features which have very little variance like number of weekends, evenings and common travels. Co-occurrences weighted and timely arrival and leaving seems to have similar values, we can note a slightly higher mean for the class did not meet. The homophily features seems very similar as well. Diversity, weighted frequency have very extreme outliers, a large diversity signifies a user pair with a very large number of locations between them. Specificity has extreme outliers as some of the previous features. App usage similarity strangely enough seems to be more similar for the class did not meet. This could be because it does not account for popular apps used by both groups. Number of co-occurrences, mutual co-occurrences and specificity seems to have higher values for the class did meet, and two of the three also contributed most to the importances for our features.
 
@@ -232,4 +231,13 @@ Looking at Figure \ref{fig:feature_boxplots1} to \ref{fig:feature_boxplots5} we 
     \caption{Boxplots of features of TP2}
     \label{fig:feature_boxplots5}
 \end{figure}
+
 \section{Summary}
+In this section we will present the most important results.
+
+The ROC AUC of the random forest compared to the baseline was higher for every dataset. This suggests however that it is simply better at predicting the negative class, did not meet, as the precision and recall scores are similar for the positive class, did meet. 
+The performance of the models improve, when filtering the users on cross-occupancy, but undersampling provided no significant difference.
+
+We found the production data made the models achieve a higher performance in terms of precision and recall compared to the test data.
+
+We found that the most important features between datasets for the random forest models were mutual co-occurrences, specificity, co-occurrences weighted and weighted frequency.

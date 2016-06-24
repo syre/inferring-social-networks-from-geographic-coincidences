@@ -191,9 +191,12 @@ For TP-2 we find features 8 (mutual co-occurrences), 12 (specificity), 4 (weight
 
 Since we have not implemented the same amount of features for PP-2 and TP-2, is it difficult to compare them. Though we can see that the top 4 features are the same for PP-2 and TP-2. 
 
-In the next plots we try to look at the differences in features between the meet and non-meets of the TP-2 dataset. We chose TP-2 because it is the filtered dataset with all of our features present.
+Next we try to look at the differences in features between the meet and non-meets of the TP-2 and PP-2 dataset. We chose to look at both because TP-2 represents more features but PP-2 represents data for regular users.
 
-Looking at Figure \ref{fig:feature_boxplots1} to \ref{fig:feature_boxplots5} we can see features which have very little variance like number of weekends, evenings and common travels. Co-occurrences weighted and timely arrival and leaving seems to have similar values, we can note a slightly higher mean for the class did not meet. The homophily features seems very similar as well. Diversity, weighted frequency have very extreme outliers, a large diversity signifies a user pair with a very large number of locations between them. Specificity has extreme outliers as some of the previous features. App usage similarity strangely enough seems to be more similar for the class did not meet. This could be because it does not account for popular apps used by both groups. Number of co-occurrences, mutual co-occurrences and specificity seems to have higher values for the class did meet, and two of the three also contributed most to the importances for our features.
+Looking at Figure \ref{fig:feature_boxplots1} to \ref{fig:feature_boxplots5} for the TP-2 dataset, we can see features which have very little variance like number of weekends, evenings and common travels. For Co-occurrences weighted we can note a slightly higher mean for the class did meet. For the homophily features, being within 6 years is higher for the did meet group, we see no significant difference relating to gender. Diversity and weighted frequency have large outliers, looking at the plots, weighted frequency and especially diversity is higher for did meet, a large diversity signifies a user pair with a very large number of locations between them, which seems to be more common for people who meet in the next period.
+Specificity holds higher values for the did meet class.
+
+As number of co-occurrences, mutual co-occurrences and specificity have higher medians for the class did meet, and two of the three also contributed most to the importances for our features we regard those as most important for predicting did meet for TP-2.
 
 \begin{figure}[H]
     \hspace*{-1.0cm}
@@ -255,7 +258,7 @@ Looking at Figure \ref{fig:feature_boxplots1} to \ref{fig:feature_boxplots5} we 
     \caption{Boxplots and barplots of features of PP-2}
     \label{fig:feature_boxplots3_pp2}
 \end{figure}
-Looking at Figure \ref{fig:feature_boxplots1_pp2} to Figure \ref{fig:feature_boxplots3_pp2} we see lower medians for the features: number of co-occurrences, mutual co-occurrences, and specificity.
+Looking at Figure \ref{fig:feature_boxplots1_pp2} to Figure \ref{fig:feature_boxplots3_pp2} which explains the features of PP-2 we see lower medians for the features: number of co-occurrences, mutual co-occurrences, and specificity.
 The implementation for the number of weekends feature was faulty in the production dataset which explains the lack of variance of the feature.
 We found two extreme outliers in specificity (12) for PP-2 which had values greater than 1 which would suggest they had more co-occurrences than the sum of their location updates which should be impossible. We removed these outliers from the data.
 \section{Summary}
@@ -270,4 +273,4 @@ The most important features between datasets for the random forest models were m
 
 The datasets TP-2 and PP-2 collectively had lower medians for number of co-occurrences, specificity and mutual co-occurrences for did meet, which suggests these are the strongest predictors for if people meet in the next period.
 
-We also found a larger number of people which met in the period, were within 6 years of age for the test data which might suggest homophily of age plays a part for people who did meet.
+We also found a larger number of people which met in the period, were within 6 years of age for the TP-2 dataset which might suggest homophily of age plays a part for people who did meet.

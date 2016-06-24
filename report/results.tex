@@ -187,7 +187,7 @@ We can see for PP-2, the features which contribute most are features 8 (mutual c
     \caption{Feature importances of random forest for PP2}
     \label{fig:feature_importances_tp2}
 \end{figure}
-For TP-2 we find features 8 (mutual co-occurrences), 12 (specificity), 4 (weighted frequency) and 5 (co-occurrences weighted) are the most important. Feature 10 (number of evenings) contributes again very little. 
+For TP-2 we find features 8 (mutual co-occurrences), 12 (specificity), 4 (weighted frequency) and 5 (co-occurrences weighted) are the most important. Feature 10 (number of evenings) again contributes very little. 
 
 Since we have not implemented the same amount of features for PP-2 and TP-2, is it difficult to compare them. Though we can see that the top 4 features are the same for PP-2 and TP-2. 
 
@@ -231,4 +231,11 @@ Looking at Figure \ref{fig:feature_boxplots1} to \ref{fig:feature_boxplots5} we 
     \caption{Boxplots of features of TP2}
     \label{fig:feature_boxplots5}
 \end{figure}
+
 \section{Summary}
+In this section we will present the most important findings of our results.
+
+The ROC AUC of the random forest compared to the baseline was higher for every dataset. This suggests however that it is simply better at predicting the negative class, did not meet, as the precision and recall scores are similar for the positive class, did meet. 
+The performance of the models improve, when filtering the users on cross-occupancy. We assume filtering on cross-occupancy reduces the presence of users which meet in the next period but lack location updates to confirm it.
+
+We found that the most important features between datasets were mutual co-occurrences and specificity, co-occurrences weighted and weighted frequency.

@@ -22,6 +22,12 @@ def load_x_and_y(path):
     return X_train, y_train, X_test, y_test
 
 
+def remove_outliers(meets, nonmeets):
+    #find rows specificity > 1
+    bad_rows = np.where(meets[:, 8] > 1)[0]
+    meets = np.delete(meets, bad_rows, 0)
+    #nonmeets = np.delete(nonmeets, bad_rows, 0)
+    return meets, nonmeets
 
 
 def hist(is_prod=True):
@@ -44,6 +50,7 @@ def hist(is_prod=True):
 
     meets = X_train[np.where(y_train == 1)]
     nonmeets = X_train[np.where(y_train == 0)]
+    meets, nonmeets = remove_outliers(meets, nonmeets)
     figure = 1
     f = plt.figure(figure, figsize=(10, 10))
     plot_index = 1
@@ -81,4 +88,4 @@ def hist(is_prod=True):
 
 
 if __name__ == '__main__':
-    hist(False)
+    hist()

@@ -34,7 +34,8 @@ This shows that for some of the datasets we have a class imbalance problem. Due 
 
 \section{Class Imbalance Problem}
 \label{sec:class_imbalance_problem}
-The Class Imbalance Problem is when the total number of samples for one class greatly exceeds the number of samples for a different class. A number of techniques can be used to handle the class imbalance problem, two of the most common techniques are called \textit{oversampling} and \textit{undersampling}\cite{tan2006introduction}. In oversampling you sample the minor sample with replacement until there is an equal number of positive and negative samples. In undersampling you randomly sample from the major class $N$ times where $N$ is the number of minor classes. We will train our models with and without \textit{undersampling} our datasets to see how it affects our performance metrics.
+The Class Imbalance Problem is when the total number of samples for one class greatly exceeds the number of samples for a different class. A number of techniques can be used to handle the class imbalance problem, two of the most common techniques are called \textit{oversampling} and \textit{undersampling}\cite{tan2006introduction}. In oversampling you sample the minor sample with replacement until there is an equal number of positive and negative samples. In undersampling you randomly sample from the major class $N$ times where $N$ is the number of minor classes. The drawbacks of undersampling is the loss of information in the dataset, as samples from the major class is removed. The advantage is, that all of the minority class is maintained, where in oversampling we create duplicate copies of the minority class, which can cause overfitting.
+We will train our models with and without \textit{undersampling} our datasets to see how it affects our performance metrics.
 
 \section{Performance metrics}
 \label{sec:performance_metrics}
@@ -45,6 +46,8 @@ The Receiver Operating Characteristic or ROC in short, illustrates the performan
 
 In Figure \ref{fig:rocs} we have plotted the ROC curve and ROC AUC for the different model pairs, we have also plotted the curve of a randomly guessing classifier for comparison. Figure \ref{fig:rocs_undersampling} shows the same models performance, where the datasets most prevalent class have been undersampled. We used randomized search to find the optimal hyper-parameters in the Random Forest models, choosing from \textit{gini} or \textit{entropy} as split criterion and $1-9$ max features for each split. The randomized search runs for 20 iterations where each iteration performs a 3-fold cross-validation to validate the parameters of the model, we used ROC AUC as the scoring function. When the best parameters for the model are found, 2-fold cross-validation is performed to validate the model.
 
+Looking at Figure \ref{fig:rocs} we see the Random Forest model is higher than baseline for every case. Looking at the case of using all users, the difference is miniscule, but using the users with a cross-occupancy threshold makes it more pronounced. Comparing test with production the outputs look similar.
+
 \begin{figure}[H]
     \hspace*{-1.0cm}
     \centering
@@ -52,13 +55,22 @@ In Figure \ref{fig:rocs} we have plotted the ROC curve and ROC AUC for the diffe
     \caption{Mean ROC AUC of Logistic Regression (LR) and Random Forest (RF) in the four model-pairs (TP-1, TP-2, PP-1, PP-2) using randomized search for hyper-parameter optimization (internal loop with 3-fold cross-validation) and 2-fold cross-validation. }
     \label{fig:rocs}
 \end{figure}
+
+Looking at Figure \ref{fig:rocs_undersampling} we see similar results as without undersampling.
+
 \begin{figure}[H]
     \hspace*{-1.0cm}
     \centering
     \includegraphics[scale=0.15]{ROCS_undersampling}
-    \caption{mean ROC AUC of Logistic Regression (LR) and Random Forest (RF) in the four model-pairs (TP-1, TP-2, PP-1, PP-2) using randomized search for hyper-parameter optimization (internal loop with 3-fold cross-validation) and 2-fold cross-validation, and with undersampling of the most prevalent class}
+    \caption{Mean ROC AUC of Logistic Regression (LR) and Random Forest (RF) in the four model-pairs (TP-1, TP-2, PP-1, PP-2) using randomized search for hyper-parameter optimization (internal loop with 3-fold cross-validation) and 2-fold cross-validation, and with undersampling of the most prevalent class}
     \label{fig:rocs_undersampling}
 \end{figure}
+
+Comparing Figure \ref{fig:rocs} and \ref{fig:rocs_undersampling} it seems undersampling does not make a significant difference for performance between the models.
+
+Overall we find the Random forest provides a higher ROC AUC score than the baseline model and thus that it does a better job of predicting classes, albeit not by much.
+
+In the next section we will look at the performance of the models in terms of the precision and recall scores of the positive class.  
 
 \subsection{Precision and Recall}
 We will use the metrics Precision and Recall to further evaluate the performance of our models.

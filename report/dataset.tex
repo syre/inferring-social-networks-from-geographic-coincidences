@@ -21,8 +21,8 @@ The dataset describes the spatiotemporal location where a user has been present.
 \item \texttt{\textbf{region}}\\Name of the global region where the user is situated when the location update is logged. E.g. Europe
 \item \texttt{\textbf{latitude}}\\Latitude for the location. Latitude has a precision of up to approximately 15 decimals, which corresponds to 0.1 nanometer or less. This precision is not to be taken too seriously, as most mobile GPS modules has an uncertainty of about 30 meters   \cite{NAV:8292634}.  
 \item \texttt{\textbf{longitude}}\\Longitude for the location. Longitude has a precision of up to approximately 15 digits, which corresponds to 0.1 nanometer or less. The precautions about precision are the same as for the latitude 
-\item \texttt{\textbf{altitude}}\\Altitude represented in mm. Altitude is calculated from the gyroscope of the phone together with information from the GPS.  
-\item \texttt{\textbf{accuracy}}\\Accuracy represented in mm. Accuracy is the estimated uncertainty of the GPS data in the current location update. The value indicates that the user with 68\% certainty is at the logged location, inside the defined accuracy \cite{android_accuracy}. The lower value, the better. This is defined by the operating system of the phone together with the GPS 
+\item \texttt{\textbf{altitude}}\\Altitude represented in mm. Altitude is calculated from the gyroscope of the phone together with information from the GPS
+\item \texttt{\textbf{accuracy}}\\Accuracy represented in mm. Accuracy indicates that the user with a confidence of 68\% is at the location inside a radius of the distance of the accuracy \cite{android_accuracy}. The lower value, the better. This is defined by the operating system of the phone together with the GPS 
 \item \texttt{\textbf{devices}}\\The device is represented as an array with name, type and id. Type is the type of device (e.g. Phone), name is the name of the current device and the id is the unique identifier of the device 
 \end{enumerate}
 
@@ -35,16 +35,17 @@ In our thesis the following attributes are of relevance to us:
 \item \texttt{country}
 \item \texttt{latitude}
 \item \texttt{longitude}
+\item \texttt{accuracy}
 \end{itemize}
 
 These attributes has been chosen as they are important or interesting with respect to the current thesis. \texttt{useruuid} is important to differentiate the users, \texttt{start\_time} and \texttt{end\_time} are important as they show how long time the user has been at the current location. \texttt{country} allows an easy filtering of the users. \texttt{latitude} and \texttt{longitude} are very important as they tell about the most central issue i.e. the location where the user has been situated. \texttt{accuracy} can tell about the confidence to be associated with the current location update.  
 
-Test data which are a subset of production data has been investigated. These test data are from a specific period and from specific users. After defining this subset, the whole amount of production data has been investigated.  It will be described how test data and total production data, respectively, can be described with respect to distributions etc.  
+We will analyze the attributes of the test data and production data statistically.
 
 \section{Test data}
 The period for the test data stretches over 3 months: September - November 2015.   
 In this period 2,665,893 location updates from 1,586 users were collected. These users are all employees of Sony based around the world. This means that they have some natural common meeting places which are Sony related, such as Sony offices in different countries.
-This fact has a large impact on the content of the data, and will be investigated later. 
+This fact has an impact on the validity of the data, and will be investigated later.
 
 
 In Table \ref{tab:stat_geo_p1} the statistic summary of \texttt{accuracy} can be seen. 
@@ -73,7 +74,7 @@ Of all location updates 20 show a negative accuracy, which corresponds to less t
         \label{tab:stat_geo_p1}
 \end{table}
 
-As accuracy affects both latitude and longitude, which are the most important attributes, the updates with negative accuracy are removed. Furthermore location updates with an accuracy of more than 55.000 (55m) is removed. Our binning will correspond to cells with a side length of maximum 111 meters. As accuracy means the user with a confidence of 68\% is at the location plus inside a radius of the distance of the accuracy, the maximum allowed accuracy is chosen to be 55 meters, which is half the size of the maximum bin. This means that the user with 68\% confidence is in the defined bin on the condition that the user is situated in the middle of the cell. This condition may not always be met. But after all, it seems to be the best way to set the limit of the allowed accuracy. 
+As accuracy affects both latitude and longitude, which are the most important attributes, the updates with negative accuracy are removed. Furthermore location updates with an accuracy of more than 55.000 (55m) is removed. Our binning will correspond to cells with a side length of maximum 111 meters. As accuracy means the user with a confidence of 68\% is at the location plus inside a radius of the distance of the accuracy, the maximum allowed accuracy is chosen to be 55 meters, which is half the size of the maximum bin. This means that the user with 68\% confidence is in the defined bin on the condition that the user is situated in the middle of the cell. This condition may not always be met. But after all, it seems to be an adequate way to set the limit of the allowed accuracy. 
 See more in section \ref{ssec:binning}, p. \pageref{ssec:binning}, about how binning is defined and in \autoref{chap:discussion} about the challenges for binning and cell size. 
 
 After this reduction, the quantiles of the accuracy can be seen in Table \ref{tab:acc_quantiles}. 
@@ -106,14 +107,14 @@ After this reduction, the quantiles of the accuracy can be seen in Table \ref{ta
         \label{tab:acc_quantiles}
 \end{table}
 
-By looking at the values for the median and mean we see that most users have a low value for the accuracy. If we assume a normal distribution for the accuracy and use a 2 sigma value, 95\% of the users have an accuracy between 7,896 and 37,235.44. This shows that there is a probability that a small number of users must have high values for the accuracy, where the max is 50,000. The fact that only a few users have high values is good because it also means that there are many users with low (and good) accuracy. As the maximum for the accuracy has been set at 50.000 we may with confidence apply the users with a high value of accuracy. If we later were to use a finer binning it should be possible to do this without removing too much data, because the accuracy values are as good as they are.   
+By looking at the values for the median and mean we see that most users have a low value for the accuracy. If we assume a normal distribution for the accuracy and use a 2 sigma value, 95\% of the users have an accuracy between 7,896 and 37,235.44. This shows that there is a probability that a small number of users must have high values for the accuracy, where the max is 50,000. The fact that only a few users have high values is good because it also means that there are many users with low (and good) accuracy. As the maximum for the accuracy has been set at 50.000 we may with confidence apply the users with a high value of accuracy. If we later were to use a finer binning it should be possible to do this without removing too much data, because the accuracy values are as low as they are.   
 
 The median value and the mean value are 23 m and 26.89 m respectively and the 95\% standard deviation is 7.9 m and 37.24 m. 
 
 
-When looking at which countries are represented in the dataset, we find that we have 80 unique countries. Initially we had 74 countries. It turned out that there were a lot of location updates where the country attribute had not been logged. In these occasions the county attribute was just represented by an empty string. This was the case in so many updates that an empty string in the country attribute had the second most common occurrence with about 500,000 location updates. 
+When looking at which countries are represented in the dataset, we find that we have 74 unique countries. It turned out that there were a lot of location updates where the country attribute had not been logged. In these occasions the county attribute was just represented by an empty string. This was the case in so many updates that an empty string in the country attribute had the second most common occurrence with about 500,000 location updates. 
 As it was important to be able to sort data on the basis of country, this was a problem. The problem was solved by making a reverse geolocation. For almost all of the 500,000 location updates with blank country definition the latitude and longitude were logged, so it was possible by using an API\cite{reversegeocode} to look up the country on the basis of latitude and longitude, and insert the correct string in the country attribute. By adjusting the dataset once, we avoided access to the API every time scripts were run. This would have been very ineffective and a waste of time. Furthermore the API had a limit for how many positions we could look up every minute, which resulted that it took a week to get all data resolved, running 24/7.  \\ 
-The use of reverse geolocation resulted in a reduction of the number of location updates with blank country attributes from 500,000 to 130. The 130 where the country couldn't be found, was because of failure in the look-up. At the same time new countries were represented in the dataset, so the number of countries increased from 74 to 80 (incl. countries represented with an empty string). 
+The use of reverse geolocation resulted in a reduction of the number of location updates with blank country attributes from 500,000 to 130. The 130 where the country couldn't be found, was because of failure in the look-up. At the same time new countries were represented in the dataset, so the number of countries increased from 74 to 80 (incl. countries represented with an empty string).
 
 
 After this we can investigate how the location updates are distributed across the five countries with most updates. In figure \ref{fig:country_dist} we can see that Sweden and Japan are at the top of the list, whereas the country with an empty string is outside the list (it moved down among the last 25\%). 
@@ -128,7 +129,7 @@ After this we can investigate how the location updates are distributed across th
 \end{figure}
 
 
-The fact that Sweden and Japan are the top of the list is not strange as Sony is a Japanese company which took over Sony-Ericsson where Ericsson is a Swedish company. Sony-Ericsson was at that time the mobile brand of Sony, so a large part of Sony's mobile development is still placed in Sweden. This may explain why Sweden has three times as many updates as Japan.  
+The fact that Sweden and Japan are the top of the list is not strange as Sony is a Japanese company which took over Sony-Ericsson where Ericsson is a Swedish company. Sony-Ericsson was once the mobile brand of Sony, so a large part of Sony's mobile development is still located in Sweden. This may explain why Sweden has three times as many updates as Japan.  
 
 On the basis of figure \ref{fig:country_dist}, we will look at the data of Sweden and Japan going forward and compare them. 
 In Japan there are \numberUsersJapan{} unique users while in Sweden there are \numberUsersSweden{}. The two countries may have common users as users may travel between several countries and thereby have location updates in several countries.  
@@ -149,9 +150,9 @@ We can see that Sweden has significantly more updates than Japan during all thre
 This will be investigated more closely later.  
 
 
-As mentioned earlier there are some natural gathering places in Sweden and Japan, as the data are for Sony employees. These places are of course work-related, such as Sony's offices in the two countries. Three places in Sweden and one in Japan has been identified. The reason for the importance of this is that peoples co-occurrences are work related, which not necessarily mean that they are friends with a person with whom he has a co-occurrence. 
+As mentioned earlier we have identified commonly frequented Sony offices in Sweden and Japan. Three places in Sweden and one in Japan has been identified. The reason for the importance of the offices is that the co-occurrences within are most likely work-related, and thus not necessarily a social tie.
 
-It is therefore interesting to see how many updates for each country are made inside these gathering places and how many are outside.  
+It is therefore interesting to see how many updates for each country are made inside the Sony offices and how many are outside.  
 
 \begin{figure}[H]
     \hspace*{-2.2cm}
@@ -213,7 +214,7 @@ The tendency described above can be shown more clearly by plotting the Cumulativ
 \end{figure}
 
 The plot shows that in both Japan and Sweden, a large part of the users have very few location updates during the whole period. It can be seen that in Japan the number of users with few updates increases faster than in Sweden.  
-As the updates are generated each time the user changes his location, it must indicate that many of the users are very stationary or they have turned off their mobile phones. It must be stated that stationary also encompasses the situation where the user has forgotten his phone at home. In the data we can see the difference between whether the phone has been switched off or is stationary, but not whether the phone is stationary or just forgotten. We can differentiate between the situation with a phone turned off and a stationary phone by noting that in the first case data are missing for a while whereas with a forgotten phone there is a long time between \texttt{start\_time} and \texttt{end\_time}.  
+As the updates are generated each time the user changes his location, it must indicate that many of the users are very stationary or their mobile phones are not sending data. It must be stated that stationary also encompasses the situation where the user has forgotten his phone at home. In the data we can see the difference between whether the phone has been switched off or is stationary, but not whether the phone is stationary or just forgotten. We can differentiate between the situation with a phone not sending data and a stationary phone by noting that in the first case data are missing for a while whereas with a forgotten phone there is a long time between \texttt{start\_time} and \texttt{end\_time}.  
 
 It is important to see if there is a pattern in the time-stamp of the updates, as it may be possible on this background to identify better or worse sub-periods, which may be taken into account. 
 We have plotted heat maps to show distribution of  updates over 24 hours. These are produced by aggregating data from a time slot in a 24 hour period. The aggregated data are based on whether the user has had at least one update in the time slot of the day (represented by 0 or 1), regardless of which day it is. 
@@ -227,12 +228,10 @@ We have plotted heat maps to show distribution of  updates over 24 hours. These 
 \end{figure}
 Figure \ref{fig:agg_heatmap_jap} shows how updates for each user (y-axis), are distributed over the time of day, measured over all 3 months. The users are sorted according to their total aggregated values, with the largest at the lowest part of the Y-axis.  
 
-We see there is a period between 02:00 AM and 06:00 AM where most users do not have any updates, which might indicate that they either turn their phone off or otherwise shuts down the communication with the external world in the mentioned period. From 06:00 AM until 12:00 PM there are regular updates after which the number of updates decreases until 02:00 AM. If we compare this with Figure \ref{fig:cumu_loc_time_jap_swe} we can see a reasonable good correlation. Figure \ref{fig:cumu_loc_time_jap_swe} shows the  aggregated location updates over 24 hours in both Japan and Sweden. Here we see the same development in Japan as the heat map indicates, as described above. 
+We see there is a period between 02:00 AM and 06:00 AM where most users do not have any updates, which might indicate that they either turn off their phone or for some other reason cease sending data. From 06:00 AM until 12:00 PM there are regular updates after which the number of updates decreases until 02:00 AM. If we compare this with Figure \ref{fig:cumu_loc_time_jap_swe} we can see a reasonable good correlation. Figure \ref{fig:cumu_loc_time_jap_swe} shows the  aggregated location updates over 24 hours in both Japan and Sweden. Here we see the same development in Japan as the heat map indicates, as described above. 
 
-The above mentioned is also valid for Sweden (Figure \ref{fig:agg_heatmap_swe}), which show the same as for Japan. Also here almost all users turn their phones off between 02:00 AM and 06:00 AM. 
-No other time slots have a significant deviation eeither in Japan or in Sweden.  
-
-As the users have been sorted, we can easily see that a part of the users have none or very few updates during all three months. These users are discarded in the test data as they do not contribute with a significant amount of data.
+The above mentioned is also valid for Sweden (Figure \ref{fig:agg_heatmap_swe}), which show the same as for Japan. Also here almost all users stop sending data between 02:00 AM and 06:00 AM. 
+No other time slots have a significant deviation either in Japan or in Sweden.
 
 When we initially plotted Figure \ref{fig:agg_heatmap_swe}, we discovered 16 users with an identical number of location updates in every hour period, upon further investigation we discovered the users all had duplicate location updates. We removed the users from the dataset as they were likely test-users from Sweden.
 

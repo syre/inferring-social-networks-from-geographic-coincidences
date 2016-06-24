@@ -230,6 +230,8 @@ Figure \ref{fig:agg_heatmap_jap} shows how updates for each user (y-axis), are d
 
 We see there is a period between 02:00 AM and 06:00 AM where most users do not have any updates, which might indicate that they either turn off their phone or for some other reason cease sending data. From 06:00 AM until 12:00 PM there are regular updates after which the number of updates decreases until 02:00 AM. If we compare this with Figure \ref{fig:cumu_loc_time_jap_swe} we can see a reasonable good correlation. Figure \ref{fig:cumu_loc_time_jap_swe} shows the  aggregated location updates over 24 hours in both Japan and Sweden. Here we see the same development in Japan as the heat map indicates, as described above. 
 
+It is quite surpricing that so many users cease sending data at night, but it has no effect on our work since we dont actively use the nights as features. Therefor will we still use themm by keeping them in the dataset. 
+
 The above mentioned is also valid for Sweden (Figure \ref{fig:agg_heatmap_swe}), which show the same as for Japan. Also here almost all users stop sending data between 02:00 AM and 06:00 AM. 
 No other time slots have a significant deviation either in Japan or in Sweden.
 
@@ -304,6 +306,8 @@ Again it seems that September has more users who have updates in relatively more
 
 If we look at October, we can see pairs of days which form a pattern of light vertical stripes in comparison with the other days. This indicates a lower amount of updates. This is happening on the 3rd and 4th, 10th and 11th, 17th and 18th and at last the 24th and 25th. These pairs pop up with an interval of a week, where the 3rd is a Saturday and the 4th is a Sunday. This means that the other pairs are also Saturdays and Sundays. This pattern is repeated in November where it is really significant on the 7th and 8th. The data for September are not so distinct but the effect is observable.
 
+That weekends haver fewer updates than other days are interesting, but have no negative contribution to our goal. Therefor will we still use weekends wellknown, that it may not contribute as much. 
+
 Otherwise no days or periods stands out from the main data. The reason that the 31st September and November are empty is that these dates are invalid, while the 31st of October exists. Therefore the dates for September and November must be empty.  
 
 \begin{figure}[H]
@@ -317,9 +321,7 @@ Figure \ref{fig:heatmap_sweden_combined} shows the same for Sweden. Again it can
 
 Sweden also has more users with updates every day than Japan. 
 
-By using Figure \ref{fig:heatmap_japan_combined} and Figure \ref{fig:heatmap_sweden_combined} we can get a sense of which days are better than others, e.g. that Saturdays and Sundays seem not so good as there are fewer updates. 
-
-Otherwise no days or periods stands out from the main data. As for Japan the 31st September and 31st November are empty as these dates do not exist.  
+By using Figure \ref{fig:heatmap_japan_combined} and Figure \ref{fig:heatmap_sweden_combined} we can get a sense if there are some irregularities of the updates for each day, for each user, e.g. that there are alot of people each month with no updates. This can tell us, that it makes no sence to use these users as they do no contributes to our goal. 
 
 One thing is to be able to see how the updates are distributed per day per user, but it is not known whether all the updates for a day occurs in one hour or whether they are distributed all over the day. We want to find users with a large number of location updates over each period. The more updates spread out over the period, the greater probability we have of knowing if the users meet or not in the period.
 

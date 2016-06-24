@@ -254,7 +254,7 @@ def plot_feature_importance(feature_impor, feature_id, pair_name, undersampling)
 
 if __name__ == '__main__':
     undersampling = False
-    target = "TP-2"
+    target = "PP-2"
     feature_impor, pair = plot_performance(gen_alldata(), undersampling=undersampling, target_importance=target)
     #print("feature_impor = {}".format(feature_impor))
     if target[0] == "T":

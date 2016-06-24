@@ -109,9 +109,10 @@ Figure \ref{fig:user_pair_at_sony} shows an example of the co-occurrences visual
 We decided to look at just how many co-occurrences happened inside the Sony perimeter. Figure \ref{fig:dist_coocs_sony} shows the number of co-occurrences inside and outside Sony perimeters, here we see a massive amount of co-occurrences happening inside the Sony perimeters. This can pose a problem as we will only be looking at co-occurrences between users that is outside Sony perimeters.
 
 \subsubsection{Data export to Numpy arrays}
-We created scripts for exportation to numpy arrays for use in the sklearn module. The users were encoded with K values where K = number of users. The countries were encoded with K values where K = number of countries.
+We found that query the database for calculating the features took too long. Instead, we created scripts for exportation to Numpy arrays and refactored some of the code to run with Numpy. The users were encoded with K values where K = number of users. The countries were encoded with K values where K = number of countries.\\
+Due to Numpys internal optimization, our code ran alot faster than with database.   
 
-Each row in the dataset represents a dyad of users and the features computed for them as well as the binary label of whether they met in the next period or not.
+Each row in the dataset represent a dyad of users and the features computed for them as well as the binary label of whether they met in the next period or not. We used it in the sklearn module.
 
 \subsection{Preparation of Production data}
 In this section we will demonstrate what we have done to prepare the production data for analysis.

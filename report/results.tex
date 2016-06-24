@@ -156,15 +156,29 @@ Looking at the $F_1$ score we see the highest score coming from the RF model in 
 It seems undersampling does not affect the scores notably with respect to the positive class, perhaps except for the RF model in TP-1.
 
 \subsection{Feature importance}
-The Random Forest model allows for finding the relative importance of the different features. The depth of a feature in the trees can be used to determine importance, as features at the top of the tree contributes to the prediction decision over a larger fraction of samples. The average is then computed from each tree in the forest to obtain the final feature importances.
-Figure \ref{fig:feature_importances} shows the mean of the feature importances of the random forest of PP2. We can see the features which contribute most are features 8 (mutual co-occurrences), 14 (specificity), 5 (co-occurrences weighted), 4 (weighted frequency), 7 (number of co-occurrences), 2 (diversity), 3 (unique co-occurrences). Feature 12 (number of evenings) contributes very little and 13 (number of weekends) seems to have no variance.
+The Random Forest model allows for finding the relative importance of the different features. The depth of a feature in the trees can be used to determine importance, as features at the top of the tree contributes to the prediction decision over a larger fraction of samples. The average is then computed from each tree in the forest to obtain the final feature importances.\\
+Figure \ref{fig:feature_importances_pp2} shows the mean of the feature importances of the random forest of PP2 and \autoref{fig:feature_importances_tp2} shows it for TP-2. \\
+
 \begin{figure}[H]
     \hspace*{-1.0cm}
     \centering
     \includegraphics[scale=0.10]{feature_importance_PP2}
     \caption{Feature importances of random forest for PP2}
-    \label{fig:feature_importances}
+    \label{fig:feature_importances_pp2}
 \end{figure}
+We can see for PP-2, the features which contribute most are features 8 (mutual co-occurrences), 12 (specificity), 5 (co-occurrences weighted), 4 (weighted frequency), 2 (diversity), 7 (number of co-occurrences), 3 (unique co-occurrences). Feature 10 (number of evenings) contributes very little and 11 (number of weekends) seems to have no variance.
+
+\begin{figure}[H]
+    \hspace*{-1.0cm}
+    \centering
+    \includegraphics[scale=0.10]{feature_importance_TP2}
+    \caption{Feature importances of random forest for PP2}
+    \label{fig:feature_importances_tp2}
+\end{figure}
+For TP-2 is it features 8 (mutual co-occurrences), 12 (specificity), 4 (weighted frequency) and 5 (co-occurrences weighted) that are the most important. Feature 10 (number of evenings) contributes again very little. 
+
+Since we havn't implementet the same amount of features for PP-2 and TP-2, is it difficult to compare them. Though we can see that top 4 features are the same for PP-2 and TP-2. 
+
 
 In the next plots we try to look at the differences in features between the meet and non-meets of the TP-2 dataset. We chose TP-2 because it is the filtered dataset with all of our features present. \textcolor{red}{MAYBE ALSO SHOW FOR PP-2?}
 

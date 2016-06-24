@@ -254,8 +254,8 @@ When we initially plotted Figure \ref{fig:agg_heatmap_swe}, we discovered 16 use
 If we only look at Figure \ref{fig:cumu_loc_time_jap_swe}, we can see that in both countries the number of updates have a peak at about 08:00 AM. In Sweden there is a further peak at 04:00 PM whereas in Japan there is no similar peak. \\
 The peak at 08:00 AM may be caused by users moving from home to work and in this process generates a lot of updates. Similarly the second peak (in Sweden) may be caused by users returning to their home again generating a certain number of updates. It can be remarked that Japan does not have a similar increase in location updates in the afternoon, but a slight increase at 7:00 PM and higher values than Sweden from 21:00 PM until 01:00 AM. \\
 
-Figures \ref{fig:agg_heatmap_jap}, \ref{fig:agg_heatmap_swe} and \ref{fig:cumu_loc_time_jap_swe} tell which times of the day may be more usable than others. For instance that it is important to be aware of the time between 01:00 AM and 06:00 AM, as many users have very few updates in this period. It will probably mean that this period should be avoided. 
-What the figures do not tell, is whether there are days in the three months which are better than others. This issue is interesting to investigate to see whether there are some days which might be used with advantage instead of using all days. Furthermore it might be possible to see a pattern for days of the week. We can imagine that the weekend will hold less or more updates than working days because people go out to socialize or perhaps the opposite, that they stay in.
+
+We want to investigate how location updates are distributed over days. This issue is interesting to investigate to see whether there are some days which might be used with advantage instead of using all days. Furthermore it might be possible to see a pattern for days of the week. We can imagine that the weekend will hold less or more updates than working days because people go out to socialize or perhaps the opposite, that they stay in.
 
 
 \begin{figure}[H]
@@ -268,9 +268,7 @@ What the figures do not tell, is whether there are days in the three months whic
 
 Figure \ref{fig:heatmap_jap} shows how location updates per user in Japan (rounded to nearest integer) is distributed for each day in each of the three months. We can for example see that in Japan we have as a mean 16 updates per user on Friday in week 2 of September.  
 
-Again we see that generally there are more updates in September than in the other two months. October and November are similar except for a couple of days where November has some higher values than some other days in October. 
-
-In many cases we can see that Fridays and/or Saturdays have higher values than other days in the same month. 
+Again we see that generally there are more updates in September than in the other two months. The first 3 weeks of September are especially pronounced. October and November are similar except for a couple of days where November has some higher values than some other days in October.
 
 \begin{figure}[H]
     \hspace*{-1.5cm}
@@ -280,11 +278,11 @@ In many cases we can see that Fridays and/or Saturdays have higher values than o
     \label{fig:heatmap_swe}
 \end{figure}
 
-Figure \ref{fig:heatmap_swe} shows how location updates per user in Sweden (rounded to nearest integer) is distributed for each day in each of the three months. As in Japan we have in general more updates in September than in the other two months. In Sweden this tendency is more pronounced than in Japan. As in Japan this tendency has been observed in Figure \ref{fig:mean_loc_updates_sep-nov}, so it is not surprising.  
- 
-Here too, like in Japan, the values for Fridays and/or Saturdays are slightly higher than for the other days. The values are not so much higher that it is of importance, which is also the case for Japan. 
+Figure \ref{fig:heatmap_swe} shows how location updates per user in Sweden (rounded to nearest integer) is distributed for each day in each of the three months. As in Japan we have in general more updates in September than in the other two months. In Sweden this tendency is more pronounced than in Japan. As in Japan this tendency has been observed in Figure \ref{fig:mean_loc_updates_sep-nov}, so it is not surprising.
 
-In the two figures above, we can get a feeling for the mean number of updates for each day. It is not possible to get a feeling for the situation for each user. Because of this the following figures have been produced. 
+It is peculiar that September for both countries are the most populated months.
+
+In the two figures above, we plot the mean number of updates for each day. Next we look at the location updates of each user.
 
 \begin{figure}[H]
     \hspace*{-1.5cm}
@@ -304,7 +302,7 @@ It can be seen that there are relatively few users who have updates in all days 
 
 Again it seems that September has more users who have updates in relatively more days than in the other months.
 
-If we look at October, we can see pairs of days which form a pattern of light vertical stripes in comparison with the other days. This indicates a lower amount of updates. This is happening  on the 3rd and 4th, 10th and 11th, 17th and 18th and at last the 24th and 25th. These pairs pop up with an interval of a week, where the 3rd is a Saturday and the 4th is a Sunday. This means that the other pairs are also Saturdays and Sundays. This pattern is repeated in November where it is really significant on the 7th and 8th. The data for September are not so distinct but the effect is observable. This is very interesting as it may indicate that Saturdays and Sundays are not suited for the purpose. 
+If we look at October, we can see pairs of days which form a pattern of light vertical stripes in comparison with the other days. This indicates a lower amount of updates. This is happening on the 3rd and 4th, 10th and 11th, 17th and 18th and at last the 24th and 25th. These pairs pop up with an interval of a week, where the 3rd is a Saturday and the 4th is a Sunday. This means that the other pairs are also Saturdays and Sundays. This pattern is repeated in November where it is really significant on the 7th and 8th. The data for September are not so distinct but the effect is observable.
 
 Otherwise no days or periods stands out from the main data. The reason that the 31st September and November are empty is that these dates are invalid, while the 31st of October exists. Therefore the dates for September and November must be empty.  
 
@@ -319,7 +317,7 @@ Figure \ref{fig:heatmap_sweden_combined} shows the same for Sweden. Again it can
 
 Sweden also has more users with updates every day than Japan. 
 
-By using Figure \ref{fig:heatmap_japan_combined} and Figure \ref{fig:heatmap_sweden_combined} we can get a feeling for which days are better than others, e.g. that Saturdays and Sundays seem not so good as there are fewer updates. 
+By using Figure \ref{fig:heatmap_japan_combined} and Figure \ref{fig:heatmap_sweden_combined} we can get a sense of which days are better than others, e.g. that Saturdays and Sundays seem not so good as there are fewer updates. 
 
 Otherwise no days or periods stands out from the main data. As for Japan the 31st September and 31st November are empty as these dates do not exist.  
 
@@ -333,15 +331,15 @@ One thing is to be able to see how the updates are distributed per day per user,
     \caption{Plot over number of users which have location updates in certain percentage unique time bins in each sub-period. A sub-period is defined in chapter \ref{chap:methods}, which is a period divided in three. For three months a month is thus a sub-period}
     \label{fig:users_by_criteria}
 \end{figure}
-From chapter \ref{chap:methods} it is known that the chosen period is divided into three sub-period to be able to train and analyze on these. Figure \ref{fig:users_by_criteria} shows how many users who has location updates in a certain percentage of unique time bins in all three sub-periods for a given period. For example we can see that there are approximately 50 users who have updates in 40\% of the possible time bins in each of the three sub-periods in Sweden in September. From now on we will use the term \textbf{cross-occupancy} when referring to the metric of users with a certain percentage of time-bins occupied in all three sub-periods, we thus have 90 users with 20\% cross-occupancy. Here the 30 days of September are divided into the following sub-periods: 1-10, 11-20, 21-30. 
+In \autoref{chap:methods} we explain that the chosen period is divided into three sub-periods to be able to train and analyze on these. Figure \ref{fig:users_by_criteria} shows how many users who has location updates in a certain percentage of unique time bins in all three sub-periods for a given period. For example we can see that there are approximately 50 users who have updates in 40\% of the possible time bins in each of the three sub-periods in Sweden in September. From now on we will use the term \textbf{cross-occupancy} when referring to the metric of users with a certain percentage of time-bins occupied in all three sub-periods, we thus have 90 users with 20\% cross-occupancy. Here the 30 days of September are divided into the following sub-periods: 1-10, 11-20, 21-30. 
 
 It can be seen that a large amount of users have updates in very few time bins in each sub-period. The values are calculated with a resolution of 1\%. Already at 1\% unique time bins the number for September in Sweden has changed from \numberUsersSweden{} to approximately 140. This means that 140 users have updates distributed on 1\% of the possible time bins in each sub-period. For the other months the number is even lower. This is a very drastic decrease in the number of users. 
 As a sub-period in September has 10 days and our time bins have a size of one hour, we have $10\cdot24=240$ possible time bins. 1\% of this is equal to $\frac{240}{100}=2.4$, which means that the 140 users must have updates over 3 unique time bins in each of the three sub-periods, as we shall round to the next higher integer. 
-The 50 users with 40\% cross-occupancy have updates over 96 unique time bins in each period. 
+The 50 users with 40\% cross-occupancy have updates over 96 unique time bins in each period.
 
 Using all months the sub-period is a month which is 30 - 31 days. 
 
-In general we can see that even if the data development starts with a huge dip, it flattens out very quickly. September in Sweden is clearly better than the other months in Sweden, whereas in Japan the situation is less clear. Here it seems that the choice may be made between September and November. 
+In general we can see that even if all the periods in both countries starts with a huge dip, it flattens out very quickly. September in Sweden is clearly better than the other months in Sweden, whereas in Japan the situation is less clear. Here it seems that the choice may be made between September and November. 
 
 40\% cross-occupancy seems to be the best threshold. Here we still have some users and not too low threshold. 
 

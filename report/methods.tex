@@ -136,7 +136,9 @@ We will try to answer the following question: Can we predict if people meet in a
 The models and algorithms we use are implemented in \textit{scikit-learn}\cite{scikit-learn} a Python module for machine learning.
 
 \subsection{Models}
-For our work we will use two models, Logistic Regression and Random Forest. For each model we will first fit them on the complete period of 3 months and the single month of September as found in \autoref{chap:dataset}. Furthermore we will use all of the users as well as a subset of users meeting our criteria for cross-occupancy as found in \autoref{chap:dataset} of 40\% and 10\% for test and production data respectively. For the datasets we will use an outer loop of 2-fold cross-validation and an inner loop of randomized search. We choose randomized search over grid search because of the efficiency in computation time. We will use ROC AUC as the score function for the randomized search.
+For our work we will use two models, Logistic Regression and Random Forest. For each model we will first fit them on the complete period of 3 months and the single month of September as found in \autoref{chap:dataset}. Furthermore we will use all of the users as well as a subset of users meeting our criteria for cross-occupancy as found in \autoref{chap:dataset} of 40\% and 10\% for test and production data respectively.
+
+For the datasets we will use an outer loop of 2-fold cross-validation and an inner loop of randomized search. We chose 2-fold cross-validation as it enables us to validate both our training and test sets and provide us with a better estimate on how well our models will generalize. We choose randomized search over grid search because of the efficiency in computation time. We will use ROC AUC as the score function for the randomized search.
 
 
 \subsubsection{Logistic Regression}

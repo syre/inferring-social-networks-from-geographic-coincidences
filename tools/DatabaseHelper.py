@@ -199,11 +199,11 @@ class DatabaseHelper():
 
     def is_saturday_night(self, datetime, timezonestring="Europe/Stockholm"):
         converted = datetime.astimezone(timezone(timezonestring))
-        return converted.hour > 18
+        return converted.hour >= 18
 
     def is_evening(self, datetime, timezonestring="Europe/Stockholm"):
         converted = datetime.astimezone(timezone(timezonestring))
-        return converted.date().isoweekday() == 6 and converted.hour > 18
+        return converted.hour >= 18
 
     def is_weekend(self, datetime, timezonestring="Europe/Stockholm"):
         converted = datetime.astimezone(timezone(timezonestring))

@@ -255,8 +255,9 @@ Looking at Figure \ref{fig:feature_boxplots1} to \ref{fig:feature_boxplots5} we 
     \caption{Boxplots and barplots of features of PP-2}
     \label{fig:feature_boxplots3_pp2}
 \end{figure}
-
-We found two outliers in specificity (12) for PP-2 which does not make sence because they has values way over 1 which should not could happen. There were also strange outliers in feature 7, 3, 2 and 4. When we removed the two outliers from specificity, the strange outliers in the other features disapeared. This meant there were two persons which had bad features for some reasons. We do not know why and how these occurred. 
+Looking at Figure \ref{fig:feature_boxplots1_pp2} to Figure \ref{fig:feature_boxplots3_pp2} we see lower medians for the features: number of co-occurrences, mutual co-occurrences, and specificity.
+The implementation for the number of weekends feature was faulty in the production dataset which explains the lack of variance of the feature.
+We found two extreme outliers in specificity (12) for PP-2 which had values greater than 1 which would suggest they had more co-occurrences than the sum of their location updates which should be impossible. We removed these outliers from the data.
 \section{Summary}
 In this section we will present the most important results.
 
@@ -265,7 +266,8 @@ The performance of the models improve, when filtering the users on cross-occupan
 
 We found the production data made the models achieve a higher performance in terms of precision and recall compared to the test data.
 
-We found that the most important features between datasets for the random forest models were mutual co-occurrences, specificity, co-occurrences weighted and weighted frequency.
+The most important features between datasets for the random forest models were mutual co-occurrences, specificity, co-occurrences weighted and weighted frequency.
 
-We found higher median values for diversity, unique co-occurrences, weighted frequency, co-occurrences weighted, specificity and number of co-occurrences for did meet.
-We also found a larger number of people which met in the period, were within 6 years of age.
+The datasets TP-2 and PP-2 collectively had lower medians for number of co-occurrences, specificity and mutual co-occurrences for did meet, which suggests these are the strongest predictors for if people meet in the next period.
+
+We also found a larger number of people which met in the period, were within 6 years of age for the test data which might suggest homophily of age plays a part for people who did meet.

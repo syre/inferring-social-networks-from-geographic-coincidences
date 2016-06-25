@@ -26,13 +26,11 @@ def remove_outliers(meets, nonmeets):
     #find rows specificity > 1
     bad_rows = np.where(meets[:, 8] > 1)[0]
     meets = np.delete(meets, bad_rows, 0)
-    #nonmeets = np.delete(nonmeets, bad_rows, 0)
     return meets, nonmeets
 
 
 def hist(is_prod=True):
     if is_prod:
-        #[7, 3, 2, 4, 11, 10, 5, 8, 12]
         X_train, y_train = load_svmlight_file("../data/vedran_thesis_students/X_train_filter_merged")
         X_test, y_test = load_svmlight_file("../data/vedran_thesis_students/X_test_filter_merged")
         X_train = X_train.toarray()
@@ -57,14 +55,10 @@ def hist(is_prod=True):
     colors = ['#3498db', '#e74c3c']
     sns.set_palette(colors)
     for index, feature in enumerate(features):
-        # if index >= 17:
-        #     ax = f.add_subplot(1, 2, plot_index)
-        # else:
         ax = f.add_subplot(2, 2, plot_index)
         ax.set_title(feature)
         all_events = np.hstack((meets[:, index], nonmeets[:, index]))
         types = np.hstack((["did meet" for x in range(len(meets[:, index]))], ["did not meet" for x in range(len(nonmeets[:,index]))]))
-        #if feature not in ["Mutual co-occurrences (8)"]:
         if feature in ["Two unique co-occurrences (0)", "Not within 6 years of age (13)", "Within 6 years of age (14)", "Within 6 years of age - Unknown (15)",
                        "Not same gender (16)", "Same gender (17)", "Same gender - Unknown (18)"]:
             sns.barplot(x=types, y=all_events, ci=False)
@@ -82,8 +76,6 @@ def hist(is_prod=True):
     [item.set_fontsize(45) for item in [ax.yaxis.label, ax.xaxis.label]]
     ax.title.set_fontsize(48)
     [item.set_fontsize(33) for item in ax.get_xticklabels() + ax.get_yticklabels()]
-
-    #f.tight_layout()
     plt.show()
 
 

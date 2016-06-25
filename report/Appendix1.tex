@@ -1,38 +1,50 @@
 %!TEX root = main.tex
 \chapter{Code}
+\section{main.py}
+Main file for start generate datasets
 \inputminted[mathescape,
                linenos,
                numbersep=5pt,
                gobble=2,
                frame=lines,
                framesep=2mm]{python}{../tools/main.py}
+\section{DatabaseHelper.py}
+Class for extract and insert data from/to database 
 \inputminted[mathescape,
                linenos,
                numbersep=5pt,
                gobble=2,
                frame=lines,
                framesep=2mm]{python}{../tools/DatasetHelper.py}
-\inputminted[mathescape,
-               linenos,
-               numbersep=5pt,
-               gobble=2,
-               frame=lines,
-               framesep=2mm]{python}{../tools/DatabaseHelper.py}
+\section{FileLoader.py}
+Class for save and load the generated datasets as pickle and numpy files 
 \inputminted[mathescape,
                linenos,
                numbersep=5pt,
                gobble=2,
                frame=lines,
                framesep=2mm]{python}{../tools/FileLoader.py}
+\section{Predictor.py}
+Class for generate datasets and make predictions
 \inputminted[mathescape,
                linenos,
                numbersep=5pt,
                gobble=2,
                frame=lines,
                framesep=2mm]{python}{../tools/Predictor.py}
+\section{GeoData.py}
+Class for generate geo data for uset in Leaflet
 \inputminted[mathescape,
                linenos,
                numbersep=5pt,
                gobble=2,
                frame=lines,
                framesep=2mm]{python}{../tools/GeoData.py}
+\section{DatasetHelper.py}
+Auxiliary class to generate the datasets
+\inputminted[mathescape,
+               linenos,
+               numbersep=5pt,
+               gobble=2,
+               frame=lines,
+               framesep=2mm]{python}{../tools/DatasetHelper.py}

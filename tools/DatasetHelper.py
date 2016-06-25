@@ -58,6 +58,8 @@ class DatasetHelper():
 
     def calculate_arr_leav(self, cooc_arr, loc_arr):
         """
+        As proposed in the master's thesis of Sapieżyński:
+
         We propose that if two persons arrive at a location at the same time and/or
         leave the location synchronously it yields a stronger signal than if two people
         are in the same location, but their arrival and leaving are not synchronized. The
@@ -118,6 +120,8 @@ class DatasetHelper():
 
     def calculate_coocs_w(self, cooc_arr, loc_arr):
         """
+        As proposed in the master's thesis of Sapieżyński:
+
         While other researchers use entropy to weight the social impact of meetings, our
         data allows us to introduce a more precise measure. We use anonymous statistics
         to estimate the number of all people present in the building in each time bin. We

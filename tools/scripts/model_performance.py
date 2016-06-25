@@ -124,8 +124,8 @@ def undersample(X_train, y_train):
     y_train = train_stacked[:, -1]
     X_train = np.delete(train_stacked, -1, 1)
     return X_train, y_train
-#[(X_train, y_train, solo_feature_train, X_test, y_test, solo_feature_test),
-# (X_test, y_test, solo_feature_test, X_train, y_train, solo_feature_train)]
+
+    
 def plot_performance(all_data, filter_feature_lst=[], undersampling=False,
                      target_importance="PP-2"):
     param_grid = {"max_features": sp_randint(1, 10),
@@ -188,8 +188,6 @@ def plot_performance(all_data, filter_feature_lst=[], undersampling=False,
             mean_tpr_rf += interp(mean_fpr_rf, false_positive_rate, true_positive_rate)
             if pair_name == target_importance:
                 importances = np.add(grid_search.best_estimator_.feature_importances_, importances)
-        #if i == 3 and j == 1:
-        #    print(importances/2)
         f_score_lr = (2 * (precision_score_lr[1]/2 * recall_score_lr[1]/2) / (precision_score_lr[1]/2 + recall_score_lr[1]/2))
         f_score_rf = (2 * (precision_score_rf[1]/2 * recall_score_rf[1]/2) / (precision_score_rf[1]/2 + recall_score_rf[1]/2))
         mean_tpr_lr /= 2
@@ -261,38 +259,6 @@ if __name__ == '__main__':
         feature_id = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
     else:
         feature_id = [7, 3, 2, 4, 11, 10, 5, 8, 12]
-        #filter_list = [7, 3, 2, 4, 13, 12, 5, 14]
 
     plot_feature_importance(feature_impor, feature_id, pair,
-                            #filter_feature_lst=filter_list,
                             undersampling=undersampling)
-
-
-#num_coocs, num_unique_coocs, diversity, weighted_frequency, sum_weekends, sum_evenings, coocs_w, mutual_cooccurrences, specificity
-#result for randomsearch with the following:
-#----------------------------------------
-#param_grid = {"max_depth": [3, None],
-                  # "max_features": [1, 3, 10],
-                  # "min_samples_split":  [1, 3, 10],
-                  # "min_samples_leaf": [1, 3, 10],
-                  # "bootstrap": [True, False],
-                  # "criterion": ["gini", "entropy"],
-                  # "random_state": [0],
-                  # "class_weight": ["balanced", None]
-                  # }
-#lr = sklearn.linear_model.LogisticRegression(random_state=0, class_weight="balanced")
-#forest = sklearn.ensemble.RandomForestClassifier(n_estimators=500)
-#grid_search = RandomizedSearchCV(forest, param_distributions=param_grid, scoring="roc_auc", n_jobs=-1, n_iter=20)
-#-------------------------------------------
-# plot number 1
-# {'criterion': 'entropy', 'max_features': 3, 'bootstrap': True, 'class_weight': 'balanced', 'max_depth': None, 'min_samples_split': 3, 'random_state': 0, 'min_samples_leaf': 10}
-# {'criterion': 'gini', 'max_features': 3, 'bootstrap': True, 'class_weight': 'balanced', 'max_depth': None, 'min_samples_split': 1, 'random_state': 0, 'min_samples_leaf': 1}
-# plot number 2
-# {'criterion': 'entropy', 'max_features': 1, 'bootstrap': False, 'class_weight': 'balanced', 'max_depth': 3, 'min_samples_split': 3, 'random_state': 0, 'min_samples_leaf': 1}
-# {'criterion': 'gini', 'max_features': 9, 'bootstrap': False, 'class_weight': None, 'max_depth': 3, 'min_samples_split': 10, 'random_state': 0, 'min_samples_leaf': 10}
-# plot number 3
-# {'criterion': 'entropy', 'max_features': 3, 'bootstrap': False, 'class_weight': 'balanced', 'max_depth': None, 'min_samples_split': 3, 'random_state': 0, 'min_samples_leaf': 3}
-# {'criterion': 'entropy', 'max_features': 9, 'bootstrap': True, 'class_weight': 'balanced', 'max_depth': None, 'min_samples_split': 1, 'random_state': 0, 'min_samples_leaf': 3}
-# plot number 4
-# {'criterion': 'entropy', 'max_features': 9, 'bootstrap': True, 'class_weight': 'balanced', 'max_depth': None, 'min_samples_split': 10, 'random_state': 0, 'min_samples_leaf': 1}
-# {'criterion': 'gini', 'max_features': 3, 'bootstrap': True, 'class_weight': 'balanced', 'max_depth': None, 'min_samples_split': 10, 'random_state': 0, 'min_samples_leaf': 1}

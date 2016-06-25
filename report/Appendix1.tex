@@ -1,6 +1,8 @@
 %!TEX root = main.tex
 \chapter{Code}
-\section{main.py}
+
+\textbf{\Large main.py}\\
+
 Main file for start generate datasets
 \inputminted[mathescape,
                linenos,
@@ -8,7 +10,9 @@ Main file for start generate datasets
                gobble=2,
                frame=lines,
                framesep=2mm]{python}{../tools/main.py}
-\section{DatabaseHelper.py}
+
+\textbf{\Large DatabaseHelper.py}\\
+
 Class for extract and insert data from/to database 
 \inputminted[mathescape,
                linenos,
@@ -16,7 +20,9 @@ Class for extract and insert data from/to database
                gobble=2,
                frame=lines,
                framesep=2mm]{python}{../tools/DatasetHelper.py}
-\section{FileLoader.py}
+
+\textbf{\Large FileLoader.py}\\
+
 Class for save and load the generated datasets as pickle and numpy files 
 \inputminted[mathescape,
                linenos,
@@ -24,7 +30,9 @@ Class for save and load the generated datasets as pickle and numpy files
                gobble=2,
                frame=lines,
                framesep=2mm]{python}{../tools/FileLoader.py}
-\section{Predictor.py}
+
+\textbf{\Large Predictor.py}\\
+
 Class for generate datasets and make predictions
 \inputminted[mathescape,
                linenos,
@@ -32,15 +40,9 @@ Class for generate datasets and make predictions
                gobble=2,
                frame=lines,
                framesep=2mm]{python}{../tools/Predictor.py}
-\section{GeoData.py}
-Class for generate geo data for uset in Leaflet
-\inputminted[mathescape,
-               linenos,
-               numbersep=5pt,
-               gobble=2,
-               frame=lines,
-               framesep=2mm]{python}{../tools/GeoData.py}
-\section{DatasetHelper.py}
+
+\textbf{\Large DatasetHelper.py}\\
+
 Auxiliary class to generate the datasets
 \inputminted[mathescape,
                linenos,
@@ -49,7 +51,8 @@ Auxiliary class to generate the datasets
                frame=lines,
                framesep=2mm]{python}{../tools/DatasetHelper.py}
 
-\section{Appache Spark code}
+\textbf{\Large Appache Spark code}\\
+
 Code for Apache Spark
 \inputminted[mathescape,
                linenos,
@@ -57,3 +60,53 @@ Code for Apache Spark
                gobble=2,
                frame=lines,
                framesep=2mm]{python}{../tools/template_new.py}
+
+\textbf{\Large GeoData.py}\\
+
+Class for generate geo data for uset in Leaflet
+\inputminted[mathescape,
+               linenos,
+               numbersep=5pt,
+               gobble=2,
+               frame=lines,
+               framesep=2mm]{python}{../tools/GeoData.py}
+
+\textbf{\Large record\_analysis.py}\\
+
+Script for analyze lokation updates: xy-plots, heatmaps, etc.
+\inputminted[mathescape,
+               linenos,
+               numbersep=5pt,
+               gobble=2,
+               frame=lines,
+               framesep=2mm]{python}{../tools/scripts/records_analysis.py}
+
+\textbf{\Large country\_distribution.py}\\
+
+Script for analyze country distribution
+\inputminted[mathescape,
+               linenos,
+               numbersep=5pt,
+               gobble=2,
+               frame=lines,
+               framesep=2mm]{python}{../tools/scripts/country_distribution.py}
+
+\textbf{\Large feature\_histograms.py}\\
+
+Script for visualize feature box- and bar-plots
+\inputminted[mathescape,
+               linenos,
+               numbersep=5pt,
+               gobble=2,
+               frame=lines,
+               framesep=2mm]{python}{../tools/scripts/feature_histograms.py}
+
+\textbf{\Large model\_performance.py}\\
+
+Script for calculate and visualize ROC AUC
+\inputminted[mathescape,
+               linenos,
+               numbersep=5pt,
+               gobble=2,
+               frame=lines,
+               framesep=2mm]{python}{../tools/scripts/model_performance.py}

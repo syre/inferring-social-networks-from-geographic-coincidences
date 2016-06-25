@@ -35,16 +35,16 @@ This shows that for some of the datasets we have a class imbalance problem. Due 
 \section{Class Imbalance Problem}
 \label{sec:class_imbalance_problem}
 The Class Imbalance Problem is when the total number of samples for one class greatly exceeds the number of samples for a different class. A number of techniques can be used to handle the class imbalance problem, two of the most common techniques are called \textit{oversampling} and \textit{undersampling}\cite{tan2006introduction}. In oversampling you sample the minor sample with replacement until there is an equal number of positive and negative samples. In undersampling you randomly sample from the major class $N$ times where $N$ is the number of minor classes. The drawbacks of undersampling is the loss of information in the dataset, as samples from the major class is removed. The advantage is, that all of the minority class is maintained, where in oversampling we create duplicate copies of the minority class, which can cause overfitting.
-We will train our models with and without undersampling our datasets to see how it affects our performance metrics.
+We will train our models with and without undersampling our datasets, to see how it affects our performance metrics.
 
 \section{Performance metrics}
 \label{sec:performance_metrics}
 We utilize the precision and recall metrics for evaluating the performance of our models as well as AUC of the ROC Curve.
 
 \subsection{Receiver Operating Characteristic (ROC)}
-The Receiver Operating Characteristic or ROC in short, illustrates the performance of a binary classifier in terms of the true positive rate (TPR, also called recall) plotted against the false positive rate (FPR) at different discrimination thresholds. As points on the ROC-curve represents different thresholds with an associated (TPR,FPR) pair, it allows us to see different trade-offs between TPR and FPR. The ROC curve is useful for comparing the relative performance of different classifiers\cite{tan2006introduction} The area under the curve (AUC) represents the probability that a classifier will rank a random positive sample higher than a negative sample, assuming positive ranks higher. An AUC of 0.5 would mean the model would just randomly guess the class of each sample. We will use the ROC AUC as a metric for comparing our different models.
+The Receiver Operating Characteristic or ROC in short, illustrates the performance of a binary classifier in terms of the true positive rate (TPR, also called recall) plotted against the false positive rate (FPR) at different discrimination thresholds. As points on the ROC-curve represents different thresholds with an associated (TPR,FPR) pair, it allows us to see different trade-offs between TPR and FPR. The ROC curve is useful for comparing the relative performance of different classifiers\cite{tan2006introduction}. The area under the curve (AUC) represents the probability, that a classifier will rank a random positive sample higher than a negative sample, assuming positive ranks higher. An AUC of 0.5 would mean the model would just randomly guess the class of each sample. We will use the ROC AUC as a metric for comparing our different models.
 
-In Figure \ref{fig:rocs} we have plotted the ROC curve and ROC AUC for the different model pairs, we have also plotted the curve of a randomly guessing classifier for comparison. Figure \ref{fig:rocs_undersampling} shows the same models performance, where the datasets most prevalent class have been undersampled. We used randomized search to find the optimal hyper-parameters in the Random Forest models, choosing from \textit{gini} or \textit{entropy} as split criterion and $1-9$ max features for each split. The randomized search runs for 20 iterations where each iteration performs a 3-fold cross-validation to validate the parameters of the model, we used ROC AUC as the scoring function. When the best parameters for the model are found, 2-fold cross-validation is performed to validate the model.
+In Figure \ref{fig:rocs} we have plotted the ROC curve and ROC AUC for the different model pairs. We have also plotted the curve of a randomly guessing classifier for comparison. Figure \ref{fig:rocs_undersampling} shows the same models performance, where the datasets most prevalent class have been undersampled. We used randomized search to find the optimal hyper-parameters in the Random Forest models, choosing from \textit{gini} or \textit{entropy} as split criterion, and $1-9$ max features for each split. The randomized search runs for 20 iterations, where each iteration performs a 3-fold cross-validation to validate the parameters of the model, we used ROC AUC as the scoring function. When the best parameters for the model are found, 2-fold cross-validation is performed to validate the model.
 
 Looking at Figure \ref{fig:rocs} we see the Random Forest model is higher than baseline for every case. Looking at the case of using all users, the difference is miniscule, but using the users with a cross-occupancy threshold makes it more pronounced. Comparing test with production the outputs look similar.
 
@@ -193,10 +193,10 @@ Since we have not implemented the same amount of features for PP-2 and TP-2, is 
 
 Next we try to look at the differences in features between the meet and non-meets of the TP-2 and PP-2 dataset. We chose to look at both because TP-2 represents more features but PP-2 represents data for regular users.
 
-Looking at Figure \ref{fig:feature_boxplots1} to \ref{fig:feature_boxplots5} for the TP-2 dataset, we can see features which have very little variance like number of weekends, evenings and common travels. For Co-occurrences weighted we can note a slightly higher mean for the class did meet. For the homophily features, being within 6 years is higher for the did meet group, we see no significant difference relating to gender. Diversity and weighted frequency have large outliers, looking at the plots, weighted frequency and especially diversity is higher for did meet, a large diversity signifies a user pair with a very large number of locations between them, which seems to be more common for people who meet in the next period.
+Looking at Figure \ref{fig:feature_boxplots1} to \ref{fig:feature_boxplots5} for the TP-2 dataset, we can see features which have very little variance like number of weekends, evenings and common travels. For Co-occurrences weighted we can note a slightly higher mean for the class did meet. For the homophily features, being within 6 years is higher for the did meet group, we see no significant difference relating to gender. Diversity and weighted frequency have large outliers. Looking at the plots, weighted frequency and especially diversity, is higher for did meet. A large diversity signifies a user pair with a very large number of locations between them, which seems to be more common for people who meet in the next period.
 Specificity holds higher values for the did meet class.
 
-As number of co-occurrences, mutual co-occurrences and specificity have higher medians for the class did meet, and two of the three also contributed most to the importances for our features we regard those as most important for predicting did meet for TP-2.
+As number of co-occurrences, mutual co-occurrences and specificity have higher medians for the class did meet, and two of the three also contributed most to the importances for our features, we regard those as most important for predicting did meet for TP-2.
 
 \begin{figure}[H]
     \hspace*{-1.0cm}
@@ -258,19 +258,19 @@ As number of co-occurrences, mutual co-occurrences and specificity have higher m
     \caption{Boxplots and barplots of features of PP-2}
     \label{fig:feature_boxplots3_pp2}
 \end{figure}
-Looking at Figure \ref{fig:feature_boxplots1_pp2} to Figure \ref{fig:feature_boxplots3_pp2} which explains the features of PP-2 we see lower medians for the features: number of co-occurrences, mutual co-occurrences, and specificity.
+Looking at Figure \ref{fig:feature_boxplots1_pp2} to Figure \ref{fig:feature_boxplots3_pp2} which explains the features of PP-2, we see lower medians for the features: number of co-occurrences, mutual co-occurrences, and specificity.
 The implementation for the number of weekends feature was faulty in the production dataset which explains the lack of variance of the feature.
-We found two extreme outliers in specificity (12) for PP-2 which had values greater than 1 which would suggest they had more co-occurrences than the sum of their location updates which should be impossible. We removed these outliers from the data.
+We found two extreme outliers in specificity (12) for PP-2, which had values greater than 1, which would suggest they had more co-occurrences than the sum of their location updates, which should be impossible. We removed these outliers from the data.
 \section{Summary}
 In this section we will present the most important results.
 
-The ROC AUC of the random forest compared to the baseline was higher for every dataset. This suggests however that it is simply better at predicting the negative class, did not meet, as the precision and recall scores are similar for the positive class, did meet. 
+The ROC AUC of the random forest compared to the baseline was higher for every dataset. This suggests however, that it is simply better at predicting the negative class, did not meet, as the precision and recall scores are similar for the positive class, did meet. 
 The performance of the models improve, when filtering the users on cross-occupancy, but undersampling provided no significant difference.
 
 We found the production data made the models achieve a higher performance in terms of precision and recall compared to the test data.
 
 The most important features between datasets for the random forest models were mutual co-occurrences, specificity, co-occurrences weighted and weighted frequency.
 
-The datasets TP-2 and PP-2 collectively had lower medians for number of co-occurrences, specificity and mutual co-occurrences for did meet, which suggests these are the strongest predictors for if people meet in the next period.
+The datasets TP-2 and PP-2 collectively had lower medians for number of co-occurrences, specificity and mutual co-occurrences for did meet, which suggests these are the strongest predictors for, if people meet in the next period.
 
-We also found a larger number of people which met in the period, were within 6 years of age for the TP-2 dataset which might suggest homophily of age plays a part for people who did meet.
+We also found a larger number of people which met in the period, were within 6 years of age for the TP-2 dataset, which might suggest homophily of age plays a part for people who did meet.

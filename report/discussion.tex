@@ -14,7 +14,7 @@ Initially we tried to infer social ties based on app usage for use as ground tru
 Looking at more features related to app-usage could perhaps have been valuable, furthermore the Jaccard index similarity in app usage between users does not take into account disregarding the commonly used apps of the population of users, it could benefit from looking at if a user pair used apps uncommon for the general population of users.
 
 The techniques used for binning also have a number of limitations.
-We chose a relatively high resolution for spatial bins at 0.001 decimal degrees thinking a higher resolution provides more detail. A bin size of 1 hour on the hour was chosen for the time bins based on the assumption that 1 hour is a commonly occurring time period measurement for humans with respect to appointments. Different choices of time bin and spatial bin for binning could have been analyzed.
+We chose a relatively high resolution for spatial bins at 0.001 decimal degrees thinking a higher resolution provides more detail. A bin size of 1 hour on the hour was chosen for the time bins based on the assumption that 1 hour is a commonly occurring time period measurement for humans with respect to appointments and due to the sparse test data. Different choices of time bin and spatial bin for binning could have been analyzed.
 
 The method of time-binning used an hourly bin instead of the time difference between the actual timestamps. This is limiting in the way that if two users occur in the same spatial bin but at the end and start of different hours, e.g. 11:59 and 12:01, it would not count as a co-occurrence.
 

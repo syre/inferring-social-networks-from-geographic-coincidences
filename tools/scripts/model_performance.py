@@ -42,8 +42,8 @@ def gen_alldata():
 
     solo_feature_train = X_train[:, 0]
     solo_feature_test = X_test[:, 0]
-    np.delete(X_train, 0, 1)
-    np.delete(X_test, 0, 1)
+    X_train = np.delete(X_train, 0, 1)
+    X_test = np.delete(X_test, 0, 1)
     all_data.append([(X_train, y_train, solo_feature_train, X_test, y_test,
                       solo_feature_test, "TP-1"),
                      (X_test, y_test, solo_feature_test, X_train, y_train,
@@ -55,8 +55,8 @@ def gen_alldata():
 
     solo_feature_train = X_train[:, 0]
     solo_feature_test = X_test[:, 0]
-    np.delete(X_train, 0, 1)
-    np.delete(X_test, 0, 1)
+    X_train = np.delete(X_train, 0, 1)
+    X_test = np.delete(X_test, 0, 1)
     all_data.append([(X_train, y_train, solo_feature_train, X_test, y_test,
                       solo_feature_test, "TP-2"),
                      (X_test, y_test, solo_feature_test, X_train, y_train,
@@ -81,6 +81,38 @@ def gen_alldata():
                      (X_test, y_test, solo_feature_test, X_train, y_train,
                       solo_feature_train, "PP-2")])
 
+    return all_data
+
+
+def load_exam_data():
+    all_data = []
+    #Test data
+    # X_train = load_file("../data/X_train_2decSpat_30minTimebinSelectedusers.pickle")
+    # y_train = load_file("../data/y_train_2decSpat_30minTimebinSelectedusers.pickle")
+    # X_test = load_file("../data/X_test_2decSpat_30minTimebinSelectedusers.pickle")
+    # y_test = load_file("../data/y_test_2decSpat_30minTimebinSelectedusers.pickle")
+
+    X_train = load_file("../data/X_train_3decSpat_10minTimebinSelectedusers.pickle")
+    y_train = load_file("../data/y_train_3decSpat_10minTimebinSelectedusers.pickle")
+    X_test = load_file("../data/X_test_3decSpat_10minTimebinSelectedusers.pickle")
+    y_test = load_file("../data/y_test_3decSpat_10minTimebinSelectedusers.pickle")
+    
+    solo_feature_train = X_train[:, 0]
+    solo_feature_test = X_test[:, 0]
+    X_train = np.delete(X_train, 0, 1)
+    X_test = np.delete(X_test, 0, 1)
+    all_data.append([(X_train, y_train, solo_feature_train, X_test, y_test,
+                      solo_feature_test, "TP-1"),
+                     (X_test, y_test, solo_feature_test, X_train, y_train,
+                      solo_feature_train, "TP-1")])
+    print("solo_feature_train")
+    print(solo_feature_train)
+    print("solo_feature_test")
+    print(solo_feature_test)
+    print("X_train")
+    print(X_train[[0,1,2,3], :])
+    print("X_test")
+    print(X_test)
     return all_data
 
 
@@ -125,7 +157,7 @@ def undersample(X_train, y_train):
     X_train = np.delete(train_stacked, -1, 1)
     return X_train, y_train
 
-    
+
 def plot_performance(all_data, filter_feature_lst=[], undersampling=False,
                      target_importance="PP-2"):
     param_grid = {"max_features": sp_randint(1, 10),
@@ -251,14 +283,15 @@ def plot_feature_importance(feature_impor, feature_id, pair_name, undersampling)
     plt.show()
 
 if __name__ == '__main__':
+
     undersampling = False
     target = "PP-2"
-    feature_impor, pair = plot_performance(gen_alldata(), undersampling=undersampling, target_importance=target)
+    feature_impor, pair = plot_performance(load_exam_data(), undersampling=undersampling, target_importance=target)
     #print("feature_impor = {}".format(feature_impor))
     if target[0] == "T":
         feature_id = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
     else:
         feature_id = [7, 3, 2, 4, 11, 10, 5, 8, 12]
 
-    plot_feature_importance(feature_impor, feature_id, pair,
-                            undersampling=undersampling)
+    #plot_feature_importance(feature_impor, feature_id, pair,
+    #                        undersampling=undersampling)

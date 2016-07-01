@@ -20,7 +20,8 @@ class DatabaseHelper():
 
     def __init__(self, path_to_settings="",
                  grid_boundaries_tuple=(-180, 180, -90, 90),
-                 spatial_resolution_decimals=3):
+                 spatial_resolution_decimals=3,
+                 time_bin_minutes=60):
 
         self.settings_dict = self.load_login(file_name="settings.cfg",
                                              key_split="=",
@@ -44,7 +45,7 @@ class DatabaseHelper():
         self.GRID_MAX_LAT = (
             grid_boundaries_tuple[3] + 90) * pow(10,
                                                  spatial_resolution_decimals)
-
+        self.time_bin_minutes = time_bin_minutes
         self.CREATE_TABLE_LOCATION = """
             CREATE TABLE "location" (id serial PRIMARY KEY,
                 useruuid text NOT NULL,
@@ -179,11 +180,11 @@ class DatabaseHelper():
         start_time = parser.parse(start_time)
         min_datetime = parser.parse('2015-08-09 00:00:00+02')
         start_bin = math.floor(
-            ((start_time-min_datetime).total_seconds()/60.0)/60)
+            ((start_time-min_datetime).total_seconds()/60.0)/self.time_bin_minutes)
 
         if end_time:
             end_time = parser.parse(end_time)
-            end_bin = math.ceil(((end_time-min_datetime).total_seconds()/60.0)/60)
+            end_bin = math.ceil(((end_time-min_datetime).total_seconds()/60.0)/self.time_bin_minutes)
         else:
             end_bin = start_bin
 
@@ -834,13 +835,13 @@ class DatabaseHelper():
         return train_users, test_users
 
 if __name__ == '__main__':
-    d = DatabaseHelper()
-    #fl = FileLoader()
-    #d.db_teardown()
-    #d.db_setup()
-    #file_names = ["all_201509.json", "all_201510.json", "all_201511.json"]
-    #fl.generate_data_from_json(file_names, d.insert_location)
-    #d.db_create_indexes()
-    #d.update_missing_records()
+    d = DatabaseHelper(spatial_resolution_decimals=3, time_bin_minutes=10)
+    fl = FileLoader()
+    d.db_teardown()
+    d.db_setup()
+    file_names = ["all_201509.json", "all_201510.json", "all_201511.json"]
+    fl.generate_data_from_json(file_names, d.insert_location)
+    d.db_create_indexes()
+    d.update_missing_records()
     d.filter_bad_rows()
     #d.generate_numpy_matrix_from_database()

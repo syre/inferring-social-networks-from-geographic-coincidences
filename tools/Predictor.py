@@ -18,14 +18,14 @@ from collections import defaultdict
 class Predictor():
 
     def __init__(self,
-                 country):
+                 country, time_bin_minutes=60):
         """
             Constructor
 
             Args:
                    country: country used for generating dataset and prediction
         """
-        self.database_helper = DatabaseHelper()
+        self.database_helper = DatabaseHelper(time_bin_minutes=time_bin_minutes)
         self.dataset_helper = DatasetHelper()
         self.file_loader = FileLoader()
         self.country = country
@@ -258,11 +258,12 @@ class Predictor():
 
     def predict(self, X_train, y_train, X_test, y_test):
         # create new feature two_unique_coocs from unique_coocs
-        solo_feature_train = np.zeros(X_train[:, 1].shape)
-        np.putmask(solo_feature_train, X_train[:, 1] >= 2, 1)
-        solo_feature_test = np.zeros(X_test[:, 1].shape)
-        np.putmask(solo_feature_test, X_test[:, 1] >= 2, 1)
+        solo_feature_train = np.zeros(X_train[:, 0].shape)
+        np.putmask(solo_feature_train, X_train[:, 0] >= 2, 1)
+        solo_feature_test = np.zeros(X_test[:, 0].shape)
+        np.putmask(solo_feature_test, X_test[:, 0] >= 2, 1)
         print(np.count_nonzero(solo_feature_test))
+        print(np.count_nonzero(solo_feature_train))
         #scaler = StandardScaler().fit(np.vstack((X_train, X_test)))
         #X_train = scaler.transform(X_train)
         #X_test = scaler.transform(X_test)

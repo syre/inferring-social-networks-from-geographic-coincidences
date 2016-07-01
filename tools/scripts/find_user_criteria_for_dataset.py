@@ -12,7 +12,7 @@ import numpy as np
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 from DatabaseHelper import DatabaseHelper
 
-db = DatabaseHelper()
+db = DatabaseHelper(time_bin_minutes=10)
 plt.style.use("ggplot")
 
 
@@ -184,21 +184,24 @@ def generate_days_plot(min=0, max=25):
 if __name__ == '__main__':
     generate_plot()
 
-    # first_period_datetime_min = "2015-09-01 00:00:00+00:00"
-    # first_period_time_bin_min = db.calculate_time_bins(first_period_datetime_min)[0]
-    # first_period_datetime_max = "2015-09-09 23:59:59+00:00"
-    # first_period_time_bin_max = db.calculate_time_bins(first_period_datetime_max)[0]
-    # second_period_datetime_min = "2015-09-10 00:00:00+00:00"
-    # second_period_time_bin_min = db.calculate_time_bins(second_period_datetime_min)[0]
-    # second_period_datetime_max = "2015-09-19 23:59:59+00:00"
-    # second_period_time_bin_max = db.calculate_time_bins(second_period_datetime_max)[0]
-    # third_period_datetime_min = "2015-09-20 00:00:00+00:00"
-    # third_period_time_bin_min = db.calculate_time_bins(third_period_datetime_min)[0]
-    # third_period_datetime_max = "2015-09-30 23:59:59+00:00"
-    # third_period_time_bin_max = db.calculate_time_bins(third_period_datetime_max)[0]
-    # user_timebins_dict = generate_user_timebins_dict("Sweden")
-    # user_timebins_dict = user_timebins_to_percentages(user_timebins_dict)
-    # prob = 0.4
-    # filtered = [(user, p) for user, p in user_timebins_dict.items() if p["first_period"] > prob and p["second_period"] > prob and p["third_period"] > prob]
-    # print([x[0] for x in filtered])
-    # print(len(filtered))
+    first_period_datetime_min = "2015-09-01 00:00:00+00:00"
+    first_period_time_bin_min = db.calculate_time_bins(first_period_datetime_min)[0]
+    first_period_datetime_max = "2015-09-10 23:59:59+00:00"
+    first_period_time_bin_max = db.calculate_time_bins(first_period_datetime_max)[0]
+    second_period_datetime_min = "2015-09-11 00:00:00+00:00"
+    second_period_time_bin_min = db.calculate_time_bins(second_period_datetime_min)[0]
+    second_period_datetime_max = "2015-09-20 23:59:59+00:00"
+    second_period_time_bin_max = db.calculate_time_bins(second_period_datetime_max)[0]
+    third_period_datetime_min = "2015-09-21 00:00:00+00:00"
+    third_period_time_bin_min = db.calculate_time_bins(third_period_datetime_min)[0]
+    third_period_datetime_max = "2015-09-30 23:59:59+00:00"
+    third_period_time_bin_max = db.calculate_time_bins(third_period_datetime_max)[0]
+    periods = [first_period_time_bin_min, first_period_time_bin_max,
+               second_period_time_bin_min, second_period_time_bin_max,
+               third_period_time_bin_min, third_period_time_bin_max]
+    user_timebins_dict = generate_user_timebins_dict("Sweden", periods)
+    user_timebins_dict = user_timebins_to_percentages(user_timebins_dict, periods)
+    prob = 0.15
+    filtered = [(user, p) for user, p in user_timebins_dict.items() if p["first_period"] > prob and p["second_period"] > prob and p["third_period"] > prob]
+    print([x[0] for x in filtered])
+    print(len(filtered))

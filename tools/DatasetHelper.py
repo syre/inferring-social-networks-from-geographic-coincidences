@@ -9,9 +9,9 @@ from tqdm import tqdm
 
 class DatasetHelper():
 
-    def __init__(self):
+    def __init__(self, spatial_resolution_decimals=3, time_bin_minutes=60):
         self.file_loader = FileLoader()
-        self.db_helper = DatabaseHelper()
+        self.db_helper = DatabaseHelper(spatial_resolution_decimals=spatial_resolution_decimals, time_bin_minutes=time_bin_minutes)
 
     def calculate_countries_in_common(self, user1, user2, loc_arr):
         user1_countries = loc_arr[loc_arr[:, 0] == user1][:, 3]
